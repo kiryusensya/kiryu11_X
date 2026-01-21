@@ -1,0 +1,10 @@
+{
+  "type": "module",
+  "dependencies": {
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "@upstash/ratelimit": "latest",
+    "@upstash/redis": "latest"
+  }
+}
