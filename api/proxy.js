@@ -1,78 +1,80 @@
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 
-// 1. レートリミットの準備
+// Redis/Ratelimitの初期化 (環境変数がなければスキップするガードを追加推奨ですが、ここではそのまま)
 const redis = Redis.fromEnv();
 const ratelimit = new Ratelimit({
   redis: redis,
-  limiter: Ratelimit.slidingWindow(5, "60 s"), // 60秒に5回まで
+  limiter: Ratelimit.slidingWindow(5, "60 s"),
 });
 
 export default async function handler(req, res) {
-  // -------------------------------------------------------
-  // 1. セキュリティチェック（レートリミット）
-  // -------------------------------------------------------
+  // 1. セキュリティチェック
   try {
-    const identifier = req.headers['x-forwarded-for'] ? req.headers['x-forwarded-for'].split(',')[0] : 'ip';
+    const identifier = (req.headers['x-forwarded-for'] || 'ip').split(',')[0];
     const { success } = await ratelimit.limit(identifier);
 
     if (!success) {
       return res.status(429).json({ 
-        error: 'Too Many Requests',
-        message: '試行回数が多すぎます。しばらく待ってから再試行してください。' 
+        success: false,
+        message: 'Too many requests. Please try again later.' 
       });
     }
   } catch (err) {
     console.error("Redis Error:", err);
-    // Redisエラー時は無視して通す（あるいはエラーを返す設定にする）
+    // Redisエラー時は通過させる
   }
 
-  // -------------------------------------------------------
-  // 2. URLの振り分け
-  // -------------------------------------------------------
-  
-  // パラメータを整理
+  // 2. URL振り分け
   const requestParams = {
     ...(req.query || {}),
     ...(req.body || {})
   };
 
-  const type = requestParams.type; // リクエストの種類を取得
+  const type = requestParams.type;
   let targetGasUrl = "";
 
-  // ★★★ 修正箇所: service_status も Support用GASに向ける ★★★
   if (type === 'instagram_auth' || type === 'service_status') {
-    // Instagram認証 または サービスステータス確認 は「Support用」へ
     targetGasUrl = process.env.GAS_URL_Support;
   } else {
-    // それ以外（アクティベーション、ニュース等）は「Main用」へ
+    // アクティベーション含むその他すべて
     targetGasUrl = process.env.GAS_URL_Main;
   }
 
-  // 環境変数が設定されていない場合のエラーハンドリング
   if (!targetGasUrl) {
-    console.error(`Error: GAS URL not configured for type: ${type}`);
-    return res.status(500).json({ error: 'Server configuration error (GAS URL missing)' });
+    return res.status(500).json({ success: false, message: 'Server Config Error: GAS URL missing' });
   }
 
-  // GAS向けパラメータの作成
+  // クエリパラメータの構築
   const params = new URLSearchParams(requestParams);
   const finalUrl = `${targetGasUrl}?${params.toString()}`;
 
-  // -------------------------------------------------------
-  // 3. GASへの問い合わせ実行
-  // -------------------------------------------------------
+  // 3. GASへのリクエスト実行
   try {
-    const response = await fetch(finalUrl);
-    // レスポンスがJSONでない場合のエラーハンドリングを追加
+    // GASへのFetchはデフォルトでGET扱いになります
+    const response = await fetch(finalUrl, {
+      method: 'GET', // 明示的にGET
+      redirect: 'follow' // リダイレクトを追跡(GASのお約束)
+    });
+
+    // Content-Typeチェック
     const contentType = response.headers.get("content-type");
     if (!contentType || !contentType.includes("application/json")) {
-        throw new Error("GAS returned non-JSON response");
+      // JSON以外が返ってきた場合はGAS側でHTMLエラーが発生している
+      const text = await response.text();
+      console.error("GAS Error Response (HTML):", text.substring(0, 200)); // ログに冒頭を表示
+      throw new Error("Invalid response from verification server.");
     }
+
     const data = await response.json();
     return res.status(200).json(data);
+
   } catch (error) {
-    console.error("Fetch Error:", error);
-    return res.status(500).json({ error: 'Authentication failed or GAS error', details: error.message });
+    console.error("Proxy Fetch Error:", error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Authentication failed.',
+      debug: error.message 
+    });
   }
 }
