@@ -13,135 +13,56 @@
 
 <style>
 /* --- FONT FACE DEFINITIONS --- */
-/* GitHub assets/fonts フォルダ配置を想定。ファイル名は実際のものに合わせてください */
+@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Medium.woff') format('woff'); font-weight: 500; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
 
-/* HarmonyOS Sans (Global/Latin/Numbers) */
-@font-face {
-    font-family: 'HarmonyOS Sans';
-    src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff');
-    font-weight: 400;
-    font-style: normal;
-}
-@font-face {
-    font-family: 'HarmonyOS Sans';
-    src: url('assets/fonts/HarmonyOS_Sans_Medium.woff') format('woff');
-    font-weight: 500;
-    font-style: normal;
-}
-@font-face {
-    font-family: 'HarmonyOS Sans';
-    src: url('assets/fonts/HarmonyOS_Sans_Bold.woff') format('woff');
-    font-weight: 700;
-    font-style: normal;
-}
-
-/* HarmonyOS Sans SC (Simplified Chinese) */
-@font-face {
-    font-family: 'HarmonyOS Sans SC';
-    src: url('assets/fonts/HarmonyOS_SansSC_Regular.woff') format('woff');
-    font-weight: 400;
-    font-style: normal;
-}
-@font-face {
-    font-family: 'HarmonyOS Sans SC';
-    src: url('assets/fonts/HarmonyOS_SansSC_Bold.woff') format('woff');
-    font-weight: 700;
-    font-style: normal;
-}
-
-/* HarmonyOS Sans TC (Traditional Chinese) */
-@font-face {
-    font-family: 'HarmonyOS Sans TC';
-    src: url('assets/fonts/HarmonyOS_SansTC_Regular.woff') format('woff');
-    font-weight: 400;
-    font-style: normal;
-}
-@font-face {
-    font-family: 'HarmonyOS Sans TC';
-    src: url('assets/fonts/HarmonyOS_SansTC_Bold.woff') format('woff');
-    font-weight: 700;
-    font-style: normal;
-}
-
-/* --- THEME VARIABLES & DYNAMIC FONTS --- */
+/* --- THEME VARIABLES --- */
 :root {
     --primary: #007DFF;
     --bright-green: #00D959; 
     --dark-green-text: #005522; 
-    
     --bg-color: #F2F3F5;
     --card-bg: rgba(255, 255, 255, 0.85);
-    
     --modal-bg-success: rgba(255, 255, 255, 0.85); 
     --modal-backdrop: blur(20px);
     --modal-text-main: #191919;
     --modal-text-sub: #666666;
     --modal-border: rgba(0,0,0,0.05);
     --success-text-green: var(--dark-green-text); 
-    
     --btn-close-border: #000000;
     --btn-close-text: #000000;
-
     --radius-xl: 32px;
     --spring-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
-    
-    /* Scrollbar (Light) */
     --scrollbar-track: rgba(0,0,0,0.05);
     --scrollbar-thumb: rgba(0,0,0,0.2);
-
-    /* --- Default Font Stack (English, Russian, Others) --- */
-    /* 数字・欧文含むすべて HarmonyOS Sans */
     --font-stack: 'HarmonyOS Sans', 'Manrope', sans-serif;
 }
-
-/* --- Language Specific Font Stacks --- */
-
-/* 日本語 (ja): 数字/欧文はHarmonyOS, 日本語文字はNoto Sans JP */
-:root:lang(ja) {
-    --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
-}
-
-/* 簡体字中国語 (zh): すべて HarmonyOS Sans SC */
-:root:lang(zh) {
-    --font-stack: 'HarmonyOS Sans SC', 'HarmonyOS Sans', sans-serif;
-}
-
-/* 繁体字中国語 (zh-TW): すべて HarmonyOS Sans TC */
-:root:lang(zh-TW) {
-    --font-stack: 'HarmonyOS Sans TC', 'HarmonyOS Sans', sans-serif;
-}
-
-/* 韓国語 (ko): 数字/欧文はHarmonyOS, ハングルはNoto Sans KR */
-:root:lang(ko) {
-    --font-stack: 'HarmonyOS Sans', 'Noto Sans KR', sans-serif;
-}
-
-/* ロシア語 (ru): HarmonyOS Sans (キリル文字対応版を想定、またはデフォルトでカバー) */
-:root:lang(ru) {
-    --font-stack: 'HarmonyOS Sans', sans-serif;
-}
-
+:root:lang(ja) { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
+:root:lang(zh) { --font-stack: 'HarmonyOS Sans SC', 'HarmonyOS Sans', sans-serif; }
+:root:lang(zh-TW) { --font-stack: 'HarmonyOS Sans TC', 'HarmonyOS Sans', sans-serif; }
+:root:lang(ko) { --font-stack: 'HarmonyOS Sans', 'Noto Sans KR', sans-serif; }
+:root:lang(ru) { --font-stack: 'HarmonyOS Sans', sans-serif; }
 
 [data-theme="dark"] {
     --bg-color: #000000;
     --card-bg: rgba(30, 30, 30, 0.6);
-    
     --modal-bg-success: #111111;
     --modal-backdrop: none;
     --modal-text-main: #FFFFFF;
     --modal-text-sub: #A0A0A0;
     --modal-border: rgba(255,255,255,0.1);
     --success-text-green: var(--bright-green); 
-
     --btn-close-border: #FFFFFF;
     --btn-close-text: #FFFFFF;
-
-    /* Scrollbar (Dark) */
     --scrollbar-track: rgba(255,255,255,0.05);
     --scrollbar-thumb: rgba(255,255,255,0.2);
 }
 
-/* Custom Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: var(--scrollbar-track); border-radius: 3px; }
 ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
@@ -240,6 +161,57 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
 }
 @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 
+/* --- NEW INTRO LANGUAGE SELECTOR --- */
+.intro-container {
+    text-align: center;
+    width: 100%;
+    max-width: 800px;
+    padding: 20px;
+    animation: fadeIn 0.8s ease;
+}
+.intro-header { margin-bottom: 60px; }
+.intro-brand { 
+    font-size: 14px; letter-spacing: 2px; opacity: 0.6; font-weight: 700; 
+    margin-bottom: 16px; display: block; 
+    color: var(--modal-text-main);
+}
+.intro-title {
+    font-size: 42px; font-weight: 800; 
+    color: var(--modal-text-main);
+    margin: 0; line-height: 1.2;
+}
+[data-theme="dark"] .intro-title { color: #fff; }
+
+.lang-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+.lang-card {
+    background: var(--card-bg);
+    border: 1px solid rgba(128,128,128,0.1);
+    border-radius: 24px;
+    padding: 30px 20px;
+    cursor: pointer;
+    transition: all 0.3s var(--spring-ease);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 10px;
+    backdrop-filter: blur(10px);
+}
+.lang-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    background: rgba(0, 125, 255, 0.05);
+    border-color: var(--primary);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+}
+.lang-name { font-size: 16px; font-weight: 700; color: var(--modal-text-main); }
+
+@media (max-width: 600px) {
+    .intro-title { font-size: 32px; }
+    .lang-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .lang-card { padding: 20px; }
+}
+
 /* --- MODAL SYSTEM --- */
 .modal-overlay {
     position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px);
@@ -263,26 +235,12 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
 .modal-overlay.active .modal-sheet { transform: scale(1); }
 [data-theme="dark"] .modal-sheet { background: #1a1a1a; }
 
-/* 修正: ニュースモーダルのサイズ調整 */
-#newsModal .modal-sheet {
-    /* 最小幅を維持しつつ、コンテンツに合わせて広がる */
-    width: fit-content;
-    min-width: 500px; /* 前の大きさ（最小） */
-    max-width: 900px; /* PCでの最大幅 */
-    text-align: left;
-}
-/* スマホでは画面幅に合わせる */
-@media (max-width: 768px) {
-    #newsModal .modal-sheet {
-        width: 92%;
-        min-width: 0;
-    }
-}
+#newsModal .modal-sheet { width: fit-content; min-width: 500px; max-width: 900px; text-align: left; }
+@media (max-width: 768px) { #newsModal .modal-sheet { width: 92%; min-width: 0; } }
 
 /* Success Expansion */
 .modal-sheet.is-success {
-    max-width: 850px;
-    padding: 0;
+    max-width: 850px; padding: 0;
     background: var(--modal-bg-success);
     backdrop-filter: var(--modal-backdrop);
     -webkit-backdrop-filter: var(--modal-backdrop);
@@ -294,6 +252,7 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
     width: 100%; transition: opacity 0.3s ease; 
     text-align: center; 
     display: flex; flex-direction: column; align-items: center;
+    position: relative; 
 }
 .modal-title { margin:0 0 10px 0; font-size:24px; font-weight:800; color:var(--modal-text-main); text-align: center; }
 [data-theme="dark"] .modal-title { color: #fff; }
@@ -307,10 +266,7 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
     outline: none; transition: 0.3s; margin-top: 24px;
     color: var(--modal-text-main);
     font-family: var(--font-stack);
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 0;
-    padding: 0 10px;
+    font-size: 14px; font-weight: 700; letter-spacing: 0; padding: 0 10px;
 }
 [data-theme="dark"] .code-field { color: #fff; background: rgba(255,255,255,0.1); }
 .code-field:focus { background: rgba(0, 125, 255, 0.1); color: var(--primary); }
@@ -319,12 +275,16 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
     width: 100%; height: 50px; margin-top: 20px; border: none;
     background: var(--primary); color: white; border-radius: 25px;
     font-size: 16px; font-weight: 700; cursor: pointer;
-    transition: transform 0.2s;
-    font-family: var(--font-stack);
+    transition: transform 0.2s; font-family: var(--font-stack);
 }
 .btn-primary:active { transform: scale(0.96); }
 
-#statusContainer { margin-top: 8px; min-height: 10px; }
+/* Error Message Position */
+#statusContainer { 
+    margin-top: 0; min-height: 0; 
+    position: absolute; bottom: -30px; left: 0; width: 100%; 
+    text-align: center;
+}
 
 /* SUCCESS LAYOUT */
 #successPhase { display: none; width: 100%; height: 100%; opacity: 0; transition: opacity 0.6s ease; }
@@ -346,7 +306,8 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
     margin-bottom: 20px; width: fit-content; background: rgba(0, 224, 80, 0.1);
 }
 .content-title-label { font-size: 12px; opacity: 0.6; margin-bottom: 5px; display: block; }
-.content-title { font-size: 32px; font-weight: 800; margin: 0 0 24px 0; line-height: 1.2; }
+.content-title { font-size: 32px; font-weight: 800; margin: 0 0 24px 0; line-height: 1.2; color: #000; }
+[data-theme="dark"] .content-title { color: #fff; }
 
 .info-box {
     background: rgba(128,128,128,0.05); border-radius: 16px; padding: 20px;
@@ -381,7 +342,6 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
     .content-title { font-size: 24px; }
 }
 
-/* Footer & Lang */
 footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font-size: 12px; }
 [data-theme="dark"] footer { color: #888; }
 
@@ -401,16 +361,31 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 
 <canvas id="particleCanvas"></canvas>
 
-<div id="langSelectionOverlay" class="modal-overlay active" style="opacity:1; background:var(--bg-color);">
-    <div style="text-align:center;">
-        <h2 style="font-size:24px; font-weight:800; margin-bottom:30px; color:var(--modal-text-main);">Select Region</h2>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-            <button class="btn-primary" onclick="setInitialLanguage('ja')" style="background:transparent; border:1px solid var(--modal-text-main); color:var(--modal-text-main); margin:0;">日本語</button>
-            <button class="btn-primary" onclick="setInitialLanguage('en')" style="background:transparent; border:1px solid var(--modal-text-main); color:var(--modal-text-main); margin:0;">English</button>
-            <button class="btn-primary" onclick="setInitialLanguage('zh')" style="background:transparent; border:1px solid var(--modal-text-main); color:var(--modal-text-main); margin:0;">简体中文</button>
-            <button class="btn-primary" onclick="setInitialLanguage('zh-TW')" style="background:transparent; border:1px solid var(--modal-text-main); color:var(--modal-text-main); margin:0;">繁體中文</button>
-            <button class="btn-primary" onclick="setInitialLanguage('ko')" style="background:transparent; border:1px solid var(--modal-text-main); color:var(--modal-text-main); margin:0;">한국어</button>
-            <button class="btn-primary" onclick="setInitialLanguage('ru')" style="background:transparent; border:1px solid var(--modal-text-main); color:var(--modal-text-main); margin:0;">Русский</button>
+<div id="langSelectionOverlay" class="modal-overlay active" style="opacity:1; background:var(--bg-color); z-index:10000;">
+    <div class="intro-container">
+        <div class="intro-header">
+            <span class="intro-brand">Harmony Enhaced Edition</span>
+            <h2 class="intro-title">Select Laguages</h2>
+        </div>
+        <div class="lang-grid">
+            <div class="lang-card" onclick="setInitialLanguage('ja')">
+                <div class="lang-name">日本語</div>
+            </div>
+            <div class="lang-card" onclick="setInitialLanguage('en')">
+                <div class="lang-name">English</div>
+            </div>
+            <div class="lang-card" onclick="setInitialLanguage('zh')">
+                <div class="lang-name">简体中文</div>
+            </div>
+            <div class="lang-card" onclick="setInitialLanguage('zh-TW')">
+                <div class="lang-name">繁體中文</div>
+            </div>
+            <div class="lang-card" onclick="setInitialLanguage('ko')">
+                <div class="lang-name">한국어</div>
+            </div>
+            <div class="lang-card" onclick="setInitialLanguage('ru')">
+                <div class="lang-name">Русский</div>
+            </div>
         </div>
     </div>
 </div>
@@ -481,8 +456,9 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 <div id="authModal" class="modal-overlay">
     <div class="modal-sheet" id="modalContainer">
         
+        <div style="position:absolute; top:20px; right:20px; cursor:pointer; opacity:0.6; z-index:10;" id="modalCloseBtn"><i data-lucide="x" size="24"></i></div>
+
         <div id="inputPhase">
-            <div style="position:absolute; top:20px; right:20px; cursor:pointer; opacity:0.6;" id="modalCloseBtn"><i data-lucide="x" size="24"></i></div>
             <h2 class="modal-title" data-translate="modal_title">Authentication</h2>
             <p class="modal-sub" data-translate="modal_sub">Enter access code</p>
             
@@ -502,8 +478,7 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
                         <div class="success-badge">
                             <i data-lucide="check" size="14"></i> <span data-translate="success_badge">Authenticated</span>
                         </div>
-                        <span class="content-title-label" data-translate="success_main_title">Unlocked Content</span>
-                        <h3 id="successTitle" class="content-title">Loading...</h3>
+                        <h3 id="successTitle" class="content-title" data-translate="success_main_title">Activated Content</h3>
                         
                         <div class="info-box">
                             <div class="info-row">
@@ -695,7 +670,6 @@ function initCustomDropdown() {
     document.addEventListener('click', (e) => { if (!els.langWrapper.contains(e.target)) els.langMenu.classList.remove('open'); });
 }
 
-/* 修正2: 言語ラベルをフルネーム化 */
 function updateLanguage(lang){
  CURRENT_LANG=lang; document.documentElement.lang=lang; const t=TRANSLATIONS[lang]; if(!t)return;
  document.querySelectorAll('[data-translate]').forEach(el=>{ const k=el.getAttribute('data-translate'); if(k!=='news_content'&&t[k]) el.innerHTML=t[k]; });
@@ -770,12 +744,11 @@ async function performAuth(code, isSilent=false){
         setTimeout(() => els.successPh.style.opacity = '1', 50);
     }, 400);
  }
- els.sTitle.textContent=d.message;
  els.sNameDisp.textContent=d.message;
  els.sExtra.innerHTML=d.extraInfo.replace(/\n/g, '<br>');
 
  const btnText = d.buttonLabel || t.btn_download;
- const iconName = d.btnIcon || "download"; // Backend determines icon: 'arrow-up-right' or 'download'
+ const iconName = d.btnIcon || "download";
  els.sDown.innerHTML = `<span>${btnText}</span> <i data-lucide="${iconName}" size="18"></i>`;
  els.sDown.href=d.actionUrl;
 
