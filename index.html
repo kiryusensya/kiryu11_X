@@ -3,760 +3,552 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>_.k__yu.10 // SYSTEM_ACCESS</title>
+<title>_.K__yu.10//Enhanced</title>
 <link rel="icon" href="https://static.wixstatic.com/media/2f0694_eb4d3063598a4cc5b6bd6b8e31cba915~mv2.png/v1/crop/x_248,y_0,w_1065,h_950/fill/w_816,h_728,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/1767545356653.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&family=Noto+Sans+JP:wght@400;700&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://unpkg.com/lucide@latest"></script>
+
 <style>
-/* --- CYBERPUNK THEME VARIABLES --- */
+/* --- THEME VARIABLES --- */
 :root {
-    --bg-color: #050505;
-    --hex-dark: #0a0a0a;
-    --hex-panel: rgba(16, 20, 24, 0.85);
+    --primary: #007DFF;
+    --bright-green: #00D959; 
+    --dark-green-text: #005522; 
     
-    --primary-neon: #00f3ff; /* Cyan */
-    --secondary-neon: #bc13fe; /* Purple */
-    --accent-neon: #ffee00; /* Yellow */
-    --success-neon: #00ff41; /* Matrix Green */
-    --error-neon: #ff003c; /* Cyber Red */
+    --bg-color: #F2F3F5;
+    --card-bg: rgba(255, 255, 255, 0.85);
     
-    --text-main: #e0e0e0;
-    --text-muted: #889bb0;
+    --modal-bg-success: rgba(255, 255, 255, 0.85); 
+    --modal-backdrop: blur(20px);
+    --modal-text-main: #191919;
+    --modal-text-sub: #666666;
+    --modal-border: rgba(0,0,0,0.05);
+    --success-text-green: var(--dark-green-text); 
     
-    --grid-line: rgba(0, 243, 255, 0.1);
-    --border-color: rgba(0, 243, 255, 0.3);
+    --btn-close-border: #000000;
+    --btn-close-text: #000000;
+
+    --radius-xl: 32px;
+    --spring-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
     
-    --font-head: 'Orbitron', sans-serif;
-    --font-mono: 'Share Tech Mono', monospace;
-    --font-body: 'Share Tech Mono', 'Noto Sans JP', sans-serif;
+    --font-stack: 'HarmonyOS Sans', 'Manrope', 'Noto Sans JP', sans-serif;
+
+    /* Scrollbar (Light) */
+    --scrollbar-track: rgba(0,0,0,0.05);
+    --scrollbar-thumb: rgba(0,0,0,0.2);
 }
 
-[data-theme="light"] {
-    /* "Corporate High-Tech" Light Theme */
-    --bg-color: #f0f2f5;
-    --hex-dark: #ffffff;
-    --hex-panel: rgba(255, 255, 255, 0.9);
-    --primary-neon: #0051ff;
-    --secondary-neon: #6200ea;
-    --text-main: #1a1a1a;
-    --text-muted: #555;
-    --grid-line: rgba(0, 0, 0, 0.05);
-    --border-color: rgba(0, 81, 255, 0.3);
-    --success-neon: #00aa2c;
+[data-theme="dark"] {
+    --bg-color: #000000;
+    --card-bg: rgba(30, 30, 30, 0.6);
+    
+    --modal-bg-success: #111111;
+    --modal-backdrop: none;
+    --modal-text-main: #FFFFFF;
+    --modal-text-sub: #A0A0A0;
+    --modal-border: rgba(255,255,255,0.1);
+    --success-text-green: var(--bright-green); 
+
+    --btn-close-border: #FFFFFF;
+    --btn-close-text: #FFFFFF;
+
+    /* Scrollbar (Dark) */
+    --scrollbar-track: rgba(255,255,255,0.05);
+    --scrollbar-thumb: rgba(255,255,255,0.2);
 }
 
-*, *::before, *::after { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; width: 100%; overflow-x: hidden; }
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--scrollbar-track); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 body {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: var(--text-main);
+    margin: 0; padding: 0;
     background-color: var(--bg-color);
-    font-family: var(--font-body);
-    /* Cyber Grid Background */
-    background-image: 
-        linear-gradient(var(--grid-line) 1px, transparent 1px),
-        linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-    background-size: 40px 40px;
-    background-position: center top;
-}
-
-/* Scanline Overlay */
-body::after {
-    content: "";
-    position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    background: repeating-linear-gradient(
-        0deg,
-        rgba(0,0,0,0.15),
-        rgba(0,0,0,0.15) 1px,
-        transparent 1px,
-        transparent 2px
-    );
-    pointer-events: none;
-    z-index: 9999;
-    opacity: 0.3;
+    color: var(--modal-text-main);
+    font-family: var(--font-stack);
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    overflow-x: hidden;
+    transition: background-color 0.5s ease;
 }
 
 #particleCanvas {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    z-index: -1;
+    position: fixed; inset: 0; width: 100%; height: 100%;
+    z-index: 0; opacity: 0.8; pointer-events: none;
+    filter: blur(80px);
 }
 
-/* --- TYPOGRAPHY & COMMON --- */
-h1, h2, h3, .card-title, .logo {
-    font-family: var(--font-head);
-    text-transform: uppercase;
-    letter-spacing: 2px;
+.loading-dots::after {
+    content: ''; animation: dots-loop 1.5s infinite steps(1);
+    display: inline-block; width: 1em; text-align: left;
 }
+@keyframes dots-loop { 0% { content: '.'; } 33% { content: '..'; } 66% { content: '...'; } 100% { content: ''; } }
 
-/* --- CYBER PANEL STYLES (Replacement for Glassmorphism) --- */
-.glass-panel {
-    background: var(--hex-panel);
-    border: 1px solid var(--border-color);
-    box-shadow: 0 0 15px rgba(0, 243, 255, 0.05);
-    backdrop-filter: blur(5px);
-    /* Cut corners aesthetic */
-    clip-path: polygon(
-        20px 0, 100% 0, 
-        100% calc(100% - 20px), calc(100% - 20px) 100%, 
-        0 100%, 0 20px
-    );
-    position: relative;
-}
-
-/* Decorative corner lines */
-.glass-panel::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; width: 20px; height: 20px;
-    border-top: 2px solid var(--primary-neon);
-    border-left: 2px solid var(--primary-neon);
-}
-.glass-panel::after {
-    content: '';
-    position: absolute;
-    bottom: 0; right: 0; width: 20px; height: 20px;
-    border-bottom: 2px solid var(--primary-neon);
-    border-right: 2px solid var(--primary-neon);
-}
-
-/* --- HEADER --- */
-header {
-    width: 100%; max-width: 1200px; padding: 30px 20px;
-    display: flex; justify-content: space-between; align-items: center;
-    z-index: 10;
-}
-.logo {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--primary-neon);
-    text-shadow: 0 0 8px var(--primary-neon);
-    display: flex; align-items: center; gap: 10px;
-}
-
-.theme-toggle {
-    background: transparent;
-    border: 1px solid var(--text-muted);
-    color: var(--text-main);
-    width: 40px; height: 40px;
-    clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-.theme-toggle:hover {
-    background: var(--primary-neon);
-    color: #000;
-    box-shadow: 0 0 15px var(--primary-neon);
-    border-color: var(--primary-neon);
-}
-
-/* --- MENU CARDS --- */
-.container {
-    width: 100%; max-width: 1100px; padding: 0 20px;
+/* Layout */
+.wrapper {
+    width: 100%; max-width: 1000px; margin: 0 auto; padding: 0 24px;
     flex: 1; display: flex; flex-direction: column; justify-content: center;
-    opacity: 0; transition: opacity .5s ease; pointer-events: none;
-}
-.container.logged-in { opacity: 1; pointer-events: auto; }
-
-.grid-menu {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 40px;
-    margin-bottom: 50px;
+    position: relative; z-index: 5;
 }
 
-.menu-card {
-    padding: 50px 30px;
-    text-align: center;
-    transition: transform 0.3s, box-shadow 0.3s;
-    display: flex; flex-direction: column; align-items: center;
-    background: linear-gradient(135deg, rgba(0,243,255,0.02) 0%, rgba(0,0,0,0) 100%);
+header { padding: 24px 0; display: flex; justify-content: space-between; align-items: center; }
+.brand { font-family: var(--font-stack); font-weight: 800; font-size: 20px; display: flex; align-items: center; gap: 10px; color: var(--modal-text-main); }
+.brand i { color: var(--primary); }
+[data-theme="dark"] .brand { color: #fff; }
+
+.theme-pill {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--card-bg); border: 1px solid rgba(128,128,128,0.2);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: transform 0.3s; backdrop-filter: blur(10px); color: var(--modal-text-main);
+}
+[data-theme="dark"] .theme-pill { color: #fff; }
+.theme-pill:hover { transform: scale(1.1); }
+
+/* Hero */
+.hero-text { margin-bottom: 40px; text-align: left; opacity: 0; animation: fadeInUp 0.8s var(--spring-ease) forwards; }
+.hero-title {
+    font-family: var(--font-stack); font-size: 48px; font-weight: 800;
+    line-height: 1.1; margin: 0 0 10px 0;
+    background: linear-gradient(to right, var(--modal-text-main), var(--modal-text-sub));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+[data-theme="dark"] .hero-title { background: linear-gradient(to right, #fff, #aaa); -webkit-background-clip: text; }
+.hero-sub { font-size: 16px; color: var(--modal-text-sub); }
+[data-theme="dark"] .hero-sub { color: #aaa; }
+
+.bento-grid {
+    display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: 240px 180px; gap: 20px;
+    width: 100%; opacity: 0; animation: fadeInUp 0.8s 0.2s var(--spring-ease) forwards;
 }
 
-.menu-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0 30px rgba(0, 243, 255, 0.15);
-    border-color: var(--primary-neon);
+.widget {
+    background: var(--card-bg); backdrop-filter: blur(30px);
+    border: 1px solid rgba(128,128,128,0.1); border-radius: var(--radius-xl);
+    padding: 32px; display: flex; flex-direction: column; justify-content: space-between;
+    transition: 0.4s var(--spring-ease); cursor: pointer; position: relative; overflow: hidden;
+    color: var(--modal-text-main);
 }
-.menu-card:hover .card-icon-box {
-    border-color: var(--primary-neon);
-    color: var(--primary-neon);
-    box-shadow: 0 0 15px var(--primary-neon);
-}
+[data-theme="dark"] .widget { color: #fff; }
+.widget:hover { transform: scale(1.02); box-shadow: 0 20px 50px -10px rgba(0,0,0,0.15); }
 
-.card-icon-box {
-    width: 70px; height: 70px;
-    background: rgba(0,0,0,0.3);
-    border: 1px solid var(--text-muted);
-    display: flex; justify-content: center; align-items: center;
-    margin-bottom: 25px;
-    color: var(--text-main);
-    transition: all 0.3s;
-    /* Hexagon-ish shape using clip-path */
-    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-}
+.widget-hero { grid-column: 1 / 2; grid-row: 1 / 3; background: linear-gradient(145deg, var(--card-bg) 0%, rgba(0, 125, 255, 0.05) 100%); }
+.icon-bubble { width: 64px; height: 64px; background: #007DFF; border-radius: 20px; display: flex; justify-content: center; align-items: center; color: white; }
+.widget-content h3 { font-size: 28px; font-weight: 700; margin: 0 0 8px 0; }
+.widget-content p { font-size: 14px; opacity: 0.7; margin: 0; }
+.btn-float { align-self: flex-start; margin-top: 24px; padding: 12px 24px; background: var(--modal-text-main); color: var(--bg-color); border-radius: 50px; font-weight: 700; display: flex; align-items: center; gap: 8px; font-size: 14px; transition: transform 0.3s; }
+[data-theme="dark"] .btn-float { background: #fff; color: #000; }
+.widget:hover .btn-float { transform: translateX(5px); }
 
-.card-title {
-    font-size: 20px;
-    color: var(--primary-neon);
-    margin-bottom: 15px;
-}
-.card-desc {
-    font-family: var(--font-mono);
-    font-size: 14px;
-    color: var(--text-muted);
-    margin-bottom: 30px;
-    line-height: 1.6;
-}
+.widget-news { grid-column: 2 / 3; grid-row: 1 / 2; }
+.widget-support { grid-column: 2 / 3; grid-row: 2 / 3; }
 
-/* --- CYBER BUTTONS --- */
-.btn-action, .btn-confirm, .btn-inquiry-small {
-    font-family: var(--font-head);
-    font-weight: 700;
-    text-transform: uppercase;
-    background: transparent;
-    color: var(--primary-neon);
-    border: 1px solid var(--primary-neon);
-    padding: 12px 30px;
-    cursor: pointer;
-    transition: all 0.3s;
-    position: relative;
-    overflow: hidden;
-    display: inline-flex; justify-content: center; align-items: center; gap: 10px;
-    clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
-}
-
-.btn-action::before, .btn-confirm::before {
-    content: '';
-    position: absolute;
-    top: 0; left: -100%;
-    width: 100%; height: 100%;
-    background: var(--primary-neon);
-    opacity: 0.1;
-    transition: left 0.3s;
-}
-
-.btn-action:hover, .btn-confirm:hover:not(:disabled) {
-    background: var(--primary-neon);
-    color: #000;
-    box-shadow: 0 0 20px var(--primary-neon);
-}
-.btn-action:hover::before { left: 0; }
-
-.btn-confirm { width: 100%; min-height: 50px; font-size: 16px; margin-top: 10px; }
-.btn-confirm:disabled { opacity: 0.5; cursor: wait; border-color: var(--text-muted); color: var(--text-muted); }
-
-/* --- INPUT --- */
-.code-input {
-    width: 100%;
-    background: rgba(0,0,0,0.5);
-    border: 1px solid var(--text-muted);
-    border-left: 4px solid var(--primary-neon);
-    padding: 15px;
-    color: var(--primary-neon);
-    font-family: var(--font-mono);
-    font-size: 20px;
-    text-align: center;
-    outline: none;
-    transition: all 0.3s;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
-}
-.code-input:focus {
-    border-color: var(--primary-neon);
-    box-shadow: inset 0 0 15px rgba(0, 243, 255, 0.2);
-}
-
-/* --- MODALS --- */
-.modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(8px);
-    z-index: 2000;
-    display: flex; justify-content: center; align-items: center;
-    opacity: 0; visibility: hidden;
-    transition: all 0.3s;
-}
-.modal-overlay.active { opacity: 1; visibility: visible; }
-
-.modal-container {
-    width: 95%; max-width: 500px;
-    /* Overwrite specific glass-panel props for modal context if needed */
-    background: #050505;
-    border: 1px solid var(--primary-neon);
-    box-shadow: 0 0 40px rgba(0, 243, 255, 0.1);
-    padding: 40px;
-    text-align: center;
-    transform: scale(0.95);
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    max-height: 90vh; overflow-y: auto;
-    display: flex; flex-direction: column;
-}
-.modal-overlay.active .modal-container { transform: scale(1); }
-
-.modal-close {
-    position: absolute; top: 15px; right: 15px;
-    color: var(--text-muted); cursor: pointer;
-    transition: color 0.3s;
-}
-.modal-close:hover { color: var(--error-neon); text-shadow: 0 0 10px var(--error-neon); }
-
-.modal-title { 
-    color: var(--text-main); 
-    border-bottom: 1px solid var(--border-color); 
-    padding-bottom: 15px; margin-bottom: 20px;
-}
-.modal-sub { font-family: var(--font-mono); color: var(--text-muted); margin-bottom: 30px; font-size: 14px; }
-
-/* --- STATUS & SUCCESS --- */
-.btn-success-state {
-    background: rgba(0, 255, 65, 0.1) !important;
-    border-color: var(--success-neon) !important;
-    color: var(--success-neon) !important;
-    box-shadow: 0 0 25px rgba(0, 255, 65, 0.3) !important;
-}
-
-.checkmark-svg { width: 24px; height: 24px; margin-right: 8px; stroke: currentColor; stroke-width: 3; fill: none; stroke-linecap: square; }
-.checkmark-path { stroke-dasharray: 24; stroke-dashoffset: 24; }
-.checkmark-animate { animation: draw-check 0.4s ease forwards; }
-@keyframes draw-check { to { stroke-dashoffset: 0; } }
-
-/* Success Phase Layout */
-.success-layout { display: flex; flex-direction: column; width: 100%; }
-.success-left { 
-    width: 100%; height: 200px; 
-    margin-bottom: 20px; 
-    border: 1px solid var(--border-color);
-    position: relative; overflow: hidden;
-    display: none; /* JS toggles this */
-}
-.success-left img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
-.success-left::after {
-    content: "PREVIEW_MODE";
-    position: absolute; bottom: 5px; right: 5px;
-    font-family: var(--font-mono); font-size: 10px;
-    background: #000; padding: 2px 5px; color: var(--primary-neon);
-}
-
-.success-tag {
-    background: rgba(0, 255, 65, 0.1);
-    border: 1px solid var(--success-neon);
-    color: var(--success-neon);
-    padding: 5px 15px;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    display: inline-block;
-    margin-bottom: 15px;
-    box-shadow: 0 0 10px rgba(0, 255, 65, 0.1);
-}
-
-.success-info-box {
-    text-align: left;
-    background: rgba(255,255,255,0.03);
-    border-left: 3px solid var(--primary-neon);
-    padding: 15px;
-    margin-bottom: 25px;
-}
-.success-label { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); text-transform: uppercase; }
-.success-content { font-size: 18px; color: var(--primary-neon); margin-top: 5px; font-weight: bold; text-shadow: 0 0 5px rgba(0,243,255,0.5); }
-.success-extra { font-size: 13px; margin-top: 10px; color: var(--text-muted); border-top: 1px dashed var(--border-color); padding-top: 10px; font-family: var(--font-mono); }
-
-.btn-group { display: flex; gap: 15px; margin-top: 20px; }
-#modalCloseSub { flex: 1; border-color: var(--text-muted); color: var(--text-muted); background: transparent; }
-#modalCloseSub:hover { border-color: var(--text-main); color: var(--text-main); }
-#successDownloadBtn {
-    flex: 2;
-    background: var(--success-neon); color: #000;
-    border: none; font-weight: bold;
-    display: flex; justify-content: center; align-items: center;
-    text-decoration: none;
-    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-    transition: all 0.3s;
-}
-#successDownloadBtn:hover {
-    box-shadow: 0 0 20px var(--success-neon);
-    transform: translateY(-2px);
-}
-
-/* --- ERROR & LOADERS --- */
-.error-msg { color: var(--error-neon); font-family: var(--font-mono); text-shadow: 0 0 5px var(--error-neon); display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; }
-.code-input.error-glow { border-color: var(--error-neon) !important; box-shadow: 0 0 15px var(--error-neon) !important; }
-.modal-error-border { border-color: var(--error-neon) !important; box-shadow: 0 0 30px rgba(255,0,60,0.3) !important; }
-
-.loading-dots::after { animation: dot-steps 1.5s infinite steps(1); content: '.'; width: 1em; text-align: left; display: inline-block; }
-
-/* --- LANGUAGE & FOOTER --- */
-footer {
-    margin-top: auto; padding: 40px 20px;
-    width: 100%; border-top: 1px solid var(--border-color);
-    background: rgba(0,0,0,0.5);
-    display: flex; justify-content: center; align-items: center;
-    position: relative;
-    font-family: var(--font-mono);
-}
-.footer-link { color: var(--primary-neon); text-decoration: none; }
-.footer-link:hover { text-shadow: 0 0 8px var(--primary-neon); }
-
-.custom-lang-wrapper { position: absolute; right: 20px; bottom: 20px; }
-.lang-trigger {
-    background: #000;
-    border: 1px solid var(--text-muted);
-    color: var(--text-main);
-    padding: 8px 20px;
-    font-family: var(--font-mono);
-    cursor: pointer;
-    display: flex; gap: 10px; align-items: center;
-    clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
-}
-.lang-menu {
-    position: absolute; bottom: 110%; right: 0;
-    background: #000; border: 1px solid var(--primary-neon);
-    list-style: none; padding: 0; margin: 0;
-    display: none; min-width: 150px;
-    box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
-}
-.lang-menu.open { display: block; animation: hologram-flicker 0.3s forwards; }
-.lang-option { padding: 10px 15px; cursor: pointer; color: var(--text-muted); border-bottom: 1px solid rgba(255,255,255,0.1); }
-.lang-option:hover { background: rgba(0, 243, 255, 0.1); color: var(--primary-neon); }
-.lang-option.selected { color: var(--primary-neon); font-weight: bold; }
-
-/* --- NEWS & SUPPORT MODAL SPECIFIC --- */
-.news-container {
-    text-align: left;
-    border: 1px dashed var(--border-color) !important;
-    background: rgba(0,0,0,0.3) !important;
-    padding: 20px;
-    max-height: 400px; overflow-y: auto;
-}
-.news-item {
-    border-bottom: 1px solid var(--border-color) !important;
-    padding-bottom: 15px; margin-bottom: 15px;
-}
-.news-date { color: var(--primary-neon); font-family: var(--font-mono); font-size: 14px; margin-bottom: 5px; }
-.news-content-text { font-size: 14px; line-height: 1.5; color: var(--text-main); }
-
-.support-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
-.support-item {
-    background: rgba(255,255,255,0.02);
-    border: 1px solid var(--border-color);
-    padding: 20px 10px;
-    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-    height: 220px; transition: 0.3s;
-    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-}
-.support-item:hover { background: rgba(0, 243, 255, 0.05); border-color: var(--primary-neon); transform: translateY(-5px); }
-.support-item i { font-size: 40px; margin-top: 20px; color: var(--text-main); }
-.support-item span { font-size: 12px; font-family: var(--font-head); letter-spacing: 1px; }
-
-/* --- ANIMATIONS --- */
-@keyframes hologram-flicker {
-    0% { opacity: 0; transform: scaleY(0.9); }
-    50% { opacity: 1; transform: scaleY(1.02); }
-    100% { opacity: 1; transform: scaleY(1); }
-}
-
-@keyframes border-stable-glow {
-    0%, 100% { border-color: var(--success-neon); box-shadow: 0 0 10px rgba(0,255,65,0.2); }
-    50% { border-color: #aaffbb; box-shadow: 0 0 25px rgba(0,255,65,0.5); }
-}
-
-.modal-container.wide-mode {
-    max-width: 800px;
-    border-color: var(--success-neon);
-    animation: border-stable-glow 3s infinite ease-in-out;
-}
-
-/* Loading Spinner */
-#langSwitchingOverlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: #000; z-index: 10000;
-    display: none; flex-direction: column; justify-content: center; align-items: center;
-}
-#langSwitchingOverlay.active { display: flex; }
-.cyber-spinner {
-    width: 60px; height: 60px;
-    border: 4px solid rgba(0, 243, 255, 0.2);
-    border-top-color: var(--primary-neon);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-.switching-text { margin-top: 20px; font-family: var(--font-mono); color: var(--primary-neon); animation: blink 1s infinite; }
-@keyframes blink { 50% { opacity: 0.5; } }
-
-/* --- RESPONSIVE --- */
 @media (max-width: 768px) {
-    .support-grid { 
-        display: flex; overflow-x: auto; gap: 15px; padding-bottom: 10px;
-        scroll-snap-type: x mandatory;
-    }
-    .support-item { min-width: 150px; scroll-snap-align: center; }
-    .custom-lang-wrapper { position: relative; right: auto; bottom: auto; margin-top: 20px; }
-    header { flex-direction: row; }
-    .success-layout { flex-direction: column; }
-    .success-left { display: block; height: 150px; }
-    .modal-container.wide-mode { overflow-y: auto; max-height: 85vh; }
+    .bento-grid { display: flex; flex-direction: column; gap: 16px; }
+    .widget-hero { min-height: 280px; }
+    .widget-news, .widget-support { min-height: 160px; }
+    .hero-title { font-size: 36px; }
 }
+@keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+/* --- MODAL SYSTEM --- */
+.modal-overlay {
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px);
+    z-index: 9999; display: flex; justify-content: center; align-items: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+}
+.modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+.modal-sheet {
+    background: var(--bg-color);
+    border-radius: 32px;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.3);
+    border: 1px solid rgba(128,128,128,0.1);
+    position: relative; overflow: hidden;
+    width: 90%; max-width: 440px; 
+    padding: 40px;
+    transform: scale(0.95);
+    transition: all 0.5s var(--spring-ease);
+}
+.modal-overlay.active .modal-sheet { transform: scale(1); }
+[data-theme="dark"] .modal-sheet { background: #1a1a1a; }
+
+/* 修正: ニュースモーダルのサイズ調整 */
+#newsModal .modal-sheet {
+    /* 最小幅を維持しつつ、コンテンツに合わせて広がる */
+    width: fit-content;
+    min-width: 500px; /* 前の大きさ（最小） */
+    max-width: 900px; /* PCでの最大幅 */
+    text-align: left;
+}
+/* スマホでは画面幅に合わせる */
+@media (max-width: 768px) {
+    #newsModal .modal-sheet {
+        width: 92%;
+        min-width: 0;
+    }
+}
+
+/* Success Expansion */
+.modal-sheet.is-success {
+    max-width: 850px;
+    padding: 0;
+    background: var(--modal-bg-success);
+    backdrop-filter: var(--modal-backdrop);
+    -webkit-backdrop-filter: var(--modal-backdrop);
+    border-color: var(--modal-border);
+}
+
+/* INPUT PHASE */
+#inputPhase { 
+    width: 100%; transition: opacity 0.3s ease; 
+    text-align: center; 
+    display: flex; flex-direction: column; align-items: center;
+}
+.modal-title { margin:0 0 10px 0; font-size:24px; font-weight:800; color:var(--modal-text-main); text-align: center; }
+[data-theme="dark"] .modal-title { color: #fff; }
+.modal-sub { color:var(--modal-text-sub); margin:0; font-size:14px; text-align: center; }
+[data-theme="dark"] .modal-sub { color: #aaa; }
+
+.code-field {
+    width: 100%; border: none; background: rgba(128, 128, 128, 0.1);
+    height: 56px; border-radius: 16px; 
+    text-align: center; 
+    outline: none; transition: 0.3s; margin-top: 24px;
+    color: var(--modal-text-main);
+    font-family: var(--font-stack);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0;
+    padding: 0 10px;
+}
+[data-theme="dark"] .code-field { color: #fff; background: rgba(255,255,255,0.1); }
+.code-field:focus { background: rgba(0, 125, 255, 0.1); color: var(--primary); }
+
+.btn-primary {
+    width: 100%; height: 50px; margin-top: 20px; border: none;
+    background: var(--primary); color: white; border-radius: 25px;
+    font-size: 16px; font-weight: 700; cursor: pointer;
+    transition: transform 0.2s;
+}
+.btn-primary:active { transform: scale(0.96); }
+
+#statusContainer { margin-top: 8px; min-height: 10px; }
+
+/* SUCCESS LAYOUT */
+#successPhase { display: none; width: 100%; height: 100%; opacity: 0; transition: opacity 0.6s ease; }
+
+.success-container { display: flex; flex-direction: row; width: 100%; min-height: 480px; }
+.success-visual { flex: 1; position: relative; background: #000; overflow: hidden; min-height: 300px; }
+.success-visual img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.success-details {
+    flex: 1; padding: 40px; display: flex; flex-direction: column; justify-content: center;
+    text-align: left; color: var(--modal-text-main);
+}
+[data-theme="dark"] .success-details { color: #fff; }
+
+.success-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1px solid var(--success-text-green); color: var(--success-text-green);
+    padding: 6px 16px; border-radius: 50px; font-size: 13px; font-weight: 700;
+    margin-bottom: 20px; width: fit-content; background: rgba(0, 224, 80, 0.1);
+}
+.content-title-label { font-size: 12px; opacity: 0.6; margin-bottom: 5px; display: block; }
+.content-title { font-size: 32px; font-weight: 800; margin: 0 0 24px 0; line-height: 1.2; }
+
+.info-box {
+    background: rgba(128,128,128,0.05); border-radius: 16px; padding: 20px;
+    border: 1px solid rgba(128,128,128,0.1); margin-bottom: 30px; width: 100%;
+}
+.info-row { margin-bottom: 12px; }
+.info-label { font-size: 12px; opacity: 0.6; display: block; margin-bottom: 4px;}
+.info-value { font-size: 15px; font-weight: 600; color: var(--success-text-green); display: block; }
+.info-extra { font-size: 13px; opacity: 0.8; margin-top: 10px; border-top: 1px dashed rgba(128,128,128,0.2); padding-top: 10px; line-height: 1.5; white-space: pre-wrap; }
+
+.action-row { display: flex; gap: 12px; margin-top: auto; width: 100%; }
+.btn-close-sub {
+    flex: 1; height: 50px; background: transparent;
+    border: 1px solid var(--btn-close-border); color: var(--btn-close-text);
+    border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s;
+}
+.btn-close-sub:hover { opacity: 0.6; }
+.btn-download {
+    flex: 2; height: 50px; background: var(--bright-green); color: #000;
+    border-radius: 12px; border: none; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px;
+    text-decoration: none; transition: transform 0.2s;
+}
+.btn-download:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(0, 217, 89, 0.4); }
+
+@media (max-width: 768px) {
+    .modal-sheet.is-success { max-width: 92%; border-radius: 24px; height: auto; max-height: 85vh; overflow-y: auto; }
+    .success-container { flex-direction: column; min-height: auto; }
+    .success-visual { width: 100%; height: 220px; flex: none; }
+    .success-details { padding: 24px; flex: auto; }
+    .content-title { font-size: 24px; }
+}
+
+/* Footer & Lang */
+footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font-size: 12px; }
+[data-theme="dark"] footer { color: #888; }
+
+.lang-fab { position: fixed; bottom: 30px; right: 30px; background: var(--modal-text-main); color: var(--bg-color); padding: 12px 20px; border-radius: 30px; font-weight: 700; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: flex; gap: 8px; align-items: center; z-index: 50; transition: 0.3s; }
+[data-theme="dark"] .lang-fab { background: #fff; color: #000; }
+.lang-list { position: fixed; bottom: 90px; right: 30px; background: var(--card-bg); backdrop-filter: blur(20px); padding: 10px; border-radius: 20px; list-style: none; display: none; box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 49; }
+.lang-list.open { display: block; animation: popIn 0.3s; }
+.lang-list li { padding: 10px 20px; cursor: pointer; border-radius: 12px; color: var(--modal-text-main); font-size: 14px; }
+[data-theme="dark"] .lang-list li { color: #fff; }
+@keyframes popIn { from{opacity:0; transform:scale(0.8);} to{opacity:1; transform:scale(1);} }
+
+.loading-spinner { width: 30px; height: 30px; border: 3px solid rgba(128,128,128,0.2); border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to{transform: rotate(360deg);} }
 </style>
 </head>
 <body>
+
 <canvas id="particleCanvas"></canvas>
 
-<div id="langSwitchingOverlay">
-    <div class="cyber-spinner"></div>
-    <div id="switchingText" class="switching-text">SYSTEM LOADING...</div>
-</div>
-
-<div id="langSelectionOverlay">
-    <div class="modal-container glass-panel" style="max-width:600px;">
-        <div class="logo" style="justify-content:center;margin-bottom:30px;font-size:32px">
-            <i data-lucide="globe"></i> SYSTEM_LANG
-        </div>
-        <div class="lang-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
-            <button class="btn-action font-ja" onclick="setInitialLanguage('ja')">日本語 [JA]</button>
-            <button class="btn-action font-en" onclick="setInitialLanguage('en')">ENGLISH [EN]</button>
-            <button class="btn-action font-zh-cn" onclick="setInitialLanguage('zh')">简体中文 [CN]</button>
-            <button class="btn-action font-zh-tw" onclick="setInitialLanguage('zh-TW')">繁體中文 [TW]</button>
-            <button class="btn-action font-ko" onclick="setInitialLanguage('ko')">조선말 [KR]</button>
-            <button class="btn-action font-ru" onclick="setInitialLanguage('ru')">Русский [RU]</button>
-        </div>
-        <div style="margin-top:40px; font-family:var(--font-mono); color:var(--text-muted); font-size:12px;">
-            SECURE CONNECTION ESTABLISHED // ENFORCEMENT ADMIN: kiryu-sensya
+<div id="langSelectionOverlay" class="modal-overlay active" style="opacity:1; background:var(--bg-color);">
+    <div style="text-align:center;">
+        <h2 style="font-size:24px; font-weight:800; margin-bottom:30px; color:var(--modal-text-main);">Select Region</h2>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+            <button class="btn-primary" onclick="setInitialLanguage('ja')" style="background:transparent; border:1px solid var(--modal-text-main); color:var(--modal-text-main); margin:0;">日本語</button>
+            <button class="btn-primary" onclick="setInitialLanguage('en')" style="background:transparent; border:1px solid var(--modal-text-main); color:var(--modal-text-main); margin:0;">English</button>
+            <button class="btn-primary" onclick="setInitialLanguage('zh')" style="background:transparent; border:1px solid var(--modal-text-main); color:var(--modal-text-main); margin:0;">简体中文</button>
+            <button class="btn-primary" onclick="setInitialLanguage('zh-TW')" style="background:transparent; border:1px solid var(--modal-text-main); color:var(--modal-text-main); margin:0;">繁體中文</button>
+            <button class="btn-primary" onclick="setInitialLanguage('ko')" style="background:transparent; border:1px solid var(--modal-text-main); color:var(--modal-text-main); margin:0;">한국어</button>
+            <button class="btn-primary" onclick="setInitialLanguage('ru')" style="background:transparent; border:1px solid var(--modal-text-main); color:var(--modal-text-main); margin:0;">Русский</button>
         </div>
     </div>
 </div>
 
-<header>
-    <div class="logo"><i data-lucide="cpu"></i>_.k__yu.10_SYS</div>
-    <button id="themeToggle" class="theme-toggle" aria-label="Toggle Theme">
-        <i data-lucide="sun" id="themeIcon"></i>
-    </button>
-</header>
+<div class="wrapper" id="mainContainer" style="opacity:0;">
+    <header>
+        <div class="brand"><i data-lucide="command"></i> <span data-translate="header_brand">Access Portal</span></div>
+        <div class="theme-pill" id="themeToggle"><i data-lucide="sun" id="themeIcon"></i></div>
+    </header>
 
-<div class="container" id="mainContainer">
-    <div class="grid-menu">
-        <div class="menu-card glass-panel">
-            <div class="card-icon-box"><i data-lucide="key" size="32"></i></div>
-            <h3 class="card-title" data-translate="card1_title">ACTIVATION</h3>
-            <p class="card-desc" data-translate="card1_desc">コードを使用して<br>コンテンツをアンロック</p>
-            <button id="btnOpenModal" class="btn-action">
-                <span data-translate="card1_btn">EXECUTE</span><i data-lucide="terminal" size="16"></i>
-            </button>
+    <div class="hero-text">
+        <h1 class="hero-title" data-translate="hero_title">System<br>Authentication</h1>
+        <div class="hero-sub" data-translate="hero_sub">Manage your access and resources.</div>
+    </div>
+
+    <div class="bento-grid">
+        <div class="widget widget-hero" id="btnOpenModal">
+            <div class="icon-bubble"><i data-lucide="key" size="32"></i></div>
+            <div class="widget-content">
+                <h3 data-translate="card1_title">ACTIVATION</h3>
+                <p data-translate="card1_desc">Enter code to unlock.</p>
+                <div class="btn-float"><span data-translate="card1_btn">Start</span> <i data-lucide="arrow-right" size="16"></i></div>
+            </div>
         </div>
-        <div class="menu-card glass-panel">
-            <div class="card-icon-box"><i data-lucide="activity" size="32"></i></div>
-            <h3 class="card-title" data-translate="card2_title">NEWS_FEED</h3>
-            <p class="card-desc" data-translate="card2_desc">このサイトに関する<br>アップデート情報</p>
-            <button id="btnOpenNews" class="btn-action">
-                <span data-translate="card2_btn">SCAN</span><i data-lucide="rss" size="16"></i>
-            </button>
+        <div class="widget widget-news" id="btnOpenNews">
+            <div style="display:flex; justify-content:space-between;">
+                <div style="background:#FFEFEB; color:#FF5C00; width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center;"><i data-lucide="zap" size="24"></i></div>
+                <i data-lucide="arrow-up-right" size="20" style="opacity:0.5;"></i>
+            </div>
+            <div class="widget-content">
+                <h3 style="font-size:20px;" data-translate="card2_title">News</h3>
+                <p style="font-size:12px;" data-translate="card2_desc">Check updates.</p>
+            </div>
         </div>
-        <div class="menu-card glass-panel">
-            <div class="card-icon-box"><i data-lucide="life-buoy" size="32"></i></div>
-            <h3 class="card-title" data-translate="card3_title">SUPPORT</h3>
-            <p class="card-desc" data-translate="card3_desc">コードが無効な場合などは<br>こちらからご連絡ください</p>
-            <button onclick="location.href='/support.html'" class="btn-action">
-                <span data-translate="card3_btn">CONNECT</span><i data-lucide="link" size="16"></i>
-            </button>
+        <div class="widget widget-support" id="btnOpenSupport">
+            <div style="display:flex; justify-content:space-between;">
+                <div style="background:#E8F0FE; color:#1967D2; width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center;"><i data-lucide="message-circle" size="24"></i></div>
+                <i data-lucide="arrow-up-right" size="20" style="opacity:0.5;"></i>
+            </div>
+            <div class="widget-content">
+                <h3 style="font-size:20px;" data-translate="card3_title">Support</h3>
+                <p style="font-size:12px;" data-translate="card3_desc">Contact us.</p>
+            </div>
         </div>
     </div>
+    <footer>
+        <div><span data-translate="footer_admin">SYSTEM ADMIN</span>: <a href="https://developer-kiryu10.vercel.app/" target="_blank" style="color:inherit;text-decoration:none;font-weight:700;">kiryu-sensya</a></div>
+        <div style="opacity:0.5; margin-top:5px;">© 2019-2026 All Rights Reserved</div>
+    </footer>
 </div>
 
-<footer>
-    <div style="text-align:center; z-index:5;">
-        <span data-translate="footer_admin">SYSTEM ADMIN</span>: <a href="https://developer-kiryu10.vercel.app/" target="_blank" class="footer-link">kiryu-sensya</a><br>
-        <span style="opacity:0.5;font-size:10px;letter-spacing:1px;">COPYRIGHT © 2019-2026 // ALL RIGHTS RESERVED</span>
-    </div>
+<div class="custom-lang-wrapper">
+    <div class="lang-fab" id="langTrigger"><i data-lucide="globe" size="18"></i> <span id="currentLangLabel">日本語</span></div>
+    <ul class="lang-list" id="langMenu">
+        <li class="lang-option" data-value="ja">日本語</li>
+        <li class="lang-option" data-value="en">English</li>
+        <li class="lang-option" data-value="zh">简体中文</li>
+        <li class="lang-option" data-value="zh-TW">繁體中文</li>
+        <li class="lang-option" data-value="ko">한국어</li>
+        <li class="lang-option" data-value="ru">Русский</li>
+    </ul>
+</div>
 
-    <div class="custom-lang-wrapper" id="customLangWrapper">
-        <button class="lang-trigger" id="langTrigger">
-            <i data-lucide="globe" size="14"></i>
-            <span id="currentLangLabel">日本語</span>
-            <i data-lucide="chevron-up" size="14"></i>
-        </button>
-        <ul class="lang-menu" id="langMenu">
-            <li class="lang-option font-ja" data-value="ja">日本語</li>
-            <li class="lang-option font-en" data-value="en">English</li>
-            <li class="lang-option font-zh-cn" data-value="zh">简体中文</li>
-            <li class="lang-option font-zh-tw" data-value="zh-TW">繁體中文</li>
-            <li class="lang-option font-ko" data-value="ko">조선말</li>
-            <li class="lang-option font-ru" data-value="ru">Русский</li>
-        </ul>
-    </div>
-</footer>
+<div id="langSwitchingOverlay" style="position:fixed; inset:0; background:var(--bg-color); z-index:9999; display:none; align-items:center; justify-content:center;">
+    <div class="loading-spinner"></div>
+</div>
 
 <div id="authModal" class="modal-overlay">
-  <div class="modal-container glass-panel" id="modalContainer">
-    <div class="modal-close" id="modalCloseBtn"><i data-lucide="x"></i></div>
-    
-    <div id="inputPhase">
-      <h2 class="modal-title" data-translate="modal_title">SECURITY CHECK</h2>
-      <p class="modal-sub" data-translate="modal_sub">ACCESS CODE REQUIRED</p>
-      <div class="input-wrapper" style="margin-bottom:25px; position:relative;">
-        <input type="text" id="activationCode" class="code-input" placeholder="_" autocomplete="off">
-      </div>
-      <button id="btnConfirm" class="btn-confirm" data-translate="modal_btn_auth">AUTHENTICATE</button>
-      <div id="statusContainer"></div>
-    </div>
-    
-    <div id="successPhase" style="display:none;">
-      <div class="success-layout">
-        <div class="success-left" id="successLeftCol"><img id="successImage" src="" alt="Result"></div>
-        <div class="success-right" style="flex:1; text-align:left;">
-          <div class="success-tag">
-            <span id="successCheckIcon" style="display:inline-flex; vertical-align:middle;"></span>
-            <span data-translate="success_badge">ACCESS GRANTED</span>
-          </div>
-          
-          <h2 class="success-title-main" style="font-size:22px; margin-bottom:15px; color:var(--text-main);" data-translate="success_main_title">UNLOCKED DATA</h2>
-          
-          <div class="success-info-box">
-            <div class="success-label" data-translate="success_label_name">FILE NAME</div>
-            <div class="success-content" id="successTitle">LOADING_DATA...</div>
-            <div class="success-extra" id="successExtraInfo"></div>
-          </div>
-          
-          <div class="btn-group">
-            <button id="modalCloseSub" data-translate="btn_close">EXIT</button>
-            <a href="#" id="successDownloadBtn" data-translate="btn_download">DOWNLOAD</a>
-          </div>
+    <div class="modal-sheet" id="modalContainer">
+        
+        <div id="inputPhase">
+            <div style="position:absolute; top:20px; right:20px; cursor:pointer; opacity:0.6;" id="modalCloseBtn"><i data-lucide="x" size="24"></i></div>
+            <h2 class="modal-title" data-translate="modal_title">Authentication</h2>
+            <p class="modal-sub" data-translate="modal_sub">Enter access code</p>
+            
+            <input type="text" id="activationCode" class="code-field" placeholder="____-____" autocomplete="off">
+            
+            <button id="btnConfirm" class="btn-primary" data-translate="modal_btn_auth">Authenticate</button>
+            <div id="statusContainer"></div>
         </div>
-      </div>
+
+        <div id="successPhase">
+            <div class="success-container">
+                <div class="success-visual">
+                    <img id="successImage" src="" alt="Content">
+                </div>
+                <div class="success-details">
+                    <div>
+                        <div class="success-badge">
+                            <i data-lucide="check" size="14"></i> <span data-translate="success_badge">Authenticated</span>
+                        </div>
+                        <span class="content-title-label" data-translate="success_main_title">Unlocked Content</span>
+                        <h3 id="successTitle" class="content-title">Loading...</h3>
+                        
+                        <div class="info-box">
+                            <div class="info-row">
+                                <span class="info-label" data-translate="success_label_name">Name</span>
+                                <span id="successNameDisplay" class="info-value">...</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label" data-translate="success_label_info">Details</span>
+                                <div id="successExtraInfo" class="info-extra"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-row">
+                        <button id="modalCloseSub" class="btn-close-sub" data-translate="btn_close">Close</button>
+                        <a href="#" id="successDownloadBtn" class="btn-download">
+                            <span data-translate="btn_download">Download</span> <i data-lucide="download" size="18"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
-  </div>
 </div>
 
 <div id="newsModal" class="modal-overlay">
-    <div class="modal-container glass-panel">
-        <div class="modal-close" id="newsCloseX"><i data-lucide="x"></i></div>
-        <h2 class="modal-title" data-translate="news_title">SYSTEM LOGS</h2>
-        <div class="news-container">
-            <h3 id="newsHeader" style="display:none;font-size:14px;color:var(--text-muted);margin:0 0 15px;align-items:center;gap:6px;font-family:var(--font-mono);">
-                <span style="color:var(--primary-neon);">●</span> <span data-translate="news_label">CHANGELOG</span>
-            </h3>
-            <ul id="newsList">
-                <li style="text-align:center;color:var(--text-muted);padding:20px; font-family:var(--font-mono);">
-                    FETCHING DATA...<span class="loading-dots"></span>
-                </li>
-            </ul>
-        </div>
+    <div class="modal-sheet" style="padding:40px;">
+        <div style="position:absolute; top:20px; right:20px; cursor:pointer;" id="newsCloseX"><i data-lucide="x" size="24"></i></div>
+        <h2 data-translate="news_title" style="margin:0 0 20px 0; color:var(--modal-text-main);">News Feed</h2>
+        <ul id="newsList" style="list-style:none; padding:0; max-height:400px; overflow-y:auto;">
+            <li style="text-align:center; opacity:0.6;"><span data-translate="news_loading">Loading</span><span class="loading-dots"></span></li>
+        </ul>
     </div>
 </div>
 
 <div id="supportModal" class="modal-overlay">
-    <div class="modal-container glass-panel wide-support-mode" style="max-width:900px;">
-        <div class="modal-close" id="supportCloseX"><i data-lucide="x"></i></div>
-        <h2 class="modal-title" data-translate="support_modal_title">COMMUNICATION CHANNELS</h2>
-        <div class="support-grid">
-            <div class="support-item">
-                <i class="fa-brands fa-playstation"></i><span>PLAYSTATION</span>
-                <a href="#" class="btn-inquiry-small" data-translate="btn_inquiry">PING</a>
-            </div>
-            <div class="support-item">
-                <i class="fa-brands fa-xbox"></i><span>XBOX_LIVE</span>
-                <a href="#" class="btn-inquiry-small" data-translate="btn_inquiry">PING</a>
-            </div>
-            <div class="support-item">
-                <i class="fa-brands fa-discord"></i><span>DISCORD</span>
-                <a href="#" class="btn-inquiry-small" data-translate="btn_inquiry">JOIN</a>
-            </div>
-            <div class="support-item">
-                <i class="fa-brands fa-github"></i><span>GITHUB</span>
-                <a href="#" class="btn-inquiry-small" data-translate="btn_inquiry">FORK</a>
-            </div>
-            <div class="support-item">
-                <i class="fa-brands fa-instagram"></i><span>INSTAGRAM</span>
-                <a href="https://www.instagram.com/kiryu_sensya" class="btn-inquiry-small" data-translate="btn_inquiry">FOLLOW</a>
-            </div>
+    <div class="modal-sheet" style="padding:40px; text-align:center;">
+        <div style="position:absolute; top:20px; right:20px; cursor:pointer;" id="supportCloseX"><i data-lucide="x" size="24"></i></div>
+        <h2 data-translate="support_modal_title" style="margin:0 0 30px 0; color:var(--modal-text-main);">Channels</h2>
+        <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap;">
+            <a href="https://www.instagram.com/kiryu_sensya" target="_blank" style="font-size:32px; color:var(--modal-text-main);"><i class="fa-brands fa-instagram"></i></a>
+            <div style="font-size:32px; color:var(--modal-text-main);"><i class="fa-brands fa-discord"></i></div>
+            <div style="font-size:32px; color:var(--modal-text-main);"><i class="fa-brands fa-github"></i></div>
         </div>
     </div>
 </div>
 
 <script>
-/* Keep the logic identical, just ensuring IDs match the HTML structure */
 lucide.createIcons();
-const GAS_API_URL="/api/proxy";
+const GAS_API_URL="https://script.google.com/macros/s/AKfycby-euxYGL5-ov5Lb-Q_7HFcLvIgfTf354FQAqT0bOsTJFo7l3NDISmFS64dS8wr-DxScA/exec"; 
 let CURRENT_LANG="ja";
 
-window.hasRunAuth = false;
-
-/* Translation Object (Unchanged Content) */
+/* 修正3: System Adminも翻訳対象に追加 */
 const TRANSLATIONS={
  ja:{
-  card1_title:"アクティベーション",card1_desc:"コードを使用して<br>コンテンツをアンロック",card1_btn:"コードを使用",
-  card2_title:"ニュース",card2_desc:"このサイトに関する<br>アップデート情報",card2_btn:"確認する",
-  card3_title:"サポート",card3_desc:"コードが無効な場合などは<br>こちらからご連絡ください",card3_btn:"問い合わせ",
-  modal_title:"アクティベーション",modal_sub:"アクセスコードを入力してください。",modal_placeholder:"_",modal_btn_auth:"認証を実行",
-  msg_verifying:"照合中",msg_success_btn:"認証完了",
-  msg_invalid:"無効なコードです。",msg_used:"使用済みのコードです。",msg_error:"通信エラー。",
-  success_badge:"コードが認証されました。",success_main_title:"有効化されたコンテンツ",success_label_name:"コンテンツ名称",
-  btn_close:"閉じる",btn_download:"ダウンロード",news_title:"最新情報",news_label:"変更ログ",news_loading:"更新を確認中",
-  support_modal_title:"通信チャンネル",btn_inquiry:"利用不可",footer_admin:"システム管理者"
+  header_brand:"_.k__yu.10", hero_title:"認証ポータル", hero_sub:"アクセス権限とリソースの管理",
+  card1_title:"アクティベーション",card1_desc:"コードでコンテンツを解除",card1_btn:"開始",
+  card2_title:"ニュース",card2_desc:"最新情報を確認",card2_btn:"確認",
+  card3_title:"サポート",card3_desc:"お問い合わせはこちら",card3_btn:"接続",
+  modal_title:"認証",modal_sub:"コードを入力してください",modal_placeholder:"XXXX-XXXX-XXXX-XXXX",modal_btn_auth:"認証する",
+  msg_verifying:"確認中",msg_success_btn:"成功",
+  msg_invalid:"このコードは無効です",msg_used:"このコードは使用済みです",msg_error:"エラーが発生しました",
+  success_badge:"コードが認証されました。",success_main_title:"有効化されたコンテンツ",success_label_name:"コンテンツ名称", success_label_info:"詳細情報",
+  btn_close:"閉じる",btn_download:"ダウンロード",news_title:"最新情報",news_label:"履歴",news_loading:"更新を確認中",
+  support_modal_title:"なにかお困りですか?",btn_inquiry:"不可",
+  footer_admin:"システム管理者"
  },
  en:{
-  card1_title:"ACTIVATION",card1_desc:"Enter code to<br>unlock content",card1_btn:"EXECUTE",
-  card2_title:"NEWS_FEED",card2_desc:"Updates about<br>this system.",card2_btn:"SCAN",
-  card3_title:"SUPPORT",card3_desc:"Contact us if your code<br>is invalid or missing.",card3_btn:"CONNECT",
-  modal_title:"SECURITY CHECK",modal_sub:"ENTER ACCESS CODE.",modal_placeholder:"_",modal_btn_auth:"AUTHENTICATE",
-  msg_verifying:"VERIFYING",msg_success_btn:"GRANTED",
-  msg_invalid:"INVALID CODE.",msg_used:"CODE ALREADY REDEEMED.",msg_error:"CONNECTION FAILURE.",
-  success_badge:"ACCESS GRANTED.",success_main_title:"UNLOCKED DATA",success_label_name:"FILE NAME",
-  btn_close:"EXIT",btn_download:"DOWNLOAD",news_title:"SYSTEM LOGS",news_label:"CHANGELOG",news_loading:"FETCHING DATA",
-  support_modal_title:"COMM CHANNELS",btn_inquiry:"OFFLINE",footer_admin:"SYS ADMIN"
+  header_brand:"_.k__yu.10", hero_title:"Activation", hero_sub:"Manage your access and resources.",
+  card1_title:"Activation",card1_desc:"Unlock content via code",card1_btn:"Start",
+  card2_title:"News",card2_desc:"Check updates",card2_btn:"View",
+  card3_title:"Support",card3_desc:"Contact us",card3_btn:"Connect",
+  modal_title:"Activation",modal_sub:"Enter Activtion code",modal_placeholder:"XXXX-XXXX-XXXX-XXXX",modal_btn_auth:"Authenticate",
+  msg_verifying:"Checking",msg_success_btn:"Success",
+  msg_invalid:"This code is invalid.",msg_used:"This code has already been used.",msg_error:"Error occurred",
+  success_badge:"Code Verified",success_main_title:"Activated Content",success_label_name:"Content Name", success_label_info:"Details",
+  btn_close:"Close",btn_download:"Download",news_title:"News",news_label:"Log",news_loading:"Checking For Updates",
+  support_modal_title:"Channels",btn_inquiry:"N/A",
+  footer_admin:"Enforcement Administrator"
  },
- zh:{
-  card1_title:"激活",card1_desc:"使用代码<br>以解锁内容",card1_btn:"执行",
-  card2_title:"新闻",card2_desc:"本网站的<br>更新信息",card2_btn:"查看",
-  card3_title:"支持",card3_desc:"如果代码无效<br>请联系我们",card3_btn:"联系",
-  modal_title:"激活",modal_sub:"请输入您的激活码",modal_placeholder:"_",modal_btn_auth:"验证",
-  msg_verifying:"正在检查",msg_success_btn:"认证成功",
-  msg_invalid:"代码无效。",msg_used:"代码已被使用。",msg_error:"通信错误。",
-  success_badge:"代码已激活。",success_main_title:"激活内容",success_label_name:"内容名称",
-  btn_close:"关闭",btn_download:"下载",news_title:"系统日志",news_label:"更新日志",news_loading:"正在检查更新",
-  support_modal_title:"通信频道",btn_inquiry:"不可用",footer_admin:"系统管理员"
+ zh:{ 
+  header_brand:"访问门户", hero_title:"系统检查", hero_sub:"管理您的访问权限和资源。", 
+  card1_title:"激活",card1_desc:"解锁内容",card1_btn:"开始", 
+  card2_title:"新闻",card2_desc:"查看更新",card2_btn:"查看", 
+  card3_title:"支持",card3_desc:"联系我们",card3_btn:"联系", 
+  modal_title:"检查",modal_sub:"输入激活码",modal_placeholder:"XXXX-XXXX-XXXX-XXXX",modal_btn_auth:"检查", 
+  msg_verifying:"正在检查",msg_success_btn:"成功", 
+  msg_invalid:"该代码无效。",msg_used:"该代码已被使用。",msg_error:"错误", 
+  success_badge:"代码已检查",success_main_title:"已激活内容",success_label_name:"内容名称",success_label_info:"详细信息", 
+  btn_close:"关闭",btn_download:"下载",news_title:"最新消息",news_label:"日志",news_loading:"正在检查更新", 
+  support_modal_title:"需要帮助吗？",btn_inquiry:"不可用", footer_admin:"系统管理长" 
  },
- "zh-TW":{
-  card1_title:"啟用",card1_desc:"使用代碼<br>以解鎖內容",card1_btn:"執行",
-  card2_title:"新聞",card2_desc:"本網站的<br>更新資訊",card2_btn:"查看",
-  card3_title:"支援",card3_desc:"如果代碼無效<br>請聯絡我們",card3_btn:"聯絡",
-  modal_title:"啟用",modal_sub:"請輸入您的啟用碼",modal_placeholder:"_",modal_btn_auth:"驗證",
-  msg_verifying:"正在檢查",msg_success_btn:"認證成功",
-  msg_invalid:"代碼無效。",msg_used:"代碼已被使用。",msg_error:"通訊錯誤。",
-  success_badge:"代碼已啟用。",success_main_title:"啟用內容",success_label_name:"內容名稱",
-  btn_close:"關閉",btn_download:"下載",news_title:"系統日誌",news_label:"更新日誌",news_loading:"正在檢查更新",
-  support_modal_title:"通訊頻道",btn_inquiry:"不可用",footer_admin:"系統管理員"
+    
+ "zh-TW":{ 
+　header_brand:"存取入口", hero_title:"系統檢查", hero_sub:"管理您的存取權限與資源。", 
+　card1_title:"激活",card1_desc:"解鎖內容",card1_btn:"開始", 
+　card2_title:"新聞",card2_desc:"查看更新",card2_btn:"查看", 
+　card3_title:"支援",card3_desc:"聯絡我們",card3_btn:"聯絡", 
+　modal_title:"檢查",modal_sub:"輸入啟用碼",modal_placeholder:"XXXX-XXXX-XXXX-XXXX",modal_btn_auth:"檢查", 
+  msg_verifying:"正在檢查",msg_success_btn:"成功", 
+  msg_invalid:"該程式碼無效。",msg_used:"該程式碼已被使用。",msg_error:"錯誤", 
+  success_badge:"代碼已檢查",success_main_title:"已啟用內容",success_label_name:"內容名稱",success_label_info:"詳細資訊", 
+  btn_close:"關閉",btn_download:"下載",news_title:"最新消息",news_label:"日誌",news_loading:"正在檢查更新", 
+  support_modal_title:"需要幫助嗎？",btn_inquiry:"不可用", footer_admin:"系統管理長" 
  },
- ko:{
-  card1_title:"등록",card1_desc:"잠금해제 암호를<br>입력하십시오",card1_btn:"실행",
-  card2_title:"새 소식",card2_desc:"이 홈페지에 대한<br>최신 갱신자료",card2_btn:"열람",
-  card3_title:"기술협조",card3_desc:"암호가 맞지 않을 경우<br>여기로 련락하십시오",card3_btn:"련락",
-  modal_title:"리용등록",modal_sub:"보유하신 등록암호를 입력하십시오",modal_placeholder:"_",modal_btn_auth:"판정",
-  msg_verifying:"검토중",msg_success_btn:"인증성공",
-  msg_invalid:"무효한 암호.",msg_used:"이미 리용된 암호.",msg_error:"망 련결오류.",
-  success_badge:"암호가 등록되였습니다.",success_main_title:"등록된 자료",success_label_name:"자료명칭",
-  btn_close:"닫기",btn_download:"적재",news_title:"최신보도",news_label:"갱신리력",news_loading:"갱신자료 확인중",
-  support_modal_title:"지원 채널",btn_inquiry:"대기",footer_admin:"체계관리원"
+    
+ ko:{ 
+  header_brand:"액세스 포털", hero_title:"시스템<br>인증 포털", hero_sub:"액세스 권한 및 리소스 관리", 
+  card1_title:"활성화",card1_desc:"콘텐츠 잠금 해제",card1_btn:"시작", 
+  card2_title:"뉴스",card2_desc:"최신 정보",card2_btn:"보기", 
+  card3_title:"지원",card3_desc:"문의하기",card3_btn:"연결", 
+  modal_title:"인증",modal_sub:"코드 입력",modal_placeholder:"XXXX-XXXX-XXXX-XXXX-XXXX",modal_btn_auth:"인증", 
+  msg_verifying:"확인 중",msg_success_btn:"성공", 
+  msg_invalid:"잘못된 코드",msg_used:"사용된 코드",msg_error:"오류", 
+  success_badge:"코드 인증됨",success_main_title:"활성화된 콘텐츠",success_label_name:"콘텐츠 이름",success_label_info:"상세 정보", 
+  btn_close:"닫기",btn_download:"다운로드",news_title:"뉴스",news_label:"로그",news_loading:"로딩 중", 
+  support_modal_title:"채널",btn_inquiry:"불가", footer_admin:"시스템 관리자" 
  },
- ru:{
-  card1_title:"Активация",card1_desc:"Введите код для разблокировки<br>контента",card1_btn:"Выполнить",
-  card2_title:"Новости",card2_desc:"Последние обновления<br>о проекте",card2_btn:"Сканировать",
-  card3_title:"Поддержка",card3_desc:"Свяжитесь с нами, если<br>код недействителен",card3_btn:"Связь",
-  modal_title:"Активация",modal_sub:"Пожалуйста, введите ваш код",modal_placeholder:"_",modal_btn_auth:"Проверка",
-  msg_verifying:"Обработка",msg_success_btn:"Успех",
-  msg_invalid:"Неверный код.",msg_used:"Код использован.",msg_error:"Ошибка сети",
-  success_badge:"Код активирован.",success_main_title:"Контент",success_label_name:"Название",
-  btn_close:"Закрыть",btn_download:"Скачать",news_title:"Логи системы",news_label:"Список изменений",news_loading:"Поиск обновлений",
-  support_modal_title:"Каналы связи",btn_inquiry:"Недоступно",footer_admin:"Администратор"
+    
+ ru:{ 
+  header_brand:"Портал Доступа", hero_title:"Система<br>Аутентификации", hero_sub:"Управление доступом и ресурсами", 
+     card1_title:"Активация",card1_desc:"Разблокировка",card1_btn:"Старт", 
+     card2_title:"Новости",card2_desc:"Обновления",card2_btn:"См.", 
+     card3_title:"Поддержка",card3_desc:"Связь",card3_btn:"Связь", 
+     modal_title:"Проверка",modal_sub:"Введите код",modal_placeholder:"XXXX-XXXX-XXXX-XXXX",modal_btn_auth:"Проверить", 
+     msg_verifying:"Обработка",msg_success_btn:"Успех", 
+     msg_invalid:"Неверный код",msg_used:"Использован",msg_error:"Ошибка", 
+     success_badge:"Подтверждено",success_main_title:"Активированный контент",success_label_name:"Название",success_label_info:"Детали", 
+     btn_close:"Закрыть",btn_download:"Скачать",news_title:"Новости",news_label:"Лог",news_loading:"Загрузка", 
+     support_modal_title:"Каналы",btn_inquiry:"Н/Д", footer_admin:"Администратор" 
  }
 };
 
@@ -766,11 +558,10 @@ const els={
  overlay: gId('langSelectionOverlay'), main: gId('mainContainer'), 
  authModal: gId('authModal'), modalCon: gId('modalContainer'), openAuth: gId('btnOpenModal'), closeAuth: gId('modalCloseBtn'), closeSub: gId('modalCloseSub'),
  inputPh: gId('inputPhase'), successPh: gId('successPhase'), code: gId('activationCode'), confirm: gId('btnConfirm'), status: gId('statusContainer'),
- sTitle: gId('successTitle'), sExtra: gId('successExtraInfo'), sDown: gId('successDownloadBtn'), sLeft: gId('successLeftCol'), sImg: gId('successImage'),
- newsList: gId('newsList'), newsHead: gId('newsHeader'), newsModal: gId('newsModal'), openNews: gId('btnOpenNews'), closeNews: gId('newsCloseX'),
+ sImg: gId('successImage'), sTitle: gId('successTitle'), sNameDisp: gId('successNameDisplay'), sExtra: gId('successExtraInfo'), sDown: gId('successDownloadBtn'),
+ newsList: gId('newsList'), newsModal: gId('newsModal'), openNews: gId('btnOpenNews'), closeNews: gId('newsCloseX'),
  supportModal: gId('supportModal'), openSupport: gId('btnOpenSupport'), closeSupport: gId('supportCloseX'),
- langWrapper: gId('customLangWrapper'), langTrigger: gId('langTrigger'), langMenu: gId('langMenu'), currentLangLabel: gId('currentLangLabel'),
- successCheckIcon: gId('successCheckIcon')
+ langWrapper: gId('customLangWrapper'), langTrigger: gId('langTrigger'), langMenu: gId('langMenu'), currentLangLabel: gId('currentLangLabel')
 };
 
 const formatCodeInput = (val) => {
@@ -784,153 +575,76 @@ document.addEventListener('DOMContentLoaded',()=>{
  const sLang = localStorage.getItem('user_lang');
  initThemeAndParticles();
  initCustomDropdown();
-
- if(sLang){ 
-  setInitialLanguage(sLang, true); 
- } else {
-  fetchNews();
- }
+ if(sLang) setInitialLanguage(sLang, true); else fetchNews();
 });
 
 function setInitialLanguage(lang, immediate = false){
- localStorage.setItem('user_lang',lang); 
- updateLanguage(lang); 
- updateDropdownLabel(lang);
-
- if(immediate) {
-      els.overlay.style.display='none';
-      showMainContent();
- } else {
-      els.overlay.style.opacity='0'; 
-      els.overlay.style.visibility='hidden';
-      setTimeout(()=>{ 
-          els.overlay.style.display='none'; 
-          showMainContent(); 
-      }, 500);
- }
+ localStorage.setItem('user_lang',lang); updateLanguage(lang); 
+ if(immediate) { els.overlay.style.display='none'; showMainContent(); } 
+ else { els.overlay.style.opacity='0'; setTimeout(()=>{ els.overlay.style.display='none'; showMainContent(); }, 500); }
 }
 
 function showMainContent(){
- if(els.main.classList.contains('logged-in')) return;
- els.main.classList.add('logged-in'); lucide.createIcons();
-
+ gId('mainContainer').style.opacity = '1'; lucide.createIcons();
  const urlCode = new URLSearchParams(window.location.search).get('code');
-
  if(urlCode) {
-    if(!window.hasRunAuth) {
-        window.hasRunAuth = true; 
-        setTimeout(()=>{
-            openAuthModal();
-            let fmt = formatCodeInput(urlCode);
-            els.code.value = fmt; 
-            performAuth(fmt);
-        }, 800);
-    }
+    setTimeout(()=>{ openAuthModal(); els.code.value = formatCodeInput(urlCode); performAuth(els.code.value); }, 800);
     setTimeout(fetchNews, 3000);
- } else {
-    fetchNews();
- }
+ } else fetchNews();
 }
 
 function initCustomDropdown() {
-    els.langTrigger.addEventListener('click', (e) => {
-        e.stopPropagation();
-        els.langMenu.classList.toggle('open');
-    });
-    const options = document.querySelectorAll('.lang-option');
-    options.forEach(opt => {
+    els.langTrigger.addEventListener('click', (e) => { e.stopPropagation(); els.langMenu.classList.toggle('open'); });
+    document.querySelectorAll('.lang-option').forEach(opt => {
         opt.addEventListener('click', () => {
             const val = opt.getAttribute('data-value');
-            const overlay = document.getElementById('langSwitchingOverlay');
-            const switchText = document.getElementById('switchingText');
-
-            const msgMap = {
-                'ja': '言語切替中... // RECONFIGURING',
-                'en': 'SWITCHING LANGUAGE...',
-                'zh': '正在切换语言...',
-                'zh-TW': '正在切換語言...',
-                'ko': '언어 전환 중...',
-                'ru': 'Смена языка...'
-            };
-
-            if(switchText) switchText.textContent = msgMap[val] || 'LOADING...';
-            if(overlay) overlay.classList.add('active');
+            const overlay = gId('langSwitchingOverlay');
+            if(overlay) overlay.style.display = 'flex';
             els.langMenu.classList.remove('open');
-
             setTimeout(() => {
-                localStorage.setItem('user_lang', val);
-                updateLanguage(val);
-                updateDropdownLabel(val);
-                fetchNews(); 
-                
-                setTimeout(() => {
-                    if(overlay) overlay.classList.remove('active');
-                }, 800);
+                localStorage.setItem('user_lang', val); updateLanguage(val); fetchNews(); 
+                setTimeout(() => { if(overlay) overlay.style.display = 'none'; }, 600);
             }, 300);
         });
     });
-    document.addEventListener('click', (e) => {
-        if (!els.langWrapper.contains(e.target)) {
-            els.langMenu.classList.remove('open');
-        }
-    });
+    document.addEventListener('click', (e) => { if (!els.langWrapper.contains(e.target)) els.langMenu.classList.remove('open'); });
 }
 
-function updateDropdownLabel(lang) {
-    const labelMap = {
-        'ja': '日本語', 'en': 'English', 'zh': '简体中文',
-        'zh-TW': '繁體中文', 'ko': '조선말', 'ru': 'Русский'
-    };
-    if(els.currentLangLabel) els.currentLangLabel.textContent = labelMap[lang] || 'Language';
-    document.querySelectorAll('.lang-option').forEach(opt => {
-        if(opt.getAttribute('data-value') === lang) opt.classList.add('selected');
-        else opt.classList.remove('selected');
-    });
-}
-
+/* 修正2: 言語ラベルをフルネーム化 */
 function updateLanguage(lang){
  CURRENT_LANG=lang; document.documentElement.lang=lang; const t=TRANSLATIONS[lang]; if(!t)return;
- document.querySelectorAll('[data-translate]').forEach(el=>{
- const k=el.getAttribute('data-translate'); if(k!=='news_content'&&t[k]) el.innerHTML=t[k];
- });
- document.querySelectorAll('[data-translate-placeholder]').forEach(el=>{
- const k=el.getAttribute('data-translate-placeholder'); if(t[k]) el.placeholder=t[k];
- });
+ document.querySelectorAll('[data-translate]').forEach(el=>{ const k=el.getAttribute('data-translate'); if(k!=='news_content'&&t[k]) el.innerHTML=t[k]; });
+ 
+ const langMap = {
+    ja: '日本語', en: 'English', zh: '简体中文', 'zh-TW': '繁體中文', ko: '한국어', ru: 'Русский'
+ };
+ if(els.currentLangLabel) els.currentLangLabel.textContent = langMap[lang] || 'Language';
+ 
  if(t.modal_placeholder) els.code.placeholder=t.modal_placeholder;
 }
 
 async function fetchNews(){
- const nCon = document.querySelector('#newsModal .modal-container'), t=TRANSLATIONS[CURRENT_LANG];
  if(!els.newsList)return;
-
- if(els.newsHead) els.newsHead.style.display='none'; if(nCon) nCon.classList.remove('news-wide-mode');
- els.newsList.innerHTML=`<div style="text-align:center;color:var(--text-muted);padding:20px;">${t.news_loading||"Loading"}<span class="loading-dots"></span></div>`;
-
+ const t=TRANSLATIONS[CURRENT_LANG];
+ els.newsList.innerHTML=`<li style="text-align:center;opacity:0.6;padding:20px;">${t.news_loading||"Loading"}<span class="loading-dots"></span></li>`;
  try{
  const d = await(await fetch(`${GAS_API_URL}?type=news&lang=${CURRENT_LANG}&_t=${Date.now()}`)).json();
  els.newsList.innerHTML='';
  if(d.success&&d.news&&d.news.length>0){
- if(els.newsHead) els.newsHead.style.display='flex'; if(nCon) nCon.classList.add('news-wide-mode');
- d.news.forEach(i=>{
- els.newsList.insertAdjacentHTML('beforeend',`<li class="news-item"><div class="news-date" lang="${CURRENT_LANG}">${i.date}</div><div class="news-content-text">${i.content}</div></li>`);
- });
- }else els.newsList.innerHTML=`<div style="text-align:center;color:var(--text-muted);padding:20px;">${CURRENT_LANG==='ja'?'お知らせはありません。':'No news available.'}</div>`;
- }catch(e){
- els.newsList.innerHTML=`<div style="text-align:center;color:var(--error-neon);padding:20px;"><i data-lucide="alert-triangle"></i><br>${CURRENT_LANG==='ja'?'読み込みに失敗しました。':'Failed to load news.'}</div>`;
- lucide.createIcons();
- }
+ d.news.forEach(i=>{ els.newsList.insertAdjacentHTML('beforeend',`<li style="padding:15px 0; border-bottom:1px solid rgba(128,128,128,0.1);"><div style="font-size:12px;color:var(--primary);font-weight:700;">${i.date}</div><div style="font-size:14px;margin-top:4px;">${i.content}</div></li>`); });
+ }else els.newsList.innerHTML=`<li style="text-align:center;opacity:0.6;padding:20px;">-</li>`;
+ }catch(e){ els.newsList.innerHTML=`<li style="text-align:center;opacity:0.6;padding:20px;">Error</li>`; }
 }
 
 function openAuthModal(){ els.authModal.classList.add('active'); resetAuthModal(); els.code.focus(); }
-function closeAuthModal(){ els.authModal.classList.remove('active'); }
+function closeAuthModal(){ els.authModal.classList.remove('active'); setTimeout(()=>els.modalCon.classList.remove('is-success'), 500); }
 function resetAuthModal(){
- els.modalCon.classList.remove('wide-mode','modal-error-border'); els.inputPh.style.display='block'; els.successPh.style.display='none';
+ els.inputPh.style.display='flex'; els.inputPh.style.opacity='1';
+ els.successPh.style.display='none'; els.successPh.style.opacity='0';
  els.code.value=""; els.code.disabled=false; els.confirm.disabled=false;
- els.code.classList.remove('error-glow'); els.confirm.classList.remove('error-glow');
- els.confirm.classList.remove('btn-success-state');
- els.confirm.textContent=TRANSLATIONS[CURRENT_LANG].modal_btn_auth; els.status.innerHTML=""; els.sImg.src=""; els.sLeft.style.display='none';
- els.confirm.innerHTML = TRANSLATIONS[CURRENT_LANG].modal_btn_auth;
- els.successCheckIcon.innerHTML = '';
+ els.confirm.textContent=TRANSLATIONS[CURRENT_LANG].modal_btn_auth; 
+ els.status.innerHTML=""; els.modalCon.classList.remove('is-success');
+ els.sImg.src="";
 }
 
 setListener(els.openAuth,'click',openAuthModal); setListener(els.closeAuth,'click',closeAuthModal); setListener(els.closeSub,'click',closeAuthModal);
@@ -949,218 +663,86 @@ async function performAuth(code, isSilent=false){
  const t=TRANSLATIONS[CURRENT_LANG];
  if(!isSilent){
  els.code.disabled=true; els.confirm.disabled=true;
- els.confirm.innerHTML=`${t.msg_verifying}<span class="loading-dots"></span>`;
- els.status.innerHTML=""; els.modalCon.classList.remove('modal-error-border');
- els.code.classList.remove('error-glow'); els.confirm.classList.remove('error-glow');
+ els.confirm.innerHTML = `${t.msg_verifying}<span class="loading-dots"></span>`;
+ els.status.innerHTML="";
  }
  try{
  const d = await(await fetch(`${GAS_API_URL}?key=${encodeURIComponent(code)}&lang=${CURRENT_LANG}&_t=${Date.now()}`)).json();
- 
  if(d.success && !isSilent){
-    els.confirm.innerHTML = `
-      <svg class="checkmark-svg" viewBox="0 0 24 24">
-        <path class="checkmark-path checkmark-animate" d="M4 12l5 5L20 7" />
-      </svg>
-      ${t.msg_success_btn}
-    `;
-    els.confirm.classList.add('btn-success-state');
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    els.confirm.innerHTML = `<i data-lucide="check"></i>`;
+    await new Promise(resolve => setTimeout(resolve, 600));
  } else if(!isSilent){
     els.code.disabled=false; els.confirm.disabled=false; els.confirm.textContent=t.modal_btn_auth; 
  }
 
  if(d.success){
  if(!isSilent){
- els.modalCon.classList.add('wide-mode'); els.inputPh.style.display='none'; els.successPh.style.display='block';
- 
- els.successCheckIcon.innerHTML = `
-      <svg class="checkmark-svg" viewBox="0 0 24 24">
-        <path class="checkmark-path checkmark-animate" d="M4 12l5 5L20 7" />
-      </svg>
- `;
-
- const animatedElements = els.successPh.querySelectorAll('.animate-enter');
- animatedElements.forEach(el => {
-    el.style.animation = 'none';
-    el.offsetHeight; 
-    el.style.animation = '';
- });
+    els.modalCon.classList.add('is-success');
+    els.inputPh.style.opacity = '0';
+    setTimeout(()=>{
+        els.inputPh.style.display = 'none';
+        els.successPh.style.display = 'block';
+        setTimeout(() => els.successPh.style.opacity = '1', 50);
+    }, 400);
  }
- els.sTitle.textContent=d.message; els.sExtra.textContent=d.extraInfo;
+ els.sTitle.textContent=d.message;
+ els.sNameDisp.textContent=d.message;
+ els.sExtra.innerHTML=d.extraInfo.replace(/\n/g, '<br>');
 
  const btnText = d.buttonLabel || t.btn_download;
- const iconName = d.btnIcon || "download";
- els.sDown.innerHTML = `<span>${btnText}</span><i data-lucide="${iconName}" style="margin-left:8px;"></i>`;
-
+ els.sDown.innerHTML = `<span>${btnText}</span> <i data-lucide="download" size="18"></i>`;
  els.sDown.href=d.actionUrl;
 
  if(d.isReleaseDateReached===false){
  els.sDown.style.pointerEvents='none'; els.sDown.style.opacity='0.6'; els.sDown.removeAttribute('href');
- els.sDown.innerHTML=`<i data-lucide="lock" size="16" style="margin-right:5px;"></i> ${d.releaseDateStr}`;
+ els.sDown.innerHTML=`<i data-lucide="lock" size="18"></i> <span>${d.releaseDateStr}</span>`;
  const dtSrc=d.releaseDateIso||d.releaseDateStr, target=new Date((!d.releaseDateIso&&typeof dtSrc==='string')?dtSrc.replace(/[.-]/g,'/'):dtSrc);
  const diff=target.getTime()-new Date().getTime();
  if(diff>0&&diff<86400000) setTimeout(()=>performAuth(code,true), diff+3000);
  }else{ els.sDown.style.pointerEvents='auto'; els.sDown.style.opacity='1'; }
- if(d.imageUrl&&d.imageUrl.startsWith("http")){ els.sImg.src=d.imageUrl; els.sLeft.style.display='block'; }else els.sLeft.style.display='none';
+ 
+ if(d.imageUrl && d.imageUrl.startsWith("http")){ els.sImg.src=d.imageUrl; } 
+ else { els.sImg.src="https://placehold.co/600x400/000000/00E050?text=Protected"; } 
+ 
  lucide.createIcons();
  }else{
     let errorText = t.msg_error;
-    if (d.message === "This code has already been used.") {
-        errorText = t.msg_used;
-    } else if (d.message === "Invalid code" || d.message === "This code is disabled.") {
-        errorText = t.msg_invalid;
-    } else {
-        errorText = (CURRENT_LANG === 'ja') ? "サーバーが混み合っています。" : "Server busy.";
-    }
-    
-    els.status.innerHTML = `<span class="error-msg"><i data-lucide="alert-circle" size="14"></i> ${errorText}</span>`;
-    lucide.createIcons();
-
-    if (!isSilent) {
-        els.modalCon.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-10px)' }, { transform: 'translateX(10px)' }, { transform: 'translateX(0)' }], { duration: 300 });
-        els.modalCon.classList.add('modal-error-border'); els.code.classList.add('error-glow'); els.confirm.classList.add('error-glow');
-        setTimeout(() => { els.modalCon.classList.remove('modal-error-border'); els.code.classList.remove('error-glow'); els.confirm.classList.remove('error-glow'); }, 1800);
-    }
+    if (d.message === "This code has already been used.") errorText = t.msg_used;
+    else if (d.message === "Invalid code" || d.message === "This code is disabled.") errorText = t.msg_invalid;
+    els.status.innerHTML = `<span style="color:#FF3B30; font-size:13px; font-weight:700;">${errorText}</span>`;
  }
  }catch(e){
  if(!isSilent){
  els.code.disabled=false; els.confirm.disabled=false; els.confirm.textContent=t.modal_btn_auth;
- els.status.innerHTML=`<span class="error-msg">${t.msg_error}</span>`;
- els.modalCon.classList.add('modal-error-border'); els.code.classList.add('error-glow'); els.confirm.classList.add('error-glow');
- setTimeout(()=>{els.modalCon.classList.remove('modal-error-border');els.code.classList.remove('error-glow');els.confirm.classList.remove('error-glow')},3000);
+ els.status.innerHTML=`<span style="color:#FF3B30; font-size:13px;">${t.msg_error}</span>`;
  }
  }
 }
 
 function initThemeAndParticles() {
- const themeBtn = document.getElementById('themeToggle');
- const themeIcon = document.getElementById('themeIcon');
- const htmlEl = document.documentElement;
-
- let particleColor = 'rgba(0, 243, 255, 0.5)';
- let lineColor = 'rgba(0, 243, 255, 0.2)';
-
- function updateParticleStyle(isLight) {
- if (isLight) {
- particleColor = 'rgba(0, 81, 255, 0.5)';
- lineColor = 'rgba(0, 81, 255, 0.2)';
- } else {
- particleColor = 'rgba(0, 243, 255, 0.5)';
- lineColor = 'rgba(0, 243, 255, 0.2)';
- }
- }
-
+ const themeBtn = gId('themeToggle'); const htmlEl = document.documentElement;
+ let particleHue = 210;
+ function updateParticleStyle(isLight) { particleHue = isLight ? 210 : 220; }
  function applyTheme(theme) {
- if (theme === 'light') {
- htmlEl.setAttribute('data-theme', 'light');
- themeIcon.setAttribute('data-lucide', 'sun');
- updateParticleStyle(true);
- } else {
- htmlEl.removeAttribute('data-theme');
- themeIcon.setAttribute('data-lucide', 'moon');
- updateParticleStyle(false);
+ if (theme === 'light') { htmlEl.setAttribute('data-theme', 'light'); gId('themeIcon').setAttribute('data-lucide', 'sun'); updateParticleStyle(true); } 
+ else { htmlEl.setAttribute('data-theme', 'dark'); gId('themeIcon').setAttribute('data-lucide', 'moon'); updateParticleStyle(false); }
+ lucide.createIcons(); localStorage.setItem('user_theme', theme);
  }
- lucide.createIcons();
- localStorage.setItem('user_theme', theme);
- }
-
  const savedTheme = localStorage.getItem('user_theme');
- const systemPrefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+ applyTheme(savedTheme ? savedTheme : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+ themeBtn.addEventListener('click', () => { applyTheme(htmlEl.getAttribute('data-theme') === 'light' ? 'dark' : 'light'); });
 
- if (savedTheme) {
- applyTheme(savedTheme);
- } else {
- applyTheme(systemPrefersLight ? 'light' : 'dark');
- }
-
- themeBtn.addEventListener('click', () => {
- const currentTheme = htmlEl.getAttribute('data-theme');
- applyTheme(currentTheme === 'light' ? 'dark' : 'light');
- });
-
- window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', e => {
- if (!localStorage.getItem('user_theme')) {
- applyTheme(e.matches ? 'light' : 'dark');
- }
- });
-
- const canvas = document.getElementById('particleCanvas');
- const ctx = canvas.getContext('2d');
- let particlesArray;
-
- canvas.width = window.innerWidth;
- canvas.height = window.innerHeight;
-
+ const canvas = gId('particleCanvas'); const ctx = canvas.getContext('2d'); let particlesArray;
+ canvas.width = window.innerWidth; canvas.height = window.innerHeight;
  class Particle {
- constructor(x, y, directionX, directionY, size) {
- this.x = x;
- this.y = y;
- this.directionX = directionX;
- this.directionY = directionY;
- this.size = size;
+    constructor() { this.x=Math.random()*canvas.width; this.y=Math.random()*canvas.height; this.size=Math.random()*150+50; this.speedX=Math.random()*0.2-0.1; this.speedY=Math.random()*0.2-0.1; this.opacity=Math.random()*0.3+0.1; }
+    update() { this.x+=this.speedX; this.y+=this.speedY; if(this.x<-100||this.x>canvas.width+100)this.speedX*=-1; if(this.y<-100||this.y>canvas.height+100)this.speedY*=-1; }
+    draw() { ctx.fillStyle=`hsla(${particleHue}, 100%, 50%, ${this.opacity*0.2})`; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); }
  }
- draw() {
- ctx.beginPath();
- ctx.rect(this.x, this.y, this.size, this.size); /* Square particles for cyber feel */
- ctx.fillStyle = particleColor;
- ctx.fill();
- }
- update() {
- if (this.x > canvas.width || this.x < 0) this.directionX = -this.directionX;
- if (this.y > canvas.height || this.y < 0) this.directionY = -this.directionY;
- this.x += this.directionX;
- this.y += this.directionY;
- this.draw();
- }
- }
-
- function initParticles() {
- particlesArray = [];
- let numberOfParticles = (canvas.height * canvas.width) / 12000; 
- for (let i = 0; i < numberOfParticles; i++) {
- let size = (Math.random() * 2) + 1;
- let x = (Math.random() * ((innerWidth - size * 2) - (size * 2)) + size * 2);
- let y = (Math.random() * ((innerHeight - size * 2) - (size * 2)) + size * 2);
- let directionX = (Math.random() * 0.4) - 0.2;
- let directionY = (Math.random() * 0.4) - 0.2;
- particlesArray.push(new Particle(x, y, directionX, directionY, size));
- }
- }
-
- function connect() {
- for (let a = 0; a < particlesArray.length; a++) {
- for (let b = a; b < particlesArray.length; b++) {
- let distance = ((particlesArray[a].x - particlesArray[b].x) * (particlesArray[a].x - particlesArray[b].x)) + 
- ((particlesArray[a].y - particlesArray[b].y) * (particlesArray[a].y - particlesArray[b].y));
- if (distance < (canvas.width / 7) * (canvas.height / 7)) {
- ctx.strokeStyle = lineColor;
- ctx.lineWidth = 0.5;
- ctx.beginPath();
- ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
- ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
- ctx.stroke();
- }
- }
- }
- }
-
- function animateParticles() {
- requestAnimationFrame(animateParticles);
- ctx.clearRect(0, 0, innerWidth, innerHeight);
- for (let i = 0; i < particlesArray.length; i++) {
- particlesArray[i].update();
- }
- connect();
- }
-
- window.addEventListener('resize', () => {
- canvas.width = innerWidth;
- canvas.height = innerHeight;
- initParticles();
- });
-
- initParticles();
- animateParticles();
+ function initParticles() { particlesArray=[]; for(let i=0;i<8;i++)particlesArray.push(new Particle()); }
+ function animateParticles() { ctx.clearRect(0,0,canvas.width,canvas.height); for(let i=0;i<particlesArray.length;i++){ particlesArray[i].update(); particlesArray[i].draw(); } requestAnimationFrame(animateParticles); }
+ window.addEventListener('resize', () => { canvas.width=innerWidth; canvas.height=innerHeight; initParticles(); });
+ initParticles(); animateParticles();
 }
 </script>
 </body>
