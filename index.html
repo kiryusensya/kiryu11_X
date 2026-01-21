@@ -775,7 +775,8 @@ async function performAuth(code, isSilent=false){
  els.sExtra.innerHTML=d.extraInfo.replace(/\n/g, '<br>');
 
  const btnText = d.buttonLabel || t.btn_download;
- els.sDown.innerHTML = `<span>${btnText}</span> <i data-lucide="download" size="18"></i>`;
+ const iconName = d.btnIcon || "download"; // Backend determines icon: 'arrow-up-right' or 'download'
+ els.sDown.innerHTML = `<span>${btnText}</span> <i data-lucide="${iconName}" size="18"></i>`;
  els.sDown.href=d.actionUrl;
 
  if(d.isReleaseDateReached===false){
