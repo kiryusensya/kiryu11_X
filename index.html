@@ -144,7 +144,7 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
 
 .widget-hero { grid-column: 1 / 2; grid-row: 1 / 3; background: linear-gradient(145deg, var(--card-bg) 0%, rgba(0, 125, 255, 0.05) 100%); }
 .icon-bubble { width: 64px; height: 64px; background: #007DFF; border-radius: 20px; display: flex; justify-content: center; align-items: center; color: white; }
-.widget-content h3 { font-size: 28px; font-weight: 700; margin: 0 0 8px 0; }
+.widget-content h3 { font-size: 26px; font-weight: 700; margin: 0 0 8px 0; }
 .widget-content p { font-size: 14px; opacity: 0.7; margin: 0; }
 .btn-float { align-self: flex-start; margin-top: 24px; padding: 12px 24px; background: var(--modal-text-main); color: var(--bg-color); border-radius: 50px; font-weight: 700; display: flex; align-items: center; gap: 8px; font-size: 14px; transition: transform 0.3s; }
 [data-theme="dark"] .btn-float { background: #fff; color: #000; }
@@ -266,7 +266,7 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
     outline: none; transition: 0.3s; margin-top: 24px;
     color: var(--modal-text-main);
     font-family: var(--font-stack);
-    font-size: 18px; font-weight: 700; letter-spacing: 0; padding: 0 10px;
+    font-size: 17px; font-weight: 700; letter-spacing: 0; padding: 0 10px;
 }
 [data-theme="dark"] .code-field { color: #fff; background: rgba(255,255,255,0.1); }
 .code-field:focus { background: rgba(0, 125, 255, 0.1); color: var(--primary); }
@@ -754,7 +754,7 @@ async function performAuth(code, isSilent=false){
 
  if(d.isReleaseDateReached===false){
  els.sDown.style.pointerEvents='none'; els.sDown.style.opacity='0.6'; els.sDown.removeAttribute('href');
- els.sDown.innerHTML=`<i data-lucide="lock" size="18"></i> <span>${d.releaseDateStr}</span>`;
+ els.sDown.innerHTML=`<span>${d.releaseDateStr}</span>`;
  const dtSrc=d.releaseDateIso||d.releaseDateStr, target=new Date((!d.releaseDateIso&&typeof dtSrc==='string')?dtSrc.replace(/[.-]/g,'/'):dtSrc);
  const diff=target.getTime()-new Date().getTime();
  if(diff>0&&diff<86400000) setTimeout(()=>performAuth(code,true), diff+3000);
