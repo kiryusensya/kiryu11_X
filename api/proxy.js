@@ -1,69 +1,51 @@
-import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis";
-
-// Redis/Ratelimitの初期化 (環境変数がなければスキップするガードを追加推奨ですが、ここではそのまま)
-const redis = Redis.fromEnv();
-const ratelimit = new Ratelimit({
-  redis: redis,
-  limiter: Ratelimit.slidingWindow(5, "60 s"),
-});
-
 export default async function handler(req, res) {
-  // 1. セキュリティチェック
-  try {
-    const identifier = (req.headers['x-forwarded-for'] || 'ip').split(',')[0];
-    const { success } = await ratelimit.limit(identifier);
-
-    if (!success) {
-      return res.status(429).json({ 
-        success: false,
-        message: 'Too many requests. Please try again later.' 
-      });
-    }
-  } catch (err) {
-    console.error("Redis Error:", err);
-    // Redisエラー時は通過させる
-  }
-
-  // 2. URL振り分け
+  // -------------------------------------------------------
+  // 1. パラメータの整理 (GET/POST両対応)
+  // -------------------------------------------------------
   const requestParams = {
     ...(req.query || {}),
     ...(req.body || {})
   };
 
-  const type = requestParams.type;
-  let targetGasUrl = "";
+  // -------------------------------------------------------
+  // 2. 接続先GASの決定 (一本化)
+  // -------------------------------------------------------
+  // "GAS_URL_Support" は廃止し、すべて "GAS_URL_Main" を使用します。
+  // Vercelの環境変数に "GAS_URL_Main" が正しく設定されている必要があります。
+  const targetGasUrl = process.env.GAS_URL_Main;
 
-  if (type === 'instagram_auth' || type === 'service_status') {
-    targetGasUrl = process.env.GAS_URL_Support;
-  } else {
-    // アクティベーション含むその他すべて
-    targetGasUrl = process.env.GAS_URL_Main;
-  }
-
+  // 環境変数チェック
   if (!targetGasUrl) {
-    return res.status(500).json({ success: false, message: 'Server Config Error: GAS URL missing' });
+    console.error("Error: GAS_URL_Main is not set in Vercel Environment Variables.");
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Server Configuration Error: GAS_URL_Main missing.' 
+    });
   }
 
-  // クエリパラメータの構築
+  // GASへ送るURLを組み立て
   const params = new URLSearchParams(requestParams);
   const finalUrl = `${targetGasUrl}?${params.toString()}`;
 
+  // -------------------------------------------------------
   // 3. GASへのリクエスト実行
+  // -------------------------------------------------------
   try {
-    // GASへのFetchはデフォルトでGET扱いになります
+    // GASは基本的にGETでリクエストを受け取り、redirect: 'follow' が必須
     const response = await fetch(finalUrl, {
-      method: 'GET', // 明示的にGET
-      redirect: 'follow' // リダイレクトを追跡(GASのお約束)
+      method: 'GET',
+      redirect: 'follow',
+      headers: {
+        "Content-Type": "application/json"
+      }
     });
 
-    // Content-Typeチェック
+    // レスポンスがJSONかどうかチェック (GASのエラー画面などが返ってきていないか)
     const contentType = response.headers.get("content-type");
     if (!contentType || !contentType.includes("application/json")) {
-      // JSON以外が返ってきた場合はGAS側でHTMLエラーが発生している
       const text = await response.text();
-      console.error("GAS Error Response (HTML):", text.substring(0, 200)); // ログに冒頭を表示
-      throw new Error("Invalid response from verification server.");
+      console.error("GAS returned HTML/Text instead of JSON:", text.substring(0, 500));
+      throw new Error("Invalid response from GAS (Received HTML/Text). Check GAS deployment permissions.");
     }
 
     const data = await response.json();
@@ -73,7 +55,7 @@ export default async function handler(req, res) {
     console.error("Proxy Fetch Error:", error);
     return res.status(500).json({ 
       success: false, 
-      message: 'Authentication failed.',
+      message: 'Connection to GAS failed.', 
       debug: error.message 
     });
   }
