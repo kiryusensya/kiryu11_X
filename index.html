@@ -3,16 +3,67 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>_.K__yu.10//Enhanced</title>
+<title>_.k__yu.10//Enhanced</title>
 <link rel="icon" href="https://static.wixstatic.com/media/2f0694_eb4d3063598a4cc5b6bd6b8e31cba915~mv2.png/v1/crop/x_248,y_0,w_1065,h_950/fill/w_816,h_728,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/1767545356653.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
-/* --- THEME VARIABLES --- */
+/* --- FONT FACE DEFINITIONS --- */
+/* GitHub assets/fonts フォルダ配置を想定。ファイル名は実際のものに合わせてください */
+
+/* HarmonyOS Sans (Global/Latin/Numbers) */
+@font-face {
+    font-family: 'HarmonyOS Sans';
+    src: url('assets/fonts/HarmonyOS_Sans_Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'HarmonyOS Sans';
+    src: url('assets/fonts/HarmonyOS_Sans_Medium.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'HarmonyOS Sans';
+    src: url('assets/fonts/HarmonyOS_Sans_Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+}
+
+/* HarmonyOS Sans SC (Simplified Chinese) */
+@font-face {
+    font-family: 'HarmonyOS Sans SC';
+    src: url('assets/fonts/HarmonyOS_Sans_SC_Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'HarmonyOS Sans SC';
+    src: url('assets/fonts/HarmonyOS_Sans_SC_Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+}
+
+/* HarmonyOS Sans TC (Traditional Chinese) */
+@font-face {
+    font-family: 'HarmonyOS Sans TC';
+    src: url('assets/fonts/HarmonyOS_Sans_TC_Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'HarmonyOS Sans TC';
+    src: url('assets/fonts/HarmonyOS_Sans_TC_Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+}
+
+/* --- THEME VARIABLES & DYNAMIC FONTS --- */
 :root {
     --primary: #007DFF;
     --bright-green: #00D959; 
@@ -34,12 +85,42 @@
     --radius-xl: 32px;
     --spring-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
     
-    --font-stack: 'HarmonyOS Sans', 'Manrope', 'Noto Sans JP', sans-serif;
-
     /* Scrollbar (Light) */
     --scrollbar-track: rgba(0,0,0,0.05);
     --scrollbar-thumb: rgba(0,0,0,0.2);
+
+    /* --- Default Font Stack (English, Russian, Others) --- */
+    /* 数字・欧文含むすべて HarmonyOS Sans */
+    --font-stack: 'HarmonyOS Sans', 'Manrope', sans-serif;
 }
+
+/* --- Language Specific Font Stacks --- */
+
+/* 日本語 (ja): 数字/欧文はHarmonyOS, 日本語文字はNoto Sans JP */
+:root:lang(ja) {
+    --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
+}
+
+/* 簡体字中国語 (zh): すべて HarmonyOS Sans SC */
+:root:lang(zh) {
+    --font-stack: 'HarmonyOS Sans SC', 'HarmonyOS Sans', sans-serif;
+}
+
+/* 繁体字中国語 (zh-TW): すべて HarmonyOS Sans TC */
+:root:lang(zh-TW) {
+    --font-stack: 'HarmonyOS Sans TC', 'HarmonyOS Sans', sans-serif;
+}
+
+/* 韓国語 (ko): 数字/欧文はHarmonyOS, ハングルはNoto Sans KR */
+:root:lang(ko) {
+    --font-stack: 'HarmonyOS Sans', 'Noto Sans KR', sans-serif;
+}
+
+/* ロシア語 (ru): HarmonyOS Sans (キリル文字対応版を想定、またはデフォルトでカバー) */
+:root:lang(ru) {
+    --font-stack: 'HarmonyOS Sans', sans-serif;
+}
+
 
 [data-theme="dark"] {
     --bg-color: #000000;
@@ -135,6 +216,7 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
     padding: 32px; display: flex; flex-direction: column; justify-content: space-between;
     transition: 0.4s var(--spring-ease); cursor: pointer; position: relative; overflow: hidden;
     color: var(--modal-text-main);
+    font-family: var(--font-stack);
 }
 [data-theme="dark"] .widget { color: #fff; }
 .widget:hover { transform: scale(1.02); box-shadow: 0 20px 50px -10px rgba(0,0,0,0.15); }
@@ -176,6 +258,7 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
     padding: 40px;
     transform: scale(0.95);
     transition: all 0.5s var(--spring-ease);
+    font-family: var(--font-stack);
 }
 .modal-overlay.active .modal-sheet { transform: scale(1); }
 [data-theme="dark"] .modal-sheet { background: #1a1a1a; }
@@ -237,6 +320,7 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
     background: var(--primary); color: white; border-radius: 25px;
     font-size: 16px; font-weight: 700; cursor: pointer;
     transition: transform 0.2s;
+    font-family: var(--font-stack);
 }
 .btn-primary:active { transform: scale(0.96); }
 
@@ -278,12 +362,14 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
     flex: 1; height: 50px; background: transparent;
     border: 1px solid var(--btn-close-border); color: var(--btn-close-text);
     border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s;
+    font-family: var(--font-stack);
 }
 .btn-close-sub:hover { opacity: 0.6; }
 .btn-download {
     flex: 2; height: 50px; background: var(--bright-green); color: #000;
     border-radius: 12px; border: none; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px;
     text-decoration: none; transition: transform 0.2s;
+    font-family: var(--font-stack);
 }
 .btn-download:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(0, 217, 89, 0.4); }
 
@@ -303,7 +389,7 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 [data-theme="dark"] .lang-fab { background: #fff; color: #000; }
 .lang-list { position: fixed; bottom: 90px; right: 30px; background: var(--card-bg); backdrop-filter: blur(20px); padding: 10px; border-radius: 20px; list-style: none; display: none; box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 49; }
 .lang-list.open { display: block; animation: popIn 0.3s; }
-.lang-list li { padding: 10px 20px; cursor: pointer; border-radius: 12px; color: var(--modal-text-main); font-size: 14px; }
+.lang-list li { padding: 10px 20px; cursor: pointer; border-radius: 12px; color: var(--modal-text-main); font-size: 14px; font-family: var(--font-stack); }
 [data-theme="dark"] .lang-list li { color: #fff; }
 @keyframes popIn { from{opacity:0; transform:scale(0.8);} to{opacity:1; transform:scale(1);} }
 
@@ -478,7 +564,7 @@ const TRANSLATIONS={
   card1_title:"アクティベーション",card1_desc:"コードでコンテンツを解除",card1_btn:"開始",
   card2_title:"ニュース",card2_desc:"最新情報を確認",card2_btn:"確認",
   card3_title:"サポート",card3_desc:"お問い合わせはこちら",card3_btn:"接続",
-  modal_title:"認証",modal_sub:"コードを入力してください",modal_placeholder:"XXXX-XXXX-XXXX-XXXX",modal_btn_auth:"認証する",
+  modal_title:"アクティベーション",modal_sub:"コードを入力してください",modal_placeholder:"XXXX-XXXX-XXXX-XXXX",modal_btn_auth:"認証する",
   msg_verifying:"確認中",msg_success_btn:"成功",
   msg_invalid:"このコードは無効です",msg_used:"このコードは使用済みです",msg_error:"エラーが発生しました",
   success_badge:"コードが認証されました。",success_main_title:"有効化されたコンテンツ",success_label_name:"コンテンツ名称", success_label_info:"詳細情報",
@@ -504,7 +590,7 @@ const TRANSLATIONS={
   card1_title:"激活",card1_desc:"解锁内容",card1_btn:"开始", 
   card2_title:"新闻",card2_desc:"查看更新",card2_btn:"查看", 
   card3_title:"支持",card3_desc:"联系我们",card3_btn:"联系", 
-  modal_title:"检查",modal_sub:"输入激活码",modal_placeholder:"XXXX-XXXX-XXXX-XXXX",modal_btn_auth:"检查", 
+  modal_title:"激活",modal_sub:"输入激活码",modal_placeholder:"XXXX-XXXX-XXXX-XXXX",modal_btn_auth:"检查", 
   msg_verifying:"正在检查",msg_success_btn:"成功", 
   msg_invalid:"该代码无效。",msg_used:"该代码已被使用。",msg_error:"错误", 
   success_badge:"代码已检查",success_main_title:"已激活内容",success_label_name:"内容名称",success_label_info:"详细信息", 
@@ -517,7 +603,7 @@ const TRANSLATIONS={
 　card1_title:"激活",card1_desc:"解鎖內容",card1_btn:"開始", 
 　card2_title:"新聞",card2_desc:"查看更新",card2_btn:"查看", 
 　card3_title:"支援",card3_desc:"聯絡我們",card3_btn:"聯絡", 
-　modal_title:"檢查",modal_sub:"輸入啟用碼",modal_placeholder:"XXXX-XXXX-XXXX-XXXX",modal_btn_auth:"檢查", 
+　modal_title:"激活",modal_sub:"輸入啟用碼",modal_placeholder:"XXXX-XXXX-XXXX-XXXX",modal_btn_auth:"檢查", 
   msg_verifying:"正在檢查",msg_success_btn:"成功", 
   msg_invalid:"該程式碼無效。",msg_used:"該程式碼已被使用。",msg_error:"錯誤", 
   success_badge:"代碼已檢查",success_main_title:"已啟用內容",success_label_name:"內容名稱",success_label_info:"詳細資訊", 
@@ -530,7 +616,7 @@ const TRANSLATIONS={
   card1_title:"활성화",card1_desc:"콘텐츠 잠금 해제",card1_btn:"시작", 
   card2_title:"뉴스",card2_desc:"최신 정보",card2_btn:"보기", 
   card3_title:"지원",card3_desc:"문의하기",card3_btn:"연결", 
-  modal_title:"인증",modal_sub:"코드 입력",modal_placeholder:"XXXX-XXXX-XXXX-XXXX-XXXX",modal_btn_auth:"인증", 
+  modal_title:"활성화",modal_sub:"코드 입력",modal_placeholder:"XXXX-XXXX-XXXX-XXXX-XXXX",modal_btn_auth:"인증", 
   msg_verifying:"확인 중",msg_success_btn:"성공", 
   msg_invalid:"잘못된 코드",msg_used:"사용된 코드",msg_error:"오류", 
   success_badge:"코드 인증됨",success_main_title:"활성화된 콘텐츠",success_label_name:"콘텐츠 이름",success_label_info:"상세 정보", 
@@ -540,15 +626,15 @@ const TRANSLATIONS={
     
  ru:{ 
   header_brand:"Портал Доступа", hero_title:"Система<br>Аутентификации", hero_sub:"Управление доступом и ресурсами", 
-     card1_title:"Активация",card1_desc:"Разблокировка",card1_btn:"Старт", 
-     card2_title:"Новости",card2_desc:"Обновления",card2_btn:"См.", 
-     card3_title:"Поддержка",card3_desc:"Связь",card3_btn:"Связь", 
-     modal_title:"Проверка",modal_sub:"Введите код",modal_placeholder:"XXXX-XXXX-XXXX-XXXX",modal_btn_auth:"Проверить", 
-     msg_verifying:"Обработка",msg_success_btn:"Успех", 
-     msg_invalid:"Неверный код",msg_used:"Использован",msg_error:"Ошибка", 
-     success_badge:"Подтверждено",success_main_title:"Активированный контент",success_label_name:"Название",success_label_info:"Детали", 
-     btn_close:"Закрыть",btn_download:"Скачать",news_title:"Новости",news_label:"Лог",news_loading:"Загрузка", 
-     support_modal_title:"Вам нужна помощь?",btn_inquiry:"Н/Д", footer_admin:"Администратор" 
+      card1_title:"Активация",card1_desc:"Разблокировка",card1_btn:"Старт", 
+      card2_title:"Новости",card2_desc:"Обновления",card2_btn:"См.", 
+      card3_title:"Поддержка",card3_desc:"Связь",card3_btn:"Связь", 
+      modal_title:"Проверка",modal_sub:"Введите код",modal_placeholder:"XXXX-XXXX-XXXX-XXXX",modal_btn_auth:"Проверить", 
+      msg_verifying:"Обработка",msg_success_btn:"Успех", 
+      msg_invalid:"Неверный код",msg_used:"Использован",msg_error:"Ошибка", 
+      success_badge:"Подтверждено",success_main_title:"Активированный контент",success_label_name:"Название",success_label_info:"Детали", 
+      btn_close:"Закрыть",btn_download:"Скачать",news_title:"Новости",news_label:"Лог",news_loading:"Загрузка", 
+      support_modal_title:"Вам нужна помощь?",btn_inquiry:"Н/Д", footer_admin:"Администратор" 
  }
 };
 
@@ -616,7 +702,7 @@ function updateLanguage(lang){
  document.querySelectorAll('[data-translate]').forEach(el=>{ const k=el.getAttribute('data-translate'); if(k!=='news_content'&&t[k]) el.innerHTML=t[k]; });
  
  const langMap = {
-    ja: '日本語', en: 'English', zh: '简体中文', 'zh-TW': '繁體中文', ko: '한국어', ru: 'Русский'
+   ja: '日本語', en: 'English', zh: '简体中文', 'zh-TW': '繁體中文', ko: '한국어', ru: 'Русский'
  };
  if(els.currentLangLabel) els.currentLangLabel.textContent = langMap[lang] || 'Language';
  
