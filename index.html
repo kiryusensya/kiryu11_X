@@ -313,10 +313,27 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
   background: rgba(128,128,128,0.05); border-radius: 16px; padding: 20px;
   border: 1px solid rgba(128,128,128,0.1); margin-bottom: 30px; width: 100%;
 }
-.info-row { margin-bottom: 12px; }
-.info-label { font-size: 12px; opacity: 0.6; display: block; margin-bottom: 4px;}
-.info-value { font-size: 15px; font-weight: 600; color: var(--success-text-green); display: block; }
-.info-extra { font-size: 13px; opacity: 0.8; margin-top: 10px; border-top: 1px dashed rgba(128,128,128,0.2); padding-top: 10px; line-height: 1.5; white-space: pre-wrap; }
+/* REMOVED: .info-row */
+/* REMOVED: .info-label */
+/* CHANGED: info-value to be larger */
+.info-value { 
+  font-size: 20px; /* Increased font size */
+  font-weight: 700; 
+  color: var(--success-text-green); 
+  display: block; 
+  margin-bottom: 16px; /* Spacing below message */
+  line-height: 1.4;
+}
+/* CHANGED: dashed border to solid */
+.info-extra { 
+  font-size: 13px; 
+  opacity: 0.8; 
+  margin-top: 0; 
+  border-top: 1px solid rgba(128,128,128,0.2); /* Solid line */
+  padding-top: 16px; 
+  line-height: 1.5; 
+  white-space: pre-wrap; 
+}
 
 .action-row { display: flex; gap: 12px; margin-top: auto; width: 100%; }
 .btn-close-sub {
@@ -478,17 +495,13 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
             <div class="success-badge">
               <i data-lucide="check" size="14"></i> <span data-translate="success_badge">Authenticated</span>
             </div>
+            
             <h3 id="successTitle" class="content-title"></h3>
             
             <div class="info-box">
-              <div class="info-row">
-                <span class="info-label" data-translate="success_label_name">Name</span>
-                <span id="successNameDisplay" class="info-value">...</span>
-              </div>
-              <div class="info-row">
-                <span class="info-label" data-translate="success_label_info">Details</span>
-                <div id="successExtraInfo" class="info-extra"></div>
-              </div>
+              <div id="successNameDisplay" class="info-value">...</div>
+              
+              <div id="successExtraInfo" class="info-extra"></div>
             </div>
           </div>
           
@@ -542,8 +555,6 @@ const TRANSLATIONS={
   msg_verifying:"確認中",msg_success_btn:"成功",
   msg_invalid:"このコードは無効です",msg_used:"このコードは使用済みです",msg_error:"エラーが発生しました",
   success_badge:"コードが認証されました。",
-  // Removed success_main_title
-  success_label_name:"コンテンツ名称", success_label_info:"詳細情報",
   btn_close:"閉じる",btn_download:"ダウンロード",news_title:"最新情報",news_label:"履歴",news_loading:"更新を確認中",
   support_modal_title:"なにかお困りですか?",btn_inquiry:"不可",
   footer_admin:"システム管理者"
@@ -557,8 +568,6 @@ const TRANSLATIONS={
   msg_verifying:"Checking",msg_success_btn:"Success",
   msg_invalid:"This code is invalid.",msg_used:"This code has already been used.",msg_error:"Error occurred",
   success_badge:"Code Verified",
-  // Removed success_main_title
-  success_label_name:"Content Name", success_label_info:"Details",
   btn_close:"Close",btn_download:"Download",news_title:"News",news_label:"Log",news_loading:"Checking for updates",
   support_modal_title:"Channels",btn_inquiry:"N/A",
   footer_admin:"Enforcement Administrator"
@@ -572,8 +581,6 @@ const TRANSLATIONS={
   msg_verifying:"正在检查",msg_success_btn:"成功", 
   msg_invalid:"该代码无效。",msg_used:"该代码已被使用。",msg_error:"错误", 
   success_badge:"代码已检查",
-  // Removed success_main_title
-  success_label_name:"内容名称",success_label_info:"详细信息", 
   btn_close:"关闭",btn_download:"下载",news_title:"最新消息",news_label:"日志",news_loading:"正在检查更新", 
   support_modal_title:"需要帮助吗？",btn_inquiry:"不可用", footer_admin:"系统管理长" 
  },
@@ -587,8 +594,6 @@ const TRANSLATIONS={
   msg_verifying:"正在檢查",msg_success_btn:"成功", 
   msg_invalid:"該程式碼無效。",msg_used:"該程式碼已被使用。",msg_error:"錯誤", 
   success_badge:"代碼已檢查",
-  // Removed success_main_title
-  success_label_name:"內容名稱",success_label_info:"詳細資訊", 
   btn_close:"關閉",btn_download:"下載",news_title:"最新消息",news_label:"日誌",news_loading:"正在檢查更新", 
   support_modal_title:"需要幫助嗎？",btn_inquiry:"不可用", footer_admin:"系統管理長" 
  },
@@ -602,8 +607,6 @@ const TRANSLATIONS={
   msg_verifying:"확인 중",msg_success_btn:"성공", 
   msg_invalid:"잘못된 코드",msg_used:"사용된 코드",msg_error:"오류", 
   success_badge:"코드 인증됨",
-  // Removed success_main_title
-  success_label_name:"콘텐츠 이름",success_label_info:"상세 정보", 
   btn_close:"닫기",btn_download:"다운로드",news_title:"뉴스",news_label:"로그",news_loading:"로딩 중", 
   support_modal_title:"도움 필요해?",btn_inquiry:"불가", footer_admin:"시스템 관리자" 
  },
@@ -617,8 +620,6 @@ const TRANSLATIONS={
       msg_verifying:"Обработка",msg_success_btn:"Успех", 
       msg_invalid:"Неверный код",msg_used:"Использован",msg_error:"Ошибка", 
       success_badge:"Подтверждено",
-      // Removed success_main_title
-      success_label_name:"Название",success_label_info:"Детали", 
       btn_close:"Закрыть",btn_download:"Скачать",news_title:"Новости",news_label:"Лог",news_loading:"Загрузка", 
       support_modal_title:"Вам нужна помощь?",btn_inquiry:"Н/Д", footer_admin:"Администратор" 
  }
@@ -756,8 +757,8 @@ async function performAuth(code, isSilent=false){
         setTimeout(() => els.successPh.style.opacity = '1', 50);
     }, 400);
  }
- // === HERE IS THE CHANGE: Use dynamic bundle label instead of static text ===
- els.sTitle.textContent = d.bundleLabel || d.message; // Fallback to name if bundle is empty
+ 
+ els.sTitle.textContent = d.bundleLabel || d.message; 
  els.sNameDisp.textContent = d.message;
  els.sExtra.innerHTML = d.extraInfo.replace(/\n/g, '<br>');
 
