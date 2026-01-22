@@ -112,26 +112,28 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
 
 /* Hero */
 .hero-text { margin-bottom: 40px; text-align: left; opacity: 0; animation: fadeInUp 0.8s var(--spring-ease) forwards; }
-/* 既存の .hero-title を修正・強化 */
+
+/* 見切れ修正適用 */
 .hero-title {
   font-family: var(--font-stack);
-  font-size: clamp(32px, 10vw, 48px); /* 最小32px、画面幅の10%、最大48pxに自動調整 */
+  font-size: clamp(32px, 10vw, 48px); 
   font-weight: 800;
   line-height: 1.1;
   margin: 0 0 10px 0;
   background: linear-gradient(to right, var(--modal-text-main), var(--modal-text-sub));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  word-break: keep-all; /* 単語の途中で変に改行されるのを防ぐ */
+  word-break: keep-all;
+  padding-right: 0.2em; /* 【修正】文字が見切れるのを防ぐ余白 */
 }
 
 @media (max-width: 480px) {
   .hero-title {
-    font-size: 32px; /* 非常に小さい画面では固定 */
+    font-size: 32px; 
     line-height: 1.2;
   }
 }
-[data-theme="dark"] .hero-title { background: linear-gradient(to right, #fff, #aaa); -webkit-background-clip: text; }
+[data-theme="dark"] .hero-title { background: linear-gradient(to right, #fff, #aaa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 .hero-sub { font-size: 16px; color: var(--modal-text-sub); }
 [data-theme="dark"] .hero-sub { color: #aaa; }
 
@@ -147,6 +149,7 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
   transition: 0.4s var(--spring-ease); cursor: pointer; position: relative; overflow: hidden;
   color: var(--modal-text-main);
   font-family: var(--font-stack);
+  text-decoration: none; /* 【修正】aタグ化に伴う下線削除 */
 }
 [data-theme="dark"] .widget { color: #fff; }
 .widget:hover { transform: scale(1.02); box-shadow: 0 20px 50px -10px rgba(0,0,0,0.15); }
@@ -405,43 +408,13 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 
 /* --- モバイル・スマホ専用の調整 --- */
 @media (max-width: 600px) {
-  /* モーダル全体のタイトル */
-  .modal-title {
-    font-size: 20px;
-  }
-  
-  /* 完了画面のタイトル */
-  .content-title {
-    font-size: 22px;
-    margin-bottom: 16px;
-  }
-
-  /* メッセージ（「確認中」や「認証されました」） */
-  .message-title {
-    font-size: 18px;
-  }
-
-  /* 補足説明テキスト */
-  .info-extra {
-    font-size: 12px;
-    line-height: 1.5;
-  }
-
-  /* 商品名（認証後のメイン表示） */
-  .product-name-row {
-    font-size: 18px;
-  }
-
-  /* 入力欄：iPhoneでの勝手なズームを防止するために16pxを確保 */
-  .code-field {
-    font-size: 16px !important;
-  }
-
-  /* 言語選択カード */
-  .lang-name {
-    font-size: 16px;
-    font-weight: 600;
-  }
+  .modal-title { font-size: 20px; }
+  .content-title { font-size: 22px; margin-bottom: 16px; }
+  .message-title { font-size: 18px; }
+  .info-extra { font-size: 12px; line-height: 1.5; }
+  .product-name-row { font-size: 18px; }
+  .code-field { font-size: 16px !important; }
+  .lang-name { font-size: 16px; font-weight: 600; }
 }
 </style>
 </head>
@@ -495,7 +468,8 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
         <p style="font-size:12px;" data-translate="card2_desc">Check updates.</p>
       </div>
     </div>
-    <div class="widget widget-support" id="btnOpenSupport">
+    
+    <a href="support.html" class="widget widget-support">
       <div style="display:flex; justify-content:space-between;">
         <div style="background:#E8F0FE; color:#1967D2; width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center;"><i data-lucide="search-alert" size="24"></i></div>
         <i data-lucide="arrow-up-right" size="20" style="opacity:0.5;"></i>
@@ -504,7 +478,8 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
         <h3 style="font-size:20px;" data-translate="card3_title">Support</h3>
         <p style="font-size:12px;" data-translate="card3_desc">Contact us.</p>
       </div>
-    </div>
+    </a>
+
   </div>
   <footer>
     <div><span data-translate="footer_admin">Enforcement Administrator</span>: <a href="https://developer-kiryu10.vercel.app/" target="_blank" style="color:inherit;text-decoration:none;font-weight:700;">kiryu-sensya</a></div>
@@ -596,18 +571,6 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
   </div>
 </div>
 
-<div id="supportModal" class="modal-overlay">
-  <div class="modal-sheet" style="padding:40px; text-align:center;">
-    <div style="position:absolute; top:20px; right:20px; cursor:pointer;" id="supportCloseX"><i data-lucide="x" size="24"></i></div>
-    <h2 data-translate="support_modal_title" style="margin:0 0 30px 0; color:var(--modal-text-main);">Channels</h2>
-    <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap;">
-      <a href="https://www.instagram.com/kiryu_sensya" target="_blank" style="font-size:32px; color:var(--modal-text-main);"><i class="fa-brands fa-instagram"></i></a>
-      <div style="font-size:32px; color:var(--modal-text-main);"><i class="fa-brands fa-discord"></i></div>
-      <div style="font-size:32px; color:var(--modal-text-main);"><i class="fa-brands fa-github"></i></div>
-    </div>
-  </div>
-</div>
-
 <script>
 lucide.createIcons();
 const GAS_API_URL="api/proxy"; 
@@ -625,7 +588,6 @@ const TRANSLATIONS={
   success_badge:"コードが認証されました。",
   success_title_preview:"コンテンツの確認", success_title_final:"アクティベーション完了",
   btn_close:"閉じる",btn_continue:"続行する",btn_download:"ダウンロード",news_title:"最新情報",news_label:"履歴",news_loading:"更新を確認中",
-  support_modal_title:"なにかお困りですか?",btn_inquiry:"不可",
   footer_admin:"システム管理者"
  },
  en:{
@@ -639,7 +601,6 @@ const TRANSLATIONS={
   success_badge:"Code Verified",
   success_title_preview:"Confirm Content", success_title_final:"Activation Complete",
   btn_close:"Close",btn_continue:"CONTINUE",btn_download:"Download",news_title:"News",news_label:"Log",news_loading:"Checking for updates",
-  support_modal_title:"Channels",btn_inquiry:"N/A",
   footer_admin:"Enforcement Administrator"
  },
  zh:{ 
@@ -653,7 +614,7 @@ const TRANSLATIONS={
   success_badge:"代码已检查",
   success_title_preview:"确认内容", success_title_final:"激活完成",
   btn_close:"关闭",btn_continue:"继续",btn_download:"下载",news_title:"最新消息",news_label:"日志",news_loading:"正在检查更新", 
-  support_modal_title:"需要帮助吗？",btn_inquiry:"不可用", footer_admin:"系统管理长" 
+  footer_admin:"系统管理长" 
  },
  "zh-TW":{ 
   header_brand:"_.k__yu.10", hero_title:"系統激活", hero_sub:"管理您的存取權限與資源。", 
@@ -666,7 +627,7 @@ const TRANSLATIONS={
   success_badge:"代碼已檢查",
   success_title_preview:"確認內容", success_title_final:"激活完成",
   btn_close:"關閉",btn_continue:"繼續",btn_download:"下載",news_title:"最新消息",news_label:"日誌",news_loading:"正在檢查更新", 
-  support_modal_title:"需要幫助嗎？",btn_inquiry:"不可用", footer_admin:"系統管理長" 
+  footer_admin:"系統管理長" 
  },
  ko:{ 
   header_brand:"_.k__yu.10", hero_title:"시스템 인증 포털", hero_sub:"액세스 권한 및 리소스 관리", 
@@ -679,7 +640,7 @@ const TRANSLATIONS={
   success_badge:"코드 인증됨",
   success_title_preview:"콘텐츠 확인", success_title_final:"활성화 완료",
   btn_close:"닫기",btn_continue:"계속",btn_download:"다운로드",news_title:"뉴스",news_label:"로그",news_loading:"로딩 중", 
-  support_modal_title:"도움 필요해?",btn_inquiry:"불가", footer_admin:"시스템 관리자" 
+  footer_admin:"시스템 관리자" 
  },
  ru:{ 
   header_brand:"_.k__yu.10", hero_title:"СистемаАутентификации", hero_sub:"Управление доступом и ресурсами", 
@@ -692,7 +653,7 @@ const TRANSLATIONS={
       success_badge:"Подтверждено",
       success_title_preview:"Подтверждение", success_title_final:"Готово",
       btn_close:"Закрыть",btn_continue:"ПРОДОЛЖИТЬ",btn_download:"Скачать",news_title:"Новости",news_label:"Лог",news_loading:"Загрузка", 
-      support_modal_title:"Вам нужна помощь?",btn_inquiry:"Н/Д", footer_admin:"Администратор" 
+      footer_admin:"Администратор" 
  }
 };
 
@@ -706,7 +667,7 @@ const els={
  sInfoSec: gId('infoSection'), sNameDisp: gId('successNameDisplay'), sExtra: gId('successExtraInfo'), sBadge: gId('successBadge'), 
  btnRedeem: gId('btnRedeem'), btnDownload: gId('btnDownload'),
  newsList: gId('newsList'), newsModal: gId('newsModal'), openNews: gId('btnOpenNews'), closeNews: gId('newsCloseX'),
- supportModal: gId('supportModal'), openSupport: gId('btnOpenSupport'), closeSupport: gId('supportCloseX'),
+ // Support Elements Removed
  langWrapper: gId('customLangWrapper'), langTrigger: gId('langTrigger'), langMenu: gId('langMenu'), currentLangLabel: gId('currentLangLabel')
 };
 
@@ -801,9 +762,7 @@ setListener(els.authModal,'click',e=>{if(e.target===els.authModal)closeAuthModal
 setListener(els.openNews,'click',()=>{els.newsModal.classList.add('active');lucide.createIcons()});
 setListener(els.closeNews,'click',()=>{els.newsModal.classList.remove('active')});
 setListener(els.newsModal,'click',e=>{if(e.target===els.newsModal)els.newsModal.classList.remove('active')});
-setListener(els.openSupport,'click',()=>{els.supportModal.classList.add('active');lucide.createIcons()});
-setListener(els.closeSupport,'click',()=>{els.supportModal.classList.remove('active')});
-setListener(els.supportModal,'click',e=>{if(e.target===els.supportModal)els.supportModal.classList.remove('active')});
+// Support Listeners Removed
 
 els.code.addEventListener('input',()=>{ els.code.value = formatCodeInput(els.code.value); });
 els.confirm.addEventListener('click',()=>{ const c=els.code.value.trim(); if(c) performAuth(c); });
@@ -850,7 +809,7 @@ async function performAuth(code, isSilent=false){
       
       els.sTitle.textContent = t.success_title_preview; 
       els.sProdName.textContent = d.bundleLabel; 
-      els.sNameDisp.textContent = d.message;       
+      els.sNameDisp.textContent = d.message;        
       els.sExtra.innerHTML = d.extraInfo.replace(/\n/g, '<br>'); 
       
       if(d.imageUrl && d.imageUrl.startsWith("http")){ els.sImg.src=d.imageUrl; } 
@@ -961,7 +920,7 @@ function initThemeAndParticles() {
   let particleHue = 210;
 
   function updateParticleStyle(isLight) { particleHue = isLight ? 210 : 220; }
-   
+    
   function applyTheme(theme) {
     if (theme === 'light') { 
         htmlEl.setAttribute('data-theme', 'light');
@@ -977,7 +936,7 @@ function initThemeAndParticles() {
 
   const savedTheme = localStorage.getItem('user_theme');
   const systemQuery = window.matchMedia('(prefers-color-scheme: dark)');
-   
+    
   if (savedTheme) { applyTheme(savedTheme); } 
   else { applyTheme(systemQuery.matches ? 'dark' : 'light'); }
 
