@@ -23,24 +23,24 @@
 
 /* --- THEME VARIABLES --- */
 :root {
-    --primary: #007DFF;
-    --bright-green: #00D959; 
-    --dark-green-text: #005522; 
-    --bg-color: #F2F3F5;
-    --card-bg: rgba(255, 255, 255, 0.85);
-    --modal-bg-success: rgba(255, 255, 255, 0.85); 
-    --modal-backdrop: blur(20px);
-    --modal-text-main: #191919;
-    --modal-text-sub: #666666;
-    --modal-border: rgba(0,0,0,0.05);
-    --success-text-green: var(--dark-green-text); 
-    --btn-close-border: #000000;
-    --btn-close-text: #000000;
-    --radius-xl: 32px;
-    --spring-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
-    --scrollbar-track: rgba(0,0,0,0.05);
-    --scrollbar-thumb: rgba(0,0,0,0.2);
-    --font-stack: 'HarmonyOS Sans', 'Manrope', sans-serif;
+  --primary: #007DFF;
+  --bright-green: #00D959; 
+  --dark-green-text: #005522; 
+  --bg-color: #F2F3F5;
+  --card-bg: rgba(255, 255, 255, 0.85);
+  --modal-bg-success: rgba(255, 255, 255, 0.85); 
+  --modal-backdrop: blur(20px);
+  --modal-text-main: #191919;
+  --modal-text-sub: #666666;
+  --modal-border: rgba(0,0,0,0.05);
+  --success-text-green: var(--dark-green-text); 
+  --btn-close-border: #000000;
+  --btn-close-text: #000000;
+  --radius-xl: 32px;
+  --spring-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --scrollbar-track: rgba(0,0,0,0.05);
+  --scrollbar-thumb: rgba(0,0,0,0.2);
+  --font-stack: 'HarmonyOS Sans', 'Manrope', sans-serif;
 }
 :root:lang(ja) { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
 :root:lang(zh) { --font-stack: 'HarmonyOS Sans SC', 'HarmonyOS Sans', sans-serif; }
@@ -49,18 +49,18 @@
 :root:lang(ru) { --font-stack: 'HarmonyOS Sans', sans-serif; }
 
 [data-theme="dark"] {
-    --bg-color: #000000;
-    --card-bg: rgba(30, 30, 30, 0.6);
-    --modal-bg-success: #111111;
-    --modal-backdrop: none;
-    --modal-text-main: #FFFFFF;
-    --modal-text-sub: #A0A0A0;
-    --modal-border: rgba(255,255,255,0.1);
-    --success-text-green: var(--bright-green); 
-    --btn-close-border: #FFFFFF;
-    --btn-close-text: #FFFFFF;
-    --scrollbar-track: rgba(255,255,255,0.05);
-    --scrollbar-thumb: rgba(255,255,255,0.2);
+  --bg-color: #000000;
+  --card-bg: rgba(30, 30, 30, 0.6);
+  --modal-bg-success: #111111;
+  --modal-backdrop: none;
+  --modal-text-main: #FFFFFF;
+  --modal-text-sub: #A0A0A0;
+  --modal-border: rgba(255,255,255,0.1);
+  --success-text-green: var(--bright-green); 
+  --btn-close-border: #FFFFFF;
+  --btn-close-text: #FFFFFF;
+  --scrollbar-track: rgba(255,255,255,0.05);
+  --scrollbar-thumb: rgba(255,255,255,0.2);
 }
 
 ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -71,33 +71,33 @@
 *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 body {
-    margin: 0; padding: 0;
-    background-color: var(--bg-color);
-    color: var(--modal-text-main);
-    font-family: var(--font-stack);
-    min-height: 100vh;
-    display: flex; flex-direction: column;
-    overflow-x: hidden;
-    transition: background-color 0.5s ease;
+  margin: 0; padding: 0;
+  background-color: var(--bg-color);
+  color: var(--modal-text-main);
+  font-family: var(--font-stack);
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  overflow-x: hidden;
+  transition: background-color 0.5s ease;
 }
 
 #particleCanvas {
-    position: fixed; inset: 0; width: 100%; height: 100%;
-    z-index: 0; opacity: 0.8; pointer-events: none;
-    filter: blur(80px);
+  position: fixed; inset: 0; width: 100%; height: 100%;
+  z-index: 0; opacity: 0.8; pointer-events: none;
+  filter: blur(80px);
 }
 
 .loading-dots::after {
-    content: ''; animation: dots-loop 1.5s infinite steps(1);
-    display: inline-block; width: 1em; text-align: left;
+  content: ''; animation: dots-loop 1.5s infinite steps(1);
+  display: inline-block; width: 1em; text-align: left;
 }
 @keyframes dots-loop { 0% { content: '.'; } 33% { content: '..'; } 66% { content: '...'; } 100% { content: ''; } }
 
 /* Layout */
 .wrapper {
-    width: 100%; max-width: 1000px; margin: 0 auto; padding: 0 24px;
-    flex: 1; display: flex; flex-direction: column; justify-content: center;
-    position: relative; z-index: 5;
+  width: 100%; max-width: 1000px; margin: 0 auto; padding: 0 24px;
+  flex: 1; display: flex; flex-direction: column; justify-content: center;
+  position: relative; z-index: 5;
 }
 
 header { padding: 24px 0; display: flex; justify-content: space-between; align-items: center; }
@@ -106,10 +106,10 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
 [data-theme="dark"] .brand { color: #fff; }
 
 .theme-pill {
-    width: 44px; height: 44px; border-radius: 50%;
-    background: var(--card-bg); border: 1px solid rgba(128,128,128,0.2);
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: transform 0.3s; backdrop-filter: blur(10px); color: var(--modal-text-main);
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--card-bg); border: 1px solid rgba(128,128,128,0.2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: transform 0.3s; backdrop-filter: blur(10px); color: var(--modal-text-main);
 }
 [data-theme="dark"] .theme-pill { color: #fff; }
 .theme-pill:hover { transform: scale(1.1); }
@@ -117,27 +117,27 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
 /* Hero */
 .hero-text { margin-bottom: 40px; text-align: left; opacity: 0; animation: fadeInUp 0.8s var(--spring-ease) forwards; }
 .hero-title {
-    font-family: var(--font-stack); font-size: 48px; font-weight: 800;
-    line-height: 1.1; margin: 0 0 10px 0;
-    background: linear-gradient(to right, var(--modal-text-main), var(--modal-text-sub));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  font-family: var(--font-stack); font-size: 48px; font-weight: 800;
+  line-height: 1.1; margin: 0 0 10px 0;
+  background: linear-gradient(to right, var(--modal-text-main), var(--modal-text-sub));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
 }
 [data-theme="dark"] .hero-title { background: linear-gradient(to right, #fff, #aaa); -webkit-background-clip: text; }
 .hero-sub { font-size: 16px; color: var(--modal-text-sub); }
 [data-theme="dark"] .hero-sub { color: #aaa; }
 
 .bento-grid {
-    display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: 240px 180px; gap: 20px;
-    width: 100%; opacity: 0; animation: fadeInUp 0.8s 0.2s var(--spring-ease) forwards;
+  display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: 240px 180px; gap: 20px;
+  width: 100%; opacity: 0; animation: fadeInUp 0.8s 0.2s var(--spring-ease) forwards;
 }
 
 .widget {
-    background: var(--card-bg); backdrop-filter: blur(30px);
-    border: 1px solid rgba(128,128,128,0.1); border-radius: var(--radius-xl);
-    padding: 32px; display: flex; flex-direction: column; justify-content: space-between;
-    transition: 0.4s var(--spring-ease); cursor: pointer; position: relative; overflow: hidden;
-    color: var(--modal-text-main);
-    font-family: var(--font-stack);
+  background: var(--card-bg); backdrop-filter: blur(30px);
+  border: 1px solid rgba(128,128,128,0.1); border-radius: var(--radius-xl);
+  padding: 32px; display: flex; flex-direction: column; justify-content: space-between;
+  transition: 0.4s var(--spring-ease); cursor: pointer; position: relative; overflow: hidden;
+  color: var(--modal-text-main);
+  font-family: var(--font-stack);
 }
 [data-theme="dark"] .widget { color: #fff; }
 .widget:hover { transform: scale(1.02); box-shadow: 0 20px 50px -10px rgba(0,0,0,0.15); }
@@ -154,83 +154,83 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
 .widget-support { grid-column: 2 / 3; grid-row: 2 / 3; }
 
 @media (max-width: 768px) {
-    .bento-grid { display: flex; flex-direction: column; gap: 16px; }
-    .widget-hero { min-height: 280px; }
-    .widget-news, .widget-support { min-height: 160px; }
-    .hero-title { font-size: 36px; }
+  .bento-grid { display: flex; flex-direction: column; gap: 16px; }
+  .widget-hero { min-height: 280px; }
+  .widget-news, .widget-support { min-height: 160px; }
+  .hero-title { font-size: 36px; }
 }
 @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 
 /* --- NEW INTRO LANGUAGE SELECTOR --- */
 .intro-container {
-    text-align: center;
-    width: 100%;
-    max-width: 800px;
-    padding: 20px;
-    animation: fadeIn 0.8s ease;
+  text-align: center;
+  width: 100%;
+  max-width: 800px;
+  padding: 20px;
+  animation: fadeIn 0.8s ease;
 }
 .intro-header { margin-bottom: 60px; }
 .intro-brand { 
-    font-size: 14px; letter-spacing: 2px; opacity: 0.6; font-weight: 700; 
-    margin-bottom: 16px; display: block; 
-    color: var(--modal-text-main);
+  font-size: 14px; letter-spacing: 2px; opacity: 0.6; font-weight: 700; 
+  margin-bottom: 16px; display: block; 
+  color: var(--modal-text-main);
 }
 .intro-title {
-    font-size: 42px; font-weight: 800; 
-    color: var(--modal-text-main);
-    margin: 0; line-height: 1.2;
+  font-size: 42px; font-weight: 800; 
+  color: var(--modal-text-main);
+  margin: 0; line-height: 1.2;
 }
 [data-theme="dark"] .intro-title { color: #fff; }
 
 .lang-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
 }
 .lang-card {
-    background: var(--card-bg);
-    border: 1px solid rgba(128,128,128,0.1);
-    border-radius: 24px;
-    padding: 30px 20px;
-    cursor: pointer;
-    transition: all 0.3s var(--spring-ease);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 10px;
-    backdrop-filter: blur(10px);
+  background: var(--card-bg);
+  border: 1px solid rgba(128,128,128,0.1);
+  border-radius: 24px;
+  padding: 30px 20px;
+  cursor: pointer;
+  transition: all 0.3s var(--spring-ease);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px;
+  backdrop-filter: blur(10px);
 }
 .lang-card:hover {
-    transform: translateY(-5px) scale(1.02);
-    background: rgba(0, 125, 255, 0.05);
-    border-color: var(--primary);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+  transform: translateY(-5px) scale(1.02);
+  background: rgba(0, 125, 255, 0.05);
+  border-color: var(--primary);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.1);
 }
 .lang-name { font-size: 16px; font-weight: 700; color: var(--modal-text-main); }
 
 @media (max-width: 600px) {
-    .intro-title { font-size: 32px; }
-    .lang-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
-    .lang-card { padding: 20px; }
+  .intro-title { font-size: 32px; }
+  .lang-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .lang-card { padding: 20px; }
 }
 
 /* --- MODAL SYSTEM --- */
 .modal-overlay {
-    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px);
-    z-index: 9999; display: flex; justify-content: center; align-items: center;
-    opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px);
+  z-index: 9999; display: flex; justify-content: center; align-items: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
 }
 .modal-overlay.active { opacity: 1; pointer-events: auto; }
 
 .modal-sheet {
-    background: var(--bg-color);
-    border-radius: 32px;
-    box-shadow: 0 40px 100px rgba(0,0,0,0.3);
-    border: 1px solid rgba(128,128,128,0.1);
-    position: relative; overflow: hidden;
-    width: 90%; max-width: 440px; 
-    padding: 40px;
-    transform: scale(0.95);
-    transition: all 0.5s var(--spring-ease);
-    font-family: var(--font-stack);
+  background: var(--bg-color);
+  border-radius: 32px;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.3);
+  border: 1px solid rgba(128,128,128,0.1);
+  position: relative; overflow: hidden;
+  width: 90%; max-width: 440px; 
+  padding: 40px;
+  transform: scale(0.95);
+  transition: all 0.5s var(--spring-ease);
+  font-family: var(--font-stack);
 }
 .modal-overlay.active .modal-sheet { transform: scale(1); }
 [data-theme="dark"] .modal-sheet { background: #1a1a1a; }
@@ -240,19 +240,19 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
 
 /* Success Expansion */
 .modal-sheet.is-success {
-    max-width: 850px; padding: 0;
-    background: var(--modal-bg-success);
-    backdrop-filter: var(--modal-backdrop);
-    -webkit-backdrop-filter: var(--modal-backdrop);
-    border-color: var(--modal-border);
+  max-width: 850px; padding: 0;
+  background: var(--modal-bg-success);
+  backdrop-filter: var(--modal-backdrop);
+  -webkit-backdrop-filter: var(--modal-backdrop);
+  border-color: var(--modal-border);
 }
 
 /* INPUT PHASE */
 #inputPhase { 
-    width: 100%; transition: opacity 0.3s ease; 
-    text-align: center; 
-    display: flex; flex-direction: column; align-items: center;
-    position: relative; 
+  width: 100%; transition: opacity 0.3s ease; 
+  text-align: center; 
+  display: flex; flex-direction: column; align-items: center;
+  position: relative; 
 }
 .modal-title { margin:0 0 10px 0; font-size:24px; font-weight:800; color:var(--modal-text-main); text-align: center; }
 [data-theme="dark"] .modal-title { color: #fff; }
@@ -260,30 +260,30 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
 [data-theme="dark"] .modal-sub { color: #aaa; }
 
 .code-field {
-    width: 100%; border: none; background: rgba(128, 128, 128, 0.1);
-    height: 56px; border-radius: 16px; 
-    text-align: center; 
-    outline: none; transition: 0.3s; margin-top: 24px;
-    color: var(--modal-text-main);
-    font-family: var(--font-stack);
-    font-size: 17px; font-weight: 700; letter-spacing: 0; padding: 0 10px;
+  width: 100%; border: none; background: rgba(128, 128, 128, 0.1);
+  height: 56px; border-radius: 16px; 
+  text-align: center; 
+  outline: none; transition: 0.3s; margin-top: 24px;
+  color: var(--modal-text-main);
+  font-family: var(--font-stack);
+  font-size: 17px; font-weight: 700; letter-spacing: 0; padding: 0 10px;
 }
 [data-theme="dark"] .code-field { color: #fff; background: rgba(255,255,255,0.1); }
 .code-field:focus { background: rgba(0, 125, 255, 0.1); color: var(--primary); }
 
 .btn-primary {
-    width: 100%; height: 50px; margin-top: 20px; border: none;
-    background: var(--primary); color: white; border-radius: 25px;
-    font-size: 16px; font-weight: 700; cursor: pointer;
-    transition: transform 0.2s; font-family: var(--font-stack);
+  width: 100%; height: 50px; margin-top: 20px; border: none;
+  background: var(--primary); color: white; border-radius: 25px;
+  font-size: 16px; font-weight: 700; cursor: pointer;
+  transition: transform 0.2s; font-family: var(--font-stack);
 }
 .btn-primary:active { transform: scale(0.96); }
 
 /* Error Message Position */
 #statusContainer { 
-    margin-top: 0; min-height: 0; 
-    position: absolute; bottom: -30px; left: 0; width: 100%; 
-    text-align: center;
+  margin-top: 0; min-height: 0; 
+  position: absolute; bottom: -30px; left: 0; width: 100%; 
+  text-align: center;
 }
 
 /* SUCCESS LAYOUT */
@@ -294,24 +294,24 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
 .success-visual img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 .success-details {
-    flex: 1; padding: 40px; display: flex; flex-direction: column; justify-content: center;
-    text-align: left; color: var(--modal-text-main);
+  flex: 1; padding: 40px; display: flex; flex-direction: column; justify-content: center;
+  text-align: left; color: var(--modal-text-main);
 }
 [data-theme="dark"] .success-details { color: #fff; }
 
 .success-badge {
-    display: inline-flex; align-items: center; gap: 8px;
-    border: 1px solid var(--success-text-green); color: var(--success-text-green);
-    padding: 6px 16px; border-radius: 50px; font-size: 13px; font-weight: 700;
-    margin-bottom: 20px; width: fit-content; background: rgba(0, 224, 80, 0.1);
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid var(--success-text-green); color: var(--success-text-green);
+  padding: 6px 16px; border-radius: 50px; font-size: 13px; font-weight: 700;
+  margin-bottom: 20px; width: fit-content; background: rgba(0, 224, 80, 0.1);
 }
 .content-title-label { font-size: 12px; opacity: 0.6; margin-bottom: 5px; display: block; }
 .content-title { font-size: 32px; font-weight: 800; margin: 0 0 24px 0; line-height: 1.2; color: #000; }
 [data-theme="dark"] .content-title { color: #fff; }
 
 .info-box {
-    background: rgba(128,128,128,0.05); border-radius: 16px; padding: 20px;
-    border: 1px solid rgba(128,128,128,0.1); margin-bottom: 30px; width: 100%;
+  background: rgba(128,128,128,0.05); border-radius: 16px; padding: 20px;
+  border: 1px solid rgba(128,128,128,0.1); margin-bottom: 30px; width: 100%;
 }
 .info-row { margin-bottom: 12px; }
 .info-label { font-size: 12px; opacity: 0.6; display: block; margin-bottom: 4px;}
@@ -320,26 +320,26 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
 
 .action-row { display: flex; gap: 12px; margin-top: auto; width: 100%; }
 .btn-close-sub {
-    flex: 1; height: 50px; background: transparent;
-    border: 1px solid var(--btn-close-border); color: var(--btn-close-text);
-    border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s;
-    font-family: var(--font-stack);
+  flex: 1; height: 50px; background: transparent;
+  border: 1px solid var(--btn-close-border); color: var(--btn-close-text);
+  border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s;
+  font-family: var(--font-stack);
 }
 .btn-close-sub:hover { opacity: 0.6; }
 .btn-download {
-    flex: 2; height: 50px; background: var(--bright-green); color: #000;
-    border-radius: 12px; border: none; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px;
-    text-decoration: none; transition: transform 0.2s;
-    font-family: var(--font-stack);
+  flex: 2; height: 50px; background: var(--bright-green); color: #000;
+  border-radius: 12px; border: none; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px;
+  text-decoration: none; transition: transform 0.2s;
+  font-family: var(--font-stack);
 }
 .btn-download:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(0, 217, 89, 0.4); }
 
 @media (max-width: 768px) {
-    .modal-sheet.is-success { max-width: 92%; border-radius: 24px; height: auto; max-height: 85vh; overflow-y: auto; }
-    .success-container { flex-direction: column; min-height: auto; }
-    .success-visual { width: 100%; height: 220px; flex: none; }
-    .success-details { padding: 24px; flex: auto; }
-    .content-title { font-size: 24px; }
+  .modal-sheet.is-success { max-width: 92%; border-radius: 24px; height: auto; max-height: 85vh; overflow-y: auto; }
+  .success-container { flex-direction: column; min-height: auto; }
+  .success-visual { width: 100%; height: 220px; flex: none; }
+  .success-details { padding: 24px; flex: auto; }
+  .content-title { font-size: 24px; }
 }
 
 footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font-size: 12px; }
@@ -362,169 +362,169 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 <canvas id="particleCanvas"></canvas>
 
 <div id="langSelectionOverlay" class="modal-overlay active" style="opacity:1; background:var(--bg-color); z-index:10000;">
-    <div class="intro-container">
-        <div class="intro-header">
-            <span class="intro-brand">Harmony Enhanced Edition</span>
-            <h2 class="intro-title">Select Language</h2>
-        </div>
-        <div class="lang-grid">
-            <div class="lang-card" onclick="setInitialLanguage('ja')">
-                <div class="lang-name">日本語</div>
-            </div>
-            <div class="lang-card" onclick="setInitialLanguage('en')">
-                <div class="lang-name">English</div>
-            </div>
-            <div class="lang-card" onclick="setInitialLanguage('zh')">
-                <div class="lang-name">简体中文</div>
-            </div>
-            <div class="lang-card" onclick="setInitialLanguage('zh-TW')">
-                <div class="lang-name">繁體中文</div>
-            </div>
-            <div class="lang-card" onclick="setInitialLanguage('ko')">
-                <div class="lang-name">한국어</div>
-            </div>
-            <div class="lang-card" onclick="setInitialLanguage('ru')">
-                <div class="lang-name">Русский</div>
-            </div>
-        </div>
+  <div class="intro-container">
+    <div class="intro-header">
+      <span class="intro-brand">Harmony Enhanced Edition</span>
+      <h2 class="intro-title">Select Language</h2>
     </div>
+    <div class="lang-grid">
+      <div class="lang-card" onclick="setInitialLanguage('ja')">
+        <div class="lang-name">日本語</div>
+      </div>
+      <div class="lang-card" onclick="setInitialLanguage('en')">
+        <div class="lang-name">English</div>
+      </div>
+      <div class="lang-card" onclick="setInitialLanguage('zh')">
+        <div class="lang-name">简体中文</div>
+      </div>
+      <div class="lang-card" onclick="setInitialLanguage('zh-TW')">
+        <div class="lang-name">繁體中文</div>
+      </div>
+      <div class="lang-card" onclick="setInitialLanguage('ko')">
+        <div class="lang-name">한국어</div>
+      </div>
+      <div class="lang-card" onclick="setInitialLanguage('ru')">
+        <div class="lang-name">Русский</div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="wrapper" id="mainContainer" style="opacity:0;">
-    <header>
-        <div class="brand"><i data-lucide="command"></i> <span data-translate="header_brand">Access Portal</span></div>
-        <div class="theme-pill" id="themeToggle"><i data-lucide="sun" id="themeIcon"></i></div>
-    </header>
+  <header>
+    <div class="brand"><i data-lucide="command"></i> <span data-translate="header_brand">Access Portal</span></div>
+    <div class="theme-pill" id="themeToggle"><i data-lucide="sun" id="themeIcon"></i></div>
+  </header>
 
-    <div class="hero-text">
-        <h1 class="hero-title" data-translate="hero_title">System<br>Authentication</h1>
-        <div class="hero-sub" data-translate="hero_sub">Manage your access and resources.</div>
-    </div>
+  <div class="hero-text">
+    <h1 class="hero-title" data-translate="hero_title">System<br>Authentication</h1>
+    <div class="hero-sub" data-translate="hero_sub">Manage your access and resources.</div>
+  </div>
 
-    <div class="bento-grid">
-        <div class="widget widget-hero" id="btnOpenModal">
-            <div class="icon-bubble"><i data-lucide="key" size="32"></i></div>
-            <div class="widget-content">
-                <h3 data-translate="card1_title">ACTIVATION</h3>
-                <p data-translate="card1_desc">Enter code to unlock.</p>
-                <div class="btn-float"><span data-translate="card1_btn">Start</span> <i data-lucide="arrow-right" size="16"></i></div>
-            </div>
-        </div>
-        <div class="widget widget-news" id="btnOpenNews">
-            <div style="display:flex; justify-content:space-between;">
-                <div style="background:#FFEFEB; color:#FF5C00; width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center;"><i data-lucide="zap" size="24"></i></div>
-                <i data-lucide="arrow-up-right" size="20" style="opacity:0.5;"></i>
-            </div>
-            <div class="widget-content">
-                <h3 style="font-size:20px;" data-translate="card2_title">News</h3>
-                <p style="font-size:12px;" data-translate="card2_desc">Check updates.</p>
-            </div>
-        </div>
-        <div class="widget widget-support" id="btnOpenSupport">
-            <div style="display:flex; justify-content:space-between;">
-                <div style="background:#E8F0FE; color:#1967D2; width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center;"><i data-lucide="message-circle" size="24"></i></div>
-                <i data-lucide="arrow-up-right" size="20" style="opacity:0.5;"></i>
-            </div>
-            <div class="widget-content">
-                <h3 style="font-size:20px;" data-translate="card3_title">Support</h3>
-                <p style="font-size:12px;" data-translate="card3_desc">Contact us.</p>
-            </div>
-        </div>
+  <div class="bento-grid">
+    <div class="widget widget-hero" id="btnOpenModal">
+      <div class="icon-bubble"><i data-lucide="key" size="32"></i></div>
+      <div class="widget-content">
+        <h3 data-translate="card1_title">ACTIVATION</h3>
+        <p data-translate="card1_desc">Enter code to unlock.</p>
+        <div class="btn-float"><span data-translate="card1_btn">Start</span> <i data-lucide="arrow-right" size="16"></i></div>
+      </div>
     </div>
-    <footer>
-        <div><span data-translate="footer_admin">SYSTEM ADMIN</span>: <a href="https://developer-kiryu10.vercel.app/" target="_blank" style="color:inherit;text-decoration:none;font-weight:700;">kiryu-sensya</a></div>
-        <div style="opacity:0.5; margin-top:5px;">© 2019-2026 All Rights Reserved</div>
-    </footer>
+    <div class="widget widget-news" id="btnOpenNews">
+      <div style="display:flex; justify-content:space-between;">
+        <div style="background:#FFEFEB; color:#FF5C00; width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center;"><i data-lucide="zap" size="24"></i></div>
+        <i data-lucide="arrow-up-right" size="20" style="opacity:0.5;"></i>
+      </div>
+      <div class="widget-content">
+        <h3 style="font-size:20px;" data-translate="card2_title">News</h3>
+        <p style="font-size:12px;" data-translate="card2_desc">Check updates.</p>
+      </div>
+    </div>
+    <div class="widget widget-support" id="btnOpenSupport">
+      <div style="display:flex; justify-content:space-between;">
+        <div style="background:#E8F0FE; color:#1967D2; width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center;"><i data-lucide="message-circle" size="24"></i></div>
+        <i data-lucide="arrow-up-right" size="20" style="opacity:0.5;"></i>
+      </div>
+      <div class="widget-content">
+        <h3 style="font-size:20px;" data-translate="card3_title">Support</h3>
+        <p style="font-size:12px;" data-translate="card3_desc">Contact us.</p>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div><span data-translate="footer_admin">SYSTEM ADMIN</span>: <a href="https://developer-kiryu10.vercel.app/" target="_blank" style="color:inherit;text-decoration:none;font-weight:700;">kiryu-sensya</a></div>
+    <div style="opacity:0.5; margin-top:5px;">© 2019-2026 All Rights Reserved</div>
+  </footer>
 </div>
 
 <div class="custom-lang-wrapper">
-    <div class="lang-fab" id="langTrigger"><i data-lucide="globe" size="18"></i> <span id="currentLangLabel">日本語</span></div>
-    <ul class="lang-list" id="langMenu">
-        <li class="lang-option" data-value="ja">日本語</li>
-        <li class="lang-option" data-value="en">English</li>
-        <li class="lang-option" data-value="zh">简体中文</li>
-        <li class="lang-option" data-value="zh-TW">繁體中文</li>
-        <li class="lang-option" data-value="ko">한국어</li>
-        <li class="lang-option" data-value="ru">Русский</li>
-    </ul>
+  <div class="lang-fab" id="langTrigger"><i data-lucide="globe" size="18"></i> <span id="currentLangLabel">日本語</span></div>
+  <ul class="lang-list" id="langMenu">
+    <li class="lang-option" data-value="ja">日本語</li>
+    <li class="lang-option" data-value="en">English</li>
+    <li class="lang-option" data-value="zh">简体中文</li>
+    <li class="lang-option" data-value="zh-TW">繁體中文</li>
+    <li class="lang-option" data-value="ko">한국어</li>
+    <li class="lang-option" data-value="ru">Русский</li>
+  </ul>
 </div>
 
 <div id="langSwitchingOverlay" style="position:fixed; inset:0; background:var(--bg-color); z-index:9999; display:none; align-items:center; justify-content:center;">
-    <div class="loading-spinner"></div>
+  <div class="loading-spinner"></div>
 </div>
 
 <div id="authModal" class="modal-overlay">
-    <div class="modal-sheet" id="modalContainer">
-        
-        <div style="position:absolute; top:20px; right:20px; cursor:pointer; opacity:0.6; z-index:10;" id="modalCloseBtn"><i data-lucide="x" size="24"></i></div>
+  <div class="modal-sheet" id="modalContainer">
+    
+    <div style="position:absolute; top:20px; right:20px; cursor:pointer; opacity:0.6; z-index:10;" id="modalCloseBtn"><i data-lucide="x" size="24"></i></div>
 
-        <div id="inputPhase">
-            <h2 class="modal-title" data-translate="modal_title">Authentication</h2>
-            <p class="modal-sub" data-translate="modal_sub">Enter access code</p>
-            
-            <input type="text" id="activationCode" class="code-field" placeholder="____-____" autocomplete="off">
-            
-            <button id="btnConfirm" class="btn-primary" data-translate="modal_btn_auth">Authenticate</button>
-            <div id="statusContainer"></div>
-        </div>
-
-        <div id="successPhase">
-            <div class="success-container">
-                <div class="success-visual">
-                    <img id="successImage" src="" alt="Content">
-                </div>
-                <div class="success-details">
-                    <div>
-                        <div class="success-badge">
-                            <i data-lucide="check" size="14"></i> <span data-translate="success_badge">Authenticated</span>
-                        </div>
-                        <h3 id="successTitle" class="content-title" data-translate="success_main_title">Activated Content</h3>
-                        
-                        <div class="info-box">
-                            <div class="info-row">
-                                <span class="info-label" data-translate="success_label_name">Name</span>
-                                <span id="successNameDisplay" class="info-value">...</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label" data-translate="success_label_info">Details</span>
-                                <div id="successExtraInfo" class="info-extra"></div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="action-row">
-                        <button id="modalCloseSub" class="btn-close-sub" data-translate="btn_close">Close</button>
-                        <a href="#" id="successDownloadBtn" class="btn-download">
-                            <span data-translate="btn_download">Download</span> <i data-lucide="download" size="18"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+    <div id="inputPhase">
+      <h2 class="modal-title" data-translate="modal_title">Authentication</h2>
+      <p class="modal-sub" data-translate="modal_sub">Enter access code</p>
+      
+      <input type="text" id="activationCode" class="code-field" placeholder="____-____" autocomplete="off">
+      
+      <button id="btnConfirm" class="btn-primary" data-translate="modal_btn_auth">Authenticate</button>
+      <div id="statusContainer"></div>
     </div>
+
+    <div id="successPhase">
+      <div class="success-container">
+        <div class="success-visual">
+          <img id="successImage" src="" alt="Content">
+        </div>
+        <div class="success-details">
+          <div>
+            <div class="success-badge">
+              <i data-lucide="check" size="14"></i> <span data-translate="success_badge">Authenticated</span>
+            </div>
+            <h3 id="successTitle" class="content-title"></h3>
+            
+            <div class="info-box">
+              <div class="info-row">
+                <span class="info-label" data-translate="success_label_name">Name</span>
+                <span id="successNameDisplay" class="info-value">...</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label" data-translate="success_label_info">Details</span>
+                <div id="successExtraInfo" class="info-extra"></div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="action-row">
+            <button id="modalCloseSub" class="btn-close-sub" data-translate="btn_close">Close</button>
+            <a href="#" id="successDownloadBtn" class="btn-download">
+              <span data-translate="btn_download">Download</span> <i data-lucide="download" size="18"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <div id="newsModal" class="modal-overlay">
-    <div class="modal-sheet" style="padding:40px;">
-        <div style="position:absolute; top:20px; right:20px; cursor:pointer;" id="newsCloseX"><i data-lucide="x" size="24"></i></div>
-        <h2 data-translate="news_title" style="margin:0 0 20px 0; color:var(--modal-text-main);">News Feed</h2>
-        <ul id="newsList" style="list-style:none; padding:0; max-height:400px; overflow-y:auto;">
-            <li style="text-align:center; opacity:0.6;"><span data-translate="news_loading">Loading</span><span class="loading-dots"></span></li>
-        </ul>
-    </div>
+  <div class="modal-sheet" style="padding:40px;">
+    <div style="position:absolute; top:20px; right:20px; cursor:pointer;" id="newsCloseX"><i data-lucide="x" size="24"></i></div>
+    <h2 data-translate="news_title" style="margin:0 0 20px 0; color:var(--modal-text-main);">News Feed</h2>
+    <ul id="newsList" style="list-style:none; padding:0; max-height:400px; overflow-y:auto;">
+      <li style="text-align:center; opacity:0.6;"><span data-translate="news_loading">Loading</span><span class="loading-dots"></span></li>
+    </ul>
+  </div>
 </div>
 
 <div id="supportModal" class="modal-overlay">
-    <div class="modal-sheet" style="padding:40px; text-align:center;">
-        <div style="position:absolute; top:20px; right:20px; cursor:pointer;" id="supportCloseX"><i data-lucide="x" size="24"></i></div>
-        <h2 data-translate="support_modal_title" style="margin:0 0 30px 0; color:var(--modal-text-main);">Channels</h2>
-        <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap;">
-            <a href="https://www.instagram.com/kiryu_sensya" target="_blank" style="font-size:32px; color:var(--modal-text-main);"><i class="fa-brands fa-instagram"></i></a>
-            <div style="font-size:32px; color:var(--modal-text-main);"><i class="fa-brands fa-discord"></i></div>
-            <div style="font-size:32px; color:var(--modal-text-main);"><i class="fa-brands fa-github"></i></div>
-        </div>
+  <div class="modal-sheet" style="padding:40px; text-align:center;">
+    <div style="position:absolute; top:20px; right:20px; cursor:pointer;" id="supportCloseX"><i data-lucide="x" size="24"></i></div>
+    <h2 data-translate="support_modal_title" style="margin:0 0 30px 0; color:var(--modal-text-main);">Channels</h2>
+    <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap;">
+      <a href="https://www.instagram.com/kiryu_sensya" target="_blank" style="font-size:32px; color:var(--modal-text-main);"><i class="fa-brands fa-instagram"></i></a>
+      <div style="font-size:32px; color:var(--modal-text-main);"><i class="fa-brands fa-discord"></i></div>
+      <div style="font-size:32px; color:var(--modal-text-main);"><i class="fa-brands fa-github"></i></div>
     </div>
+  </div>
 </div>
 
 <script>
@@ -541,7 +541,9 @@ const TRANSLATIONS={
   modal_title:"アクティベーション",modal_sub:"コードを入力してください",modal_placeholder:"XXXX-XXXX-XXXX-XXXX",modal_btn_auth:"認証する",
   msg_verifying:"確認中",msg_success_btn:"成功",
   msg_invalid:"このコードは無効です",msg_used:"このコードは使用済みです",msg_error:"エラーが発生しました",
-  success_badge:"コードが認証されました。",success_main_title:"有効化されたコンテンツ",success_label_name:"コンテンツ名称", success_label_info:"詳細情報",
+  success_badge:"コードが認証されました。",
+  // Removed success_main_title
+  success_label_name:"コンテンツ名称", success_label_info:"詳細情報",
   btn_close:"閉じる",btn_download:"ダウンロード",news_title:"最新情報",news_label:"履歴",news_loading:"更新を確認中",
   support_modal_title:"なにかお困りですか?",btn_inquiry:"不可",
   footer_admin:"システム管理者"
@@ -554,7 +556,9 @@ const TRANSLATIONS={
   modal_title:"Activation",modal_sub:"Enter Activtion code",modal_placeholder:"XXXX-XXXX-XXXX-XXXX",modal_btn_auth:"CHECK",
   msg_verifying:"Checking",msg_success_btn:"Success",
   msg_invalid:"This code is invalid.",msg_used:"This code has already been used.",msg_error:"Error occurred",
-  success_badge:"Code Verified",success_main_title:"Activated Content",success_label_name:"Content Name", success_label_info:"Details",
+  success_badge:"Code Verified",
+  // Removed success_main_title
+  success_label_name:"Content Name", success_label_info:"Details",
   btn_close:"Close",btn_download:"Download",news_title:"News",news_label:"Log",news_loading:"Checking for updates",
   support_modal_title:"Channels",btn_inquiry:"N/A",
   footer_admin:"Enforcement Administrator"
@@ -567,20 +571,24 @@ const TRANSLATIONS={
   modal_title:"激活",modal_sub:"输入激活码",modal_placeholder:"XXXX-XXXX-XXXX-XXXX",modal_btn_auth:"检查", 
   msg_verifying:"正在检查",msg_success_btn:"成功", 
   msg_invalid:"该代码无效。",msg_used:"该代码已被使用。",msg_error:"错误", 
-  success_badge:"代码已检查",success_main_title:"已激活内容",success_label_name:"内容名称",success_label_info:"详细信息", 
+  success_badge:"代码已检查",
+  // Removed success_main_title
+  success_label_name:"内容名称",success_label_info:"详细信息", 
   btn_close:"关闭",btn_download:"下载",news_title:"最新消息",news_label:"日志",news_loading:"正在检查更新", 
   support_modal_title:"需要帮助吗？",btn_inquiry:"不可用", footer_admin:"系统管理长" 
  },
     
  "zh-TW":{ 
-　header_brand:"_.k__yu.10", hero_title:"系統檢查", hero_sub:"管理您的存取權限與資源。", 
-　card1_title:"激活",card1_desc:"解鎖內容",card1_btn:"開始", 
-　card2_title:"新聞",card2_desc:"查看更新",card2_btn:"查看", 
-　card3_title:"支援",card3_desc:"聯絡我們",card3_btn:"聯絡", 
-　modal_title:"激活",modal_sub:"輸入啟用碼",modal_placeholder:"XXXX-XXXX-XXXX-XXXX",modal_btn_auth:"檢查", 
+  header_brand:"_.k__yu.10", hero_title:"系統檢查", hero_sub:"管理您的存取權限與資源。", 
+  card1_title:"激活",card1_desc:"解鎖內容",card1_btn:"開始", 
+  card2_title:"新聞",card2_desc:"查看更新",card2_btn:"查看", 
+  card3_title:"支援",card3_desc:"聯絡我們",card3_btn:"聯絡", 
+  modal_title:"激活",modal_sub:"輸入啟用碼",modal_placeholder:"XXXX-XXXX-XXXX-XXXX",modal_btn_auth:"檢查", 
   msg_verifying:"正在檢查",msg_success_btn:"成功", 
   msg_invalid:"該程式碼無效。",msg_used:"該程式碼已被使用。",msg_error:"錯誤", 
-  success_badge:"代碼已檢查",success_main_title:"已啟用內容",success_label_name:"內容名稱",success_label_info:"詳細資訊", 
+  success_badge:"代碼已檢查",
+  // Removed success_main_title
+  success_label_name:"內容名稱",success_label_info:"詳細資訊", 
   btn_close:"關閉",btn_download:"下載",news_title:"最新消息",news_label:"日誌",news_loading:"正在檢查更新", 
   support_modal_title:"需要幫助嗎？",btn_inquiry:"不可用", footer_admin:"系統管理長" 
  },
@@ -593,7 +601,9 @@ const TRANSLATIONS={
   modal_title:"활성화",modal_sub:"코드 입력",modal_placeholder:"XXXX-XXXX-XXXX-XXXX-XXXX",modal_btn_auth:"확인", 
   msg_verifying:"확인 중",msg_success_btn:"성공", 
   msg_invalid:"잘못된 코드",msg_used:"사용된 코드",msg_error:"오류", 
-  success_badge:"코드 인증됨",success_main_title:"활성화된 콘텐츠",success_label_name:"콘텐츠 이름",success_label_info:"상세 정보", 
+  success_badge:"코드 인증됨",
+  // Removed success_main_title
+  success_label_name:"콘텐츠 이름",success_label_info:"상세 정보", 
   btn_close:"닫기",btn_download:"다운로드",news_title:"뉴스",news_label:"로그",news_loading:"로딩 중", 
   support_modal_title:"도움 필요해?",btn_inquiry:"불가", footer_admin:"시스템 관리자" 
  },
@@ -606,7 +616,9 @@ const TRANSLATIONS={
       modal_title:"Проверка",modal_sub:"Введите код",modal_placeholder:"XXXX-XXXX-XXXX-XXXX",modal_btn_auth:"Проверить", 
       msg_verifying:"Обработка",msg_success_btn:"Успех", 
       msg_invalid:"Неверный код",msg_used:"Использован",msg_error:"Ошибка", 
-      success_badge:"Подтверждено",success_main_title:"Активированный контент",success_label_name:"Название",success_label_info:"Детали", 
+      success_badge:"Подтверждено",
+      // Removed success_main_title
+      success_label_name:"Название",success_label_info:"Детали", 
       btn_close:"Закрыть",btn_download:"Скачать",news_title:"Новости",news_label:"Лог",news_loading:"Загрузка", 
       support_modal_title:"Вам нужна помощь?",btn_inquiry:"Н/Д", footer_admin:"Администратор" 
  }
@@ -744,8 +756,10 @@ async function performAuth(code, isSilent=false){
         setTimeout(() => els.successPh.style.opacity = '1', 50);
     }, 400);
  }
- els.sNameDisp.textContent=d.message;
- els.sExtra.innerHTML=d.extraInfo.replace(/\n/g, '<br>');
+ // === HERE IS THE CHANGE: Use dynamic bundle label instead of static text ===
+ els.sTitle.textContent = d.bundleLabel || d.message; // Fallback to name if bundle is empty
+ els.sNameDisp.textContent = d.message;
+ els.sExtra.innerHTML = d.extraInfo.replace(/\n/g, '<br>');
 
  const btnText = d.buttonLabel || t.btn_download;
  const iconName = d.btnIcon || "download";
