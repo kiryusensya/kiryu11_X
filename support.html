@@ -615,15 +615,14 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e =
 });
 /* --- THEME LOGIC END --- */
 
-// Translations (Removed hardcoded "..." so CSS animation handles it)
-// ★変更点：page_subtitleを追加
+// Translations
 const TRANSLATIONS={
  ja:{support_page_title:"サービスセンター",page_subtitle:"接続するサービスを選択してください",item_web:"Web",item_weibo:"Weibo",item_wechat:"We Chat",item_rednote:"RedNote",item_douyin:"Douyin",item_bilibili:"Bilibili",btn_inquiry_insta:"問い合わせ",btn_inquiry_discord:"問い合わせ",btn_inquiry_xbox:"問い合わせ",btn_inquiry_ps:"問い合わせ",btn_inquiry_weibo:"問い合わせ",btn_inquiry_wechat:"問い合わせ",btn_inquiry_rednote:"問い合わせ",btn_inquiry_douyin:"問い合わせ",btn_inquiry_bilibili:"問い合わせ",status_loading:"",status_checking:"確認中",header_last_updated:"更新: "},
  en:{support_page_title:"Service Center",page_subtitle:"Select a service to connect",item_web:"Web Page",item_weibo:"Weibo",item_wechat:"We Chat",item_rednote:"RedNote",item_douyin:"Douyin",item_bilibili:"Bilibili",btn_inquiry_insta:"Contact Us",btn_inquiry_discord:"Contact Us",btn_inquiry_xbox:"Contact Us",btn_inquiry_ps:"Contact Us",btn_inquiry_weibo:"Contact Us",btn_inquiry_wechat:"Contact Us",btn_inquiry_rednote:"Contact Us",btn_inquiry_douyin:"Contact Us",btn_inquiry_bilibili:"Contact Us",status_loading:"",status_checking:"Checking",header_last_updated:"Last Updated: "},
  zh:{support_page_title:"服务中心",page_subtitle:"选择要连接的服务",item_web:"网站",item_weibo:"微博",item_wechat:"微信",item_rednote:"小红书",item_douyin:"抖音",item_bilibili:"哔哩哔哩",btn_inquiry_insta:"联系我们",btn_inquiry_discord:"联系我们",btn_inquiry_xbox:"联系我们",btn_inquiry_ps:"联系我们",btn_inquiry_weibo:"联系我们",btn_inquiry_wechat:"联系我们",btn_inquiry_rednote:"联系我们",btn_inquiry_douyin:"联系我们",btn_inquiry_bilibili:"联系我们",status_loading:"",status_checking:"正在检查",header_last_updated:"最后检查: "},
  "zh-TW":{support_page_title:"服務中心",page_subtitle:"選擇要連接的服務",item_web:"網站",item_weibo:"微博",item_wechat:"微信",item_rednote:"小紅書",item_douyin:"抖音",item_bilibili:"嗶哩嗶哩",btn_inquiry_insta:"聯絡我們",btn_inquiry_discord:"聯絡我們",btn_inquiry_xbox:"聯絡我們",btn_inquiry_ps:"聯絡我們",btn_inquiry_weibo:"聯絡我們",btn_inquiry_wechat:"聯絡我們",btn_inquiry_rednote:"聯絡我們",btn_inquiry_douyin:"聯絡我們",btn_inquiry_bilibili:"聯絡我們",status_loading:"",status_checking:"正在檢查",header_last_updated:"最後檢查: "},
  ko:{support_page_title:"서비스 센터",page_subtitle:"연결할 서비스를 선택하세요",item_web:"웹 사이트",item_weibo:"Weibo",item_wechat:"We Chat",item_rednote:"RedNote",item_douyin:"Douyin",item_bilibili:"Bilibili",btn_inquiry_insta:"질문",btn_inquiry_discord:"질문",btn_inquiry_xbox:"질문",btn_inquiry_ps:"질문",btn_inquiry_weibo:"질문",btn_inquiry_wechat:"질문",btn_inquiry_rednote:"질문",btn_inquiry_douyin:"질문",btn_inquiry_bilibili:"질문",status_loading:"",status_checking:"확인 중",header_last_updated:"최종 확인: "},
- ru:{support_page_title:"Сервисный центр",page_subtitle:"Выберите сервис для подключения",item_web:"Веб-сайт",item_weibo:"Weibo",item_wechat:"W eChat",item_rednote:"RedNote",item_douyin:"Douyin",item_bilibili:"Bilibili",btn_inquiry_insta:"Связаться",btn_inquiry_discord:"Связаться",btn_inquiry_xbox:"Связаться",btn_inquiry_ps:"Связаться",btn_inquiry_weibo:"Связаться",btn_inquiry_wechat:"Связаться",btn_inquiry_rednote:"Связаться",btn_inquiry_douyin:"Связаться",btn_inquiry_bilibili:"Связаться",status_loading:"",status_checking:"Проверка",header_last_updated:"Обновлено: "}
+ ru:{support_page_title:"Сервисный центр",page_subtitle:"Выберите сервис для подключения",item_web:"Веб-сайт",item_weibo:"Weibo",item_wechat:"We Chat",item_rednote:"RedNote",item_douyin:"Douyin",item_bilibili:"Bilibili",btn_inquiry_insta:"Связаться",btn_inquiry_discord:"Связаться",btn_inquiry_xbox:"Связаться",btn_inquiry_ps:"Связаться",btn_inquiry_weibo:"Связаться",btn_inquiry_wechat:"Связаться",btn_inquiry_rednote:"Связаться",btn_inquiry_douyin:"Связаться",btn_inquiry_bilibili:"Связаться",status_loading:"",status_checking:"Проверка",header_last_updated:"Обновлено: "}
 };
 
 const S_TRANS={Operational:{ja:"正常",en:"Normal",zh:"正常","zh-TW":"正常",ko:"정상",ru:"нормально"},Available:{ja:"利用可",en:"Avail",zh:"可用","zh-TW":"可用",ko:"가능",ru:"Доступно"},Busy:{ja:"混雑",en:"Busy",zh:"繁忙","zh-TW":"繁忙",ko:"혼잡",ru:"занятый"},Offline:{ja:"停止",en:"Offline",zh:"停止","zh-TW":"停止",ko:"중지",ru:"офлайн"},Maintenance:{ja:"メンテ",en:"Maint",zh:"维护","zh-TW":"維護",ko:"점검",ru:"обслуж."},Slow:{ja:"遅延",en:"Slow",zh:"延迟","zh-TW":"延遲",ko:"지연",ru:"Медленно"}};
@@ -655,7 +654,7 @@ function renderServiceStatus(){
     const sysStatus = String(st["System"] || "Operational").toLowerCase().trim();
     const isSystemDown = ['offline', 'maintenance', 'stopped'].includes(sysStatus);
 
-    // ヘッダーのステータスバッジ更新（Systemがダウンなら赤、それ以外は緑）
+    // ヘッダーのステータスバッジ更新
     bd.classList.remove('operational', 'error');
     bd.classList.add(isSystemDown ? 'error' : 'operational');
     
@@ -663,7 +662,6 @@ function renderServiceStatus(){
     txt.removeAttribute('data-translate');
     txt.textContent = lastFetchTime ? (t.header_last_updated + getFormattedDate(lastFetchTime)) : "Checked just now";
     
-    // ▼ ここからがご提示いただいた up 関数です ▼
     const up = (id, raw) => {
         const el = gId(id);
         if (!el) return;
@@ -709,15 +707,10 @@ function renderServiceStatus(){
             }
         }
     };
-    // ▲ up 関数ここまで ▲
 
     // 各サービスに対して up 関数を実行
     const keys = ["System", "Instagram", "Discord", "Xbox", "PlayStation", "Weibo", "WeChat", "RedNote", "Douyin", "Bilibili"];
     keys.forEach(k => up('status-' + k, st[k] || "Offline"));
-}
-    
- const keys=["System","Instagram","Discord","Xbox","PlayStation","Weibo","WeChat","RedNote","Douyin","Bilibili"];
- keys.forEach(k=>up('status-'+k,st[k]||"Offline"));
 }
 
 async function fetchServiceStatus(){
@@ -737,5 +730,3 @@ async function fetchServiceStatus(){
 }
 fetchServiceStatus();
 </script>
-</body>
-</html>
