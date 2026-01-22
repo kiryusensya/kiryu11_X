@@ -647,28 +647,75 @@ if(ls)ls.addEventListener('change',e=>{
 });
 
 function renderServiceStatus(){
- const bd=gId('serviceStatus'),txt=bd.querySelector('.status-text'),t=TRANSLATIONS[CURRENT_LANG]||TRANSLATIONS.en;
- if(!currentStatusData||!currentStatusData.statuses)return;
- const st=currentStatusData.statuses,sys=st["System"]||"Operational";
- const isOff=(sys==="Offline"||sys==="Maintenance");
- isOff?bd.classList.add('error'):bd.classList.remove('error');
- isOff?bd.classList.remove('operational'):bd.classList.add('operational');
- 
- txt.classList.remove('loading-animate');txt.removeAttribute('data-translate');
- txt.textContent=lastFetchTime?(t.header_last_updated+getFormattedDate(lastFetchTime)):"Checked just now";
- 
- const up=(id,raw)=>{
-  const el=gId(id);if(!el)return;
-  const dot=el.querySelector('.status-dot-small'),val=el.querySelector('.status-val'),p=el.closest('.support-item'),btn=p?p.querySelector('.btn-inquiry-small'):null;
-  val.classList.remove('loading-animate');val.removeAttribute('data-translate');val.textContent=getTranslatedStatus(raw);
-  dot.className='status-dot-small';const s=String(raw).toLowerCase();
-  
-  if(['available','online','operational'].includes(s))dot.classList.add('status-green');
-  else if(['busy','slow'].includes(s))dot.classList.add('status-yellow');
-  else dot.classList.add('status-red');
-  
-  if(btn){(isOff||['offline','stopped','maintenance'].includes(s))?btn.classList.add('disabled'):btn.classList.remove('disabled')}
- };
+    const bd = gId('serviceStatus'), txt = bd.querySelector('.status-text'), t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.en;
+    if (!currentStatusData || !currentStatusData.statuses) return;
+    
+    const st = currentStatusData.statuses;
+    // Systemの状態を取得（小文字で判定）
+    const sysStatus = String(st["System"] || "Operational").toLowerCase().trim();
+    const isSystemDown = ['offline', 'maintenance', 'stopped'].includes(sysStatus);
+
+    // ヘッダーのステータスバッジ更新（Systemがダウンなら赤、それ以外は緑）
+    bd.classList.remove('operational', 'error');
+    bd.classList.add(isSystemDown ? 'error' : 'operational');
+    
+    txt.classList.remove('loading-animate');
+    txt.removeAttribute('data-translate');
+    txt.textContent = lastFetchTime ? (t.header_last_updated + getFormattedDate(lastFetchTime)) : "Checked just now";
+    
+    // ▼ ここからがご提示いただいた up 関数です ▼
+    const up = (id, raw) => {
+        const el = gId(id);
+        if (!el) return;
+        const dot = el.querySelector('.status-dot-small'),
+              val = el.querySelector('.status-val'),
+              p = el.closest('.support-item'),
+              btn = p ? p.querySelector('.btn-inquiry-small') : null;
+
+        val.classList.remove('loading-animate');
+        val.removeAttribute('data-translate');
+        val.textContent = getTranslatedStatus(raw);
+        
+        // 文字列を小文字にして判定を安定させる
+        const s = String(raw).toLowerCase().trim();
+
+        dot.className = 'status-dot-small';
+        
+        // ドットの色分け
+        if (['available', 'operational', 'online'].includes(s)) {
+            dot.classList.add('status-green');
+        } else if (['busy', 'slow'].includes(s)) {
+            dot.classList.add('status-yellow');
+        } else if (['offline', 'maintenance', 'stopped'].includes(s)) {
+            dot.classList.add('status-red');
+        } else {
+            dot.classList.add('status-gray');
+        }
+        
+        // ★ボタンの無効化（Disabled）ロジック
+        if (btn) {
+            // 個別サービスが異常な場合
+            const isServiceDown = ['offline', 'maintenance', 'stopped'].includes(s);
+
+            // System全体がダウン、または個別サービスがダウンしている場合
+            if (isSystemDown || isServiceDown) {
+                btn.classList.add('disabled');
+                btn.style.opacity = '0.4';
+                btn.style.pointerEvents = 'none'; // クリックを完全に無効化
+            } else {
+                btn.classList.remove('disabled');
+                btn.style.opacity = '1';
+                btn.style.pointerEvents = 'auto';
+            }
+        }
+    };
+    // ▲ up 関数ここまで ▲
+
+    // 各サービスに対して up 関数を実行
+    const keys = ["System", "Instagram", "Discord", "Xbox", "PlayStation", "Weibo", "WeChat", "RedNote", "Douyin", "Bilibili"];
+    keys.forEach(k => up('status-' + k, st[k] || "Offline"));
+}
+    
  const keys=["System","Instagram","Discord","Xbox","PlayStation","Weibo","WeChat","RedNote","Douyin","Bilibili"];
  keys.forEach(k=>up('status-'+k,st[k]||"Offline"));
 }
