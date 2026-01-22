@@ -63,20 +63,31 @@
     --bg-grad-2: rgba(132, 7, 222, 0.15);
 }
 
+/* --- Base Styles --- */
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { 
+    margin: 0; 
+    padding: 0; 
+    width: 100%; 
+    height: 100%; 
+    overflow-x: hidden; 
+    max-width: 100vw; /* 横スクロール防止の強化 */
+}
+
 /* --- Font Definitions (Local) --- */
 
 /* 1. HarmonyOS Sans (Global/English/Numbers) */
 @font-face {
     font-family: 'HarmonyOS Sans';
-    src: url('assets/fonts/HarmonyOS_Sans.woff') format('woff'),
-    font-weight: 400 900; /* Variable Fontの場合 */
+    src: url('assets/fonts/HarmonyOS_Sans_Medium.woff') format('woff'),
+    font-weight: 400 900;
     font-display: swap;
 }
 
 /* 2. HarmonyOS Sans SC (Simplified Chinese) */
 @font-face {
     font-family: 'HarmonyOS Sans SC';
-    src: url('assets/fonts/HarmonyOS_SansSC.woff') format('woff'),
+    src: url('assets/fonts/HarmonyOS_SansSC_Medium.woff') format('woff'),
     font-weight: 400 900;
     font-display: swap;
 }
@@ -84,23 +95,18 @@
 /* 3. HarmonyOS Sans TC (Traditional Chinese) */
 @font-face {
     font-family: 'HarmonyOS Sans TC';
-    src: url('assets/fonts/HarmonyOS_SansTC.woff') format('woff'),
+    src: url('assets/fonts/HarmonyOS_SansTC_Medium.woff') format('woff'),
     font-weight: 400 900;
     font-display: swap;
 }
 
 /* --- Base Styles & Language Specific Font Stacks --- */
 
-/* デフォルト (英語 en, ロシア語 ru, その他)
-   ルール: 数字と欧文は HarmonyOS Sans
-*/
+/* デフォルト (英語 en, ロシア語 ru, その他) */
 body {
     background-color: var(--h-bg);
     color: var(--h-text-main);
-    
-    /* 基本: HarmonyOS Sans (数字・英・露) -> 該当なしはシステムフォント */
     font-family: "HarmonyOS Sans", "Outfit", sans-serif;
-
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -111,35 +117,23 @@ body {
     background-attachment: fixed;
 }
 
-/* 日本語 (ja)
-   ルール: 数字は HarmonyOS Sans, テキストは Noto Sans JP
-*/
+/* 日本語 (ja) */
 html[lang="ja"] body {
-    /* HarmonyOS Sans(数字/英字) が先に適用され、日本語文字だけ Noto Sans JP に落ちる */
     font-family: "HarmonyOS Sans", "Noto Sans JP", sans-serif;
 }
 
-/* 韓国語 (ko)
-   ルール: 数字は HarmonyOS Sans, テキストは Noto Sans KR
-*/
+/* 韓国語 (ko) */
 html[lang="ko"] body {
-    /* HarmonyOS Sans(数字/英字) -> Noto Sans KR(ハングル) */
     font-family: "HarmonyOS Sans", "Noto Sans KR", sans-serif;
 }
 
-/* 簡体字中国語 (zh)
-   ルール: 数字含むすべて HarmonyOS Sans SC
-*/
+/* 簡体字中国語 (zh) */
 html[lang="zh"] body {
-    /* SCフォントを最優先 (このフォント内の数字が使われます) */
     font-family: "HarmonyOS Sans SC", "HarmonyOS Sans", sans-serif;
 }
 
-/* 繁体字中国語 (zh-TW)
-   ルール: 数字含むすべて HarmonyOS Sans TC
-*/
+/* 繁体字中国語 (zh-TW) */
 html[lang="zh-TW"] body {
-    /* TCフォントを最優先 (このフォント内の数字が使われます) */
     font-family: "HarmonyOS Sans TC", "HarmonyOS Sans", sans-serif;
 }
 
@@ -411,7 +405,6 @@ footer {
     font-size: 12px;
     outline: none;
     cursor: pointer;
-    /* transition: color 0.4s ease; を削除してフォント変更を即時反映させる */
 }
 .lang-select option { background: var(--h-card); color: var(--h-text-main); }
 
@@ -424,6 +417,10 @@ footer {
 
 /* Mobile Optimizations */
 @media (max-width: 768px) {
+    /* スマホ用に余白を縮小し、横スクロールを防止 */
+    header { padding: 15px 16px; }
+    .container { padding: 0 16px 120px; }
+    
     #card-web { display: none !important; }
     .support-grid { grid-template-columns: 1fr; gap: 12px; }
 
@@ -469,7 +466,13 @@ footer {
     .status-dot-small, .status-val { display: none !important; }
     .mobile-status-icon { display: block !important; font-size: 20px; }
 
-    footer { width: 90%; justify-content: space-between; bottom: 15px; }
+    /* Footerを広げてパディングを減らす */
+    footer { 
+        width: 94%; 
+        justify-content: space-between; 
+        bottom: 15px; 
+        padding: 10px 16px;
+    }
     .page-title { font-size: 28px; }
 }
 </style>
@@ -729,7 +732,7 @@ function applyLanguage(){
  const s=gId('languageSwitcher');
  if(s){
      s.value=CURRENT_LANG;
-     updateSelectFont(s); // 言語適用時にもフォント更新
+     updateSelectFont(s);
  }
  if(currentStatusData)renderServiceStatus()
 }
@@ -738,24 +741,20 @@ function applyLanguage(){
 function updateSelectFont(selectEl) {
     const selectedOption = selectEl.options[selectEl.selectedIndex];
     if(selectedOption) {
-        // Optionのクラス名を取得 (f-ja, f-en, etc...)
         const fontClass = selectedOption.className;
-        // Select要素自体のクラスをリセットして、Optionのクラスを適用
         selectEl.className = 'lang-select ' + fontClass;
     }
 }
 
 const ls=gId('languageSwitcher');
 if(ls){
-    // 初期化時のフォント設定
     updateSelectFont(ls);
-    
     ls.addEventListener('change',e=>{
         localStorage.setItem('user_lang',e.target.value);
         CURRENT_LANG=e.target.value;
         document.documentElement.lang=e.target.value;
         applyLanguage();
-        updateSelectFont(e.target); // 変更時にフォント更新
+        updateSelectFont(e.target);
     });
 }
 applyLanguage();
