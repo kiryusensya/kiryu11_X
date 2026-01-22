@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>_.k__yu.10 Support | HarmonyOS Style</title>
+<link rel="icon" href="https://static.wixstatic.com/media/2f0694_eb4d3063598a4cc5b6bd6b8e31cba915~mv2.png/v1/crop/x_248,y_0,w_1065,h_950/fill/w_816,h_728,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/1767545356653.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+/* --- Design Tokens --- */
+:root {
+    /* Light Mode (Default) */
+    --h-bg: #F1F3F5;
+    --h-card: #FFFFFF;
+    --h-primary: #007DFF; /* Harmony Blue */
+    --h-text-main: #000000;
+    --h-text-sub: rgba(0, 0, 0, 0.6);
+    --h-text-tertiary: rgba(0, 0, 0, 0.3);
+    --h-border: rgba(0, 0, 0, 0.05);
+    --h-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    --h-shadow-card: 0 4px 16px rgba(0, 0, 0, 0.04);
+    --h-glass: rgba(255, 255, 255, 0.85);
+    --h-glass-border: rgba(255, 255, 255, 0.4);
+    --h-icon-bg-base: #F2F2F2;
+    --h-btn-text: #FFFFFF;
+    
+    /* Background Gradient Colors */
+    --bg-grad-1: rgba(0, 125, 255, 0.08);
+    --bg-grad-2: rgba(132, 7, 222, 0.08);
+
+    /* Status Colors (Consistent) */
+    --status-green: #41BA46;
+    --status-red: #E6162D;
+    --status-yellow: #FA9D3B;
+    --status-gray: #BDBDBD;
+
+    /* Metrics */
+    --r-card: 24px;
+    --r-btn: 999px;
+    --ease-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Dark Mode Overrides */
+[data-theme="dark"] {
+    --h-bg: #000000;
+    --h-card: #1C1C1E;
+    --h-text-main: #FFFFFF;
+    --h-text-sub: rgba(255, 255, 255, 0.6);
+    --h-text-tertiary: rgba(255, 255, 255, 0.3);
+    --h-border: rgba(255, 255, 255, 0.1);
+    --h-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    --h-shadow-card: 0 4px 16px rgba(0, 0, 0, 0.3);
+    --h-glass: rgba(28, 28, 30, 0.85);
+    --h-glass-border: rgba(255, 255, 255, 0.1);
+    --h-icon-bg-base: #2C2C2E;
+    --h-btn-text: #FFFFFF;
+    
+    --bg-grad-1: rgba(0, 125, 255, 0.15);
+    --bg-grad-2: rgba(132, 7, 222, 0.15);
+}
+
+/* --- Base Styles --- */
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow-x: hidden; }
+
+body {
+    background-color: var(--h-bg);
+    font-family: "HarmonyOS Sans", "Outfit", "Noto Sans JP", sans-serif;
+    color: var(--h-text-main);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Smooth Transition for Theme Switch */
+    transition: background-color 0.4s ease, color 0.4s ease;
+    
+    background-image: 
+        radial-gradient(circle at 10% 20%, var(--bg-grad-1) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, var(--bg-grad-2) 0%, transparent 40%);
+    background-attachment: fixed;
+}
+
+/* --- Layout Components --- */
+
+/* Header Area */
+header {
+    width: 100%;
+    max-width: 1200px;
+    padding: 20px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--h-text-main);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    letter-spacing: -0.5px;
+    transition: color 0.4s ease;
+}
+.logo i { color: var(--h-primary); stroke-width: 2.5px; }
+
+/* Header Controls (Status + Theme Toggle) */
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--h-glass);
+    border: 1px solid var(--h-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--h-text-main);
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+.theme-toggle:hover {
+    background: var(--h-primary);
+    color: #fff;
+    transform: rotate(15deg);
+    border-color: var(--h-primary);
+}
+.theme-toggle i { font-size: 18px; }
+
+.status-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--h-glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--h-border);
+    border-radius: var(--r-btn);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--h-text-sub);
+    transition: 0.3s;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--status-gray);
+    position: relative;
+}
+.status-badge.operational .status-indicator { background: var(--status-green); box-shadow: 0 0 8px rgba(65, 186, 70, 0.4); }
+.status-badge.error .status-indicator { background: var(--status-red); box-shadow: 0 0 8px rgba(230, 22, 45, 0.4); }
+
+/* --- Loading Dots Animation --- */
+.loading-animate {
+    opacity: 0.8;
+}
+.loading-animate::after {
+    content: '';
+    animation: dots 1.5s steps(4, end) infinite;
+    display: inline-block;
+    width: 1.2em; /* Ensure space for dots */
+    text-align: left;
+    vertical-align: bottom;
+}
+@keyframes dots {
+    0%, 25% { content: ''; }
+    50% { content: '.'; }
+    75% { content: '..'; }
+    100% { content: '...'; }
+}
+
+/* Main Content */
+.container {
+    width: 100%;
+    max-width: 1000px;
+    padding: 0 24px 120px; /* Bottom padding for footer */
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.page-header {
+    margin: 30px 0 40px;
+    text-align: center; /* ★変更点：中央寄せに変更 */
+}
+.page-title {
+    font-size: 36px;
+    font-weight: 800;
+    margin: 0;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, var(--h-text-main) 0%, var(--h-text-sub) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: all 0.4s ease;
+}
+.page-subtitle {
+    font-size: 15px;
+    color: var(--h-text-sub);
+    margin-top: 8px;
+    font-weight: 500;
+    transition: color 0.4s ease;
+}
+
+/* Grid Layout (Service Widgets) */
+.support-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 20px;
+    width: 100%;
+}
+
+/* Card Styling */
+.support-item {
+    background: var(--h-card);
+    border-radius: var(--r-card);
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    box-shadow: var(--h-shadow-card);
+    border: 1px solid var(--h-border);
+    transition: transform 0.4s var(--ease-elastic), box-shadow 0.3s ease, background-color 0.4s ease, border-color 0.4s ease;
+    cursor: default;
+    height: 240px;
+}
+
+.support-item:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    z-index: 2;
+    border-color: var(--h-primary);
+}
+.support-item:active {
+    transform: scale(0.96);
+}
+
+/* Icon Container (Squircle) */
+.icon-box {
+    width: 64px;
+    height: 64px;
+    border-radius: 20px;
+    background: var(--h-icon-bg-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    font-size: 28px;
+    position: relative;
+    overflow: hidden;
+    transition: background-color 0.4s ease;
+}
+.support-item img { width: 100%; height: 100%; object-fit: cover; }
+
+.support-item span {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--h-text-main);
+    transition: color 0.4s ease;
+}
+
+.user-id {
+    font-size: 13px;
+    color: var(--h-text-sub);
+    font-weight: 500;
+    margin-bottom: auto; /* Pushes content apart */
+    opacity: 0.8;
+    transition: color 0.4s ease;
+}
+
+/* Status Pill inside Card */
+.platform-status {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.status-dot-small {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--status-gray);
+}
+.status-val { display: none; }
+
+.status-green { background-color: var(--status-green); box-shadow: 0 0 6px rgba(65, 186, 70, 0.5); }
+.status-red { background-color: var(--status-red); box-shadow: 0 0 6px rgba(230, 22, 45, 0.5); }
+.status-yellow { background-color: var(--status-yellow); box-shadow: 0 0 6px rgba(250, 157, 59, 0.5); }
+
+/* Buttons */
+.btn-inquiry-small {
+    width: 100%;
+    padding: 12px 0;
+    background: var(--h-bg);
+    color: var(--h-text-main);
+    border-radius: var(--r-btn);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 700;
+    transition: 0.2s;
+    margin-top: 15px;
+    display: inline-block; /* Ensure <a> behaves like block for padding */
+}
+.btn-inquiry-small:hover {
+    background: var(--h-primary);
+    color: var(--h-btn-text);
+}
+.btn-inquiry-small.disabled {
+    opacity: 0.4;
+    pointer-events: none;
+    background: rgba(127,127,127,0.1);
+}
+
+/* Footer (Floating Bar) */
+footer {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--h-glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 10px 24px;
+    border-radius: 40px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    border: 1px solid var(--h-glass-border);
+    z-index: 100;
+    width: auto;
+    max-width: 90%;
+    transition: background-color 0.4s ease, border-color 0.4s ease;
+}
+
+.copyright { font-size: 11px; color: var(--h-text-sub); white-space: nowrap; transition: color 0.4s ease; }
+.lang-select {
+    background: transparent;
+    border: none;
+    color: var(--h-text-main);
+    font-weight: 700;
+    font-size: 12px;
+    outline: none;
+    cursor: pointer;
+    font-family: inherit;
+    transition: color 0.4s ease;
+}
+.lang-select option { background: var(--h-card); color: var(--h-text-main); }
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+    .support-grid { grid-template-columns: 1fr; gap: 12px; }
+    .support-item { flex-direction: row; height: auto; padding: 20px; text-align: left; align-items: center; flex-wrap: wrap; }
+    .icon-box { margin-bottom: 0; margin-right: 16px; width: 56px; height: 56px; flex-shrink: 0; }
+    .user-id { margin-bottom: 0; }
+    .platform-status { top: 50%; transform: translateY(-50%); right: 20px; }
+    .btn-inquiry-small { position: static; transform: none; width: 100%; margin-top: 15px; opacity: 1; visibility: visible; text-align: center;}
+    footer { width: 90%; justify-content: space-between; bottom: 15px; }
+    .page-title { font-size: 28px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+    <a href="/" class="logo">
+        <i data-lucide="life-buoy"></i>
+        <span>Support</span>
+    </a>
+    <div class="header-controls">
+        <div class="status-badge" id="serviceStatus">
+            <span class="status-indicator"></span>
+            <span class="status-text loading-animate" data-translate="status_checking">Checking</span>
+        </div>
+        <button class="theme-toggle" id="themeToggleBtn" aria-label="Toggle Dark Mode">
+            <i data-lucide="moon" id="themeIcon"></i>
+        </button>
+    </div>
+</header>
+
+<div class="container">
+    <div class="page-header">
+        <h2 class="page-title" data-translate="support_page_title">Service Center</h2>
+        <div class="page-subtitle" data-translate="page_subtitle">Select a service to connect</div>
+    </div>
+
+    <div class="support-grid">
+        <div class="support-item">
+            <div class="icon-box" style="color:#E1306C; background:rgba(225, 48, 108, 0.1)">
+                <i class="fa-brands fa-instagram"></i>
+            </div>
+            <div>
+                <span>Instagram</span>
+                <div class="user-id">_.k__yu.10</div>
+            </div>
+            <div class="platform-status" id="status-Instagram">
+                <span class="status-dot-small"></span>
+                <span class="status-val loading-animate" data-translate="status_loading"></span>
+            </div>
+            <a href="https://www.instagram.com/_.k__yu.10" target="_blank" class="btn-inquiry-small disabled" data-translate="btn_inquiry_insta">Contact</a>
+        </div>
+
+        <div class="support-item">
+            <div class="icon-box" style="color:#5865F2; background:rgba(88, 101, 242, 0.1)">
+                <i class="fa-brands fa-discord"></i>
+            </div>
+            <div>
+                <span>Discord</span>
+                <div class="user-id">kiryu_sensya</div>
+            </div>
+            <div class="platform-status" id="status-Discord">
+                <span class="status-dot-small"></span>
+                <span class="status-val loading-animate" data-translate="status_loading"></span>
+            </div>
+            <a href="https://discord.gg/rVAJp56V" class="btn-inquiry-small disabled" data-translate="btn_inquiry_discord">Contact</a>
+        </div>
+
+        <div class="support-item">
+            <div class="icon-box">
+                <img src="https://static.wixstatic.com/media/2f0694_eb4d3063598a4cc5b6bd6b8e31cba915~mv2.png/v1/crop/x_248,y_0,w_1065,h_950/fill/w_816,h_728,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/1767545356653.png" alt="Web">
+            </div>
+            <div>
+                <span data-translate="item_web">Web Page</span>
+                <div class="user-id">kiryu10.vercel.app</div>
+            </div>
+            <div class="platform-status" id="status-System">
+                <span class="status-dot-small"></span>
+                <span class="status-val loading-animate" data-translate="status_loading"></span>
+            </div>
+            <div style="margin-top:auto; height:44px; width:100%"></div> 
+        </div>
+
+        <div class="support-item">
+            <div class="icon-box" style="color:#107C10; background:rgba(16, 124, 16, 0.1)">
+                <i class="fa-brands fa-xbox"></i>
+            </div>
+            <div>
+                <span>Xbox</span>
+                <div class="user-id">kiryusensya</div>
+            </div>
+            <div class="platform-status" id="status-Xbox">
+                <span class="status-dot-small"></span>
+                <span class="status-val loading-animate" data-translate="status_loading"></span>
+            </div>
+            <a href="https://www.xbox.com/ja-JP/play/user/kiryusensya" class="btn-inquiry-small disabled" data-translate="btn_inquiry_xbox">Contact</a>
+        </div>
+
+        <div class="support-item">
+            <div class="icon-box" style="color:#0070D1; background:rgba(0, 112, 209, 0.1)">
+                <i class="fa-brands fa-playstation"></i>
+            </div>
+            <div>
+                <span>PlayStation</span>
+                <div class="user-id">kiryu_sensya</div>
+            </div>
+            <div class="platform-status" id="status-PlayStation">
+                <span class="status-dot-small"></span>
+                <span class="status-val loading-animate" data-translate="status_loading"></span>
+            </div>
+            <a href="#" class="btn-inquiry-small disabled" data-translate="btn_inquiry_ps">Contact</a>
+        </div>
+
+        <div class="support-item">
+            <div class="icon-box" style="color:#E6162D; background:rgba(230, 22, 45, 0.1)">
+                <i class="fa-brands fa-weibo"></i>
+            </div>
+            <div>
+                <span data-translate="item_weibo">Weibo</span>
+                <div class="user-id">kiryu-sensya</div>
+            </div>
+            <div class="platform-status" id="status-Weibo">
+                <span class="status-dot-small"></span>
+                <span class="status-val loading-animate" data-translate="status_loading"></span>
+            </div>
+            <a href="#" class="btn-inquiry-small disabled" data-translate="btn_inquiry_weibo">Contact</a>
+        </div>
+        
+        <div class="support-item">
+            <div class="icon-box" style="color:#7BB32E; background:rgba(123, 179, 46, 0.1)">
+                <i class="fa-brands fa-weixin"></i>
+            </div>
+            <div>
+                <span data-translate="item_wechat">WeChat</span>
+                <div class="user-id">_k__yu10</div>
+            </div>
+            <div class="platform-status" id="status-WeChat">
+                <span class="status-dot-small"></span>
+                <span class="status-val loading-animate" data-translate="status_loading"></span>
+            </div>
+            <a href="#" class="btn-inquiry-small disabled" data-translate="btn_inquiry_wechat">Contact</a>
+        </div>
+
+        <div class="support-item">
+            <div class="icon-box" style="color:#FF2442; background:rgba(255, 36, 66, 0.1)">
+                <i class="fa-solid fa-book"></i>
+            </div>
+            <div>
+                <span data-translate="item_rednote">RedNote</span>
+                <div class="user-id">敬请期待</div>
+            </div>
+            <div class="platform-status" id="status-RedNote">
+                <span class="status-dot-small"></span>
+                <span class="status-val loading-animate" data-translate="status_loading"></span>
+            </div>
+            <a href="#" class="btn-inquiry-small disabled" data-translate="btn_inquiry_rednote">Contact</a>
+        </div>
+
+        <div class="support-item">
+            <div class="icon-box" style="color:#000; background:rgba(0,0,0,0.05)">
+                <i class="fa-brands fa-tiktok"></i>
+            </div>
+            <div>
+                <span data-translate="item_douyin">Douyin</span>
+                <div class="user-id">kiryu_sensya</div>
+            </div>
+            <div class="platform-status" id="status-Douyin">
+                <span class="status-dot-small"></span>
+                <span class="status-val loading-animate" data-translate="status_loading"></span>
+            </div>
+            <a href="#" class="btn-inquiry-small disabled" data-translate="btn_inquiry_douyin">Contact</a>
+        </div>
+
+        <div class="support-item">
+            <div class="icon-box" style="color:#23ADE5; background:rgba(35, 173, 229, 0.1)">
+                <i class="fa-brands fa-bilibili"></i>
+            </div>
+            <div>
+                <span data-translate="item_bilibili">Bilibili</span>
+                <div class="user-id">kiryu_sensya</div>
+            </div>
+            <div class="platform-status" id="status-Bilibili">
+                <span class="status-dot-small"></span>
+                <span class="status-val loading-animate" data-translate="status_loading"></span>
+            </div>
+            <a href="https://b23.tv/AuQ4Y4O" class="btn-inquiry-small disabled" data-translate="btn_inquiry_bilibili">Contact</a>
+        </div>
+
+    </div>
+</div>
+
+<footer>
+    <div class="copyright">© 2019-2026 kiryu-sensya</div>
+    <select id="languageSwitcher" class="lang-select">
+        <option value="ja" class="f-ja">日本語</option>
+        <option value="en" class="f-en">English</option>
+        <option value="zh" class="f-zh">简体中文</option>
+        <option value="zh-TW" class="f-tw">繁体中文</option>
+        <option value="ko" class="f-ko">한국어</option>
+        <option value="ru" class="f-ru">Русский</option>
+    </select>
+</footer>
+
+<script>
+lucide.createIcons();
+const GAS_API_URL="api/proxy";
+let CURRENT_LANG=localStorage.getItem('user_lang')||"ja";
+document.documentElement.lang=CURRENT_LANG;
+let currentStatusData=null,lastFetchTime=null;
+const gId=i=>document.getElementById(i);
+
+/* --- THEME LOGIC START --- */
+const themeBtn = gId('themeToggleBtn');
+const themeIcon = gId('themeIcon');
+const htmlEl = document.documentElement;
+
+function getPreferredTheme() {
+    const stored = localStorage.getItem('theme');
+    if (stored) return stored;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function setTheme(theme) {
+    htmlEl.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+    if(theme === 'dark'){
+        themeIcon.setAttribute('data-lucide', 'sun');
+    } else {
+        themeIcon.setAttribute('data-lucide', 'moon');
+    }
+    lucide.createIcons();
+}
+
+setTheme(getPreferredTheme());
+
+themeBtn.addEventListener('click', () => {
+    const current = htmlEl.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+});
+
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+    if(!localStorage.getItem('theme')){
+        setTheme(e.matches ? 'dark' : 'light');
+    }
+});
+/* --- THEME LOGIC END --- */
+
+// Translations (Removed hardcoded "..." so CSS animation handles it)
+// ★変更点：page_subtitleを追加
+const TRANSLATIONS={
+ ja:{support_page_title:"サービスセンター",page_subtitle:"接続するサービスを選択してください",item_web:"Web",item_weibo:"Weibo",item_wechat:"We Chat",item_rednote:"RedNote",item_douyin:"Douyin",item_bilibili:"Bilibili",btn_inquiry_insta:"問い合わせ",btn_inquiry_discord:"問い合わせ",btn_inquiry_xbox:"問い合わせ",btn_inquiry_ps:"問い合わせ",btn_inquiry_weibo:"問い合わせ",btn_inquiry_wechat:"問い合わせ",btn_inquiry_rednote:"問い合わせ",btn_inquiry_douyin:"問い合わせ",btn_inquiry_bilibili:"問い合わせ",status_loading:"",status_checking:"確認中",header_last_updated:"更新: "},
+ en:{support_page_title:"Service Center",page_subtitle:"Select a service to connect",item_web:"Web Page",item_weibo:"Weibo",item_wechat:"We Chat",item_rednote:"RedNote",item_douyin:"Douyin",item_bilibili:"Bilibili",btn_inquiry_insta:"Contact Us",btn_inquiry_discord:"Contact Us",btn_inquiry_xbox:"Contact Us",btn_inquiry_ps:"Contact Us",btn_inquiry_weibo:"Contact Us",btn_inquiry_wechat:"Contact Us",btn_inquiry_rednote:"Contact Us",btn_inquiry_douyin:"Contact Us",btn_inquiry_bilibili:"Contact Us",status_loading:"",status_checking:"Checking",header_last_updated:"Last Updated: "},
+ zh:{support_page_title:"服务中心",page_subtitle:"选择要连接的服务",item_web:"网站",item_weibo:"微博",item_wechat:"微信",item_rednote:"小红书",item_douyin:"抖音",item_bilibili:"哔哩哔哩",btn_inquiry_insta:"联系我们",btn_inquiry_discord:"联系我们",btn_inquiry_xbox:"联系我们",btn_inquiry_ps:"联系我们",btn_inquiry_weibo:"联系我们",btn_inquiry_wechat:"联系我们",btn_inquiry_rednote:"联系我们",btn_inquiry_douyin:"联系我们",btn_inquiry_bilibili:"联系我们",status_loading:"",status_checking:"正在检查",header_last_updated:"最后检查: "},
+ "zh-TW":{support_page_title:"服務中心",page_subtitle:"選擇要連接的服務",item_web:"網站",item_weibo:"微博",item_wechat:"微信",item_rednote:"小紅書",item_douyin:"抖音",item_bilibili:"嗶哩嗶哩",btn_inquiry_insta:"聯絡我們",btn_inquiry_discord:"聯絡我們",btn_inquiry_xbox:"聯絡我們",btn_inquiry_ps:"聯絡我們",btn_inquiry_weibo:"聯絡我們",btn_inquiry_wechat:"聯絡我們",btn_inquiry_rednote:"聯絡我們",btn_inquiry_douyin:"聯絡我們",btn_inquiry_bilibili:"聯絡我們",status_loading:"",status_checking:"正在檢查",header_last_updated:"最後檢查: "},
+ ko:{support_page_title:"서비스 센터",page_subtitle:"연결할 서비스를 선택하세요",item_web:"웹 사이트",item_weibo:"Weibo",item_wechat:"We Chat",item_rednote:"RedNote",item_douyin:"Douyin",item_bilibili:"Bilibili",btn_inquiry_insta:"질문",btn_inquiry_discord:"질문",btn_inquiry_xbox:"질문",btn_inquiry_ps:"질문",btn_inquiry_weibo:"질문",btn_inquiry_wechat:"질문",btn_inquiry_rednote:"질문",btn_inquiry_douyin:"질문",btn_inquiry_bilibili:"질문",status_loading:"",status_checking:"확인 중",header_last_updated:"최종 확인: "},
+ ru:{support_page_title:"Сервисный центр",page_subtitle:"Выберите сервис для подключения",item_web:"Веб-сайт",item_weibo:"Weibo",item_wechat:"W eChat",item_rednote:"RedNote",item_douyin:"Douyin",item_bilibili:"Bilibili",btn_inquiry_insta:"Связаться",btn_inquiry_discord:"Связаться",btn_inquiry_xbox:"Связаться",btn_inquiry_ps:"Связаться",btn_inquiry_weibo:"Связаться",btn_inquiry_wechat:"Связаться",btn_inquiry_rednote:"Связаться",btn_inquiry_douyin:"Связаться",btn_inquiry_bilibili:"Связаться",status_loading:"",status_checking:"Проверка",header_last_updated:"Обновлено: "}
+};
+
+const S_TRANS={Operational:{ja:"正常",en:"Normal",zh:"正常","zh-TW":"正常",ko:"정상",ru:"нормально"},Available:{ja:"利用可",en:"Avail",zh:"可用","zh-TW":"可用",ko:"가능",ru:"Доступно"},Busy:{ja:"混雑",en:"Busy",zh:"繁忙","zh-TW":"繁忙",ko:"혼잡",ru:"занятый"},Offline:{ja:"停止",en:"Offline",zh:"停止","zh-TW":"停止",ko:"중지",ru:"офлайн"},Maintenance:{ja:"メンテ",en:"Maint",zh:"维护","zh-TW":"維護",ko:"점검",ru:"обслуж."},Slow:{ja:"遅延",en:"Slow",zh:"延迟","zh-TW":"延遲",ko:"지연",ru:"Медленно"}};
+function getTranslatedStatus(k){const m=S_TRANS[k];return m?(m[CURRENT_LANG]||m.en):k}
+function getFormattedDate(d){if(!d)return"";const p=n=>("0"+n).slice(-2);return`${p(d.getHours())}:${p(d.getMinutes())}`}
+
+function applyLanguage(){
+ const t=TRANSLATIONS[CURRENT_LANG]||TRANSLATIONS.en;
+ document.querySelectorAll('[data-translate]').forEach(e=>{const k=e.getAttribute('data-translate');if(t[k])e.innerHTML=t[k]});
+ const s=gId('languageSwitcher');if(s)s.value=CURRENT_LANG;
+ if(currentStatusData)renderServiceStatus()
+}
+applyLanguage();
+
+const ls=gId('languageSwitcher');
+if(ls)ls.addEventListener('change',e=>{
+ localStorage.setItem('user_lang',e.target.value);
+ CURRENT_LANG=e.target.value;
+ document.documentElement.lang=e.target.value;
+ applyLanguage()
+});
+
+function renderServiceStatus(){
+ const bd=gId('serviceStatus'),txt=bd.querySelector('.status-text'),t=TRANSLATIONS[CURRENT_LANG]||TRANSLATIONS.en;
+ if(!currentStatusData||!currentStatusData.statuses)return;
+ const st=currentStatusData.statuses,sys=st["System"]||"Operational";
+ const isOff=(sys==="Offline"||sys==="Maintenance");
+ isOff?bd.classList.add('error'):bd.classList.remove('error');
+ isOff?bd.classList.remove('operational'):bd.classList.add('operational');
+ 
+ txt.classList.remove('loading-animate');txt.removeAttribute('data-translate');
+ txt.textContent=lastFetchTime?(t.header_last_updated+getFormattedDate(lastFetchTime)):"Checked just now";
+ 
+ const up=(id,raw)=>{
+  const el=gId(id);if(!el)return;
+  const dot=el.querySelector('.status-dot-small'),val=el.querySelector('.status-val'),p=el.closest('.support-item'),btn=p?p.querySelector('.btn-inquiry-small'):null;
+  val.classList.remove('loading-animate');val.removeAttribute('data-translate');val.textContent=getTranslatedStatus(raw);
+  dot.className='status-dot-small';const s=String(raw).toLowerCase();
+  
+  if(['available','online','operational'].includes(s))dot.classList.add('status-green');
+  else if(['busy','slow'].includes(s))dot.classList.add('status-yellow');
+  else dot.classList.add('status-red');
+  
+  if(btn){(isOff||['offline','stopped','maintenance'].includes(s))?btn.classList.add('disabled'):btn.classList.remove('disabled')}
+ };
+ const keys=["System","Instagram","Discord","Xbox","PlayStation","Weibo","WeChat","RedNote","Douyin","Bilibili"];
+ keys.forEach(k=>up('status-'+k,st[k]||"Offline"));
+}
+
+async function fetchServiceStatus(){
+ document.querySelectorAll('.btn-inquiry-small').forEach(b=>b.classList.add('disabled'));
+ try{
+  const res=await fetch(`${GAS_API_URL}?type=service_status`);
+  const d=await res.json();
+  if(d.success){currentStatusData=d;lastFetchTime=new Date();renderServiceStatus()}else throw new Error("API Error");
+ }catch(e){
+  console.error(e);
+  const b=gId('serviceStatus');
+  if(b) {
+      b.classList.add('error');
+      b.querySelector('.status-text').textContent="Offline";
+  }
+ }
+}
+fetchServiceStatus();
+</script>
+</body>
+</html>
