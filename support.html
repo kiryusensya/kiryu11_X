@@ -197,7 +197,7 @@ header {
 
 .page-header {
     margin: 30px 0 40px;
-    text-align: center; /* ★変更点：中央寄せに変更 */
+    text-align: center; 
 }
 .page-title {
     font-size: 36px;
@@ -307,6 +307,11 @@ header {
 .status-red { background-color: var(--status-red); box-shadow: 0 0 6px rgba(230, 22, 45, 0.5); }
 .status-yellow { background-color: var(--status-yellow); box-shadow: 0 0 6px rgba(250, 157, 59, 0.5); }
 
+/* PC用ではモバイルアイコンは非表示 */
+.mobile-status-icon {
+    display: none;
+}
+
 /* Buttons */
 .btn-inquiry-small {
     width: 100%;
@@ -369,12 +374,58 @@ footer {
 
 /* Mobile Optimizations */
 @media (max-width: 768px) {
+    /* (1) Webカード非表示・Grid調整 */
+    #card-web { display: none !important; }
     .support-grid { grid-template-columns: 1fr; gap: 12px; }
-    .support-item { flex-direction: row; height: auto; padding: 20px; text-align: left; align-items: center; flex-wrap: wrap; }
+
+    /* (2) ヘッダー要素の調整 */
+    .status-badge {
+        padding: 0;
+        width: 40px; 
+        height: 40px;
+        border-radius: 50%; /* 真ん丸 */
+        justify-content: center;
+    }
+    .status-text { display: none !important; } /* テキスト非表示 */
+    .status-indicator { margin: 0; width: 10px; height: 10px; }
+
+    .theme-toggle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50% !important; /* 真ん丸 */
+    }
+
+    /* カードレイアウト調整 */
+    .support-item { 
+        flex-direction: row; 
+        height: auto; 
+        padding: 20px; 
+        text-align: left; 
+        align-items: center; 
+        flex-wrap: wrap; 
+        position: relative; /* アイコン配置の基準 */
+    }
     .icon-box { margin-bottom: 0; margin-right: 16px; width: 56px; height: 56px; flex-shrink: 0; }
     .user-id { margin-bottom: 0; }
-    .platform-status { top: 50%; transform: translateY(-50%); right: 20px; }
     .btn-inquiry-small { position: static; transform: none; width: 100%; margin-top: 15px; opacity: 1; visibility: visible; text-align: center;}
+    
+    /* (3) ステータスアイコン（モバイル用） */
+    .platform-status { 
+        position: absolute;
+        top: 48px; /* アイコン(56px)とパディング(20px)の中心付近 */
+        right: 20px;
+        transform: translateY(-50%);
+        background: none !important;
+        box-shadow: none !important;
+        border: none !important;
+        display: block; /* 念のため */
+    }
+    /* デスクトップ用の表示要素を消す */
+    .status-dot-small, .status-val { display: none !important; }
+    
+    /* モバイル用アイコンを表示 */
+    .mobile-status-icon { display: block !important; font-size: 20px; }
+
     footer { width: 90%; justify-content: space-between; bottom: 15px; }
     .page-title { font-size: 28px; }
 }
@@ -435,7 +486,7 @@ footer {
             <a href="https://discord.gg/rVAJp56V" class="btn-inquiry-small disabled" data-translate="btn_inquiry_discord">Contact</a>
         </div>
 
-        <div class="support-item">
+        <div class="support-item" id="card-web">
             <div class="icon-box">
                 <img src="https://static.wixstatic.com/media/2f0694_eb4d3063598a4cc5b6bd6b8e31cba915~mv2.png/v1/crop/x_248,y_0,w_1065,h_950/fill/w_816,h_728,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/1767545356653.png" alt="Web">
             </div>
@@ -650,7 +701,7 @@ function renderServiceStatus(){
     if (!currentStatusData || !currentStatusData.statuses) return;
     
     const st = currentStatusData.statuses;
-    // Systemの状態を取得（小文字で判定）
+    // Systemの状態を取得
     const sysStatus = String(st["System"] || "Operational").toLowerCase().trim();
     const isSystemDown = ['offline', 'maintenance', 'stopped'].includes(sysStatus);
 
@@ -670,16 +721,15 @@ function renderServiceStatus(){
               p = el.closest('.support-item'),
               btn = p ? p.querySelector('.btn-inquiry-small') : null;
 
+        // --- デスクトップ用表示更新 ---
         val.classList.remove('loading-animate');
         val.removeAttribute('data-translate');
         val.textContent = getTranslatedStatus(raw);
         
-        // 文字列を小文字にして判定を安定させる
         const s = String(raw).toLowerCase().trim();
 
         dot.className = 'status-dot-small';
-        
-        // ドットの色分け
+        // ドットの色分け(デスクトップ)
         if (['available', 'operational', 'online'].includes(s)) {
             dot.classList.add('status-green');
         } else if (['busy', 'slow'].includes(s)) {
@@ -689,17 +739,45 @@ function renderServiceStatus(){
         } else {
             dot.classList.add('status-gray');
         }
-        
-        // ★ボタンの無効化（Disabled）ロジック
-        if (btn) {
-            // 個別サービスが異常な場合
-            const isServiceDown = ['offline', 'maintenance', 'stopped'].includes(s);
 
-            // System全体がダウン、または個別サービスがダウンしている場合
+        // --- (3) スマホ用アイコン処理 ---
+        // 既存のアイコンがあれば取得、なければ作成
+        let mobileIcon = el.querySelector('.mobile-status-icon');
+        if (!mobileIcon) {
+            mobileIcon = document.createElement('i');
+            mobileIcon.className = 'mobile-status-icon fa-solid';
+            el.appendChild(mobileIcon);
+        }
+
+        // アイコンと色の決定
+        mobileIcon.className = 'mobile-status-icon fa-solid'; // リセット
+        mobileIcon.style.color = ''; // 色リセット
+
+        if (['available', 'operational', 'online'].includes(s)) {
+            // 緑のチェック (#04CF22)
+            mobileIcon.classList.add('fa-check');
+            mobileIcon.style.color = '#04CF22';
+        } else if (['busy', 'slow'].includes(s)) {
+            // 黄色の注意 (#FA9D3B)
+            mobileIcon.classList.add('fa-triangle-exclamation');
+            mobileIcon.style.color = '#FA9D3B';
+        } else if (['offline', 'maintenance', 'stopped'].includes(s)) {
+            // 赤の注意 (#E6162D)
+            mobileIcon.classList.add('fa-triangle-exclamation');
+            mobileIcon.style.color = '#E6162D';
+        } else {
+            // その他(グレー)
+            mobileIcon.classList.add('fa-circle-question');
+            mobileIcon.style.color = '#BDBDBD';
+        }
+
+        // --- ボタン制御 ---
+        if (btn) {
+            const isServiceDown = ['offline', 'maintenance', 'stopped'].includes(s);
             if (isSystemDown || isServiceDown) {
                 btn.classList.add('disabled');
                 btn.style.opacity = '0.4';
-                btn.style.pointerEvents = 'none'; // クリックを完全に無効化
+                btn.style.pointerEvents = 'none';
             } else {
                 btn.classList.remove('disabled');
                 btn.style.opacity = '1';
@@ -708,7 +786,6 @@ function renderServiceStatus(){
         }
     };
 
-    // 各サービスに対して up 関数を実行
     const keys = ["System", "Instagram", "Discord", "Xbox", "PlayStation", "Weibo", "WeChat", "RedNote", "Douyin", "Bilibili"];
     keys.forEach(k => up('status-' + k, st[k] || "Offline"));
 }
@@ -730,3 +807,5 @@ async function fetchServiceStatus(){
 }
 fetchServiceStatus();
 </script>
+</body>
+</html>
