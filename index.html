@@ -112,11 +112,24 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
 
 /* Hero */
 .hero-text { margin-bottom: 40px; text-align: left; opacity: 0; animation: fadeInUp 0.8s var(--spring-ease) forwards; }
+/* 既存の .hero-title を修正・強化 */
 .hero-title {
-  font-family: var(--font-stack); font-size: 48px; font-weight: 800;
-  line-height: 1.1; margin: 0 0 10px 0;
+  font-family: var(--font-stack);
+  font-size: clamp(32px, 10vw, 48px); /* 最小32px、画面幅の10%、最大48pxに自動調整 */
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 0 0 10px 0;
   background: linear-gradient(to right, var(--modal-text-main), var(--modal-text-sub));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  word-break: keep-all; /* 単語の途中で変に改行されるのを防ぐ */
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 32px; /* 非常に小さい画面では固定 */
+    line-height: 1.2;
+  }
 }
 [data-theme="dark"] .hero-title { background: linear-gradient(to right, #fff, #aaa); -webkit-background-clip: text; }
 .hero-sub { font-size: 16px; color: var(--modal-text-sub); }
@@ -389,6 +402,47 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 
 .loading-spinner { width: 30px; height: 30px; border: 3px solid rgba(128,128,128,0.2); border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to{transform: rotate(360deg);} }
+
+/* --- モバイル・スマホ専用の調整 --- */
+@media (max-width: 600px) {
+  /* モーダル全体のタイトル */
+  .modal-title {
+    font-size: 20px;
+  }
+  
+  /* 完了画面のタイトル */
+  .content-title {
+    font-size: 22px;
+    margin-bottom: 16px;
+  }
+
+  /* メッセージ（「確認中」や「認証されました」） */
+  .message-title {
+    font-size: 18px;
+  }
+
+  /* 補足説明テキスト */
+  .info-extra {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  /* 商品名（認証後のメイン表示） */
+  .product-name-row {
+    font-size: 18px;
+  }
+
+  /* 入力欄：iPhoneでの勝手なズームを防止するために16pxを確保 */
+  .code-field {
+    font-size: 16px !important;
+  }
+
+  /* 言語選択カード */
+  .lang-name {
+    font-size: 16px;
+    font-weight: 600;
+  }
+}
 </style>
 </head>
 <body>
