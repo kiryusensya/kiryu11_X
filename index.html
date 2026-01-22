@@ -26,20 +26,20 @@
   --primary: #007DFF;
   --bright-green: #00D959; 
   --dark-green-text: #005522; 
-  --bg-color: #F2F3F5;
-  --card-bg: rgba(255, 255, 255, 0.85);
+  --bg-color: #F1F3F5;
+  --card-bg: rgba(255, 255, 255, 0.6); /* More translucent for HarmonyOS glass */
+  --card-border: rgba(255, 255, 255, 0.6);
   --modal-bg-success: rgba(255, 255, 255, 0.85); 
-  --modal-backdrop: blur(20px);
-  --modal-text-main: #191919;
+  --modal-backdrop: blur(40px);
+  --modal-text-main: #000000;
   --modal-text-sub: #666666;
-  --modal-border: rgba(0,0,0,0.05);
   --success-text-green: var(--dark-green-text); 
   --btn-close-border: #000000;
   --btn-close-text: #000000;
-  --radius-xl: 32px;
-  --spring-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --scrollbar-track: rgba(0,0,0,0.05);
-  --scrollbar-thumb: rgba(0,0,0,0.2);
+  --radius-xl: 24px;
+  --radius-l: 16px;
+  --spring-ease: cubic-bezier(0.33, 1, 0.68, 1);
+  --shadow-soft: 0 10px 30px rgba(0,0,0,0.05);
   --font-stack: 'HarmonyOS Sans', 'Manrope', sans-serif;
 }
 :root:lang(ja) { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
@@ -50,23 +50,17 @@
 
 [data-theme="dark"] {
   --bg-color: #000000;
-  --card-bg: rgba(30, 30, 30, 0.6);
+  --card-bg: rgba(40, 40, 40, 0.5);
+  --card-border: rgba(255, 255, 255, 0.1);
   --modal-bg-success: #111111;
   --modal-backdrop: none;
   --modal-text-main: #FFFFFF;
   --modal-text-sub: #A0A0A0;
-  --modal-border: rgba(255,255,255,0.1);
   --success-text-green: var(--bright-green); 
   --btn-close-border: #FFFFFF;
   --btn-close-text: #FFFFFF;
-  --scrollbar-track: rgba(255,255,255,0.05);
-  --scrollbar-thumb: rgba(255,255,255,0.2);
+  --shadow-soft: 0 15px 40px rgba(0,0,0,0.4);
 }
-
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--scrollbar-track); border-radius: 3px; }
-::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--primary); }
 
 *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
@@ -161,96 +155,103 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
 }
 @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 
-/* --- ENHANCED INTRO LANGUAGE SELECTOR & THEME BTN --- */
+/* --- HARMONYOS INTRO DESIGN (PURE) --- */
 .intro-theme-btn {
-  position: absolute; top: 30px; right: 30px; z-index: 10002;
+  position: absolute; top: 40px; right: 40px; z-index: 10002;
+  border-color: var(--card-border);
 }
-@media (max-width: 600px) { .intro-theme-btn { top: 20px; right: 20px; } }
+@media (max-width: 600px) { .intro-theme-btn { top: 24px; right: 24px; } }
 
 .intro-container {
-  text-align: center; width: 100%; max-width: 900px; padding: 40px 20px;
+  text-align: center; width: 100%; max-width: 900px; padding: 40px 24px;
   position: relative; z-index: 2;
+  display: flex; flex-direction: column; justify-content: center; min-height: 80vh;
 }
 
 .intro-header { 
   margin-bottom: 50px; opacity: 0; animation: fadeInUp 0.8s ease forwards;
 }
 
-.intro-logo-icon {
-  width: 48px; height: 48px; margin: 0 auto 20px auto;
-  background: rgba(0, 125, 255, 0.1); color: var(--primary);
-  border-radius: 12px; display: flex; align-items: center; justify-content: center;
-  border: 1px solid rgba(0, 125, 255, 0.2);
-}
-
 .intro-brand { 
-  font-size: 13px; letter-spacing: 4px; opacity: 0.5; font-weight: 800; 
-  margin-bottom: 12px; display: block; text-transform: uppercase;
+  font-family: 'HarmonyOS Sans', sans-serif;
+  font-size: 14px; letter-spacing: 2px; opacity: 0.5; font-weight: 700; 
+  margin-bottom: 16px; display: block; text-transform: uppercase;
   color: var(--modal-text-main);
 }
 
 .intro-title {
-  font-size: 48px; font-weight: 800; color: var(--modal-text-main);
-  margin: 0 0 10px 0; line-height: 1; letter-spacing: -1px;
+  font-family: 'HarmonyOS Sans', sans-serif;
+  font-size: 42px; font-weight: 700; color: var(--modal-text-main);
+  margin: 0; line-height: 1.2; letter-spacing: -1px;
 }
 [data-theme="dark"] .intro-title { color: #fff; }
 
-.intro-sub { font-size: 14px; color: var(--modal-text-sub); margin: 0; }
-
+/* Pure Grid */
 .lang-grid {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  width: 100%;
 }
 
 .lang-card {
-  position: relative; background: var(--card-bg);
-  border: 1px solid rgba(128,128,128,0.1); border-radius: 20px;
-  padding: 24px; cursor: pointer; display: flex; align-items: center; gap: 20px;
+  position: relative; 
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  height: 120px;
+  cursor: pointer; 
+  display: flex; align-items: center; justify-content: center;
   transition: all 0.4s var(--spring-ease);
-  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+  box-shadow: var(--shadow-soft);
   opacity: 0; animation: fadeInUp 0.6s var(--spring-ease) forwards;
-  animation-delay: var(--delay, 0s); overflow: hidden;
+  animation-delay: var(--delay, 0s); 
+  overflow: hidden;
 }
 
+/* Interaction */
 .lang-card:hover {
-  transform: translateY(-4px) scale(1.01);
-  background: rgba(0, 125, 255, 0.03); border-color: var(--primary);
-  box-shadow: 0 20px 40px -10px rgba(0, 125, 255, 0.15);
+  transform: translateY(-5px) scale(1.02);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 20px 50px rgba(0, 125, 255, 0.15);
+  border-color: rgba(0, 125, 255, 0.3);
 }
 [data-theme="dark"] .lang-card:hover {
-  background: rgba(255, 255, 255, 0.05); box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+  background: rgba(70, 70, 70, 0.8);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
-.lang-card::before {
-  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
-  width: 4px; background: var(--primary); opacity: 0; transition: opacity 0.3s;
+.lang-name {
+  font-size: 22px; font-weight: 700; color: var(--modal-text-main);
+  transition: 0.3s;
 }
-.lang-card:hover::before { opacity: 1; }
-
-.lang-iso {
-  font-size: 12px; font-weight: 800; letter-spacing: 1px;
-  color: var(--modal-text-sub); opacity: 0.3;
-  border: 1px solid currentColor; padding: 4px 6px; border-radius: 6px; transition: 0.3s;
-}
-.lang-card:hover .lang-iso { color: var(--primary); opacity: 1; border-color: var(--primary); }
-
-.lang-info { flex: 1; text-align: left; }
-.lang-name { font-size: 18px; font-weight: 700; color: var(--modal-text-main); margin-bottom: 2px; }
 [data-theme="dark"] .lang-name { color: #fff; }
 
-.lang-en { font-size: 12px; font-weight: 600; color: var(--modal-text-sub); text-transform: uppercase; letter-spacing: 0.5px; }
-
-.lang-arrow { color: var(--modal-text-sub); opacity: 0.3; transition: 0.3s; transform: translateX(-5px); }
-.lang-card:hover .lang-arrow { opacity: 1; color: var(--primary); transform: translateX(0); }
-
-@media (max-width: 600px) {
-  .intro-title { font-size: 32px; }
-  .lang-grid { grid-template-columns: 1fr; }
-  .lang-card { padding: 20px; }
+.lang-card:hover .lang-name {
+  transform: scale(1.05); letter-spacing: 0.5px;
 }
+
+/* Mobile Grid */
+@media (max-width: 800px) {
+  .lang-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .lang-card { height: 100px; border-radius: 20px; }
+  .lang-name { font-size: 18px; }
+  .intro-title { font-size: 32px; }
+}
+
+/* Strict Font Assignments */
+.font-jp { font-family: 'Noto Sans JP', sans-serif; }
+.font-en { font-family: 'HarmonyOS Sans', sans-serif; }
+.font-cn-s { font-family: 'HarmonyOS Sans SC', sans-serif; }
+.font-cn-t { font-family: 'HarmonyOS Sans TC', sans-serif; }
+.font-kr { font-family: 'Noto Sans KR', sans-serif; }
+.font-ru { font-family: 'HarmonyOS Sans', sans-serif; }
 
 /* --- MODAL SYSTEM --- */
 .modal-overlay {
-  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px);
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px);
   z-index: 9999; display: flex; justify-content: center; align-items: center;
   opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
 }
@@ -412,65 +413,33 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 
   <div class="intro-container">
     <div class="intro-header">
-      <div class="intro-logo-icon"><i data-lucide="layers"></i></div>
-      <span class="intro-brand">SYSTEM_ACCESS // PORTAL</span>
-      <h2 class="intro-title">Select Region</h2>
-      <p class="intro-sub">言語を選択してシステムに接続してください</p>
+      <span class="intro-brand">Harmony Enhanced</span>
+      <h2 class="intro-title">Select Language</h2>
     </div>
     
     <div class="lang-grid">
-      <div class="lang-card" onclick="setInitialLanguage('ja')" style="--delay:0.1s">
-        <div class="lang-iso">JP</div>
-        <div class="lang-info">
-          <div class="lang-name">日本語</div>
-          <div class="lang-en">Japanese</div>
-        </div>
-        <div class="lang-arrow"><i data-lucide="chevron-right"></i></div>
+      <div class="lang-card font-jp" onclick="setInitialLanguage('ja')" style="--delay:0.1s">
+        <div class="lang-name">日本語</div>
       </div>
 
-      <div class="lang-card" onclick="setInitialLanguage('en')" style="--delay:0.2s">
-        <div class="lang-iso">EN</div>
-        <div class="lang-info">
-          <div class="lang-name">English</div>
-          <div class="lang-en">Global</div>
-        </div>
-        <div class="lang-arrow"><i data-lucide="chevron-right"></i></div>
+      <div class="lang-card font-en" onclick="setInitialLanguage('en')" style="--delay:0.2s">
+        <div class="lang-name">English</div>
       </div>
 
-      <div class="lang-card" onclick="setInitialLanguage('zh')" style="--delay:0.3s">
-        <div class="lang-iso">CN</div>
-        <div class="lang-info">
-          <div class="lang-name">简体中文</div>
-          <div class="lang-en">Simplified</div>
-        </div>
-        <div class="lang-arrow"><i data-lucide="chevron-right"></i></div>
+      <div class="lang-card font-cn-s" onclick="setInitialLanguage('zh')" style="--delay:0.3s">
+        <div class="lang-name">简体中文</div>
       </div>
 
-      <div class="lang-card" onclick="setInitialLanguage('zh-TW')" style="--delay:0.4s">
-        <div class="lang-iso">TW</div>
-        <div class="lang-info">
-          <div class="lang-name">繁體中文</div>
-          <div class="lang-en">Traditional</div>
-        </div>
-        <div class="lang-arrow"><i data-lucide="chevron-right"></i></div>
+      <div class="lang-card font-cn-t" onclick="setInitialLanguage('zh-TW')" style="--delay:0.4s">
+        <div class="lang-name">繁體中文</div>
       </div>
 
-      <div class="lang-card" onclick="setInitialLanguage('ko')" style="--delay:0.5s">
-        <div class="lang-iso">KR</div>
-        <div class="lang-info">
-          <div class="lang-name">한국어</div>
-          <div class="lang-en">Korean</div>
-        </div>
-        <div class="lang-arrow"><i data-lucide="chevron-right"></i></div>
+      <div class="lang-card font-kr" onclick="setInitialLanguage('ko')" style="--delay:0.5s">
+        <div class="lang-name">한국어</div>
       </div>
 
-      <div class="lang-card" onclick="setInitialLanguage('ru')" style="--delay:0.6s">
-        <div class="lang-iso">RU</div>
-        <div class="lang-info">
-          <div class="lang-name">Русский</div>
-          <div class="lang-en">Russian</div>
-        </div>
-        <div class="lang-arrow"><i data-lucide="chevron-right"></i></div>
+      <div class="lang-card font-ru" onclick="setInitialLanguage('ru')" style="--delay:0.6s">
+        <div class="lang-name">Русский</div>
       </div>
     </div>
   </div>
@@ -616,11 +585,11 @@ let CURRENT_LANG="ja";
 
 const TRANSLATIONS={
  ja:{
-  header_brand:"_.k__yu.10", hero_title:"認証ポータル", hero_sub:"アクセス権限とリソースの管理",
+  header_brand:"_.k__yu.10", hero_title:"アクティベーション", hero_sub:"アクセス権限とリソースの管理",
   card1_title:"アクティベーション",card1_desc:"コードでコンテンツを解除",card1_btn:"開始",
   card2_title:"ニュース",card2_desc:"最新情報を確認",card2_btn:"確認",
   card3_title:"サポート",card3_desc:"お問い合わせはこちら",card3_btn:"接続",
-  modal_title:"アクティベーション",modal_sub:"コードを入力してください",modal_placeholder:"XXXX-XXXX-XXXX-XXXX",modal_btn_auth:"認証する",
+  modal_title:"アクティベーション",modal_sub:"コードを入力してください",modal_placeholder:"アクティベーションコード",modal_btn_auth:"認証する",
   msg_verifying:"確認中",msg_success_btn:"成功",
   msg_invalid:"このコードは無効です",msg_used:"このコードは使用済みです",msg_error:"エラーが発生しました",
   success_badge:"コードが認証されました。",
@@ -633,7 +602,7 @@ const TRANSLATIONS={
   card1_title:"Activation",card1_desc:"Unlock content via code",card1_btn:"Start",
   card2_title:"News",card2_desc:"Check updates",card2_btn:"View",
   card3_title:"Support",card3_desc:"Contact us",card3_btn:"Connect",
-  modal_title:"Activation",modal_sub:"Enter Activtion code",modal_placeholder:"XXXX-XXXX-XXXX-XXXX",modal_btn_auth:"CHECK",
+  modal_title:"Activation",modal_sub:"Enter Activtion code",modal_placeholder:"Activation Code",modal_btn_auth:"CHECK",
   msg_verifying:"Checking",msg_success_btn:"Success",
   msg_invalid:"This code is invalid.",msg_used:"This code has already been used.",msg_error:"Error occurred",
   success_badge:"Code Verified",
@@ -642,11 +611,11 @@ const TRANSLATIONS={
   footer_admin:"Enforcement Administrator"
  },
  zh:{ 
-  header_brand:"_.k__yu.10", hero_title:"系统检查", hero_sub:"管理您的访问权限和资源。", 
+  header_brand:"_.k__yu.10", hero_title:"激活", hero_sub:"管理您的访问权限和资源。", 
   card1_title:"激活",card1_desc:"解锁内容",card1_btn:"开始", 
   card2_title:"新闻",card2_desc:"查看更新",card2_btn:"查看", 
   card3_title:"支持",card3_desc:"联系我们",card3_btn:"联系", 
-  modal_title:"激活",modal_sub:"输入激活码",modal_placeholder:"XXXX-XXXX-XXXX-XXXX",modal_btn_auth:"检查", 
+  modal_title:"激活",modal_sub:"输入激活码",modal_placeholder:"激活码",modal_btn_auth:"检查", 
   msg_verifying:"正在检查",msg_success_btn:"成功", 
   msg_invalid:"该代码无效。",msg_used:"该代码已被使用。",msg_error:"错误", 
   success_badge:"代码已检查",
@@ -655,11 +624,11 @@ const TRANSLATIONS={
  },
     
  "zh-TW":{ 
-  header_brand:"_.k__yu.10", hero_title:"系統檢查", hero_sub:"管理您的存取權限與資源。", 
+  header_brand:"_.k__yu.10", hero_title:"激活", hero_sub:"管理您的存取權限與資源。", 
   card1_title:"激活",card1_desc:"解鎖內容",card1_btn:"開始", 
   card2_title:"新聞",card2_desc:"查看更新",card2_btn:"查看", 
   card3_title:"支援",card3_desc:"聯絡我們",card3_btn:"聯絡", 
-  modal_title:"激活",modal_sub:"輸入啟用碼",modal_placeholder:"XXXX-XXXX-XXXX-XXXX",modal_btn_auth:"檢查", 
+  modal_title:"激活",modal_sub:"輸入啟用碼",modal_placeholder:"啟動碼",modal_btn_auth:"檢查", 
   msg_verifying:"正在檢查",msg_success_btn:"成功", 
   msg_invalid:"該程式碼無效。",msg_used:"該程式碼已被使用。",msg_error:"錯誤", 
   success_badge:"代碼已檢查",
@@ -668,11 +637,11 @@ const TRANSLATIONS={
  },
     
  ko:{ 
-  header_brand:"_.k__yu.10", hero_title:"시스템<br>인증 포털", hero_sub:"액세스 권한 및 리소스 관리", 
+  header_brand:"_.k__yu.10", hero_title:"활성화", hero_sub:"액세스 권한 및 리소스 관리", 
   card1_title:"활성화",card1_desc:"콘텐츠 잠금 해제",card1_btn:"시작", 
   card2_title:"뉴스",card2_desc:"최신 정보",card2_btn:"보기", 
   card3_title:"지원",card3_desc:"문의하기",card3_btn:"연결", 
-  modal_title:"활성화",modal_sub:"코드 입력",modal_placeholder:"XXXX-XXXX-XXXX-XXXX-XXXX",modal_btn_auth:"확인", 
+  modal_title:"활성화",modal_sub:"코드 입력",modal_placeholder:"활성화 코드",modal_btn_auth:"확인", 
   msg_verifying:"확인 중",msg_success_btn:"성공", 
   msg_invalid:"잘못된 코드",msg_used:"사용된 코드",msg_error:"오류", 
   success_badge:"코드 인증됨",
@@ -681,11 +650,11 @@ const TRANSLATIONS={
  },
     
  ru:{ 
-  header_brand:"_.k__yu.10", hero_title:"Система<br>Аутентификации", hero_sub:"Управление доступом и ресурсами", 
+  header_brand:"_.k__yu.10", hero_title:"Активация", hero_sub:"Управление доступом и ресурсами", 
       card1_title:"Активация",card1_desc:"Разблокировка",card1_btn:"Старт", 
       card2_title:"Новости",card2_desc:"Обновления",card2_btn:"См.", 
       card3_title:"Поддержка",card3_desc:"Связь",card3_btn:"Связь", 
-      modal_title:"Проверка",modal_sub:"Введите код",modal_placeholder:"XXXX-XXXX-XXXX-XXXX",modal_btn_auth:"Проверить", 
+      modal_title:"Проверка",modal_sub:"Введите код",modal_placeholder:"Код активации",modal_btn_auth:"Проверить", 
       msg_verifying:"Обработка",msg_success_btn:"Успех", 
       msg_invalid:"Неверный код",msg_used:"Использован",msg_error:"Ошибка", 
       success_badge:"Подтверждено",
@@ -864,7 +833,6 @@ async function performAuth(code, isSilent=false){
 
 function initThemeAndParticles() {
   const htmlEl = document.documentElement;
-  // Two toggles: Main and Intro
   const toggleBtns = [gId('themeToggle'), gId('introThemeToggle')];
   const icons = [gId('themeIcon'), gId('introThemeIcon')];
   let particleHue = 210;
@@ -884,7 +852,7 @@ function initThemeAndParticles() {
     lucide.createIcons();
   }
 
-  // 1. Check LocalStorage first, then System
+  // Sync Logic
   const savedTheme = localStorage.getItem('user_theme');
   const systemQuery = window.matchMedia('(prefers-color-scheme: dark)');
   
@@ -894,18 +862,12 @@ function initThemeAndParticles() {
     applyTheme(systemQuery.matches ? 'dark' : 'light');
   }
 
-  // 2. Real-time System Change Listener
   systemQuery.addEventListener('change', (e) => {
-    // If user hasn't explicitly set a preference, or we want to force sync:
-    // User requested: "if changed from device, change site in real time"
     const newTheme = e.matches ? 'dark' : 'light';
     applyTheme(newTheme);
-    // Optional: clear local storage so system preference takes over? 
-    // Or update local storage? Let's update local storage to keep state consistent.
     localStorage.setItem('user_theme', newTheme);
   });
 
-  // 3. Manual Toggle Button Listeners
   toggleBtns.forEach(btn => {
     if(!btn) return;
     btn.addEventListener('click', () => {
@@ -916,7 +878,7 @@ function initThemeAndParticles() {
     });
   });
 
-  // --- Particles Logic (Unchanged) ---
+  // Particles
   const canvas = gId('particleCanvas'); const ctx = canvas.getContext('2d'); let particlesArray;
   canvas.width = window.innerWidth; canvas.height = window.innerHeight;
   class Particle {
