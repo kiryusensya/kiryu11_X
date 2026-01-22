@@ -161,54 +161,90 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
 }
 @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 
-/* --- NEW INTRO LANGUAGE SELECTOR --- */
+/* --- ENHANCED INTRO LANGUAGE SELECTOR & THEME BTN --- */
+.intro-theme-btn {
+  position: absolute; top: 30px; right: 30px; z-index: 10002;
+}
+@media (max-width: 600px) { .intro-theme-btn { top: 20px; right: 20px; } }
+
 .intro-container {
-  text-align: center;
-  width: 100%;
-  max-width: 800px;
-  padding: 20px;
-  animation: fadeIn 0.8s ease;
+  text-align: center; width: 100%; max-width: 900px; padding: 40px 20px;
+  position: relative; z-index: 2;
 }
-.intro-header { margin-bottom: 60px; }
+
+.intro-header { 
+  margin-bottom: 50px; opacity: 0; animation: fadeInUp 0.8s ease forwards;
+}
+
+.intro-logo-icon {
+  width: 48px; height: 48px; margin: 0 auto 20px auto;
+  background: rgba(0, 125, 255, 0.1); color: var(--primary);
+  border-radius: 12px; display: flex; align-items: center; justify-content: center;
+  border: 1px solid rgba(0, 125, 255, 0.2);
+}
+
 .intro-brand { 
-  font-size: 14px; letter-spacing: 2px; opacity: 0.6; font-weight: 700; 
-  margin-bottom: 16px; display: block; 
+  font-size: 13px; letter-spacing: 4px; opacity: 0.5; font-weight: 800; 
+  margin-bottom: 12px; display: block; text-transform: uppercase;
   color: var(--modal-text-main);
 }
+
 .intro-title {
-  font-size: 42px; font-weight: 800; 
-  color: var(--modal-text-main);
-  margin: 0; line-height: 1.2;
+  font-size: 48px; font-weight: 800; color: var(--modal-text-main);
+  margin: 0 0 10px 0; line-height: 1; letter-spacing: -1px;
 }
 [data-theme="dark"] .intro-title { color: #fff; }
 
+.intro-sub { font-size: 14px; color: var(--modal-text-sub); margin: 0; }
+
 .lang-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;
 }
+
 .lang-card {
-  background: var(--card-bg);
-  border: 1px solid rgba(128,128,128,0.1);
-  border-radius: 24px;
-  padding: 30px 20px;
-  cursor: pointer;
-  transition: all 0.3s var(--spring-ease);
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 10px;
-  backdrop-filter: blur(10px);
+  position: relative; background: var(--card-bg);
+  border: 1px solid rgba(128,128,128,0.1); border-radius: 20px;
+  padding: 24px; cursor: pointer; display: flex; align-items: center; gap: 20px;
+  transition: all 0.4s var(--spring-ease);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  opacity: 0; animation: fadeInUp 0.6s var(--spring-ease) forwards;
+  animation-delay: var(--delay, 0s); overflow: hidden;
 }
+
 .lang-card:hover {
-  transform: translateY(-5px) scale(1.02);
-  background: rgba(0, 125, 255, 0.05);
-  border-color: var(--primary);
-  box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+  transform: translateY(-4px) scale(1.01);
+  background: rgba(0, 125, 255, 0.03); border-color: var(--primary);
+  box-shadow: 0 20px 40px -10px rgba(0, 125, 255, 0.15);
 }
-.lang-name { font-size: 16px; font-weight: 700; color: var(--modal-text-main); }
+[data-theme="dark"] .lang-card:hover {
+  background: rgba(255, 255, 255, 0.05); box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+}
+
+.lang-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 4px; background: var(--primary); opacity: 0; transition: opacity 0.3s;
+}
+.lang-card:hover::before { opacity: 1; }
+
+.lang-iso {
+  font-size: 12px; font-weight: 800; letter-spacing: 1px;
+  color: var(--modal-text-sub); opacity: 0.3;
+  border: 1px solid currentColor; padding: 4px 6px; border-radius: 6px; transition: 0.3s;
+}
+.lang-card:hover .lang-iso { color: var(--primary); opacity: 1; border-color: var(--primary); }
+
+.lang-info { flex: 1; text-align: left; }
+.lang-name { font-size: 18px; font-weight: 700; color: var(--modal-text-main); margin-bottom: 2px; }
+[data-theme="dark"] .lang-name { color: #fff; }
+
+.lang-en { font-size: 12px; font-weight: 600; color: var(--modal-text-sub); text-transform: uppercase; letter-spacing: 0.5px; }
+
+.lang-arrow { color: var(--modal-text-sub); opacity: 0.3; transition: 0.3s; transform: translateX(-5px); }
+.lang-card:hover .lang-arrow { opacity: 1; color: var(--primary); transform: translateX(0); }
 
 @media (max-width: 600px) {
   .intro-title { font-size: 32px; }
-  .lang-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .lang-grid { grid-template-columns: 1fr; }
   .lang-card { padding: 20px; }
 }
 
@@ -313,26 +349,16 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
   background: rgba(128,128,128,0.05); border-radius: 16px; padding: 20px;
   border: 1px solid rgba(128,128,128,0.1); margin-bottom: 30px; width: 100%;
 }
-/* REMOVED: .info-row */
-/* REMOVED: .info-label */
-/* CHANGED: info-value to be larger */
+
 .info-value { 
-  font-size: 20px; /* Increased font size */
-  font-weight: 700; 
-  color: var(--success-text-green); 
-  display: block; 
-  margin-bottom: 16px; /* Spacing below message */
-  line-height: 1.4;
+  font-size: 20px; font-weight: 700; color: var(--success-text-green); 
+  display: block; margin-bottom: 16px; line-height: 1.4;
 }
-/* CHANGED: dashed border to solid */
+
 .info-extra { 
-  font-size: 13px; 
-  opacity: 0.8; 
-  margin-top: 0; 
-  border-top: 1px solid rgba(128,128,128,0.2); /* Solid line */
-  padding-top: 16px; 
-  line-height: 1.5; 
-  white-space: pre-wrap; 
+  font-size: 13px; opacity: 0.8; margin-top: 0; 
+  border-top: 1px solid rgba(128,128,128,0.2); 
+  padding-top: 16px; line-height: 1.5; white-space: pre-wrap; 
 }
 
 .action-row { display: flex; gap: 12px; margin-top: auto; width: 100%; }
@@ -379,29 +405,72 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 <canvas id="particleCanvas"></canvas>
 
 <div id="langSelectionOverlay" class="modal-overlay active" style="opacity:1; background:var(--bg-color); z-index:10000;">
+  
+  <div class="theme-pill intro-theme-btn" id="introThemeToggle">
+    <i data-lucide="sun" id="introThemeIcon"></i>
+  </div>
+
   <div class="intro-container">
     <div class="intro-header">
-      <span class="intro-brand">Harmony Enhanced Edition</span>
-      <h2 class="intro-title">Select Language</h2>
+      <div class="intro-logo-icon"><i data-lucide="layers"></i></div>
+      <span class="intro-brand">SYSTEM_ACCESS // PORTAL</span>
+      <h2 class="intro-title">Select Region</h2>
+      <p class="intro-sub">言語を選択してシステムに接続してください</p>
     </div>
+    
     <div class="lang-grid">
-      <div class="lang-card" onclick="setInitialLanguage('ja')">
-        <div class="lang-name">日本語</div>
+      <div class="lang-card" onclick="setInitialLanguage('ja')" style="--delay:0.1s">
+        <div class="lang-iso">JP</div>
+        <div class="lang-info">
+          <div class="lang-name">日本語</div>
+          <div class="lang-en">Japanese</div>
+        </div>
+        <div class="lang-arrow"><i data-lucide="chevron-right"></i></div>
       </div>
-      <div class="lang-card" onclick="setInitialLanguage('en')">
-        <div class="lang-name">English</div>
+
+      <div class="lang-card" onclick="setInitialLanguage('en')" style="--delay:0.2s">
+        <div class="lang-iso">EN</div>
+        <div class="lang-info">
+          <div class="lang-name">English</div>
+          <div class="lang-en">Global</div>
+        </div>
+        <div class="lang-arrow"><i data-lucide="chevron-right"></i></div>
       </div>
-      <div class="lang-card" onclick="setInitialLanguage('zh')">
-        <div class="lang-name">简体中文</div>
+
+      <div class="lang-card" onclick="setInitialLanguage('zh')" style="--delay:0.3s">
+        <div class="lang-iso">CN</div>
+        <div class="lang-info">
+          <div class="lang-name">简体中文</div>
+          <div class="lang-en">Simplified</div>
+        </div>
+        <div class="lang-arrow"><i data-lucide="chevron-right"></i></div>
       </div>
-      <div class="lang-card" onclick="setInitialLanguage('zh-TW')">
-        <div class="lang-name">繁體中文</div>
+
+      <div class="lang-card" onclick="setInitialLanguage('zh-TW')" style="--delay:0.4s">
+        <div class="lang-iso">TW</div>
+        <div class="lang-info">
+          <div class="lang-name">繁體中文</div>
+          <div class="lang-en">Traditional</div>
+        </div>
+        <div class="lang-arrow"><i data-lucide="chevron-right"></i></div>
       </div>
-      <div class="lang-card" onclick="setInitialLanguage('ko')">
-        <div class="lang-name">한국어</div>
+
+      <div class="lang-card" onclick="setInitialLanguage('ko')" style="--delay:0.5s">
+        <div class="lang-iso">KR</div>
+        <div class="lang-info">
+          <div class="lang-name">한국어</div>
+          <div class="lang-en">Korean</div>
+        </div>
+        <div class="lang-arrow"><i data-lucide="chevron-right"></i></div>
       </div>
-      <div class="lang-card" onclick="setInitialLanguage('ru')">
-        <div class="lang-name">Русский</div>
+
+      <div class="lang-card" onclick="setInitialLanguage('ru')" style="--delay:0.6s">
+        <div class="lang-iso">RU</div>
+        <div class="lang-info">
+          <div class="lang-name">Русский</div>
+          <div class="lang-en">Russian</div>
+        </div>
+        <div class="lang-arrow"><i data-lucide="chevron-right"></i></div>
       </div>
     </div>
   </div>
@@ -646,7 +715,7 @@ const formatCodeInput = (val) => {
 
 document.addEventListener('DOMContentLoaded',()=>{
  const sLang = localStorage.getItem('user_lang');
- initThemeAndParticles();
+ initThemeAndParticles(); // Updated theme logic
  initCustomDropdown();
  if(sLang) setInitialLanguage(sLang, true); else fetchNews();
 });
@@ -794,29 +863,71 @@ async function performAuth(code, isSilent=false){
 }
 
 function initThemeAndParticles() {
- const themeBtn = gId('themeToggle'); const htmlEl = document.documentElement;
- let particleHue = 210;
- function updateParticleStyle(isLight) { particleHue = isLight ? 210 : 220; }
- function applyTheme(theme) {
- if (theme === 'light') { htmlEl.setAttribute('data-theme', 'light'); gId('themeIcon').setAttribute('data-lucide', 'sun'); updateParticleStyle(true); } 
- else { htmlEl.setAttribute('data-theme', 'dark'); gId('themeIcon').setAttribute('data-lucide', 'moon'); updateParticleStyle(false); }
- lucide.createIcons(); localStorage.setItem('user_theme', theme);
- }
- const savedTheme = localStorage.getItem('user_theme');
- applyTheme(savedTheme ? savedTheme : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
- themeBtn.addEventListener('click', () => { applyTheme(htmlEl.getAttribute('data-theme') === 'light' ? 'dark' : 'light'); });
+  const htmlEl = document.documentElement;
+  // Two toggles: Main and Intro
+  const toggleBtns = [gId('themeToggle'), gId('introThemeToggle')];
+  const icons = [gId('themeIcon'), gId('introThemeIcon')];
+  let particleHue = 210;
 
- const canvas = gId('particleCanvas'); const ctx = canvas.getContext('2d'); let particlesArray;
- canvas.width = window.innerWidth; canvas.height = window.innerHeight;
- class Particle {
+  function updateParticleStyle(isLight) { particleHue = isLight ? 210 : 220; }
+  
+  function applyTheme(theme) {
+    if (theme === 'light') { 
+        htmlEl.setAttribute('data-theme', 'light');
+        icons.forEach(ic => { if(ic) ic.setAttribute('data-lucide', 'sun'); });
+        updateParticleStyle(true); 
+    } else { 
+        htmlEl.setAttribute('data-theme', 'dark'); 
+        icons.forEach(ic => { if(ic) ic.setAttribute('data-lucide', 'moon'); });
+        updateParticleStyle(false); 
+    }
+    lucide.createIcons();
+  }
+
+  // 1. Check LocalStorage first, then System
+  const savedTheme = localStorage.getItem('user_theme');
+  const systemQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  
+  if (savedTheme) {
+    applyTheme(savedTheme);
+  } else {
+    applyTheme(systemQuery.matches ? 'dark' : 'light');
+  }
+
+  // 2. Real-time System Change Listener
+  systemQuery.addEventListener('change', (e) => {
+    // If user hasn't explicitly set a preference, or we want to force sync:
+    // User requested: "if changed from device, change site in real time"
+    const newTheme = e.matches ? 'dark' : 'light';
+    applyTheme(newTheme);
+    // Optional: clear local storage so system preference takes over? 
+    // Or update local storage? Let's update local storage to keep state consistent.
+    localStorage.setItem('user_theme', newTheme);
+  });
+
+  // 3. Manual Toggle Button Listeners
+  toggleBtns.forEach(btn => {
+    if(!btn) return;
+    btn.addEventListener('click', () => {
+        const current = htmlEl.getAttribute('data-theme');
+        const next = current === 'light' ? 'dark' : 'light';
+        applyTheme(next);
+        localStorage.setItem('user_theme', next);
+    });
+  });
+
+  // --- Particles Logic (Unchanged) ---
+  const canvas = gId('particleCanvas'); const ctx = canvas.getContext('2d'); let particlesArray;
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  class Particle {
     constructor() { this.x=Math.random()*canvas.width; this.y=Math.random()*canvas.height; this.size=Math.random()*150+50; this.speedX=Math.random()*0.2-0.1; this.speedY=Math.random()*0.2-0.1; this.opacity=Math.random()*0.3+0.1; }
     update() { this.x+=this.speedX; this.y+=this.speedY; if(this.x<-100||this.x>canvas.width+100)this.speedX*=-1; if(this.y<-100||this.y>canvas.height+100)this.speedY*=-1; }
     draw() { ctx.fillStyle=`hsla(${particleHue}, 100%, 50%, ${this.opacity*0.2})`; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); }
- }
- function initParticles() { particlesArray=[]; for(let i=0;i<8;i++)particlesArray.push(new Particle()); }
- function animateParticles() { ctx.clearRect(0,0,canvas.width,canvas.height); for(let i=0;i<particlesArray.length;i++){ particlesArray[i].update(); particlesArray[i].draw(); } requestAnimationFrame(animateParticles); }
- window.addEventListener('resize', () => { canvas.width=innerWidth; canvas.height=innerHeight; initParticles(); });
- initParticles(); animateParticles();
+  }
+  function initParticles() { particlesArray=[]; for(let i=0;i<8;i++)particlesArray.push(new Particle()); }
+  function animateParticles() { ctx.clearRect(0,0,canvas.width,canvas.height); for(let i=0;i<particlesArray.length;i++){ particlesArray[i].update(); particlesArray[i].draw(); } requestAnimationFrame(animateParticles); }
+  window.addEventListener('resize', () => { canvas.width=innerWidth; canvas.height=innerHeight; initParticles(); });
+  initParticles(); animateParticles();
 }
 </script>
 </body>
