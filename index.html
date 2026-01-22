@@ -314,12 +314,7 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
 
 .content-title { font-size: 28px; font-weight: 800; margin: 0 0 24px 0; line-height: 1.2; color: var(--modal-text-main); }
 
-/* --- PERFECTLY CURVED GREEN UNDERLINE (FIXED) --- */
-/* Logic: 
-   1. Main line (div) is straight.
-   2. Ends are pseudo-elements (:before, :after) that are boxes with rounded corners.
-   3. We use border-radius to create the "smile" curve upward.
-*/
+/* --- PRODUCT DISPLAY (No Underline) --- */
 .product-display {
   margin-bottom: 30px;
 }
@@ -329,33 +324,6 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
   font-size: 20px; font-weight: 700; color: var(--modal-text-main);
 }
 [data-theme="dark"] .product-name-row { color: #fff; }
-
-.custom-underline {
-  position: relative;
-  height: 6px;
-  background: var(--rgl-green);
-  margin: 0 12px;
-  border-radius: 3px;
-}
-
-.custom-underline::before,
-.custom-underline::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  width: 20px;
-  height: 6px;
-  background-size: contain;
-  background-repeat: no-repeat;
-}
-
-.custom-underline::before {
-  left: -20px;
-  background-image: url('assets/left.svg'); }
-
-.custom-underline::after {
-  right: -20px;
-  background-image: url('assets/right.svg'); }
 
 /* --- INFO SECTION (Step 1) --- */
 #infoSection { transition: opacity 0.3s; }
@@ -431,8 +399,8 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
   <div class="theme-pill intro-theme-btn" id="introThemeToggle"><i data-lucide="sun" id="introThemeIcon"></i></div>
   <div class="intro-container">
     <div class="intro-header">
-      <span class="intro-brand">SYSTEM_ACCESS // PORTAL</span>
-      <h2 class="intro-title">Select Region</h2>
+      <span class="intro-brand">Harmony Enhanced</span>
+      <h2 class="intro-title">Select Language</h2>
     </div>
     <div class="lang-grid">
       <div class="lang-card font-jp" onclick="setInitialLanguage('ja')" style="--delay:0.1s"><div class="lang-name">日本語</div></div>
@@ -447,16 +415,16 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 
 <div class="wrapper" id="mainContainer" style="opacity:0;">
   <header>
-    <div class="brand"><i data-lucide="command"></i> <span data-translate="header_brand">Access Portal</span></div>
+    <div class="brand"><i data-lucide="graduation-cap"></i> <span data-translate="header_brand">kiryu-sensya</span></div>
     <div class="theme-pill" id="themeToggle"><i data-lucide="sun" id="themeIcon"></i></div>
   </header>
   <div class="hero-text">
-    <h1 class="hero-title" data-translate="hero_title">System<br>Authentication</h1>
+    <h1 class="hero-title" data-translate="hero_title">System<br>Activation</h1>
     <div class="hero-sub" data-translate="hero_sub">Manage your access and resources.</div>
   </div>
   <div class="bento-grid">
     <div class="widget widget-hero" id="btnOpenModal">
-      <div class="icon-bubble"><i data-lucide="key" size="32"></i></div>
+      <div class="icon-bubble"><i data-lucide="ticket-check" size="32"></i></div>
       <div class="widget-content">
         <h3 data-translate="card1_title">ACTIVATION</h3>
         <p data-translate="card1_desc">Enter code to unlock.</p>
@@ -465,7 +433,7 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
     </div>
     <div class="widget widget-news" id="btnOpenNews">
       <div style="display:flex; justify-content:space-between;">
-        <div style="background:#FFEFEB; color:#FF5C00; width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center;"><i data-lucide="zap" size="24"></i></div>
+        <div style="background:#FFEFEB; color:#FF5C00; width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center;"><i data-lucide="notepad-text" size="24"></i></div>
         <i data-lucide="arrow-up-right" size="20" style="opacity:0.5;"></i>
       </div>
       <div class="widget-content">
@@ -475,7 +443,7 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
     </div>
     <div class="widget widget-support" id="btnOpenSupport">
       <div style="display:flex; justify-content:space-between;">
-        <div style="background:#E8F0FE; color:#1967D2; width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center;"><i data-lucide="message-circle" size="24"></i></div>
+        <div style="background:#E8F0FE; color:#1967D2; width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center;"><i data-lucide="search-alert" size="24"></i></div>
         <i data-lucide="arrow-up-right" size="20" style="opacity:0.5;"></i>
       </div>
       <div class="widget-content">
@@ -485,8 +453,8 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
     </div>
   </div>
   <footer>
-    <div><span data-translate="footer_admin">SYSTEM ADMIN</span>: <a href="https://developer-kiryu10.vercel.app/" target="_blank" style="color:inherit;text-decoration:none;font-weight:700;">kiryu-sensya</a></div>
-    <div style="opacity:0.5; margin-top:5px;">© 2019-2026 All Rights Reserved</div>
+    <div><span data-translate="footer_admin">Enforcement Administrator</span>: <a href="https://developer-kiryu10.vercel.app/" target="_blank" style="color:inherit;text-decoration:none;font-weight:700;">kiryu-sensya</a></div>
+    <div style="opacity:0.5; margin-top:5px;">© 2019-2026 kiryu-sensya All Rights Reserved</div>
   </footer>
 </div>
 
@@ -511,10 +479,10 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
     <div style="position:absolute; top:20px; right:20px; cursor:pointer; opacity:0.6; z-index:10;" id="modalCloseBtn"><i data-lucide="x" size="24"></i></div>
 
     <div id="inputPhase">
-      <h2 class="modal-title" data-translate="modal_title">Authentication</h2>
+      <h2 class="modal-title" data-translate="modal_title">Activation</h2>
       <p class="modal-sub" data-translate="modal_sub">Enter access code</p>
-      <input type="text" id="activationCode" class="code-field" placeholder="____-____" autocomplete="off">
-      <button id="btnConfirm" class="btn-primary" data-translate="modal_btn_auth">Authenticate</button>
+      <input type="text" id="activationCode" class="code-field" placeholder="Activation Code" autocomplete="off">
+      <button id="btnConfirm" class="btn-primary" data-translate="modal_btn_auth">CHECK</button>
       <div id="statusContainer"></div>
     </div>
 
@@ -525,11 +493,11 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
         </div>
         <div class="success-details">
           <div style="flex:1;">
-            
+              
             <div class="success-badge" id="successBadge">
-              <i data-lucide="check" size="14"></i> <span data-translate="success_badge">Authenticated</span>
+              <i data-lucide="check" size="14"></i> <span data-translate="success_badge">Code Verifiyed</span>
             </div>
-            
+              
             <h3 id="successTitle" class="content-title"></h3>
 
             <div id="infoSection">
@@ -542,13 +510,12 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
             <div id="productDisplay" class="product-display" style="display:none;">
                <div class="product-name-row">
                  <span id="productName">...</span>
-                 <i data-lucide="check-circle" size="22" style="color:var(--rgl-green);"></i>
+                 <i data-lucide="check" size="26" style="color:var(--rgl-green);"></i>
                </div>
-               <div class="custom-underline"></div>
             </div>
 
           </div>
-           
+            
           <div class="action-row">
             <button id="modalCloseSub" class="btn-close-sub" data-translate="btn_close">Close</button>
             <button id="btnRedeem" class="btn-action">
@@ -589,13 +556,13 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 
 <script>
 lucide.createIcons();
-const GAS_API_URL="https://script.google.com/macros/s/AKfycbxX5PvICF09Bt9_wXaVs-Y62NHDVkDWfYO-SpazOzlOIsZY8eTdWGfGkKcjmJycstgl/exec"; 
+const GAS_API_URL="api/proxy"; 
 let CURRENT_LANG="ja";
 
 const TRANSLATIONS={
  ja:{
-  header_brand:"_.k__yu.10", hero_title:"認証サイト", hero_sub:"アクセス権限とリソースの管理",
-  card1_title:"アクティベーション",card1_desc:"コードでコンテンツを解除",card1_btn:"開始",
+  header_brand:"_.k__yu.10", hero_title:"アクティベーション", hero_sub:"アクセス権限とリソースの管理",
+  card1_title:"アクティベーション",card1_desc:"コードでコンテンツを解除",card1_btn:"引き換える",
   card2_title:"ニュース",card2_desc:"最新情報を確認",card2_btn:"確認",
   card3_title:"サポート",card3_desc:"お問い合わせはこちら",card3_btn:"接続",
   modal_title:"アクティベーション",modal_sub:"コードを入力してください",modal_placeholder:"アクティベーションコード",modal_btn_auth:"認証する",
@@ -609,7 +576,7 @@ const TRANSLATIONS={
  },
  en:{
   header_brand:"_.k__yu.10", hero_title:"Activation", hero_sub:"Manage your access and resources.",
-  card1_title:"Activation",card1_desc:"Unlock content via code",card1_btn:"Start",
+  card1_title:"Activation",card1_desc:"Unlock content via code",card1_btn:"Redeem",
   card2_title:"News",card2_desc:"Check updates",card2_btn:"View",
   card3_title:"Support",card3_desc:"Contact us",card3_btn:"Connect",
   modal_title:"Activation",modal_sub:"Enter Activtion code",modal_placeholder:"Activation Code",modal_btn_auth:"CHECK",
@@ -622,8 +589,8 @@ const TRANSLATIONS={
   footer_admin:"Enforcement Administrator"
  },
  zh:{ 
-  header_brand:"_.k__yu.10", hero_title:"系统检查", hero_sub:"管理您的访问权限和资源。", 
-  card1_title:"激活",card1_desc:"解锁内容",card1_btn:"开始", 
+  header_brand:"_.k__yu.10", hero_title:"系统激活", hero_sub:"管理您的访问权限和资源。", 
+  card1_title:"激活",card1_desc:"解锁内容",card1_btn:"兑换代码", 
   card2_title:"新闻",card2_desc:"查看更新",card2_btn:"查看", 
   card3_title:"支持",card3_desc:"联系我们",card3_btn:"联系", 
   modal_title:"激活",modal_sub:"输入激活码",modal_placeholder:"激活码",modal_btn_auth:"检查", 
@@ -635,8 +602,8 @@ const TRANSLATIONS={
   support_modal_title:"需要帮助吗？",btn_inquiry:"不可用", footer_admin:"系统管理长" 
  },
  "zh-TW":{ 
-  header_brand:"_.k__yu.10", hero_title:"系統檢查", hero_sub:"管理您的存取權限與資源。", 
-  card1_title:"激活",card1_desc:"解鎖內容",card1_btn:"開始", 
+  header_brand:"_.k__yu.10", hero_title:"系統激活", hero_sub:"管理您的存取權限與資源。", 
+  card1_title:"激活",card1_desc:"解鎖內容",card1_btn:"兌換代碼", 
   card2_title:"新聞",card2_desc:"查看更新",card2_btn:"查看", 
   card3_title:"支援",card3_desc:"聯絡我們",card3_btn:"聯絡", 
   modal_title:"激活",modal_sub:"輸入啟用碼",modal_placeholder:"啟動碼",modal_btn_auth:"檢查", 
@@ -649,7 +616,7 @@ const TRANSLATIONS={
  },
  ko:{ 
   header_brand:"_.k__yu.10", hero_title:"시스템 인증 포털", hero_sub:"액세스 권한 및 리소스 관리", 
-  card1_title:"활성화",card1_desc:"콘텐츠 잠금 해제",card1_btn:"시작", 
+  card1_title:"활성화",card1_desc:"콘텐츠 잠금 해제",card1_btn:"코드 교환", 
   card2_title:"뉴스",card2_desc:"최신 정보",card2_btn:"보기", 
   card3_title:"지원",card3_desc:"문의하기",card3_btn:"연결", 
   modal_title:"활성화",modal_sub:"코드 입력",modal_placeholder:"활성화 코드",modal_btn_auth:"확인", 
@@ -662,7 +629,7 @@ const TRANSLATIONS={
  },
  ru:{ 
   header_brand:"_.k__yu.10", hero_title:"СистемаАутентификации", hero_sub:"Управление доступом и ресурсами", 
-      card1_title:"Активация",card1_desc:"Разблокировка",card1_btn:"Старт", 
+      card1_title:"Активация",card1_desc:"Разблокировка",card1_btn:"Активируйте код", 
       card2_title:"Новости",card2_desc:"Обновления",card2_btn:"См.", 
       card3_title:"Поддержка",card3_desc:"Связь",card3_btn:"Связь", 
       modal_title:"Проверка",modal_sub:"Введите код",modal_placeholder:"Код активации",modal_btn_auth:"Проверить", 
@@ -713,8 +680,8 @@ function showMainContent(){
  gId('mainContainer').style.opacity = '1'; lucide.createIcons();
  const urlCode = new URLSearchParams(window.location.search).get('code');
  if(urlCode) {
-    setTimeout(()=>{ openAuthModal(); els.code.value = formatCodeInput(urlCode); performAuth(els.code.value); }, 800);
-    setTimeout(fetchNews, 3000);
+   setTimeout(()=>{ openAuthModal(); els.code.value = formatCodeInput(urlCode); performAuth(els.code.value); }, 800);
+   setTimeout(fetchNews, 3000);
  } else fetchNews();
 }
 
@@ -787,25 +754,28 @@ setListener(els.supportModal,'click',e=>{if(e.target===els.supportModal)els.supp
 els.code.addEventListener('input',()=>{ els.code.value = formatCodeInput(els.code.value); });
 els.confirm.addEventListener('click',()=>{ const c=els.code.value.trim(); if(c) performAuth(c); });
 
-// --- RGL AUTH FLOW ---
+// --- RGL AUTH FLOW (ROBUST FIX) ---
 async function performAuth(code, isSilent=false){
- const t=TRANSLATIONS[CURRENT_LANG];
- if(!isSilent){
-   els.code.disabled=true; els.confirm.disabled=true;
-   els.confirm.innerHTML = `${t.msg_verifying}<span class="loading-dots"></span>`;
-   els.status.innerHTML="";
- }
- try{
-   const d = await(await fetch(`${GAS_API_URL}?key=${encodeURIComponent(code)}&lang=${CURRENT_LANG}&_t=${Date.now()}`)).json();
-   if(d.success && !isSilent){
+  const t=TRANSLATIONS[CURRENT_LANG];
+  
+  if(!isSilent){
+    els.code.disabled=true; els.confirm.disabled=true;
+    els.confirm.innerHTML = `${t.msg_verifying}<span class="loading-dots"></span>`;
+    els.status.innerHTML="";
+  }
+
+  try{
+    // Initial Fetch
+    let d = await(await fetch(`${GAS_API_URL}?key=${encodeURIComponent(code)}&lang=${CURRENT_LANG}&_t=${Date.now()}`)).json();
+    
+    if(d.success && !isSilent){
       els.confirm.innerHTML = `<i data-lucide="check"></i>`;
       await new Promise(resolve => setTimeout(resolve, 600));
-   } else if(!isSilent){
+    } else if(!isSilent){
       els.code.disabled=false; els.confirm.disabled=false; els.confirm.textContent=t.modal_btn_auth; 
-   }
+    }
 
-   if(d.success){
-      // 1. SETUP PREVIEW UI (Step 1)
+    if(d.success){
       if(!isSilent){
         els.modalCon.classList.add('is-success');
         els.inputPh.style.opacity = '0';
@@ -816,67 +786,118 @@ async function performAuth(code, isSilent=false){
         }, 400);
       }
       
-      // Reset for Step 1
-      els.sBadge.classList.remove('visible'); // Hide "Verified"
-      els.btnRedeem.style.display = 'flex';    // Show "Continue"
-      els.btnDownload.style.display = 'none'; // Hide "Download"
+      // Step 1 UI Setup
+      els.sBadge.classList.remove('visible'); 
+      els.btnRedeem.style.display = 'flex';    
+      els.btnDownload.style.display = 'none'; 
+      els.sProdDisplay.style.display = 'none'; 
+      els.sInfoSec.style.display = 'block';    
+      els.sTitle.style.display = '';           
       
-      // Ensure "Step 1" Layout is Clean
-      els.sProdDisplay.style.display = 'none'; // HIDE Bundle in Step 1
-      els.sInfoSec.style.display = 'block';    // SHOW Info in Step 1
-      els.sTitle.style.display = '';           // SHOW Title in Step 1
-      
-      // Fill Content
-      els.sTitle.textContent = t.success_title_preview; // "Confirm Content"
-      els.sProdName.textContent = d.bundleLabel; // Set bundle name (for later)
-      els.sNameDisp.textContent = d.message;       // Message_JP (OUTSIDE BOX)
-      els.sExtra.innerHTML = d.extraInfo.replace(/\n/g, '<br>'); // Detail Text
+      els.sTitle.textContent = t.success_title_preview; 
+      els.sProdName.textContent = d.bundleLabel; 
+      els.sNameDisp.textContent = d.message;       
+      els.sExtra.innerHTML = d.extraInfo.replace(/\n/g, '<br>'); 
       
       if(d.imageUrl && d.imageUrl.startsWith("http")){ els.sImg.src=d.imageUrl; } 
       else { els.sImg.src="https://placehold.co/600x400/000000/00E050?text=Protected"; } 
       
       lucide.createIcons();
 
-      // 2. BIND CONTINUE BUTTON (Transition to Step 2)
+      // --- Rebind Button ---
       const newBtn = els.btnRedeem.cloneNode(true);
       els.btnRedeem.parentNode.replaceChild(newBtn, els.btnRedeem);
       els.btnRedeem = newBtn;
 
       els.btnRedeem.addEventListener('click', () => {
-        // TRANSITION TO FINAL (Step 2)
-        els.btnRedeem.style.display = 'none';
-        
-        // HIDE Elements as requested
-        els.sInfoSec.style.display = 'none'; // Hides Message + Details + Frame
-        els.sTitle.style.display = 'none';   // Hides Title (so Bundle moves up)
-        
-        els.sBadge.classList.add('visible'); // Show Badge
-        
-        // SHOW Bundle Name
-        els.sProdDisplay.style.display = 'block'; 
-        
-        els.btnDownload.style.display = 'flex'; // Show Download
-        
-        // Setup Download Link
-        els.btnDownload.href=d.actionUrl;
-        if(d.isReleaseDateReached===false){
-             els.btnDownload.style.pointerEvents='none'; els.btnDownload.style.opacity='0.6'; els.btnDownload.removeAttribute('href');
-             els.btnDownload.innerHTML=`<span>${d.releaseDateStr}</span>`;
-        }
+          // A. Transition to Final
+          els.btnDownload.style.display = 'flex';
+          els.btnDownload.style.pointerEvents = 'none';
+          els.btnDownload.style.opacity = '0.6';
+          els.btnDownload.removeAttribute('href');
+          
+          // Initial Loading State (Spinner)
+          els.btnDownload.innerHTML = `<div class="loading-spinner"></div>`;
+
+          els.btnRedeem.style.display = 'none';
+          els.sInfoSec.style.display = 'none'; 
+          els.sTitle.style.display = 'none'; 
+          els.sBadge.classList.add('visible');
+          els.sProdDisplay.style.display = 'block'; 
+
+          // --- ROBUST TIMER LOGIC ---
+          let isFetching = false; // Flag to prevent multiple requests
+
+          const updateUI = async () => {
+              const now = Date.now();
+              // Always rely on the latest data from server
+              const targetTime = d.releaseDateIso ? new Date(d.releaseDateIso).getTime() : 0;
+              const diff = targetTime - now;
+
+              // CASE 1: We have the URL (Unlocked)
+              if (d.actionUrl) {
+                  clearInterval(timerId); 
+                  els.btnDownload.href = d.actionUrl;
+                  els.btnDownload.style.pointerEvents = 'auto';
+                  els.btnDownload.style.opacity = '1';
+                  
+                  const labelText = d.buttonLabel || "Download";
+                  const iconHtml = (d.btnIcon === 'arrow-up-right') 
+                     ? `<span>${labelText}</span> <i data-lucide="arrow-up-right" size="18"></i>`
+                     : `<span>${labelText}</span> <i data-lucide="download" size="18"></i>`;
+                  els.btnDownload.innerHTML = iconHtml;
+                  lucide.createIcons();
+                  return; // Exit
+              }
+
+              // CASE 2: Time passed but NO URL yet (Fetch it)
+              if (diff <= 0) {
+                  if (!isFetching) {
+                      isFetching = true;
+                      // Keep showing spinner while fetching
+                      els.btnDownload.innerHTML = `<div class="loading-spinner" style="width:20px;height:20px;border-width:2px;border-color:rgba(0,0,0,0.2);border-top-color:#000;"></div>`;
+                      
+                      try {
+                          const retryRes = await fetch(`${GAS_API_URL}?key=${encodeURIComponent(code)}&lang=${CURRENT_LANG}&_t=${Date.now()}`);
+                          const retryD = await retryRes.json();
+                          if (retryD.success) {
+                              d = retryD; // Update local data with server response
+                          }
+                      } catch(e) { 
+                          console.error("Auto-fetch failed", e);
+                      } finally {
+                          isFetching = false;
+                      }
+                  }
+                  // Loop will continue. If URL came back, Case 1 will hit next tick.
+                  // If not (server time lag), it stays in Case 2 (Spinner).
+              } 
+              // CASE 3: Countdown
+              else {
+                  const m = Math.floor(diff / (1000 * 60));
+                  const s = Math.floor((diff % (1000 * 60)) / 1000);
+                  els.btnDownload.innerHTML = `<span style="font-feature-settings:'tnum';">${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span>`;
+                  lucide.createIcons();
+              }
+          };
+
+          const timerId = setInterval(updateUI, 500);
+          updateUI(); 
       });
 
-   } else {
+    } else {
       let errorText = t.msg_error;
       if (d.message === "This code has already been used.") errorText = t.msg_used;
       else if (d.message === "Invalid code" || d.message === "This code is disabled.") errorText = t.msg_invalid;
       els.status.innerHTML = `<span style="color:#FF3B30; font-size:13px; font-weight:700;">${errorText}</span>`;
-   }
- } catch(e){
-   if(!isSilent){
-     els.code.disabled=false; els.confirm.disabled=false; els.confirm.textContent=t.modal_btn_auth;
-     els.status.innerHTML=`<span style="color:#FF3B30; font-size:13px;">${t.msg_error}</span>`;
-   }
- }
+    }
+
+  } catch(e){
+    if(!isSilent){
+      els.code.disabled=false; els.confirm.disabled=false; els.confirm.textContent=t.modal_btn_auth;
+      els.status.innerHTML=`<span style="color:#FF3B30; font-size:13px;">${t.msg_error}</span>`;
+    }
+  }
 }
 
 function initThemeAndParticles() {
