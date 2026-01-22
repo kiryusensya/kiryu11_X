@@ -24,16 +24,16 @@
 /* --- THEME VARIABLES --- */
 :root {
   --primary: #007DFF;
-  --bright-green: #00D959; 
+  --bright-green: #04CF22;
   --dark-green-text: #005522; 
   --bg-color: #F1F3F5;
-  --card-bg: rgba(255, 255, 255, 0.6); /* More translucent for HarmonyOS glass */
+  --card-bg: rgba(255, 255, 255, 0.6);
   --card-border: rgba(255, 255, 255, 0.6);
-  --modal-bg-success: rgba(255, 255, 255, 0.85); 
+  --modal-bg-success: rgba(255, 255, 255, 0.95); 
   --modal-backdrop: blur(40px);
   --modal-text-main: #000000;
   --modal-text-sub: #666666;
-  --success-text-green: var(--dark-green-text); 
+  --success-text-green: #04CF22;
   --btn-close-border: #000000;
   --btn-close-text: #000000;
   --radius-xl: 24px;
@@ -41,6 +41,8 @@
   --spring-ease: cubic-bezier(0.33, 1, 0.68, 1);
   --shadow-soft: 0 10px 30px rgba(0,0,0,0.05);
   --font-stack: 'HarmonyOS Sans', 'Manrope', sans-serif;
+  
+  --rgl-green: #04CF22;
 }
 :root:lang(ja) { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
 :root:lang(zh) { --font-stack: 'HarmonyOS Sans SC', 'HarmonyOS Sans', sans-serif; }
@@ -56,7 +58,7 @@
   --modal-backdrop: none;
   --modal-text-main: #FFFFFF;
   --modal-text-sub: #A0A0A0;
-  --success-text-green: var(--bright-green); 
+  --success-text-green: #04CF22;
   --btn-close-border: #FFFFFF;
   --btn-close-text: #FFFFFF;
   --shadow-soft: 0 15px 40px rgba(0,0,0,0.4);
@@ -186,54 +188,27 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
 }
 [data-theme="dark"] .intro-title { color: #fff; }
 
-/* Pure Grid */
 .lang-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  width: 100%;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 100%;
 }
-
 .lang-card {
-  position: relative; 
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 24px;
-  height: 120px;
-  cursor: pointer; 
+  position: relative; background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: 24px; height: 120px; cursor: pointer; 
   display: flex; align-items: center; justify-content: center;
-  transition: all 0.4s var(--spring-ease);
-  backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-  box-shadow: var(--shadow-soft);
-  opacity: 0; animation: fadeInUp 0.6s var(--spring-ease) forwards;
-  animation-delay: var(--delay, 0s); 
-  overflow: hidden;
+  transition: all 0.4s var(--spring-ease); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+  box-shadow: var(--shadow-soft); opacity: 0; animation: fadeInUp 0.6s var(--spring-ease) forwards;
+  animation-delay: var(--delay, 0s); overflow: hidden;
 }
-
-/* Interaction */
 .lang-card:hover {
-  transform: translateY(-5px) scale(1.02);
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 20px 50px rgba(0, 125, 255, 0.15);
-  border-color: rgba(0, 125, 255, 0.3);
+  transform: translateY(-5px) scale(1.02); background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 20px 50px rgba(0, 125, 255, 0.15); border-color: rgba(0, 125, 255, 0.3);
 }
 [data-theme="dark"] .lang-card:hover {
-  background: rgba(70, 70, 70, 0.8);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(70, 70, 70, 0.8); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6); border-color: rgba(255, 255, 255, 0.3);
 }
-
-.lang-name {
-  font-size: 22px; font-weight: 700; color: var(--modal-text-main);
-  transition: 0.3s;
-}
+.lang-name { font-size: 22px; font-weight: 700; color: var(--modal-text-main); transition: 0.3s; }
 [data-theme="dark"] .lang-name { color: #fff; }
-
-.lang-card:hover .lang-name {
-  transform: scale(1.05); letter-spacing: 0.5px;
-}
-
-/* Mobile Grid */
+.lang-card:hover .lang-name { transform: scale(1.05); letter-spacing: 0.5px; }
 @media (max-width: 800px) {
   .lang-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
   .lang-card { height: 100px; border-radius: 20px; }
@@ -241,7 +216,6 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
   .intro-title { font-size: 32px; }
 }
 
-/* Strict Font Assignments */
 .font-jp { font-family: 'Noto Sans JP', sans-serif; }
 .font-en { font-family: 'HarmonyOS Sans', sans-serif; }
 .font-cn-s { font-family: 'HarmonyOS Sans SC', sans-serif; }
@@ -287,9 +261,7 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
 /* INPUT PHASE */
 #inputPhase { 
   width: 100%; transition: opacity 0.3s ease; 
-  text-align: center; 
-  display: flex; flex-direction: column; align-items: center;
-  position: relative; 
+  text-align: center; display: flex; flex-direction: column; align-items: center; position: relative; 
 }
 .modal-title { margin:0 0 10px 0; font-size:24px; font-weight:800; color:var(--modal-text-main); text-align: center; }
 [data-theme="dark"] .modal-title { color: #fff; }
@@ -299,10 +271,8 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
 .code-field {
   width: 100%; border: none; background: rgba(128, 128, 128, 0.1);
   height: 56px; border-radius: 16px; 
-  text-align: center; 
-  outline: none; transition: 0.3s; margin-top: 24px;
-  color: var(--modal-text-main);
-  font-family: var(--font-stack);
+  text-align: center; outline: none; transition: 0.3s; margin-top: 24px;
+  color: var(--modal-text-main); font-family: var(--font-stack);
   font-size: 17px; font-weight: 700; letter-spacing: 0; padding: 0 10px;
 }
 [data-theme="dark"] .code-field { color: #fff; background: rgba(255,255,255,0.1); }
@@ -316,11 +286,8 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
 }
 .btn-primary:active { transform: scale(0.96); }
 
-/* Error Message Position */
 #statusContainer { 
-  margin-top: 0; min-height: 0; 
-  position: absolute; bottom: -30px; left: 0; width: 100%; 
-  text-align: center;
+  margin-top: 0; min-height: 0; position: absolute; bottom: -30px; left: 0; width: 100%; text-align: center;
 }
 
 /* SUCCESS LAYOUT */
@@ -337,29 +304,82 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
 [data-theme="dark"] .success-details { color: #fff; }
 
 .success-badge {
-  display: inline-flex; align-items: center; gap: 8px;
+  display: none; /* Initially Hidden, no transition */
+  align-items: center; gap: 8px;
   border: 1px solid var(--success-text-green); color: var(--success-text-green);
   padding: 6px 16px; border-radius: 50px; font-size: 13px; font-weight: 700;
-  margin-bottom: 20px; width: fit-content; background: rgba(0, 224, 80, 0.1);
+  margin-bottom: 20px; width: fit-content; background: rgba(4, 207, 34, 0.1);
 }
-.content-title-label { font-size: 12px; opacity: 0.6; margin-bottom: 5px; display: block; }
-.content-title { font-size: 32px; font-weight: 800; margin: 0 0 24px 0; line-height: 1.2; color: #000; }
-[data-theme="dark"] .content-title { color: #fff; }
+.success-badge.visible { display: inline-flex; } /* Simple switch */
+
+.content-title { font-size: 28px; font-weight: 800; margin: 0 0 24px 0; line-height: 1.2; color: var(--modal-text-main); }
+
+/* --- PERFECTLY CURVED GREEN UNDERLINE (FIXED) --- */
+/* Logic: 
+   1. Main line (div) is straight.
+   2. Ends are pseudo-elements (:before, :after) that are boxes with rounded corners.
+   3. We use border-radius to create the "smile" curve upward.
+*/
+.product-display {
+  margin-bottom: 30px;
+}
+.product-name-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0 8px 8px 8px; /* Padding for spacing */
+  font-size: 20px; font-weight: 700; color: var(--modal-text-main);
+}
+[data-theme="dark"] .product-name-row { color: #fff; }
+
+.custom-underline {
+  position: relative;
+  height: 3px;
+  background: var(--rgl-green);
+  margin: 0 10px; /* Offset for the curved ends */
+}
+
+/* Left Upward Curve */
+.custom-underline::before {
+  content: '';
+  position: absolute;
+  left: -10px; bottom: 0;
+  width: 10px; height: 12px;
+  border-bottom: 3px solid var(--rgl-green);
+  border-left: 3px solid var(--rgl-green);
+  border-radius: 0 0 0 12px; /* Bottom-Left Corner Rounding */
+  border-top: none; border-right: none;
+  box-sizing: content-box; /* Ensure border doesn't shrink size */
+}
+
+/* Right Upward Curve */
+.custom-underline::after {
+  content: '';
+  position: absolute;
+  right: -10px; bottom: 0;
+  width: 10px; height: 12px;
+  border-bottom: 3px solid var(--rgl-green);
+  border-right: 3px solid var(--rgl-green);
+  border-radius: 0 0 12px 0; /* Bottom-Right Corner Rounding */
+  border-top: none; border-left: none;
+  box-sizing: content-box;
+}
+
+/* --- INFO SECTION (Step 1) --- */
+#infoSection { transition: opacity 0.3s; }
+
+.message-title {
+  font-size: 20px; font-weight: 700; color: var(--modal-text-main);
+  margin-bottom: 12px; display: block; line-height: 1.4;
+}
+[data-theme="dark"] .message-title { color: #fff; }
 
 .info-box {
   background: rgba(128,128,128,0.05); border-radius: 16px; padding: 20px;
   border: 1px solid rgba(128,128,128,0.1); margin-bottom: 30px; width: 100%;
 }
 
-.info-value { 
-  font-size: 20px; font-weight: 700; color: var(--success-text-green); 
-  display: block; margin-bottom: 16px; line-height: 1.4;
-}
-
 .info-extra { 
-  font-size: 13px; opacity: 0.8; margin-top: 0; 
-  border-top: 1px solid rgba(128,128,128,0.2); 
-  padding-top: 16px; line-height: 1.5; white-space: pre-wrap; 
+  font-size: 13px; opacity: 0.7; margin-top: 0; 
+  line-height: 1.6; white-space: pre-wrap; 
 }
 
 .action-row { display: flex; gap: 12px; margin-top: auto; width: 100%; }
@@ -370,13 +390,21 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
   font-family: var(--font-stack);
 }
 .btn-close-sub:hover { opacity: 0.6; }
-.btn-download {
-  flex: 2; height: 50px; background: var(--bright-green); color: #000;
-  border-radius: 12px; border: none; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px;
-  text-decoration: none; transition: transform 0.2s;
+
+/* Buttons */
+.btn-action {
+  flex: 2; height: 50px; border-radius: 12px; border: none; font-weight: 700; 
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  text-decoration: none; transition: transform 0.2s; cursor: pointer;
   font-family: var(--font-stack);
 }
-.btn-download:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(0, 217, 89, 0.4); }
+.btn-action:hover { transform: translateY(-2px); }
+
+#btnRedeem { background: var(--modal-text-main); color: var(--bg-color); }
+[data-theme="dark"] #btnRedeem { background: #fff; color: #000; }
+
+#btnDownload { background: var(--bright-green); color: #000; display: none; }
+#btnDownload:hover { box-shadow: 0 5px 20px rgba(4, 207, 34, 0.4); }
 
 @media (max-width: 768px) {
   .modal-sheet.is-success { max-width: 92%; border-radius: 24px; height: auto; max-height: 85vh; overflow-y: auto; }
@@ -406,41 +434,19 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 <canvas id="particleCanvas"></canvas>
 
 <div id="langSelectionOverlay" class="modal-overlay active" style="opacity:1; background:var(--bg-color); z-index:10000;">
-  
-  <div class="theme-pill intro-theme-btn" id="introThemeToggle">
-    <i data-lucide="sun" id="introThemeIcon"></i>
-  </div>
-
+  <div class="theme-pill intro-theme-btn" id="introThemeToggle"><i data-lucide="sun" id="introThemeIcon"></i></div>
   <div class="intro-container">
     <div class="intro-header">
-      <span class="intro-brand">Harmony Enhanced</span>
-      <h2 class="intro-title">Select Language</h2>
+      <span class="intro-brand">SYSTEM_ACCESS // PORTAL</span>
+      <h2 class="intro-title">Select Region</h2>
     </div>
-    
     <div class="lang-grid">
-      <div class="lang-card font-jp" onclick="setInitialLanguage('ja')" style="--delay:0.1s">
-        <div class="lang-name">日本語</div>
-      </div>
-
-      <div class="lang-card font-en" onclick="setInitialLanguage('en')" style="--delay:0.2s">
-        <div class="lang-name">English</div>
-      </div>
-
-      <div class="lang-card font-cn-s" onclick="setInitialLanguage('zh')" style="--delay:0.3s">
-        <div class="lang-name">简体中文</div>
-      </div>
-
-      <div class="lang-card font-cn-t" onclick="setInitialLanguage('zh-TW')" style="--delay:0.4s">
-        <div class="lang-name">繁體中文</div>
-      </div>
-
-      <div class="lang-card font-kr" onclick="setInitialLanguage('ko')" style="--delay:0.5s">
-        <div class="lang-name">한국어</div>
-      </div>
-
-      <div class="lang-card font-ru" onclick="setInitialLanguage('ru')" style="--delay:0.6s">
-        <div class="lang-name">Русский</div>
-      </div>
+      <div class="lang-card font-jp" onclick="setInitialLanguage('ja')" style="--delay:0.1s"><div class="lang-name">日本語</div></div>
+      <div class="lang-card font-en" onclick="setInitialLanguage('en')" style="--delay:0.2s"><div class="lang-name">English</div></div>
+      <div class="lang-card font-cn-s" onclick="setInitialLanguage('zh')" style="--delay:0.3s"><div class="lang-name">简体中文</div></div>
+      <div class="lang-card font-cn-t" onclick="setInitialLanguage('zh-TW')" style="--delay:0.4s"><div class="lang-name">繁體中文</div></div>
+      <div class="lang-card font-kr" onclick="setInitialLanguage('ko')" style="--delay:0.5s"><div class="lang-name">한국어</div></div>
+      <div class="lang-card font-ru" onclick="setInitialLanguage('ru')" style="--delay:0.6s"><div class="lang-name">Русский</div></div>
     </div>
   </div>
 </div>
@@ -450,12 +456,10 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
     <div class="brand"><i data-lucide="command"></i> <span data-translate="header_brand">Access Portal</span></div>
     <div class="theme-pill" id="themeToggle"><i data-lucide="sun" id="themeIcon"></i></div>
   </header>
-
   <div class="hero-text">
     <h1 class="hero-title" data-translate="hero_title">System<br>Authentication</h1>
     <div class="hero-sub" data-translate="hero_sub">Manage your access and resources.</div>
   </div>
-
   <div class="bento-grid">
     <div class="widget widget-hero" id="btnOpenModal">
       <div class="icon-bubble"><i data-lucide="key" size="32"></i></div>
@@ -510,15 +514,12 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 
 <div id="authModal" class="modal-overlay">
   <div class="modal-sheet" id="modalContainer">
-    
     <div style="position:absolute; top:20px; right:20px; cursor:pointer; opacity:0.6; z-index:10;" id="modalCloseBtn"><i data-lucide="x" size="24"></i></div>
 
     <div id="inputPhase">
       <h2 class="modal-title" data-translate="modal_title">Authentication</h2>
       <p class="modal-sub" data-translate="modal_sub">Enter access code</p>
-      
       <input type="text" id="activationCode" class="code-field" placeholder="____-____" autocomplete="off">
-      
       <button id="btnConfirm" class="btn-primary" data-translate="modal_btn_auth">Authenticate</button>
       <div id="statusContainer"></div>
     </div>
@@ -529,23 +530,37 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
           <img id="successImage" src="" alt="Content">
         </div>
         <div class="success-details">
-          <div>
-            <div class="success-badge">
+          <div style="flex:1;">
+            
+            <div class="success-badge" id="successBadge">
               <i data-lucide="check" size="14"></i> <span data-translate="success_badge">Authenticated</span>
             </div>
             
             <h3 id="successTitle" class="content-title"></h3>
-            
-            <div class="info-box">
-              <div id="successNameDisplay" class="info-value">...</div>
-              
-              <div id="successExtraInfo" class="info-extra"></div>
+
+            <div id="infoSection">
+               <div id="successNameDisplay" class="message-title">...</div>
+               <div class="info-box">
+                 <div id="successExtraInfo" class="info-extra"></div>
+               </div>
             </div>
+
+            <div id="productDisplay" class="product-display" style="display:none;">
+               <div class="product-name-row">
+                 <span id="productName">...</span>
+                 <i data-lucide="check-circle" size="22" style="color:var(--rgl-green);"></i>
+               </div>
+               <div class="custom-underline"></div>
+            </div>
+
           </div>
           
           <div class="action-row">
             <button id="modalCloseSub" class="btn-close-sub" data-translate="btn_close">Close</button>
-            <a href="#" id="successDownloadBtn" class="btn-download">
+            <button id="btnRedeem" class="btn-action">
+              <span data-translate="btn_continue">CONTINUE</span> <i data-lucide="arrow-right" size="18"></i>
+            </button>
+            <a href="#" id="btnDownload" class="btn-action">
               <span data-translate="btn_download">Download</span> <i data-lucide="download" size="18"></i>
             </a>
           </div>
@@ -566,8 +581,7 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
   </div>
 </div>
 
-<div id="supportModal" class="modal-overlay">
-  <div class="modal-sheet" style="padding:40px; text-align:center;">
+<div id="supportModal" class="modal-sheet" style="padding:40px; text-align:center;">
     <div style="position:absolute; top:20px; right:20px; cursor:pointer;" id="supportCloseX"><i data-lucide="x" size="24"></i></div>
     <h2 data-translate="support_modal_title" style="margin:0 0 30px 0; color:var(--modal-text-main);">Channels</h2>
     <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap;">
@@ -585,7 +599,7 @@ let CURRENT_LANG="ja";
 
 const TRANSLATIONS={
  ja:{
-  header_brand:"_.k__yu.10", hero_title:"アクティベーション", hero_sub:"アクセス権限とリソースの管理",
+  header_brand:"_.k__yu.10", hero_title:"認証サイト", hero_sub:"アクセス権限とリソースの管理",
   card1_title:"アクティベーション",card1_desc:"コードでコンテンツを解除",card1_btn:"開始",
   card2_title:"ニュース",card2_desc:"最新情報を確認",card2_btn:"確認",
   card3_title:"サポート",card3_desc:"お問い合わせはこちら",card3_btn:"接続",
@@ -593,7 +607,8 @@ const TRANSLATIONS={
   msg_verifying:"確認中",msg_success_btn:"成功",
   msg_invalid:"このコードは無効です",msg_used:"このコードは使用済みです",msg_error:"エラーが発生しました",
   success_badge:"コードが認証されました。",
-  btn_close:"閉じる",btn_download:"ダウンロード",news_title:"最新情報",news_label:"履歴",news_loading:"更新を確認中",
+  success_title_preview:"コンテンツの確認", success_title_final:"アクティベーション完了",
+  btn_close:"閉じる",btn_continue:"続行する",btn_download:"ダウンロード",news_title:"最新情報",news_label:"履歴",news_loading:"更新を確認中",
   support_modal_title:"なにかお困りですか?",btn_inquiry:"不可",
   footer_admin:"システム管理者"
  },
@@ -606,12 +621,13 @@ const TRANSLATIONS={
   msg_verifying:"Checking",msg_success_btn:"Success",
   msg_invalid:"This code is invalid.",msg_used:"This code has already been used.",msg_error:"Error occurred",
   success_badge:"Code Verified",
-  btn_close:"Close",btn_download:"Download",news_title:"News",news_label:"Log",news_loading:"Checking for updates",
+  success_title_preview:"Confirm Content", success_title_final:"Activation Complete",
+  btn_close:"Close",btn_continue:"CONTINUE",btn_download:"Download",news_title:"News",news_label:"Log",news_loading:"Checking for updates",
   support_modal_title:"Channels",btn_inquiry:"N/A",
   footer_admin:"Enforcement Administrator"
  },
  zh:{ 
-  header_brand:"_.k__yu.10", hero_title:"激活", hero_sub:"管理您的访问权限和资源。", 
+  header_brand:"_.k__yu.10", hero_title:"系统检查", hero_sub:"管理您的访问权限和资源。", 
   card1_title:"激活",card1_desc:"解锁内容",card1_btn:"开始", 
   card2_title:"新闻",card2_desc:"查看更新",card2_btn:"查看", 
   card3_title:"支持",card3_desc:"联系我们",card3_btn:"联系", 
@@ -619,12 +635,12 @@ const TRANSLATIONS={
   msg_verifying:"正在检查",msg_success_btn:"成功", 
   msg_invalid:"该代码无效。",msg_used:"该代码已被使用。",msg_error:"错误", 
   success_badge:"代码已检查",
-  btn_close:"关闭",btn_download:"下载",news_title:"最新消息",news_label:"日志",news_loading:"正在检查更新", 
+  success_title_preview:"确认内容", success_title_final:"激活完成",
+  btn_close:"关闭",btn_continue:"继续",btn_download:"下载",news_title:"最新消息",news_label:"日志",news_loading:"正在检查更新", 
   support_modal_title:"需要帮助吗？",btn_inquiry:"不可用", footer_admin:"系统管理长" 
  },
-    
  "zh-TW":{ 
-  header_brand:"_.k__yu.10", hero_title:"激活", hero_sub:"管理您的存取權限與資源。", 
+  header_brand:"_.k__yu.10", hero_title:"系統檢查", hero_sub:"管理您的存取權限與資源。", 
   card1_title:"激活",card1_desc:"解鎖內容",card1_btn:"開始", 
   card2_title:"新聞",card2_desc:"查看更新",card2_btn:"查看", 
   card3_title:"支援",card3_desc:"聯絡我們",card3_btn:"聯絡", 
@@ -632,12 +648,12 @@ const TRANSLATIONS={
   msg_verifying:"正在檢查",msg_success_btn:"成功", 
   msg_invalid:"該程式碼無效。",msg_used:"該程式碼已被使用。",msg_error:"錯誤", 
   success_badge:"代碼已檢查",
-  btn_close:"關閉",btn_download:"下載",news_title:"最新消息",news_label:"日誌",news_loading:"正在檢查更新", 
+  success_title_preview:"確認內容", success_title_final:"激活完成",
+  btn_close:"關閉",btn_continue:"繼續",btn_download:"下載",news_title:"最新消息",news_label:"日誌",news_loading:"正在檢查更新", 
   support_modal_title:"需要幫助嗎？",btn_inquiry:"不可用", footer_admin:"系統管理長" 
  },
-    
  ko:{ 
-  header_brand:"_.k__yu.10", hero_title:"활성화", hero_sub:"액세스 권한 및 리소스 관리", 
+  header_brand:"_.k__yu.10", hero_title:"시스템 인증 포털", hero_sub:"액세스 권한 및 리소스 관리", 
   card1_title:"활성화",card1_desc:"콘텐츠 잠금 해제",card1_btn:"시작", 
   card2_title:"뉴스",card2_desc:"최신 정보",card2_btn:"보기", 
   card3_title:"지원",card3_desc:"문의하기",card3_btn:"연결", 
@@ -645,12 +661,12 @@ const TRANSLATIONS={
   msg_verifying:"확인 중",msg_success_btn:"성공", 
   msg_invalid:"잘못된 코드",msg_used:"사용된 코드",msg_error:"오류", 
   success_badge:"코드 인증됨",
-  btn_close:"닫기",btn_download:"다운로드",news_title:"뉴스",news_label:"로그",news_loading:"로딩 중", 
+  success_title_preview:"콘텐츠 확인", success_title_final:"활성화 완료",
+  btn_close:"닫기",btn_continue:"계속",btn_download:"다운로드",news_title:"뉴스",news_label:"로그",news_loading:"로딩 중", 
   support_modal_title:"도움 필요해?",btn_inquiry:"불가", footer_admin:"시스템 관리자" 
  },
-    
  ru:{ 
-  header_brand:"_.k__yu.10", hero_title:"Активация", hero_sub:"Управление доступом и ресурсами", 
+  header_brand:"_.k__yu.10", hero_title:"СистемаАутентификации", hero_sub:"Управление доступом и ресурсами", 
       card1_title:"Активация",card1_desc:"Разблокировка",card1_btn:"Старт", 
       card2_title:"Новости",card2_desc:"Обновления",card2_btn:"См.", 
       card3_title:"Поддержка",card3_desc:"Связь",card3_btn:"Связь", 
@@ -658,7 +674,8 @@ const TRANSLATIONS={
       msg_verifying:"Обработка",msg_success_btn:"Успех", 
       msg_invalid:"Неверный код",msg_used:"Использован",msg_error:"Ошибка", 
       success_badge:"Подтверждено",
-      btn_close:"Закрыть",btn_download:"Скачать",news_title:"Новости",news_label:"Лог",news_loading:"Загрузка", 
+      success_title_preview:"Подтверждение", success_title_final:"Готово",
+      btn_close:"Закрыть",btn_continue:"ПРОДОЛЖИТЬ",btn_download:"Скачать",news_title:"Новости",news_label:"Лог",news_loading:"Загрузка", 
       support_modal_title:"Вам нужна помощь?",btn_inquiry:"Н/Д", footer_admin:"Администратор" 
  }
 };
@@ -669,7 +686,9 @@ const els={
  overlay: gId('langSelectionOverlay'), main: gId('mainContainer'), 
  authModal: gId('authModal'), modalCon: gId('modalContainer'), openAuth: gId('btnOpenModal'), closeAuth: gId('modalCloseBtn'), closeSub: gId('modalCloseSub'),
  inputPh: gId('inputPhase'), successPh: gId('successPhase'), code: gId('activationCode'), confirm: gId('btnConfirm'), status: gId('statusContainer'),
- sImg: gId('successImage'), sTitle: gId('successTitle'), sNameDisp: gId('successNameDisplay'), sExtra: gId('successExtraInfo'), sDown: gId('successDownloadBtn'),
+ sImg: gId('successImage'), sTitle: gId('successTitle'), sProdName: gId('productName'), sProdDisplay: gId('productDisplay'), 
+ sInfoSec: gId('infoSection'), sNameDisp: gId('successNameDisplay'), sExtra: gId('successExtraInfo'), sBadge: gId('successBadge'), 
+ btnRedeem: gId('btnRedeem'), btnDownload: gId('btnDownload'),
  newsList: gId('newsList'), newsModal: gId('newsModal'), openNews: gId('btnOpenNews'), closeNews: gId('newsCloseX'),
  supportModal: gId('supportModal'), openSupport: gId('btnOpenSupport'), closeSupport: gId('supportCloseX'),
  langWrapper: gId('customLangWrapper'), langTrigger: gId('langTrigger'), langMenu: gId('langMenu'), currentLangLabel: gId('currentLangLabel')
@@ -684,7 +703,7 @@ const formatCodeInput = (val) => {
 
 document.addEventListener('DOMContentLoaded',()=>{
  const sLang = localStorage.getItem('user_lang');
- initThemeAndParticles(); // Updated theme logic
+ initThemeAndParticles(); 
  initCustomDropdown();
  if(sLang) setInitialLanguage(sLang, true); else fetchNews();
 });
@@ -729,7 +748,6 @@ function updateLanguage(lang){
    ja: '日本語', en: 'English', zh: '简体中文', 'zh-TW': '繁體中文', ko: '한국어', ru: 'Русский'
  };
  if(els.currentLangLabel) els.currentLangLabel.textContent = langMap[lang] || 'Language';
- 
  if(t.modal_placeholder) els.code.placeholder=t.modal_placeholder;
 }
 
@@ -755,6 +773,8 @@ function resetAuthModal(){
  els.confirm.textContent=TRANSLATIONS[CURRENT_LANG].modal_btn_auth; 
  els.status.innerHTML=""; els.modalCon.classList.remove('is-success');
  els.sImg.src="";
+ // RESET TITLE DISPLAY (Make it visible for next use)
+ els.sTitle.style.display = ''; 
 }
 
 setListener(els.openAuth,'click',openAuthModal); setListener(els.closeAuth,'click',closeAuthModal); setListener(els.closeSub,'click',closeAuthModal);
@@ -769,65 +789,90 @@ setListener(els.supportModal,'click',e=>{if(e.target===els.supportModal)els.supp
 els.code.addEventListener('input',()=>{ els.code.value = formatCodeInput(els.code.value); });
 els.confirm.addEventListener('click',()=>{ const c=els.code.value.trim(); if(c) performAuth(c); });
 
+// --- RGL AUTH FLOW ---
 async function performAuth(code, isSilent=false){
  const t=TRANSLATIONS[CURRENT_LANG];
  if(!isSilent){
- els.code.disabled=true; els.confirm.disabled=true;
- els.confirm.innerHTML = `${t.msg_verifying}<span class="loading-dots"></span>`;
- els.status.innerHTML="";
+   els.code.disabled=true; els.confirm.disabled=true;
+   els.confirm.innerHTML = `${t.msg_verifying}<span class="loading-dots"></span>`;
+   els.status.innerHTML="";
  }
  try{
- const d = await(await fetch(`${GAS_API_URL}?key=${encodeURIComponent(code)}&lang=${CURRENT_LANG}&_t=${Date.now()}`)).json();
- if(d.success && !isSilent){
-    els.confirm.innerHTML = `<i data-lucide="check"></i>`;
-    await new Promise(resolve => setTimeout(resolve, 600));
- } else if(!isSilent){
-    els.code.disabled=false; els.confirm.disabled=false; els.confirm.textContent=t.modal_btn_auth; 
- }
+   const d = await(await fetch(`${GAS_API_URL}?key=${encodeURIComponent(code)}&lang=${CURRENT_LANG}&_t=${Date.now()}`)).json();
+   if(d.success && !isSilent){
+      els.confirm.innerHTML = `<i data-lucide="check"></i>`;
+      await new Promise(resolve => setTimeout(resolve, 600));
+   } else if(!isSilent){
+      els.code.disabled=false; els.confirm.disabled=false; els.confirm.textContent=t.modal_btn_auth; 
+   }
 
- if(d.success){
- if(!isSilent){
-    els.modalCon.classList.add('is-success');
-    els.inputPh.style.opacity = '0';
-    setTimeout(()=>{
-        els.inputPh.style.display = 'none';
-        els.successPh.style.display = 'block';
-        setTimeout(() => els.successPh.style.opacity = '1', 50);
-    }, 400);
- }
- 
- els.sTitle.textContent = d.bundleLabel || d.message; 
- els.sNameDisp.textContent = d.message;
- els.sExtra.innerHTML = d.extraInfo.replace(/\n/g, '<br>');
+   if(d.success){
+     // 1. SETUP PREVIEW UI (Step 1)
+     if(!isSilent){
+        els.modalCon.classList.add('is-success');
+        els.inputPh.style.opacity = '0';
+        setTimeout(()=>{
+            els.inputPh.style.display = 'none';
+            els.successPh.style.display = 'block';
+            setTimeout(() => els.successPh.style.opacity = '1', 50);
+        }, 400);
+     }
+     
+     // Reset for Step 1
+     els.sBadge.classList.remove('visible'); // Hide "Verified"
+     els.btnRedeem.style.display = 'flex';   // Show "Continue"
+     els.btnDownload.style.display = 'none'; // Hide "Download"
+     els.sProdDisplay.style.display = 'none'; // HIDE Bundle in Step 1
+     els.sInfoSec.style.display = 'block';    // SHOW Info in Step 1
+     
+     // Fill Content
+     els.sTitle.textContent = t.success_title_preview; // "Confirm Content"
+     els.sProdName.textContent = d.bundleLabel; // Set bundle name (for later)
+     els.sNameDisp.textContent = d.message;      // Message_JP (OUTSIDE BOX)
+     els.sExtra.innerHTML = d.extraInfo.replace(/\n/g, '<br>'); // Detail Text
+     
+     if(d.imageUrl && d.imageUrl.startsWith("http")){ els.sImg.src=d.imageUrl; } 
+     else { els.sImg.src="https://placehold.co/600x400/000000/00E050?text=Protected"; } 
+     
+     lucide.createIcons();
 
- const btnText = d.buttonLabel || t.btn_download;
- const iconName = d.btnIcon || "download";
- els.sDown.innerHTML = `<span>${btnText}</span> <i data-lucide="${iconName}" size="18"></i>`;
- els.sDown.href=d.actionUrl;
+     // 2. BIND CONTINUE BUTTON (Transition to Step 2)
+     const newBtn = els.btnRedeem.cloneNode(true);
+     els.btnRedeem.parentNode.replaceChild(newBtn, els.btnRedeem);
+     els.btnRedeem = newBtn;
 
- if(d.isReleaseDateReached===false){
- els.sDown.style.pointerEvents='none'; els.sDown.style.opacity='0.6'; els.sDown.removeAttribute('href');
- els.sDown.innerHTML=`<span>${d.releaseDateStr}</span>`;
- const dtSrc=d.releaseDateIso||d.releaseDateStr, target=new Date((!d.releaseDateIso&&typeof dtSrc==='string')?dtSrc.replace(/[.-]/g,'/'):dtSrc);
- const diff=target.getTime()-new Date().getTime();
- if(diff>0&&diff<86400000) setTimeout(()=>performAuth(code,true), diff+3000);
- }else{ els.sDown.style.pointerEvents='auto'; els.sDown.style.opacity='1'; }
- 
- if(d.imageUrl && d.imageUrl.startsWith("http")){ els.sImg.src=d.imageUrl; } 
- else { els.sImg.src="https://placehold.co/600x400/000000/00E050?text=Protected"; } 
- 
- lucide.createIcons();
- }else{
-    let errorText = t.msg_error;
-    if (d.message === "This code has already been used.") errorText = t.msg_used;
-    else if (d.message === "Invalid code" || d.message === "This code is disabled.") errorText = t.msg_invalid;
-    els.status.innerHTML = `<span style="color:#FF3B30; font-size:13px; font-weight:700;">${errorText}</span>`;
- }
- }catch(e){
- if(!isSilent){
- els.code.disabled=false; els.confirm.disabled=false; els.confirm.textContent=t.modal_btn_auth;
- els.status.innerHTML=`<span style="color:#FF3B30; font-size:13px;">${t.msg_error}</span>`;
- }
+     els.btnRedeem.addEventListener('click', () => {
+        // TRANSITION TO FINAL
+        els.btnRedeem.style.display = 'none';
+        els.sInfoSec.style.display = 'none'; // HIDE INFO SECTION (Step 2 request)
+        els.sBadge.classList.add('visible'); // Show Badge
+        
+        // --- MODIFICATION HERE: HIDE TITLE TO MOVE BUNDLE NAME UP ---
+        els.sTitle.style.display = 'none'; 
+        // -------------------------------------------------------------
+
+        els.sProdDisplay.style.display = 'block'; // SHOW Bundle Name now
+        els.btnDownload.style.display = 'flex'; // Show Download
+        
+        // Setup Download Link
+        els.btnDownload.href=d.actionUrl;
+        if(d.isReleaseDateReached===false){
+             els.btnDownload.style.pointerEvents='none'; els.btnDownload.style.opacity='0.6'; els.btnDownload.removeAttribute('href');
+             els.btnDownload.innerHTML=`<span>${d.releaseDateStr}</span>`;
+        }
+     });
+
+   } else {
+      let errorText = t.msg_error;
+      if (d.message === "This code has already been used.") errorText = t.msg_used;
+      else if (d.message === "Invalid code" || d.message === "This code is disabled.") errorText = t.msg_invalid;
+      els.status.innerHTML = `<span style="color:#FF3B30; font-size:13px; font-weight:700;">${errorText}</span>`;
+   }
+ } catch(e){
+   if(!isSilent){
+     els.code.disabled=false; els.confirm.disabled=false; els.confirm.textContent=t.modal_btn_auth;
+     els.status.innerHTML=`<span style="color:#FF3B30; font-size:13px;">${t.msg_error}</span>`;
+   }
  }
 }
 
@@ -852,15 +897,11 @@ function initThemeAndParticles() {
     lucide.createIcons();
   }
 
-  // Sync Logic
   const savedTheme = localStorage.getItem('user_theme');
   const systemQuery = window.matchMedia('(prefers-color-scheme: dark)');
   
-  if (savedTheme) {
-    applyTheme(savedTheme);
-  } else {
-    applyTheme(systemQuery.matches ? 'dark' : 'light');
-  }
+  if (savedTheme) { applyTheme(savedTheme); } 
+  else { applyTheme(systemQuery.matches ? 'dark' : 'light'); }
 
   systemQuery.addEventListener('change', (e) => {
     const newTheme = e.matches ? 'dark' : 'light';
