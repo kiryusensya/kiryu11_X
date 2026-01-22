@@ -41,7 +41,7 @@
   --spring-ease: cubic-bezier(0.33, 1, 0.68, 1);
   --shadow-soft: 0 10px 30px rgba(0,0,0,0.05);
   --font-stack: 'HarmonyOS Sans', 'Manrope', sans-serif;
-  
+   
   --rgl-green: #04CF22;
 }
 :root:lang(ja) { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
@@ -332,36 +332,30 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
 
 .custom-underline {
   position: relative;
-  height: 3px;
+  height: 6px;
   background: var(--rgl-green);
-  margin: 0 10px; /* Offset for the curved ends */
+  margin: 0 12px;
+  border-radius: 3px;
 }
 
-/* Left Upward Curve */
-.custom-underline::before {
-  content: '';
-  position: absolute;
-  left: -10px; bottom: 0;
-  width: 10px; height: 12px;
-  border-bottom: 3px solid var(--rgl-green);
-  border-left: 3px solid var(--rgl-green);
-  border-radius: 0 0 0 12px; /* Bottom-Left Corner Rounding */
-  border-top: none; border-right: none;
-  box-sizing: content-box; /* Ensure border doesn't shrink size */
-}
-
-/* Right Upward Curve */
+.custom-underline::before,
 .custom-underline::after {
   content: '';
   position: absolute;
-  right: -10px; bottom: 0;
-  width: 10px; height: 12px;
-  border-bottom: 3px solid var(--rgl-green);
-  border-right: 3px solid var(--rgl-green);
-  border-radius: 0 0 12px 0; /* Bottom-Right Corner Rounding */
-  border-top: none; border-left: none;
-  box-sizing: content-box;
+  top: 0;
+  width: 20px;
+  height: 6px;
+  background-size: contain;
+  background-repeat: no-repeat;
 }
+
+.custom-underline::before {
+  left: -20px;
+  background-image: url('left.svg'); }
+
+.custom-underline::after {
+  right: -20px;
+  background-image: url('right.svg'); }
 
 /* --- INFO SECTION (Step 1) --- */
 #infoSection { transition: opacity 0.3s; }
@@ -554,7 +548,7 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
             </div>
 
           </div>
-          
+           
           <div class="action-row">
             <button id="modalCloseSub" class="btn-close-sub" data-translate="btn_close">Close</button>
             <button id="btnRedeem" class="btn-action">
@@ -581,7 +575,8 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
   </div>
 </div>
 
-<div id="supportModal" class="modal-sheet" style="padding:40px; text-align:center;">
+<div id="supportModal" class="modal-overlay">
+  <div class="modal-sheet" style="padding:40px; text-align:center;">
     <div style="position:absolute; top:20px; right:20px; cursor:pointer;" id="supportCloseX"><i data-lucide="x" size="24"></i></div>
     <h2 data-translate="support_modal_title" style="margin:0 0 30px 0; color:var(--modal-text-main);">Channels</h2>
     <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap;">
@@ -594,7 +589,7 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 
 <script>
 lucide.createIcons();
-const GAS_API_URL="api/proxy"; 
+const GAS_API_URL="https://script.google.com/macros/s/AKfycbxX5PvICF09Bt9_wXaVs-Y62NHDVkDWfYO-SpazOzlOIsZY8eTdWGfGkKcjmJycstgl/exec"; 
 let CURRENT_LANG="ja";
 
 const TRANSLATIONS={
@@ -773,8 +768,11 @@ function resetAuthModal(){
  els.confirm.textContent=TRANSLATIONS[CURRENT_LANG].modal_btn_auth; 
  els.status.innerHTML=""; els.modalCon.classList.remove('is-success');
  els.sImg.src="";
- // RESET TITLE DISPLAY (Make it visible for next use)
+ // Reset Step 1 Visibility
  els.sTitle.style.display = ''; 
+ els.sInfoSec.style.display = 'block'; 
+ els.sProdDisplay.style.display = 'none'; 
+ els.sBadge.classList.remove('visible');
 }
 
 setListener(els.openAuth,'click',openAuthModal); setListener(els.closeAuth,'click',closeAuthModal); setListener(els.closeSub,'click',closeAuthModal);
@@ -807,8 +805,8 @@ async function performAuth(code, isSilent=false){
    }
 
    if(d.success){
-     // 1. SETUP PREVIEW UI (Step 1)
-     if(!isSilent){
+      // 1. SETUP PREVIEW UI (Step 1)
+      if(!isSilent){
         els.modalCon.classList.add('is-success');
         els.inputPh.style.opacity = '0';
         setTimeout(()=>{
@@ -816,42 +814,47 @@ async function performAuth(code, isSilent=false){
             els.successPh.style.display = 'block';
             setTimeout(() => els.successPh.style.opacity = '1', 50);
         }, 400);
-     }
-     
-     // Reset for Step 1
-     els.sBadge.classList.remove('visible'); // Hide "Verified"
-     els.btnRedeem.style.display = 'flex';   // Show "Continue"
-     els.btnDownload.style.display = 'none'; // Hide "Download"
-     els.sProdDisplay.style.display = 'none'; // HIDE Bundle in Step 1
-     els.sInfoSec.style.display = 'block';    // SHOW Info in Step 1
-     
-     // Fill Content
-     els.sTitle.textContent = t.success_title_preview; // "Confirm Content"
-     els.sProdName.textContent = d.bundleLabel; // Set bundle name (for later)
-     els.sNameDisp.textContent = d.message;      // Message_JP (OUTSIDE BOX)
-     els.sExtra.innerHTML = d.extraInfo.replace(/\n/g, '<br>'); // Detail Text
-     
-     if(d.imageUrl && d.imageUrl.startsWith("http")){ els.sImg.src=d.imageUrl; } 
-     else { els.sImg.src="https://placehold.co/600x400/000000/00E050?text=Protected"; } 
-     
-     lucide.createIcons();
+      }
+      
+      // Reset for Step 1
+      els.sBadge.classList.remove('visible'); // Hide "Verified"
+      els.btnRedeem.style.display = 'flex';    // Show "Continue"
+      els.btnDownload.style.display = 'none'; // Hide "Download"
+      
+      // Ensure "Step 1" Layout is Clean
+      els.sProdDisplay.style.display = 'none'; // HIDE Bundle in Step 1
+      els.sInfoSec.style.display = 'block';    // SHOW Info in Step 1
+      els.sTitle.style.display = '';           // SHOW Title in Step 1
+      
+      // Fill Content
+      els.sTitle.textContent = t.success_title_preview; // "Confirm Content"
+      els.sProdName.textContent = d.bundleLabel; // Set bundle name (for later)
+      els.sNameDisp.textContent = d.message;       // Message_JP (OUTSIDE BOX)
+      els.sExtra.innerHTML = d.extraInfo.replace(/\n/g, '<br>'); // Detail Text
+      
+      if(d.imageUrl && d.imageUrl.startsWith("http")){ els.sImg.src=d.imageUrl; } 
+      else { els.sImg.src="https://placehold.co/600x400/000000/00E050?text=Protected"; } 
+      
+      lucide.createIcons();
 
-     // 2. BIND CONTINUE BUTTON (Transition to Step 2)
-     const newBtn = els.btnRedeem.cloneNode(true);
-     els.btnRedeem.parentNode.replaceChild(newBtn, els.btnRedeem);
-     els.btnRedeem = newBtn;
+      // 2. BIND CONTINUE BUTTON (Transition to Step 2)
+      const newBtn = els.btnRedeem.cloneNode(true);
+      els.btnRedeem.parentNode.replaceChild(newBtn, els.btnRedeem);
+      els.btnRedeem = newBtn;
 
-     els.btnRedeem.addEventListener('click', () => {
-        // TRANSITION TO FINAL
+      els.btnRedeem.addEventListener('click', () => {
+        // TRANSITION TO FINAL (Step 2)
         els.btnRedeem.style.display = 'none';
-        els.sInfoSec.style.display = 'none'; // HIDE INFO SECTION (Step 2 request)
+        
+        // HIDE Elements as requested
+        els.sInfoSec.style.display = 'none'; // Hides Message + Details + Frame
+        els.sTitle.style.display = 'none';   // Hides Title (so Bundle moves up)
+        
         els.sBadge.classList.add('visible'); // Show Badge
         
-        // --- MODIFICATION HERE: HIDE TITLE TO MOVE BUNDLE NAME UP ---
-        els.sTitle.style.display = 'none'; 
-        // -------------------------------------------------------------
-
-        els.sProdDisplay.style.display = 'block'; // SHOW Bundle Name now
+        // SHOW Bundle Name
+        els.sProdDisplay.style.display = 'block'; 
+        
         els.btnDownload.style.display = 'flex'; // Show Download
         
         // Setup Download Link
@@ -860,7 +863,7 @@ async function performAuth(code, isSilent=false){
              els.btnDownload.style.pointerEvents='none'; els.btnDownload.style.opacity='0.6'; els.btnDownload.removeAttribute('href');
              els.btnDownload.innerHTML=`<span>${d.releaseDateStr}</span>`;
         }
-     });
+      });
 
    } else {
       let errorText = t.msg_error;
@@ -883,7 +886,7 @@ function initThemeAndParticles() {
   let particleHue = 210;
 
   function updateParticleStyle(isLight) { particleHue = isLight ? 210 : 220; }
-  
+   
   function applyTheme(theme) {
     if (theme === 'light') { 
         htmlEl.setAttribute('data-theme', 'light');
@@ -899,7 +902,7 @@ function initThemeAndParticles() {
 
   const savedTheme = localStorage.getItem('user_theme');
   const systemQuery = window.matchMedia('(prefers-color-scheme: dark)');
-  
+   
   if (savedTheme) { applyTheme(savedTheme); } 
   else { applyTheme(systemQuery.matches ? 'dark' : 'light'); }
 
