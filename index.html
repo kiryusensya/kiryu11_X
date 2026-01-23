@@ -743,57 +743,55 @@ async function fetchNews(){
 
 function openAuthModal(){ els.authModal.classList.add('active'); resetAuthModal(); els.code.focus(); }
 function closeAuthModal(){ els.authModal.classList.remove('active'); setTimeout(()=>els.modalCon.classList.remove('is-success'), 500); }
+// ★追加: 処理の競合を防ぐためのID
+let currentAuthRequestId = 0;
+
 function resetAuthModal(){
- els.inputPh.style.display='flex'; els.inputPh.style.opacity='1';
- els.successPh.style.display='none'; els.successPh.style.opacity='0';
- els.code.value=""; els.code.disabled=false; els.confirm.disabled=false;
- els.confirm.textContent=TRANSLATIONS[CURRENT_LANG].modal_btn_auth; 
- els.status.innerHTML=""; els.modalCon.classList.remove('is-success');
- els.sImg.src="";
- // Reset Step 1 Visibility
- els.sTitle.style.display = ''; 
- els.sInfoSec.style.display = 'block'; 
- els.sProdDisplay.style.display = 'none'; 
- els.sBadge.classList.remove('visible');
+  // ★重要: リセット時にIDを更新して、過去の遅延処理をすべて無効化する
+  currentAuthRequestId++; 
+
+  els.inputPh.style.display='flex'; els.inputPh.style.opacity='1';
+  els.successPh.style.display='none'; els.successPh.style.opacity='0';
+  els.code.value=""; 
+  els.code.disabled=false; 
+  els.confirm.disabled=false;
+  els.confirm.textContent=TRANSLATIONS[CURRENT_LANG].modal_btn_auth; // ボタンの文字を元に戻す
+  els.status.innerHTML=""; 
+  els.modalCon.classList.remove('is-success');
+  els.sImg.src="";
+  
+  // Reset Step 1 Visibility
+  els.sTitle.style.display = ''; 
+  els.sInfoSec.style.display = 'block'; 
+  els.sProdDisplay.style.display = 'none'; 
+  els.sBadge.classList.remove('visible');
 }
-
-setListener(els.openAuth,'click',openAuthModal); setListener(els.closeAuth,'click',closeAuthModal); setListener(els.closeSub,'click',closeAuthModal);
-setListener(els.authModal,'click',e=>{if(e.target===els.authModal)closeAuthModal()});
-setListener(els.openNews,'click',()=>{els.newsModal.classList.add('active');lucide.createIcons()});
-setListener(els.closeNews,'click',()=>{els.newsModal.classList.remove('active')});
-setListener(els.newsModal,'click',e=>{if(e.target===els.newsModal)els.newsModal.classList.remove('active')});
-// Support Listeners Removed
-
-els.code.addEventListener('input',()=>{ els.code.value = formatCodeInput(els.code.value); });
-
-// --- RGL AUTH FLOW (ROBUST FIX - MODIFIED) ---
-
-// 1. 最初の確認ボタン (Check)
-els.confirm.addEventListener('click', () => {
-  const c = els.code.value.trim();
-  if (c) performAuth(c, 'check'); // 最初は check モード
-});
 
 // 2. 認証処理関数 (mode: 'check' | 'redeem')
 async function performAuth(code, mode = 'check') {
   const t = TRANSLATIONS[CURRENT_LANG];
   
-  // UI操作: Checkモードのときは入力欄のボタンをロード中に、Redeemモードのときは「続行」ボタンをロード中に
+  // ★重要: 今回の処理IDを記録
+  const thisRequestId = currentAuthRequestId;
+
+  // UI操作
   if (mode === 'check') {
     els.code.disabled = true; els.confirm.disabled = true;
     els.confirm.innerHTML = `${t.msg_verifying}<span class="loading-dots"></span>`;
     els.status.innerHTML = "";
   } else if (mode === 'redeem') {
-    // Continueボタンをローディング表示に
     els.btnRedeem.disabled = true;
     els.btnRedeem.innerHTML = `<div class="loading-spinner" style="width:20px;height:20px;border-color:var(--bg-color);border-top-color:transparent;"></div>`;
   }
 
   try {
-    // APIコール: mode パラメータを追加
+    // APIコール
     let url = `${GAS_API_URL}?key=${encodeURIComponent(code)}&lang=${CURRENT_LANG}&mode=${mode}&_t=${Date.now()}`;
     let d = await (await fetch(url)).json();
     
+    // ★重要: サーバーから返ってきたとき、すでにモーダルが閉じられていたら(IDが変わっていたら)何もしない
+    if (thisRequestId !== currentAuthRequestId) return;
+
     // --- 結果ハンドリング ---
     
     // A. Checkモードの成功 (プレビュー表示)
@@ -801,12 +799,18 @@ async function performAuth(code, mode = 'check') {
       if (d.success) {
         // ボタンをチェックマークに一時変更
         els.confirm.innerHTML = `<i data-lucide="check"></i>`;
+        lucide.createIcons(); // ★重要: アイコンを即座に描画
+        
         await new Promise(r => setTimeout(r, 600));
+        
+        // ★待機後にもう一度確認 (待ってる間に閉じられた場合を防ぐ)
+        if (thisRequestId !== currentAuthRequestId) return;
         
         // モーダル切り替え (入力 -> 詳細)
         els.modalCon.classList.add('is-success');
         els.inputPh.style.opacity = '0';
         setTimeout(() => {
+          if (thisRequestId !== currentAuthRequestId) return; // 安全策
           els.inputPh.style.display = 'none';
           els.successPh.style.display = 'block';
           setTimeout(() => els.successPh.style.opacity = '1', 50);
@@ -815,31 +819,27 @@ async function performAuth(code, mode = 'check') {
         // 詳細情報のセット
         setupPreviewUI(d, t);
         
-        // 「続行」ボタンに Redeem 処理を紐付け
-        // (以前のイベントリスナーが重複しないようクローンでリセット)
+        // 「続行」ボタンの設定
         const newBtn = els.btnRedeem.cloneNode(true);
         els.btnRedeem.parentNode.replaceChild(newBtn, els.btnRedeem);
         els.btnRedeem = newBtn;
         
-        els.btnRedeem.disabled = false; // 有効化
+        els.btnRedeem.disabled = false;
         els.btnRedeem.addEventListener('click', () => {
-           performAuth(code, 'redeem'); // ここで初めて Redeem を実行
+           performAuth(code, 'redeem'); 
         });
 
       } else {
         // 失敗時 (Check)
-        els.code.disabled = false; els.confirm.disabled = false; els.confirm.textContent = t.modal_btn_auth;
-        showError(d.message, t);
+        throw new Error(d.message); // catchブロックへ飛ばす
       }
     }
     
-    // B. Redeemモードの成功 (実際の認証・引き換え)
+    // B. Redeemモードの成功
     else if (mode === 'redeem') {
       if (d.success) {
-        // UIを最終段階へ移行 (ダウンロードボタン表示など)
         transitionToFinal(d);
       } else {
-        // 失敗時 (Redeem - 既に使われている場合など)
         els.btnRedeem.disabled = false;
         els.btnRedeem.innerHTML = `<span data-translate="btn_continue">${t.btn_continue}</span> <i data-lucide="arrow-right" size="18"></i>`;
         lucide.createIcons();
@@ -848,10 +848,21 @@ async function performAuth(code, mode = 'check') {
     }
 
   } catch (e) {
-    // 通信エラー等
+    // ★エラーまたは失敗時
+    if (thisRequestId !== currentAuthRequestId) return; // 閉じた後のエラーは無視
+
     if (mode === 'check') {
-      els.code.disabled = false; els.confirm.disabled = false; els.confirm.textContent = t.modal_btn_auth;
-      els.status.innerHTML = `<span style="color:#FF3B30; font-size:13px;">${t.msg_error}</span>`;
+      els.code.disabled = false; 
+      els.confirm.disabled = false; 
+      els.confirm.textContent = t.modal_btn_auth;
+      
+      // エラーメッセージの表示
+      let msg = e.message || "Error";
+      let errorText = t.msg_error;
+      if (msg === "This code has already been used." || msg.includes("used")) errorText = t.msg_used;
+      else if (msg === "Invalid code" || msg === "This code is disabled." || msg.includes("Invalid")) errorText = t.msg_invalid;
+      
+      els.status.innerHTML = `<span style="color:#FF3B30; font-size:13px; font-weight:700;">${errorText}</span>`;
     } else {
       els.btnRedeem.disabled = false;
       els.btnRedeem.innerHTML = `Error`;
