@@ -41,7 +41,7 @@
   --spring-ease: cubic-bezier(0.33, 1, 0.68, 1);
   --shadow-soft: 0 10px 30px rgba(0,0,0,0.05);
   --font-stack: 'HarmonyOS Sans', 'Manrope', sans-serif;
-   
+    
   --rgl-green: #04CF22;
 }
 :root:lang(ja) { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
@@ -63,6 +63,14 @@
   --btn-close-text: #FFFFFF;
   --shadow-soft: 0 15px 40px rgba(0,0,0,0.4);
 }
+
+/* Scrollbar Customization */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(128, 128, 128, 0.2); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(128, 128, 128, 0.4); }
+[data-theme="dark"] ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); }
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
 
 *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
@@ -582,12 +590,12 @@ const TRANSLATIONS={
   card1_title:"アクティベーション",card1_desc:"コードでコンテンツを解除",card1_btn:"引き換える",
   card2_title:"ニュース",card2_desc:"最新情報を確認",card2_btn:"確認",
   card3_title:"サポート",card3_desc:"お問い合わせはこちら",card3_btn:"接続",
-  modal_title:"アクティベーション",modal_sub:"コードを入力してください",modal_placeholder:"アクティベーションコード",modal_btn_auth:"認証する",
+  modal_title:"アクティベーション",modal_sub:"コードを入力してください",modal_placeholder:"アクティベーションコード",modal_btn_auth:"確認",
   msg_verifying:"確認中",msg_success_btn:"成功",
   msg_invalid:"このコードは無効です",msg_used:"このコードは使用済みです",msg_error:"エラーが発生しました",
   success_badge:"コードが認証されました。",
   success_title_preview:"コンテンツの確認", success_title_final:"アクティベーション完了",
-  btn_close:"閉じる",btn_continue:"続行する",btn_download:"ダウンロード",news_title:"最新情報",news_label:"履歴",news_loading:"更新を確認中",
+  btn_close:"閉じる",btn_continue:"認証する",btn_download:"ダウンロード",news_title:"最新情報",news_label:"履歴",news_loading:"更新を確認中",
   footer_admin:"システム管理者"
  },
  en:{
@@ -678,10 +686,33 @@ const formatCodeInput = (val) => {
  return res;
 };
 
+// ▼▼▼ 修正: イベントリスナー設定関数 (入力フォーマット適用) ▼▼▼
+function setupEventListeners() {
+  // アクティベーションモーダル開閉
+  setListener(els.openAuth, 'click', openAuthModal);
+  setListener(els.closeAuth, 'click', closeAuthModal);
+  setListener(els.closeSub, 'click', closeAuthModal);
+  setListener(els.authModal, 'click', (e) => { if(e.target === els.authModal) closeAuthModal(); });
+
+  // ニュースモーダル開閉
+  setListener(els.openNews, 'click', () => els.newsModal.classList.add('active'));
+  setListener(els.closeNews, 'click', () => els.newsModal.classList.remove('active'));
+  setListener(els.newsModal, 'click', (e) => { if(e.target === els.newsModal) els.newsModal.classList.remove('active'); });
+
+  // 認証実行アクション
+  setListener(els.confirm, 'click', () => performAuth(els.code.value));
+  setListener(els.code, 'keydown', (e) => { if(e.key === 'Enter') els.confirm.click(); });
+  
+  // ★重要: ここで入力制限と自動ハイフンを適用
+  setListener(els.code, 'input', (e) => { els.code.value = formatCodeInput(els.code.value); });
+}
+// ▲▲▲ 追加ここまで ▲▲▲
+
 document.addEventListener('DOMContentLoaded',()=>{
  const sLang = localStorage.getItem('user_lang');
  initThemeAndParticles(); 
  initCustomDropdown();
+ setupEventListeners(); // ★イベントリスナー起動
  if(sLang) setInitialLanguage(sLang, true); else fetchNews();
 });
 
@@ -743,11 +774,10 @@ async function fetchNews(){
 
 function openAuthModal(){ els.authModal.classList.add('active'); resetAuthModal(); els.code.focus(); }
 function closeAuthModal(){ els.authModal.classList.remove('active'); setTimeout(()=>els.modalCon.classList.remove('is-success'), 500); }
-// ★追加: 処理の競合を防ぐためのID
+
 let currentAuthRequestId = 0;
 
 function resetAuthModal(){
-  // ★重要: リセット時にIDを更新して、過去の遅延処理をすべて無効化する
   currentAuthRequestId++; 
 
   els.inputPh.style.display='flex'; els.inputPh.style.opacity='1';
@@ -755,23 +785,25 @@ function resetAuthModal(){
   els.code.value=""; 
   els.code.disabled=false; 
   els.confirm.disabled=false;
-  els.confirm.textContent=TRANSLATIONS[CURRENT_LANG].modal_btn_auth; // ボタンの文字を元に戻す
+  els.confirm.textContent=TRANSLATIONS[CURRENT_LANG].modal_btn_auth;
   els.status.innerHTML=""; 
   els.modalCon.classList.remove('is-success');
   els.sImg.src="";
   
-  // Reset Step 1 Visibility
   els.sTitle.style.display = ''; 
   els.sInfoSec.style.display = 'block'; 
   els.sProdDisplay.style.display = 'none'; 
   els.sBadge.classList.remove('visible');
+
+  // ▼▼▼ ボタン強制リセット ▼▼▼
+  els.btnRedeem.disabled = false;
+  els.btnRedeem.innerHTML = `<span data-translate="btn_continue">${TRANSLATIONS[CURRENT_LANG].btn_continue}</span> <i data-lucide="arrow-right" size="18"></i>`;
+  lucide.createIcons();
 }
 
-// 2. 認証処理関数 (mode: 'check' | 'redeem')
+// 2. 認証処理関数
 async function performAuth(code, mode = 'check') {
   const t = TRANSLATIONS[CURRENT_LANG];
-  
-  // ★重要: 今回の処理IDを記録
   const thisRequestId = currentAuthRequestId;
 
   // UI操作
@@ -785,58 +817,46 @@ async function performAuth(code, mode = 'check') {
   }
 
   try {
-    // APIコール
     let url = `${GAS_API_URL}?key=${encodeURIComponent(code)}&lang=${CURRENT_LANG}&mode=${mode}&_t=${Date.now()}`;
     let d = await (await fetch(url)).json();
     
-    // ★重要: サーバーから返ってきたとき、すでにモーダルが閉じられていたら(IDが変わっていたら)何もしない
     if (thisRequestId !== currentAuthRequestId) return;
 
-    // --- 結果ハンドリング ---
-    
-    // A. Checkモードの成功 (プレビュー表示)
     if (mode === 'check') {
       if (d.success) {
-        // ボタンをチェックマークに一時変更
         els.confirm.innerHTML = `<i data-lucide="check"></i>`;
-        lucide.createIcons(); // ★重要: アイコンを即座に描画
+        lucide.createIcons(); 
         
         await new Promise(r => setTimeout(r, 600));
-        
-        // ★待機後にもう一度確認 (待ってる間に閉じられた場合を防ぐ)
         if (thisRequestId !== currentAuthRequestId) return;
         
-        // モーダル切り替え (入力 -> 詳細)
         els.modalCon.classList.add('is-success');
         els.inputPh.style.opacity = '0';
         setTimeout(() => {
-          if (thisRequestId !== currentAuthRequestId) return; // 安全策
+          if (thisRequestId !== currentAuthRequestId) return;
           els.inputPh.style.display = 'none';
           els.successPh.style.display = 'block';
           setTimeout(() => els.successPh.style.opacity = '1', 50);
         }, 400);
 
-        // 詳細情報のセット
         setupPreviewUI(d, t);
         
-        // 「続行」ボタンの設定
+        // ボタンをリフレッシュしてリセット
         const newBtn = els.btnRedeem.cloneNode(true);
         els.btnRedeem.parentNode.replaceChild(newBtn, els.btnRedeem);
         els.btnRedeem = newBtn;
         
+        // ★ここでボタンの表示を強制的に「続行」に戻す
+        els.btnRedeem.innerHTML = `<span data-translate="btn_continue">${t.btn_continue}</span> <i data-lucide="arrow-right" size="18"></i>`;
+        lucide.createIcons();
+
         els.btnRedeem.disabled = false;
-        els.btnRedeem.addEventListener('click', () => {
-           performAuth(code, 'redeem'); 
-        });
+        els.btnRedeem.addEventListener('click', () => { performAuth(code, 'redeem'); });
 
       } else {
-        // 失敗時 (Check)
-        throw new Error(d.message); // catchブロックへ飛ばす
+        throw new Error(d.message);
       }
-    }
-    
-    // B. Redeemモードの成功
-    else if (mode === 'redeem') {
+    } else if (mode === 'redeem') {
       if (d.success) {
         transitionToFinal(d);
       } else {
@@ -846,17 +866,14 @@ async function performAuth(code, mode = 'check') {
         alert(d.message === "This code has already been used." ? t.msg_used : t.msg_error);
       }
     }
-
   } catch (e) {
-    // ★エラーまたは失敗時
-    if (thisRequestId !== currentAuthRequestId) return; // 閉じた後のエラーは無視
+    if (thisRequestId !== currentAuthRequestId) return;
 
     if (mode === 'check') {
       els.code.disabled = false; 
       els.confirm.disabled = false; 
       els.confirm.textContent = t.modal_btn_auth;
       
-      // エラーメッセージの表示
       let msg = e.message || "Error";
       let errorText = t.msg_error;
       if (msg === "This code has already been used." || msg.includes("used")) errorText = t.msg_used;
@@ -865,126 +882,103 @@ async function performAuth(code, mode = 'check') {
       els.status.innerHTML = `<span style="color:#FF3B30; font-size:13px; font-weight:700;">${errorText}</span>`;
     } else {
       els.btnRedeem.disabled = false;
-      els.btnRedeem.innerHTML = `Error`;
+      els.btnRedeem.innerHTML = `<span data-translate="btn_continue">${t.btn_continue}</span> <i data-lucide="arrow-right" size="18"></i>`;
+      lucide.createIcons();
+      alert(t.msg_error);
     }
     console.error(e);
   }
 }
 
-// プレビュー画面の構築 (情報は出すが、ダウンロードボタンはまだ出さない)
 function setupPreviewUI(d, t) {
-  els.sBadge.classList.remove('visible'); 
-  els.btnRedeem.style.display = 'flex';     
-  els.btnDownload.style.display = 'none'; 
-  els.sProdDisplay.style.display = 'none'; 
-  els.sInfoSec.style.display = 'block';     
-  els.sTitle.style.display = '';            
+ els.sBadge.classList.remove('visible'); 
+ els.btnRedeem.style.display = 'flex';      
+ els.btnDownload.style.display = 'none'; 
+ els.sProdDisplay.style.display = 'none'; 
+ els.sInfoSec.style.display = 'block';      
+ els.sTitle.style.display = '';             
   
-  els.sTitle.textContent = t.success_title_preview; 
-  els.sProdName.textContent = d.bundleLabel; 
-  els.sNameDisp.textContent = d.message;        
-  els.sExtra.innerHTML = d.extraInfo ? d.extraInfo.replace(/\n/g, '<br>') : ""; 
+ els.sTitle.textContent = t.success_title_preview; 
+ els.sProdName.textContent = d.bundleLabel; 
+ els.sNameDisp.textContent = d.message;        
+ els.sExtra.innerHTML = d.extraInfo ? d.extraInfo.replace(/\n/g, '<br>') : ""; 
   
-  if(d.imageUrl && d.imageUrl.startsWith("http")){ els.sImg.src=d.imageUrl; } 
-  else { els.sImg.src="https://placehold.co/600x400/000000/00E050?text=Protected"; } 
+ if(d.imageUrl && d.imageUrl.startsWith("http")){ els.sImg.src=d.imageUrl; } 
+ else { els.sImg.src="https://placehold.co/600x400/000000/00E050?text=Protected"; } 
   
-  lucide.createIcons();
+ lucide.createIcons();
 }
 
-// 最終画面への遷移 (Redeem成功後)
 function transitionToFinal(d) {
-  els.btnDownload.style.display = 'flex';
-  els.btnDownload.style.pointerEvents = 'none'; // URL判定まではクリック不可
-  els.btnDownload.style.opacity = '0.6';
-  els.btnDownload.removeAttribute('href');
-  els.btnDownload.innerHTML = `<div class="loading-spinner"></div>`;
+ els.btnDownload.style.display = 'flex';
+ els.btnDownload.style.pointerEvents = 'none'; 
+ els.btnDownload.style.opacity = '0.6';
+ els.btnDownload.removeAttribute('href');
+ els.btnDownload.innerHTML = `<div class="loading-spinner"></div>`;
 
-  els.btnRedeem.style.display = 'none';
-  els.sInfoSec.style.display = 'none'; 
-  els.sTitle.style.display = 'none'; 
-  els.sBadge.classList.add('visible');
-  els.sProdDisplay.style.display = 'block'; 
+ els.btnRedeem.style.display = 'none';
+ els.sInfoSec.style.display = 'none'; 
+ els.sTitle.style.display = 'none'; 
+ els.sBadge.classList.add('visible');
+ els.sProdDisplay.style.display = 'block'; 
 
-  // タイマー/URL判定ロジック
-  checkDownloadUrl(d);
+ checkDownloadUrl(d);
 }
 
-// エラー表示ヘルパー
 function showError(msg, t) {
-  let errorText = t.msg_error;
-  if (msg === "This code has already been used.") errorText = t.msg_used;
-  else if (msg === "Invalid code" || msg === "This code is disabled.") errorText = t.msg_invalid;
-  els.status.innerHTML = `<span style="color:#FF3B30; font-size:13px; font-weight:700;">${errorText}</span>`;
+ let errorText = t.msg_error;
+ if (msg === "This code has already been used.") errorText = t.msg_used;
+ else if (msg === "Invalid code" || msg === "This code is disabled.") errorText = t.msg_invalid;
+ els.status.innerHTML = `<span style="color:#FF3B30; font-size:13px; font-weight:700;">${errorText}</span>`;
 }
 
-// ダウンロードボタン制御 (URLがあるか、日付待ちか)
 function checkDownloadUrl(initialData) {
-  let isFetching = false;
-  let currentData = initialData; // 最新データを保持する変数
+ let isFetching = false;
+ let currentData = initialData; 
 
-  const updateUI = async () => {
-    const now = Date.now();
-    // 日付データがない場合は即時有効扱いにする
-    const targetTime = currentData.releaseDateIso ? new Date(currentData.releaseDateIso).getTime() : 0;
-    const diff = targetTime - now;
+ const updateUI = async () => {
+   const now = Date.now();
+   const targetTime = currentData.releaseDateIso ? new Date(currentData.releaseDateIso).getTime() : 0;
+   const diff = targetTime - now;
 
-    // --- パターン1: URLをすでに持っている場合 (完了) ---
-    if (currentData.actionUrl) {
-      clearInterval(timerId); // タイマー停止
-      
-      // ボタンを有効化
-      els.btnDownload.href = currentData.actionUrl;
-      els.btnDownload.style.pointerEvents = 'auto';
-      els.btnDownload.style.opacity = '1';
-      
-      // ラベルとアイコンの設定
-      const labelText = currentData.buttonLabel || "Download";
-      const iconType = currentData.btnIcon === 'arrow-up-right' ? 'arrow-up-right' : 'download';
-      els.btnDownload.innerHTML = `<span>${labelText}</span> <i data-lucide="${iconType}" size="18"></i>`;
-      lucide.createIcons();
-      return; 
-    } 
+   if (currentData.actionUrl) {
+     clearInterval(timerId); 
+     els.btnDownload.href = currentData.actionUrl;
+     els.btnDownload.style.pointerEvents = 'auto';
+     els.btnDownload.style.opacity = '1';
+     const labelText = currentData.buttonLabel || "Download";
+     const iconType = currentData.btnIcon === 'arrow-up-right' ? 'arrow-up-right' : 'download';
+     els.btnDownload.innerHTML = `<span>${labelText}</span> <i data-lucide="${iconType}" size="18"></i>`;
+     lucide.createIcons();
+     return; 
+   } 
 
-    // --- パターン2: カウントダウン終了 (サーバーへ問い合わせ中) ---
-    if (diff <= 0) {
-      // 以前の「くるくる」を表示
-      els.btnDownload.innerHTML = `<div class="loading-spinner" style="width:20px;height:20px;border-width:2px;border-color:rgba(0,0,0,0.2);border-top-color:#000;"></div>`;
-      
-      // 重複リクエスト防止
-      if (!isFetching) {
-        isFetching = true;
-        try {
-          // 現在の入力コードを取得
-          const code = els.code.value.trim();
-          
-          // ★修正ポイント: mode=redeem ではなく mode=poll で問い合わせる
-          // これにより、すでに使用済み(USED)になっていても、エラーにならずにURLを取得できる
-          const res = await fetch(`${GAS_API_URL}?key=${encodeURIComponent(code)}&lang=${CURRENT_LANG}&mode=poll&_t=${Date.now()}`);
-          const retryD = await res.json();
-          
-          // 成功し、かつURLが含まれていればデータを更新
-          if (retryD.success && retryD.actionUrl) {
-            currentData = retryD;
-            // 次のループ（1秒後ではなく即時）でパターン1に入り、ボタンが表示される
-          }
-        } catch(e) {
-          console.error("Auto-fetch failed", e);
-        } finally {
-          isFetching = false; // 次のループで再試行可能にする
-        }
-      }
-    } 
-    // --- パターン3: カウントダウン中 ---
-    else {
-      const m = Math.floor(diff / (1000 * 60));
-      const s = Math.floor((diff % (1000 * 60)) / 1000);
-      els.btnDownload.innerHTML = `<span style="font-feature-settings:'tnum';">${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span>`;
-    }
-  };
+   if (diff <= 0) {
+     els.btnDownload.innerHTML = `<div class="loading-spinner" style="width:20px;height:20px;border-width:2px;border-color:rgba(0,0,0,0.2);border-top-color:#000;"></div>`;
+     if (!isFetching) {
+       isFetching = true;
+       try {
+         const code = els.code.value.trim();
+         const res = await fetch(`${GAS_API_URL}?key=${encodeURIComponent(code)}&lang=${CURRENT_LANG}&mode=poll&_t=${Date.now()}`);
+         const retryD = await res.json();
+         if (retryD.success && retryD.actionUrl) {
+           currentData = retryD;
+         }
+       } catch(e) {
+         console.error("Auto-fetch failed", e);
+       } finally {
+         isFetching = false; 
+       }
+     }
+   } else {
+     const m = Math.floor(diff / (1000 * 60));
+     const s = Math.floor((diff % (1000 * 60)) / 1000);
+     els.btnDownload.innerHTML = `<span style="font-feature-settings:'tnum';">${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span>`;
+   }
+ };
 
-  // 1秒ごとにチェック (初回即時実行)
-  const timerId = setInterval(updateUI, 1000);
-  updateUI();
+ const timerId = setInterval(updateUI, 1000);
+ updateUI();
 }
 function initThemeAndParticles() {
   const htmlEl = document.documentElement;
@@ -1029,7 +1023,6 @@ function initThemeAndParticles() {
     });
   });
 
-  // Particles
   const canvas = gId('particleCanvas'); const ctx = canvas.getContext('2d'); let particlesArray;
   canvas.width = window.innerWidth; canvas.height = window.innerHeight;
   class Particle {
