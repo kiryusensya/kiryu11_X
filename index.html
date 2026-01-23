@@ -907,39 +907,74 @@ function showError(msg, t) {
 }
 
 // ダウンロードボタン制御 (URLがあるか、日付待ちか)
-function checkDownloadUrl(d) {
-  const updateUI = () => {
-      const now = Date.now();
-      const targetTime = d.releaseDateIso ? new Date(d.releaseDateIso).getTime() : 0;
-      const diff = targetTime - now;
+function checkDownloadUrl(initialData) {
+  let isFetching = false;
+  let currentData = initialData; // 最新データを保持する変数
 
-      // URLがある (=Redeem成功、かつ公開日時過ぎている)
-      if (d.actionUrl) {
-          els.btnDownload.href = d.actionUrl;
-          els.btnDownload.style.pointerEvents = 'auto';
-          els.btnDownload.style.opacity = '1';
+  const updateUI = async () => {
+    const now = Date.now();
+    // 日付データがない場合は即時有効扱いにする
+    const targetTime = currentData.releaseDateIso ? new Date(currentData.releaseDateIso).getTime() : 0;
+    const diff = targetTime - now;
+
+    // --- パターン1: URLをすでに持っている場合 (完了) ---
+    if (currentData.actionUrl) {
+      clearInterval(timerId); // タイマー停止
+      
+      // ボタンを有効化
+      els.btnDownload.href = currentData.actionUrl;
+      els.btnDownload.style.pointerEvents = 'auto';
+      els.btnDownload.style.opacity = '1';
+      
+      // ラベルとアイコンの設定
+      const labelText = currentData.buttonLabel || "Download";
+      const iconType = currentData.btnIcon === 'arrow-up-right' ? 'arrow-up-right' : 'download';
+      els.btnDownload.innerHTML = `<span>${labelText}</span> <i data-lucide="${iconType}" size="18"></i>`;
+      lucide.createIcons();
+      return; 
+    } 
+
+    // --- パターン2: カウントダウン終了 (サーバーへ問い合わせ中) ---
+    if (diff <= 0) {
+      // 以前の「くるくる」を表示
+      els.btnDownload.innerHTML = `<div class="loading-spinner" style="width:20px;height:20px;border-width:2px;border-color:rgba(0,0,0,0.2);border-top-color:#000;"></div>`;
+      
+      // 重複リクエスト防止
+      if (!isFetching) {
+        isFetching = true;
+        try {
+          // 現在の入力コードを取得
+          const code = els.code.value.trim();
           
-          const labelText = d.buttonLabel || "Download";
-          const iconHtml = (d.btnIcon === 'arrow-up-right') 
-              ? `<span>${labelText}</span> <i data-lucide="arrow-up-right" size="18"></i>`
-              : `<span>${labelText}</span> <i data-lucide="download" size="18"></i>`;
-          els.btnDownload.innerHTML = iconHtml;
-          lucide.createIcons();
-          return true; // 完了
-      } 
-      // URLがないが、公開日時前 (カウントダウン)
-      else if (diff > 0) {
-          const m = Math.floor(diff / (1000 * 60));
-          const s = Math.floor((diff % (1000 * 60)) / 1000);
-          els.btnDownload.innerHTML = `<span style="font-feature-settings:'tnum';">${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span>`;
-          return false; // 継続
+          // ★修正ポイント: mode=redeem ではなく mode=poll で問い合わせる
+          // これにより、すでに使用済み(USED)になっていても、エラーにならずにURLを取得できる
+          const res = await fetch(`${GAS_API_URL}?key=${encodeURIComponent(code)}&lang=${CURRENT_LANG}&mode=poll&_t=${Date.now()}`);
+          const retryD = await res.json();
+          
+          // 成功し、かつURLが含まれていればデータを更新
+          if (retryD.success && retryD.actionUrl) {
+            currentData = retryD;
+            // 次のループ（1秒後ではなく即時）でパターン1に入り、ボタンが表示される
+          }
+        } catch(e) {
+          console.error("Auto-fetch failed", e);
+        } finally {
+          isFetching = false; // 次のループで再試行可能にする
+        }
       }
-      // URLがなく、時間も過ぎている (通常ありえないが、リロードが必要な場合など)
-      else {
-          els.btnDownload.innerHTML = "Processing...";
-          return false; 
-      }
+    } 
+    // --- パターン3: カウントダウン中 ---
+    else {
+      const m = Math.floor(diff / (1000 * 60));
+      const s = Math.floor((diff % (1000 * 60)) / 1000);
+      els.btnDownload.innerHTML = `<span style="font-feature-settings:'tnum';">${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span>`;
+    }
   };
+
+  // 1秒ごとにチェック (初回即時実行)
+  const timerId = setInterval(updateUI, 1000);
+  updateUI();
+}
 
   if(!updateUI()) {
      setInterval(updateUI, 1000);
