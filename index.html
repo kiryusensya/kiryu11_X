@@ -583,7 +583,7 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 
 <script>
 lucide.createIcons();
-const GAS_API_URL="api/proxy"; 
+const GAS_API_URL="https://script.google.com/macros/s/AKfycbxX5PvICF09Bt9_wXaVs-Y62NHDVkDWfYO-SpazOzlOIsZY8eTdWGfGkKcjmJycstgl/exec"; 
 let CURRENT_LANG="ja";
 
 const TRANSLATIONS={
@@ -912,17 +912,24 @@ function setupPreviewUI(d, t) {
 }
 
 function transitionToFinal(d) {
- els.btnDownload.style.display = 'flex';
- els.btnDownload.style.pointerEvents = 'none'; 
- els.btnDownload.style.opacity = '0.6';
- els.btnDownload.removeAttribute('href');
- els.btnDownload.innerHTML = `<div class="loading-spinner"></div>`;
+  const t = TRANSLATIONS[CURRENT_LANG];
 
- els.btnRedeem.style.display = 'none';
- els.sInfoSec.style.display = 'none'; 
- els.sTitle.style.display = 'none'; 
- els.sBadge.classList.add('visible');
- els.sProdDisplay.style.display = 'block'; 
+  els.btnDownload.style.display = 'flex';
+  els.btnDownload.style.pointerEvents = 'none'; 
+  els.btnDownload.style.opacity = '0.6';
+  els.btnDownload.removeAttribute('href');
+  els.btnDownload.innerHTML = `<div class="loading-spinner"></div>`;
+
+  els.btnRedeem.style.display = 'none';
+  els.sInfoSec.style.display = 'none'; 
+  
+  // 1. バッジ（Code Verified）を非表示にする
+  els.sBadge.classList.remove('visible');
+
+  // 2. タイトルを表示させ、文言を「アクティベーション完了(success_title_final)」に変更
+  els.sTitle.style.display = 'block'; 
+  els.sTitle.textContent = t.success_title_final; 
+  els.sProdDisplay.style.display = 'block'; 
 
  checkDownloadUrl(d);
 }
