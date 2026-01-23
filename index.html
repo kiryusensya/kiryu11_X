@@ -765,151 +765,184 @@ setListener(els.newsModal,'click',e=>{if(e.target===els.newsModal)els.newsModal.
 // Support Listeners Removed
 
 els.code.addEventListener('input',()=>{ els.code.value = formatCodeInput(els.code.value); });
-els.confirm.addEventListener('click',()=>{ const c=els.code.value.trim(); if(c) performAuth(c); });
 
-// --- RGL AUTH FLOW (ROBUST FIX) ---
-async function performAuth(code, isSilent=false){
-  const t=TRANSLATIONS[CURRENT_LANG];
+// --- RGL AUTH FLOW (ROBUST FIX - MODIFIED) ---
+
+// 1. 最初の確認ボタン (Check)
+els.confirm.addEventListener('click', () => {
+  const c = els.code.value.trim();
+  if (c) performAuth(c, 'check'); // 最初は check モード
+});
+
+// 2. 認証処理関数 (mode: 'check' | 'redeem')
+async function performAuth(code, mode = 'check') {
+  const t = TRANSLATIONS[CURRENT_LANG];
   
-  if(!isSilent){
-    els.code.disabled=true; els.confirm.disabled=true;
+  // UI操作: Checkモードのときは入力欄のボタンをロード中に、Redeemモードのときは「続行」ボタンをロード中に
+  if (mode === 'check') {
+    els.code.disabled = true; els.confirm.disabled = true;
     els.confirm.innerHTML = `${t.msg_verifying}<span class="loading-dots"></span>`;
-    els.status.innerHTML="";
+    els.status.innerHTML = "";
+  } else if (mode === 'redeem') {
+    // Continueボタンをローディング表示に
+    els.btnRedeem.disabled = true;
+    els.btnRedeem.innerHTML = `<div class="loading-spinner" style="width:20px;height:20px;border-color:var(--bg-color);border-top-color:transparent;"></div>`;
   }
 
-  try{
-    // Initial Fetch
-    let d = await(await fetch(`${GAS_API_URL}?key=${encodeURIComponent(code)}&lang=${CURRENT_LANG}&_t=${Date.now()}`)).json();
+  try {
+    // APIコール: mode パラメータを追加
+    let url = `${GAS_API_URL}?key=${encodeURIComponent(code)}&lang=${CURRENT_LANG}&mode=${mode}&_t=${Date.now()}`;
+    let d = await (await fetch(url)).json();
     
-    if(d.success && !isSilent){
-      els.confirm.innerHTML = `<i data-lucide="check"></i>`;
-      await new Promise(resolve => setTimeout(resolve, 600));
-    } else if(!isSilent){
-      els.code.disabled=false; els.confirm.disabled=false; els.confirm.textContent=t.modal_btn_auth; 
-    }
-
-    if(d.success){
-      if(!isSilent){
+    // --- 結果ハンドリング ---
+    
+    // A. Checkモードの成功 (プレビュー表示)
+    if (mode === 'check') {
+      if (d.success) {
+        // ボタンをチェックマークに一時変更
+        els.confirm.innerHTML = `<i data-lucide="check"></i>`;
+        await new Promise(r => setTimeout(r, 600));
+        
+        // モーダル切り替え (入力 -> 詳細)
         els.modalCon.classList.add('is-success');
         els.inputPh.style.opacity = '0';
-        setTimeout(()=>{
-            els.inputPh.style.display = 'none';
-            els.successPh.style.display = 'block';
-            setTimeout(() => els.successPh.style.opacity = '1', 50);
+        setTimeout(() => {
+          els.inputPh.style.display = 'none';
+          els.successPh.style.display = 'block';
+          setTimeout(() => els.successPh.style.opacity = '1', 50);
         }, 400);
+
+        // 詳細情報のセット
+        setupPreviewUI(d, t);
+        
+        // 「続行」ボタンに Redeem 処理を紐付け
+        // (以前のイベントリスナーが重複しないようクローンでリセット)
+        const newBtn = els.btnRedeem.cloneNode(true);
+        els.btnRedeem.parentNode.replaceChild(newBtn, els.btnRedeem);
+        els.btnRedeem = newBtn;
+        
+        els.btnRedeem.disabled = false; // 有効化
+        els.btnRedeem.addEventListener('click', () => {
+           performAuth(code, 'redeem'); // ここで初めて Redeem を実行
+        });
+
+      } else {
+        // 失敗時 (Check)
+        els.code.disabled = false; els.confirm.disabled = false; els.confirm.textContent = t.modal_btn_auth;
+        showError(d.message, t);
       }
-      
-      // Step 1 UI Setup
-      els.sBadge.classList.remove('visible'); 
-      els.btnRedeem.style.display = 'flex';    
-      els.btnDownload.style.display = 'none'; 
-      els.sProdDisplay.style.display = 'none'; 
-      els.sInfoSec.style.display = 'block';    
-      els.sTitle.style.display = '';           
-      
-      els.sTitle.textContent = t.success_title_preview; 
-      els.sProdName.textContent = d.bundleLabel; 
-      els.sNameDisp.textContent = d.message;        
-      els.sExtra.innerHTML = d.extraInfo.replace(/\n/g, '<br>'); 
-      
-      if(d.imageUrl && d.imageUrl.startsWith("http")){ els.sImg.src=d.imageUrl; } 
-      else { els.sImg.src="https://placehold.co/600x400/000000/00E050?text=Protected"; } 
-      
-      lucide.createIcons();
+    }
+    
+    // B. Redeemモードの成功 (実際の認証・引き換え)
+    else if (mode === 'redeem') {
+      if (d.success) {
+        // UIを最終段階へ移行 (ダウンロードボタン表示など)
+        transitionToFinal(d);
+      } else {
+        // 失敗時 (Redeem - 既に使われている場合など)
+        els.btnRedeem.disabled = false;
+        els.btnRedeem.innerHTML = `<span data-translate="btn_continue">${t.btn_continue}</span> <i data-lucide="arrow-right" size="18"></i>`;
+        lucide.createIcons();
+        alert(d.message === "This code has already been used." ? t.msg_used : t.msg_error);
+      }
+    }
 
-      // --- Rebind Button ---
-      const newBtn = els.btnRedeem.cloneNode(true);
-      els.btnRedeem.parentNode.replaceChild(newBtn, els.btnRedeem);
-      els.btnRedeem = newBtn;
-
-      els.btnRedeem.addEventListener('click', () => {
-          // A. Transition to Final
-          els.btnDownload.style.display = 'flex';
-          els.btnDownload.style.pointerEvents = 'none';
-          els.btnDownload.style.opacity = '0.6';
-          els.btnDownload.removeAttribute('href');
-          
-          // Initial Loading State (Spinner)
-          els.btnDownload.innerHTML = `<div class="loading-spinner"></div>`;
-
-          els.btnRedeem.style.display = 'none';
-          els.sInfoSec.style.display = 'none'; 
-          els.sTitle.style.display = 'none'; 
-          els.sBadge.classList.add('visible');
-          els.sProdDisplay.style.display = 'block'; 
-
-          // --- ROBUST TIMER LOGIC ---
-          let isFetching = false; // Flag to prevent multiple requests
-
-          const updateUI = async () => {
-              const now = Date.now();
-              // Always rely on the latest data from server
-              const targetTime = d.releaseDateIso ? new Date(d.releaseDateIso).getTime() : 0;
-              const diff = targetTime - now;
-
-              // CASE 1: We have the URL (Unlocked)
-              if (d.actionUrl) {
-                  clearInterval(timerId); 
-                  els.btnDownload.href = d.actionUrl;
-                  els.btnDownload.style.pointerEvents = 'auto';
-                  els.btnDownload.style.opacity = '1';
-                  
-                  const labelText = d.buttonLabel || "Download";
-                  const iconHtml = (d.btnIcon === 'arrow-up-right') 
-                     ? `<span>${labelText}</span> <i data-lucide="arrow-up-right" size="18"></i>`
-                     : `<span>${labelText}</span> <i data-lucide="download" size="18"></i>`;
-                  els.btnDownload.innerHTML = iconHtml;
-                  lucide.createIcons();
-                  return; // Exit
-              }
-
-              // CASE 2: Time passed but NO URL yet (Fetch it)
-              if (diff <= 0) {
-                  if (!isFetching) {
-                      isFetching = true;
-                      // Keep showing spinner while fetching
-                      els.btnDownload.innerHTML = `<div class="loading-spinner" style="width:20px;height:20px;border-width:2px;border-color:rgba(0,0,0,0.2);border-top-color:#000;"></div>`;
-                      
-                      try {
-                          const retryRes = await fetch(`${GAS_API_URL}?key=${encodeURIComponent(code)}&lang=${CURRENT_LANG}&_t=${Date.now()}`);
-                          const retryD = await retryRes.json();
-                          if (retryD.success) {
-                              d = retryD; // Update local data with server response
-                          }
-                      } catch(e) { 
-                          console.error("Auto-fetch failed", e);
-                      } finally {
-                          isFetching = false;
-                      }
-                  }
-                  // Loop will continue. If URL came back, Case 1 will hit next tick.
-                  // If not (server time lag), it stays in Case 2 (Spinner).
-              } 
-              // CASE 3: Countdown
-              else {
-                  const m = Math.floor(diff / (1000 * 60));
-                  const s = Math.floor((diff % (1000 * 60)) / 1000);
-                  els.btnDownload.innerHTML = `<span style="font-feature-settings:'tnum';">${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span>`;
-                  lucide.createIcons();
-              }
-          };
-
-          const timerId = setInterval(updateUI, 500);
-          updateUI(); 
-      });
-
+  } catch (e) {
+    // 通信エラー等
+    if (mode === 'check') {
+      els.code.disabled = false; els.confirm.disabled = false; els.confirm.textContent = t.modal_btn_auth;
+      els.status.innerHTML = `<span style="color:#FF3B30; font-size:13px;">${t.msg_error}</span>`;
     } else {
-      let errorText = t.msg_error;
-      if (d.message === "This code has already been used.") errorText = t.msg_used;
-      else if (d.message === "Invalid code" || d.message === "This code is disabled.") errorText = t.msg_invalid;
-      els.status.innerHTML = `<span style="color:#FF3B30; font-size:13px; font-weight:700;">${errorText}</span>`;
+      els.btnRedeem.disabled = false;
+      els.btnRedeem.innerHTML = `Error`;
     }
+    console.error(e);
+  }
+}
 
-  } catch(e){
-    if(!isSilent){
-      els.code.disabled=false; els.confirm.disabled=false; els.confirm.textContent=t.modal_btn_auth;
-      els.status.innerHTML=`<span style="color:#FF3B30; font-size:13px;">${t.msg_error}</span>`;
-    }
+// プレビュー画面の構築 (情報は出すが、ダウンロードボタンはまだ出さない)
+function setupPreviewUI(d, t) {
+  els.sBadge.classList.remove('visible'); 
+  els.btnRedeem.style.display = 'flex';     
+  els.btnDownload.style.display = 'none'; 
+  els.sProdDisplay.style.display = 'none'; 
+  els.sInfoSec.style.display = 'block';     
+  els.sTitle.style.display = '';            
+  
+  els.sTitle.textContent = t.success_title_preview; 
+  els.sProdName.textContent = d.bundleLabel; 
+  els.sNameDisp.textContent = d.message;        
+  els.sExtra.innerHTML = d.extraInfo ? d.extraInfo.replace(/\n/g, '<br>') : ""; 
+  
+  if(d.imageUrl && d.imageUrl.startsWith("http")){ els.sImg.src=d.imageUrl; } 
+  else { els.sImg.src="https://placehold.co/600x400/000000/00E050?text=Protected"; } 
+  
+  lucide.createIcons();
+}
+
+// 最終画面への遷移 (Redeem成功後)
+function transitionToFinal(d) {
+  els.btnDownload.style.display = 'flex';
+  els.btnDownload.style.pointerEvents = 'none'; // URL判定まではクリック不可
+  els.btnDownload.style.opacity = '0.6';
+  els.btnDownload.removeAttribute('href');
+  els.btnDownload.innerHTML = `<div class="loading-spinner"></div>`;
+
+  els.btnRedeem.style.display = 'none';
+  els.sInfoSec.style.display = 'none'; 
+  els.sTitle.style.display = 'none'; 
+  els.sBadge.classList.add('visible');
+  els.sProdDisplay.style.display = 'block'; 
+
+  // タイマー/URL判定ロジック
+  checkDownloadUrl(d);
+}
+
+// エラー表示ヘルパー
+function showError(msg, t) {
+  let errorText = t.msg_error;
+  if (msg === "This code has already been used.") errorText = t.msg_used;
+  else if (msg === "Invalid code" || msg === "This code is disabled.") errorText = t.msg_invalid;
+  els.status.innerHTML = `<span style="color:#FF3B30; font-size:13px; font-weight:700;">${errorText}</span>`;
+}
+
+// ダウンロードボタン制御 (URLがあるか、日付待ちか)
+function checkDownloadUrl(d) {
+  const updateUI = () => {
+      const now = Date.now();
+      const targetTime = d.releaseDateIso ? new Date(d.releaseDateIso).getTime() : 0;
+      const diff = targetTime - now;
+
+      // URLがある (=Redeem成功、かつ公開日時過ぎている)
+      if (d.actionUrl) {
+          els.btnDownload.href = d.actionUrl;
+          els.btnDownload.style.pointerEvents = 'auto';
+          els.btnDownload.style.opacity = '1';
+          
+          const labelText = d.buttonLabel || "Download";
+          const iconHtml = (d.btnIcon === 'arrow-up-right') 
+              ? `<span>${labelText}</span> <i data-lucide="arrow-up-right" size="18"></i>`
+              : `<span>${labelText}</span> <i data-lucide="download" size="18"></i>`;
+          els.btnDownload.innerHTML = iconHtml;
+          lucide.createIcons();
+          return true; // 完了
+      } 
+      // URLがないが、公開日時前 (カウントダウン)
+      else if (diff > 0) {
+          const m = Math.floor(diff / (1000 * 60));
+          const s = Math.floor((diff % (1000 * 60)) / 1000);
+          els.btnDownload.innerHTML = `<span style="font-feature-settings:'tnum';">${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span>`;
+          return false; // 継続
+      }
+      // URLがなく、時間も過ぎている (通常ありえないが、リロードが必要な場合など)
+      else {
+          els.btnDownload.innerHTML = "Processing...";
+          return false; 
+      }
+  };
+
+  if(!updateUI()) {
+     setInterval(updateUI, 1000);
   }
 }
 
