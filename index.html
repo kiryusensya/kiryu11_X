@@ -200,9 +200,11 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
 
 .intro-brand { 
   font-family: 'HarmonyOS Sans', sans-serif;
-  font-size: 14px; letter-spacing: 2px; opacity: 0.5; font-weight: 700; 
-  margin-bottom: 16px; display: block; text-transform: uppercase;
+  font-size: 14px; 
+  opacity: 0.5; font-weight: 700; 
+  margin-bottom: 16px; display: block; 
   color: var(--modal-text-main);
+  /* 修正: 文字間隔と大文字変換を削除 */
 }
 
 .intro-title {
@@ -595,7 +597,7 @@ const TRANSLATIONS={
   msg_invalid:"このコードは無効です",msg_used:"このコードは使用済みです",msg_error:"エラーが発生しました",
   success_badge:"コードが認証されました。",
   success_title_preview:"コンテンツの確認", success_title_final:"アクティベーション完了",
-  btn_close:"閉じる",btn_continue:"認証する",btn_download:"ダウンロード",news_title:"最新情報",news_label:"履歴",news_loading:"更新を確認中",
+  btn_close:"閉じる",btn_continue:"認証",btn_download:"ダウンロード",news_title:"最新情報",news_label:"履歴",news_loading:"更新を確認中",
   footer_admin:"システム管理者"
  },
  en:{
@@ -608,7 +610,7 @@ const TRANSLATIONS={
   msg_invalid:"This code is invalid.",msg_used:"This code has already been used.",msg_error:"Error occurred",
   success_badge:"Code Verified",
   success_title_preview:"Confirm Content", success_title_final:"Activation Complete",
-  btn_close:"Close",btn_continue:"CONTINUE",btn_download:"Download",news_title:"News",news_label:"Log",news_loading:"Checking for updates",
+  btn_close:"Close",btn_continue:"REDEEM",btn_download:"Download",news_title:"News",news_label:"Log",news_loading:"Checking for updates",
   footer_admin:"Enforcement Administrator"
  },
  zh:{ 
@@ -621,7 +623,7 @@ const TRANSLATIONS={
   msg_invalid:"该代码无效。",msg_used:"该代码已被使用。",msg_error:"错误", 
   success_badge:"代码已检查",
   success_title_preview:"确认内容", success_title_final:"激活完成",
-  btn_close:"关闭",btn_continue:"继续",btn_download:"下载",news_title:"最新消息",news_label:"日志",news_loading:"正在检查更新", 
+  btn_close:"关闭",btn_continue:"兑换",btn_download:"下载",news_title:"最新消息",news_label:"日志",news_loading:"正在检查更新", 
   footer_admin:"系统管理长" 
  },
  "zh-TW":{ 
@@ -634,7 +636,7 @@ const TRANSLATIONS={
   msg_invalid:"該程式碼無效。",msg_used:"該程式碼已被使用。",msg_error:"錯誤", 
   success_badge:"代碼已檢查",
   success_title_preview:"確認內容", success_title_final:"激活完成",
-  btn_close:"關閉",btn_continue:"繼續",btn_download:"下載",news_title:"最新消息",news_label:"日誌",news_loading:"正在檢查更新", 
+  btn_close:"關閉",btn_continue:"兌換",btn_download:"下載",news_title:"最新消息",news_label:"日誌",news_loading:"正在檢查更新", 
   footer_admin:"系統管理長" 
  },
  ko:{ 
@@ -647,7 +649,7 @@ const TRANSLATIONS={
   msg_invalid:"잘못된 코드",msg_used:"사용된 코드",msg_error:"오류", 
   success_badge:"코드 인증됨",
   success_title_preview:"콘텐츠 확인", success_title_final:"활성화 완료",
-  btn_close:"닫기",btn_continue:"계속",btn_download:"다운로드",news_title:"뉴스",news_label:"로그",news_loading:"로딩 중", 
+  btn_close:"닫기",btn_continue:"사용",btn_download:"다운로드",news_title:"뉴스",news_label:"로그",news_loading:"로딩 중", 
   footer_admin:"시스템 관리자" 
  },
  ru:{ 
@@ -655,12 +657,12 @@ const TRANSLATIONS={
       card1_title:"Активация",card1_desc:"Разблокировка",card1_btn:"Активируйте код", 
       card2_title:"Новости",card2_desc:"Обновления",card2_btn:"См.", 
       card3_title:"Поддержка",card3_desc:"Связь",card3_btn:"Связь", 
-      modal_title:"Проверка",modal_sub:"Введите код",modal_placeholder:"Код активации",modal_btn_auth:"Проверить", 
-      msg_verifying:"Обработка",msg_success_btn:"Успех", 
+      modal_title:"Проверка",modal_sub:"Введите код",modal_placeholder:"Код активации",modal_btn_auth:"Подтверждение", 
+      msg_verifying:"Подтверждение",msg_success_btn:"Успех", 
       msg_invalid:"Неверный код",msg_used:"Использован",msg_error:"Ошибка", 
       success_badge:"Подтверждено",
       success_title_preview:"Подтверждение", success_title_final:"Готово",
-      btn_close:"Закрыть",btn_continue:"ПРОДОЛЖИТЬ",btn_download:"Скачать",news_title:"Новости",news_label:"Лог",news_loading:"Загрузка", 
+      btn_close:"Закрыть",btn_continue:"Погасить",btn_download:"Скачать",news_title:"Новости",news_label:"Лог",news_loading:"Загрузка", 
       footer_admin:"Администратор" 
  }
 };
@@ -686,7 +688,7 @@ const formatCodeInput = (val) => {
  return res;
 };
 
-// ▼▼▼ 修正: イベントリスナー設定関数 (入力フォーマット適用) ▼▼▼
+// ▼▼▼ 修正: イベントリスナー設定関数 (入力フォーマット適用含む) ▼▼▼
 function setupEventListeners() {
   // アクティベーションモーダル開閉
   setListener(els.openAuth, 'click', openAuthModal);
