@@ -975,12 +975,6 @@ function checkDownloadUrl(initialData) {
   const timerId = setInterval(updateUI, 1000);
   updateUI();
 }
-
-  if(!updateUI()) {
-     setInterval(updateUI, 1000);
-  }
-}
-
 function initThemeAndParticles() {
   const htmlEl = document.documentElement;
   const toggleBtns = [gId('themeToggle'), gId('introThemeToggle')];
