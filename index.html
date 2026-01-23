@@ -922,13 +922,10 @@ function transitionToFinal(d) {
 
   els.btnRedeem.style.display = 'none';
   els.sInfoSec.style.display = 'none'; 
-  
-  // 1. バッジ（Code Verified）を非表示にする
   els.sBadge.classList.remove('visible');
-
-  // 2. タイトルを表示させ、文言を「アクティベーション完了(success_title_final)」に変更
   els.sTitle.style.display = 'block'; 
   els.sTitle.textContent = t.success_title_final; 
+  els.sTitle.style.color = "#04CF22";
   els.sProdDisplay.style.display = 'block'; 
 
  checkDownloadUrl(d);
