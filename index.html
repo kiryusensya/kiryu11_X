@@ -954,7 +954,7 @@ function checkDownloadUrl(initialData) {
      els.btnDownload.style.pointerEvents = 'auto';
      els.btnDownload.style.opacity = '1';
      const labelText = currentData.buttonLabel || "Download";
-     const iconType = currentData.btnIcon === 'arrow-up-right' ? 'arrow-up-right' : 'download';
+     const iconType = currentData.btnIcon || 'download';
      els.btnDownload.innerHTML = `<span>${labelText}</span> <i data-lucide="${iconType}" size="18"></i>`;
      lucide.createIcons();
      return; 
