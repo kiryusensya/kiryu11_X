@@ -2511,12 +2511,20 @@ async function fetchUserHistory() {
   try { 
     const res = await fetch(`${GAS_API_URL}?type=get_history&userId=${currentUser.userId}&lang=${CURRENT_LANG}&_t=${Date.now()}`);
     const data = await res.json();
+    
     if (data.success && Array.isArray(data.history)) {
       currentUser.history = data.history; 
       updateAccountUI();
       if (currentUser.history.length > 0) {
             updateHeroView(currentUser.history[0], true);
       }
+    } else if (data.message === "User not found") {
+      // ★ 安全装置：スプレッドシート側でユーザーが消されていたら、ブラウザの記憶も消してリロードする
+      console.warn("User session invalid. Logging out...");
+      localStorage.removeItem('user_session_identity');
+      currentUser = null;
+      window.location.reload(); 
+      return;
     }
   } catch (e) { 
       updateAccountUI(); 
