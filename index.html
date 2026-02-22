@@ -1,14 +1,13 @@
 <!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
+<html lang="ja" data-theme="dark"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>_.k__yu.10//Enhanced</title>
+<title>_.k__yu.10//Developers</title>
 <link rel="icon" href="https://static.wixstatic.com/media/2f0694_eb4d3063598a4cc5b6bd6b8e31cba915~mv2.png/v1/crop/x_248,y_0,w_1065,h_950/fill/w_816,h_728,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/1767545356653.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+<link href="./_.k__yu.10__Developers_files/css2" rel="stylesheet">
+<link rel="stylesheet" href="./_.k__yu.10__Developers_files/all.min.css">
 <script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
@@ -25,7 +24,6 @@
 :root {
   --primary: #007DFF;
   --bright-green: #04CF22;
-  --dark-green-text: #005522; 
   --bg-color: #F1F3F5;
   --card-bg: rgba(255, 255, 255, 0.6);
   --card-border: rgba(255, 255, 255, 0.6);
@@ -40,18 +38,32 @@
   --radius-l: 16px;
   --spring-ease: cubic-bezier(0.33, 1, 0.68, 1);
   --shadow-soft: 0 10px 30px rgba(0,0,0,0.05);
-  --font-stack: 'HarmonyOS Sans', 'Manrope', sans-serif;
-    
   --rgl-green: #04CF22;
+   
+  /* Account System */
+  --dropdown-bg: rgba(255, 255, 255, 0.95);
+  --modal-bg-standard: #FFFFFF;
+
+  /* RGL Layout Variables */
+  --sidebar-bg: #E0E0E0;
+  --sidebar-text: #000;
+  --sidebar-width: 280px;
+  --nav-text: #000;
+  --hero-overlay: linear-gradient(to right, rgba(241,243,245,0.95) 0%, rgba(241,243,245,0.8) 40%, rgba(241,243,245,0.1) 100%);
+  --sidebar-item-hover: rgba(0,0,0,0.05);
+
+  --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
 }
+
 :root:lang(ja) { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
-:root:lang(zh) { --font-stack: 'HarmonyOS Sans SC', 'HarmonyOS Sans', sans-serif; }
-:root:lang(zh-TW) { --font-stack: 'HarmonyOS Sans TC', 'HarmonyOS Sans', sans-serif; }
+:root:lang(zh) { --font-stack: 'HarmonyOS Sans', 'HarmonyOS Sans SC', sans-serif; }
+:root:lang(zh-TW) { --font-stack: 'HarmonyOS Sans', 'HarmonyOS Sans TC', sans-serif; }
 :root:lang(ko) { --font-stack: 'HarmonyOS Sans', 'Noto Sans KR', sans-serif; }
 :root:lang(ru) { --font-stack: 'HarmonyOS Sans', sans-serif; }
+:root:lang(en) { --font-stack: 'HarmonyOS Sans', sans-serif; }
 
 [data-theme="dark"] {
-  --bg-color: #000000;
+  --bg-color: #121212;
   --card-bg: rgba(40, 40, 40, 0.5);
   --card-border: rgba(255, 255, 255, 0.1);
   --modal-bg-success: #111111;
@@ -62,10 +74,21 @@
   --btn-close-border: #FFFFFF;
   --btn-close-text: #FFFFFF;
   --shadow-soft: 0 15px 40px rgba(0,0,0,0.4);
+   
+  /* Account System */
+  --dropdown-bg: rgba(20, 20, 20, 0.98);
+  --modal-bg-standard: #1A1A1A;
+
+  /* RGL Layout Variables Dark */
+  --sidebar-bg: #000000;
+  --sidebar-text: #fff;
+  --nav-text: #fff;
+  --hero-overlay: linear-gradient(to right, rgba(18,18,18,0.95) 0%, rgba(18,18,18,0.8) 40%, rgba(18,18,18,0.1) 100%);
+  --sidebar-item-hover: rgba(255,255,255,0.1);
 }
 
-/* Scrollbar Customization */
-::-webkit-scrollbar { width: 8px; }
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(128, 128, 128, 0.2); border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(128, 128, 128, 0.4); }
@@ -79,15 +102,17 @@ body {
   background-color: var(--bg-color);
   color: var(--modal-text-main);
   font-family: var(--font-stack);
-  min-height: 100vh;
-  display: flex; flex-direction: column;
-  overflow-x: hidden;
+  height: 100vh; 
+  overflow: hidden; 
+  display: flex; 
   transition: background-color 0.5s ease;
 }
 
+button, input, textarea { font-family: var(--font-stack); }
+
 #particleCanvas {
   position: fixed; inset: 0; width: 100%; height: 100%;
-  z-index: 0; opacity: 0.8; pointer-events: none;
+  z-index: 0; opacity: 0.4; pointer-events: none;
   filter: blur(80px);
 }
 
@@ -97,17 +122,160 @@ body {
 }
 @keyframes dots-loop { 0% { content: '.'; } 33% { content: '..'; } 66% { content: '...'; } 100% { content: ''; } }
 
-/* Layout */
-.wrapper {
-  width: 100%; max-width: 1000px; margin: 0 auto; padding: 0 24px;
-  flex: 1; display: flex; flex-direction: column; justify-content: center;
-  position: relative; z-index: 5;
+/* --- RGL LAYOUT STRUCTURE --- */
+.rgl-wrapper {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  position: relative;
 }
 
-header { padding: 24px 0; display: flex; justify-content: space-between; align-items: center; }
-.brand { font-family: var(--font-stack); font-weight: 800; font-size: 20px; display: flex; align-items: center; gap: 10px; color: var(--modal-text-main); }
-.brand i { color: var(--primary); }
-[data-theme="dark"] .brand { color: #fff; }
+/* SIDEBAR */
+.rgl-sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--sidebar-bg);
+  display: flex;
+  flex-direction: column; 
+  padding: 0; 
+  flex-shrink: 0;
+  border-right: 1px solid rgba(128,128,128,0.1);
+  color: var(--sidebar-text);
+  z-index: 100;
+  overflow: hidden; 
+}
+
+/* Fixed Brand Area */
+.rgl-brand-area {
+  padding: 30px 24px 20px 24px;
+  flex-shrink: 0;
+}
+.rgl-brand {
+  font-family: var(--font-stack);
+  font-weight: 800;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--sidebar-text);
+}
+.rgl-brand i { color: #FFA500; } 
+
+/* Scrollable Menu Area */
+.rgl-scroll-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.rgl-menu-section {
+  margin-bottom: 30px;
+  flex-shrink: 0;
+  transition: opacity 0.3s ease;
+}
+
+.rgl-menu-title {
+  font-size: 14px;
+  font-weight: 700;
+  opacity: 0.6;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Sidebar List Item */
+.rgl-sidebar-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.sidebar-game-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    border: 1px solid transparent; 
+    margin-bottom: 8px;
+}
+.sidebar-game-item:hover { background: var(--sidebar-item-hover); }
+.sidebar-game-item.active { 
+    background: var(--sidebar-item-hover); 
+    border-color: rgba(128,128,128,0.1);
+}
+
+.sidebar-game-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    overflow: hidden;
+    width: 100%;
+}
+.sidebar-game-thumb {
+    width: 32px; height: 32px; border-radius: 6px; object-fit: cover; background: #888; flex-shrink: 0;
+}
+.sidebar-game-text {
+    display: flex; flex-direction: column; overflow: hidden;
+}
+.sidebar-game-title {
+    font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    color: var(--sidebar-text);
+}
+.sidebar-game-status { display: none; } 
+
+/* Sidebar Bottom Controls */
+.rgl-bottom-controls {
+  margin-top: auto;
+  padding: 20px 24px 30px 24px;
+  flex-shrink: 0;
+  border-top: 1px solid rgba(128,128,128,0.1);
+}
+
+/* MAIN CONTENT AREA */
+.rgl-main {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background-color: var(--bg-color);
+}
+
+/* RGL Header / Tabs */
+.rgl-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: 24px 40px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 20px;
+}
+
+.rgl-tabs {
+  display: flex;
+  gap: 30px;
+}
+
+.rgl-tab {
+  font-size: 14px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--nav-text);
+  opacity: 0.6;
+  cursor: pointer;
+  transition: opacity 0.3s;
+  text-decoration: none;
+  position: relative;
+}
+.rgl-tab:hover { opacity: 1; }
+.rgl-tab.active { opacity: 1; }
 
 .theme-pill {
   width: 44px; height: 44px; border-radius: 50%;
@@ -115,73 +283,154 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; transition: transform 0.3s; backdrop-filter: blur(10px); color: var(--modal-text-main);
 }
-[data-theme="dark"] .theme-pill { color: #fff; }
 .theme-pill:hover { transform: scale(1.1); }
+[data-theme="dark"] .theme-pill { color: #fff; }
 
-/* Hero */
-.hero-text { margin-bottom: 40px; text-align: left; opacity: 0; animation: fadeInUp 0.8s var(--spring-ease) forwards; }
 
-/* 見切れ修正適用 */
-.hero-title {
-  font-family: var(--font-stack);
-  font-size: clamp(32px, 10vw, 48px); 
+/* Hero Section within Main */
+.rgl-hero {
+  padding: 40px 60px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  background: none !important;
+}
+
+/* Background Image Setting */
+.rgl-bg-image {
+    position: absolute;
+    top: 0; 
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center top;
+    mask-image: none !important;
+    -webkit-mask-image: none !important;
+    opacity: 1 !important;
+    z-index: 0;
+    transition: background-image 0.5s ease-in-out;
+}
+
+.rgl-hero::before, .rgl-hero::after {
+    display: none !important;
+    background: none !important;
+    content: none !important;
+}
+
+.rgl-hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 600px;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.1); 
+}
+
+/* --- タイトル --- */
+.rgl-logo-text {
+  font-size: 42px;
   font-weight: 800;
   line-height: 1.1;
-  margin: 0 0 10px 0;
-  background: linear-gradient(to right, var(--modal-text-main), var(--modal-text-sub));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  word-break: keep-all;
-  padding-right: 0.2em; /* 【修正】文字が見切れるのを防ぐ余白 */
-}
-
-@media (max-width: 480px) {
-  .hero-title {
-    font-size: 32px; 
-    line-height: 1.2;
-  }
-}
-[data-theme="dark"] .hero-title { background: linear-gradient(to right, #fff, #aaa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.hero-sub { font-size: 16px; color: var(--modal-text-sub); }
-[data-theme="dark"] .hero-sub { color: #aaa; }
-
-.bento-grid {
-  display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: 240px 180px; gap: 20px;
-  width: 100%; opacity: 0; animation: fadeInUp 0.8s 0.2s var(--spring-ease) forwards;
-}
-
-.widget {
-  background: var(--card-bg); backdrop-filter: blur(30px);
-  border: 1px solid rgba(128,128,128,0.1); border-radius: var(--radius-xl);
-  padding: 32px; display: flex; flex-direction: column; justify-content: space-between;
-  transition: 0.4s var(--spring-ease); cursor: pointer; position: relative; overflow: hidden;
-  color: var(--modal-text-main);
+  margin-bottom: 20px;
   font-family: var(--font-stack);
-  text-decoration: none; /* 【修正】aタグ化に伴う下線削除 */
+  text-transform: none !important;
+  color: var(--modal-text-main);
+  text-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
-[data-theme="dark"] .widget { color: #fff; }
-.widget:hover { transform: scale(1.02); box-shadow: 0 20px 50px -10px rgba(0,0,0,0.15); }
 
-.widget-hero { grid-column: 1 / 2; grid-row: 1 / 3; background: linear-gradient(145deg, var(--card-bg) 0%, rgba(0, 125, 255, 0.05) 100%); }
-.icon-bubble { width: 64px; height: 64px; background: #007DFF; border-radius: 20px; display: flex; justify-content: center; align-items: center; color: white; }
-.widget-content h3 { font-size: 26px; font-weight: 700; margin: 0 0 8px 0; }
-.widget-content p { font-size: 14px; opacity: 0.7; margin: 0; }
-.btn-float { align-self: flex-start; margin-top: 24px; padding: 12px 24px; background: var(--modal-text-main); color: var(--bg-color); border-radius: 50px; font-weight: 700; display: flex; align-items: center; gap: 8px; font-size: 14px; transition: transform 0.3s; }
-[data-theme="dark"] .btn-float { background: #fff; color: #000; }
-.widget:hover .btn-float { transform: translateX(5px); }
-
-.widget-news { grid-column: 2 / 3; grid-row: 1 / 2; }
-.widget-support { grid-column: 2 / 3; grid-row: 2 / 3; }
-
-@media (max-width: 768px) {
-  .bento-grid { display: flex; flex-direction: column; gap: 16px; }
-  .widget-hero { min-height: 280px; }
-  .widget-news, .widget-support { min-height: 160px; }
-  .hero-title { font-size: 36px; }
+.rgl-desc {
+    display: none !important;
 }
+
+/* Action Bar Area */
+.rgl-action-bar {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* --- ボタン --- */
+.rgl-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 56px;
+    min-width: 200px;
+    padding: 0 40px;
+    
+    background-color: var(--modal-text-main);
+    color: var(--bg-color);
+    
+    font-weight: 800;
+    font-size: 18px;
+    border-radius: 50px;
+    cursor: pointer;
+    text-transform: none !important;
+    
+    transition: all 0.2s;
+    border: none;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    font-family: var(--font-stack);
+}
+.rgl-cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+}
+[data-theme="dark"] .rgl-cta-btn { background: #fff; color: #000; }
+
+.rgl-cta-btn.is-download {
+    background-color: var(--primary);
+    color: #fff;
+}
+.rgl-cta-btn.is-download:hover {
+    box-shadow: 0 15px 30px rgba(0, 125, 255, 0.4);
+}
+
+
+/* Sidebar Language Selector */
+.lang-trigger-sidebar {
+    width: 100%;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px !important;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--sidebar-text);
+    border-radius: 50px !important;
+    background: transparent;
+    transition: all 0.2s ease;
+    font-family: var(--font-stack);
+    border: 1px solid transparent;
+}
+.lang-trigger-sidebar:hover {
+    background: rgba(128, 128, 128, 0.15);
+}
+[data-theme="dark"] .lang-trigger-sidebar {
+    border: 1px solid rgba(255, 255, 255, 0.6) !important;
+    background: rgba(255, 255, 255, 0.05);
+}
+[data-theme="dark"] .lang-trigger-sidebar:hover {
+    border-color: #fff !important;
+    background: rgba(255, 255, 255, 0.15);
+}
+.lang-list { position: absolute; bottom: 80px; left: 24px; width: 200px; background: var(--card-bg); backdrop-filter: blur(20px); padding: 5px; border-radius: 12px; list-style: none; display: none; box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 200; border: 1px solid rgba(128,128,128,0.1); }
+.lang-list.open { display: block; animation: popIn 0.3s; }
+.lang-list li { padding: 10px 15px; cursor: pointer; border-radius: 8px; color: var(--modal-text-main); font-size: 13px; font-family: var(--font-stack); }
+.lang-list li:hover { background: rgba(128,128,128,0.1); }
+[data-theme="dark"] .lang-list li { color: #fff; }
+
+
+/* Hide old elements */
+.wrapper, .bento-grid, .hero-text, header, footer { display: none !important; }
+
+/* Keep Animations */
 @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 
-/* --- HARMONYOS INTRO DESIGN (PURE) --- */
+/* --- INTRO DESIGN --- */
 .intro-theme-btn {
   position: absolute; top: 40px; right: 40px; z-index: 10002;
   border-color: var(--card-border);
@@ -204,7 +453,6 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
   opacity: 0.5; font-weight: 700; 
   margin-bottom: 16px; display: block; 
   color: var(--modal-text-main);
-  /* 修正: 文字間隔と大文字変換を削除 */
 }
 
 .intro-title {
@@ -235,12 +483,6 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
 .lang-name { font-size: 22px; font-weight: 700; color: var(--modal-text-main); transition: 0.3s; }
 [data-theme="dark"] .lang-name { color: #fff; }
 .lang-card:hover .lang-name { transform: scale(1.05); letter-spacing: 0.5px; }
-@media (max-width: 800px) {
-  .lang-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
-  .lang-card { height: 100px; border-radius: 20px; }
-  .lang-name { font-size: 18px; }
-  .intro-title { font-size: 32px; }
-}
 
 .font-jp { font-family: 'Noto Sans JP', sans-serif; }
 .font-en { font-family: 'HarmonyOS Sans', sans-serif; }
@@ -249,7 +491,7 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
 .font-kr { font-family: 'Noto Sans KR', sans-serif; }
 .font-ru { font-family: 'HarmonyOS Sans', sans-serif; }
 
-/* --- MODAL SYSTEM --- */
+/* --- MODAL SYSTEM (Base) --- */
 .modal-overlay {
   position: fixed; inset: 0; background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px);
   z-index: 9999; display: flex; justify-content: center; align-items: center;
@@ -263,7 +505,7 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
   box-shadow: 0 40px 100px rgba(0,0,0,0.3);
   border: 1px solid rgba(128,128,128,0.1);
   position: relative; overflow: hidden;
-  width: 90%; max-width: 440px; 
+  width: 90%; max-width: 470px; 
   padding: 40px;
   transform: scale(0.95);
   transition: all 0.5s var(--spring-ease);
@@ -272,8 +514,24 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
 .modal-overlay.active .modal-sheet { transform: scale(1); }
 [data-theme="dark"] .modal-sheet { background: #1a1a1a; }
 
-#newsModal .modal-sheet { width: fit-content; min-width: 500px; max-width: 900px; text-align: left; }
-@media (max-width: 768px) { #newsModal .modal-sheet { width: 92%; min-width: 0; } }
+/* ニュースモーダルのすりガラス化 */
+#newsModal .modal-sheet { 
+    width: fit-content; 
+    min-width: 500px; 
+    max-width: 900px; 
+    text-align: left;
+    background-color: rgba(255, 255, 255, 0.6) !important; 
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 40px 80px rgba(0,0,0,0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* ダークモード時のニュースモーダル */
+[data-theme="dark"] #newsModal .modal-sheet {
+    background-color: rgba(30, 30, 30, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
 
 /* Success Expansion */
 .modal-sheet.is-success {
@@ -309,6 +567,7 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
   background: var(--primary); color: white; border-radius: 25px;
   font-size: 16px; font-weight: 700; cursor: pointer;
   transition: transform 0.2s; font-family: var(--font-stack);
+  border-radius: 50px !important;
 }
 .btn-primary:active { transform: scale(0.96); }
 
@@ -330,13 +589,8 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
 [data-theme="dark"] .success-details { color: #fff; }
 
 .success-badge {
-  display: none; /* Initially Hidden, no transition */
-  align-items: center; gap: 8px;
-  border: 1px solid var(--success-text-green); color: var(--success-text-green);
-  padding: 6px 16px; border-radius: 50px; font-size: 13px; font-weight: 700;
-  margin-bottom: 20px; width: fit-content; background: rgba(4, 207, 34, 0.1);
+  display: none !important; /* ★修正: 全デバイスで完全に非表示 */
 }
-.success-badge.visible { display: inline-flex; } /* Simple switch */
 
 .content-title { font-size: 28px; font-weight: 800; margin: 0 0 24px 0; line-height: 1.2; color: var(--modal-text-main); }
 
@@ -375,6 +629,8 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
   flex: 1; height: 50px; background: transparent;
   border: 1px solid var(--btn-close-border); color: var(--btn-close-text);
   border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s;
+  border-radius: 50px !important;
+  border: 1px solid var(--btn-close-border) !important;
   font-family: var(--font-stack);
 }
 .btn-close-sub:hover { opacity: 0.6; }
@@ -383,6 +639,7 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
 .btn-action {
   flex: 2; height: 50px; border-radius: 12px; border: none; font-weight: 700; 
   display: flex; align-items: center; justify-content: center; gap: 8px;
+  border-radius: 50px !important;
   text-decoration: none; transition: transform 0.2s; cursor: pointer;
   font-family: var(--font-stack);
 }
@@ -391,122 +648,667 @@ header { padding: 24px 0; display: flex; justify-content: space-between; align-i
 #btnRedeem { background: var(--modal-text-main); color: var(--bg-color); }
 [data-theme="dark"] #btnRedeem { background: #fff; color: #000; }
 
-#btnDownload { background: var(--bright-green); color: #000; display: none; }
-#btnDownload:hover { box-shadow: 0 5px 20px rgba(4, 207, 34, 0.4); }
+#btnDownload { background: var(--primary); color: #fff; display: none; }
+#btnDownload:hover { box-shadow: 0 5px 20px rgba(0, 125, 255, 0.4); }
 
+/* PCでボタンを隠すためのCSS */
+@media (min-width: 769px) {
+    #btnDownload { display: none !important; }
+    /* PCではアカウントメニュー内のライブラリボタンも隠す */
+    #btnShowLibrary { display: none !important; }
+}
+
+/* --- ACCOUNT DROPDOWN STYLES (修正版) --- */
+.account-dropdown {
+  position: absolute;
+  top: 80px; 
+  right: 40px;
+  width: 320px; 
+  background: var(--dropdown-bg);
+  backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(128,128,128,0.2);
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  padding: 24px;
+  z-index: 2000;
+  opacity: 0;
+  transform: translateY(-10px) scale(0.98);
+  pointer-events: none; 
+  transition: all 0.3s var(--spring-ease);
+  transform-origin: top right;
+  text-align: left; 
+  display: flex; flex-direction: column;
+}
+
+.account-dropdown.open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto; 
+  visibility: visible;
+}
+
+/* Header inside Dropdown */
+.account-mini-header { 
+  display: flex; flex-direction: column; align-items: flex-start;
+  margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid rgba(128,128,128,0.1); 
+}
+.label-logged-in { font-size: 10px; font-weight: 700; opacity: 0.6; margin-bottom: 2px; text-transform: uppercase; }
+.mini-user-id { font-size: 16px; font-weight: 800; color: var(--modal-text-main); letter-spacing: -0.5px; word-break: break-all;}
+
+/* Menu List inside Dropdown */
+.menu-list { display: flex; flex-direction: column; gap: 4px; }
+.menu-btn {
+  background: transparent; border: none; text-align: left;
+  padding: 14px 12px; font-size: 16px; font-weight: 700;
+  color: var(--modal-text-main); cursor: pointer;
+  border-radius: 12px;
+  display: flex; justify-content: space-between; align-items: center;
+  transition: background 0.2s; font-family: var(--font-stack);
+}
+.menu-btn:hover { background: rgba(128,128,128,0.08); }
+.menu-btn i { opacity: 0.5; }
+
+/* Login Form inside Dropdown */
+.auth-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid rgba(128,128,128,0.2); padding-bottom:10px; }
+.auth-tab { flex: 1; text-align: center; padding: 8px; cursor: pointer; font-weight: 700; opacity: 0.5; transition: 0.3s; color: var(--modal-text-main); font-size: 14px; font-family: var(--font-stack); }
+.auth-tab.active { opacity: 1; border-bottom: 2px solid var(--primary); color: var(--primary); }
+.form-group { text-align: left; margin-bottom: 12px; }
+.form-label { font-size: 11px; font-weight: 700; margin-bottom: 4px; display: block; opacity: 0.7; color: var(--modal-text-main); font-family: var(--font-stack); }
+.form-input { width: 100%; height: 44px; border-radius: 10px; border: 1px solid rgba(128,128,128,0.2); background: transparent; padding: 0 12px; color: var(--modal-text-main); font-family: inherit; outline: none; font-size: 14px; font-weight: 500; }
+.form-input:focus { border-color: var(--primary); background: rgba(128,128,128,0.05); }
+
+/* --- Mobile Adjustment (BLOCK) --- */
+#mobile-warning {
+  display: none;
+}
+
+[data-theme="dark"] .btn-close-sub {
+    border-color: rgba(255, 255, 255, 0.6) !important;
+    color: #fff !important;
+}
+
+[data-theme="dark"] .btn-close-sub:hover {
+    border-color: #fff !important;
+    background: rgba(255, 255, 255, 0.1);
+}
+/* --- ヘッダーナビゲーション修正版 --- */
+
+.rgl-tab {
+    position: relative;
+    margin: 0 4px !important; 
+    padding: 0 !important; 
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-weight: 700;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+    z-index: 1;
+}
+
+.rgl-tab::after { display: none !important; }
+
+.rgl-tab:hover, 
+.rgl-tab.active { 
+    opacity: 1; 
+}
+
+/* --- 背景のカプセル（疑似要素） --- */
+.rgl-tab::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: calc(100% + 37px); 
+    height: 38px;
+    border-radius: 50px;
+    
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    
+    transform: translate(-50%, -50%) scale(0.9);
+    opacity: 0;
+    z-index: -1;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.rgl-tab:hover::before,
+.rgl-tab.active::before {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+[data-theme="dark"] .rgl-tab { color: #fff; }
+[data-theme="dark"] .rgl-tab::before {
+    background: rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* =========================================
+   ★ここから追加：スマホ用ライブラリモーダルCSS
+   ========================================= */
+
+/* スマホ用「ライブラリを開く」ボタン（デフォルト非表示） */
+#btnShowLibrary {
+    display: none; 
+}
+
+/* スマホ表示時（768px以下）のみ表示 */
 @media (max-width: 768px) {
-  .modal-sheet.is-success { max-width: 92%; border-radius: 24px; height: auto; max-height: 85vh; overflow-y: auto; }
-  .success-container { flex-direction: column; min-height: auto; }
-  .success-visual { width: 100%; height: 220px; flex: none; }
-  .success-details { padding: 24px; flex: auto; }
-  .content-title { font-size: 24px; }
+    #btnShowLibrary {
+        display: flex; 
+    }
+}
+
+/* ライブラリモーダル（2つ目のコードのデザインを移植） */
+#libraryModal .modal-sheet {
+  background: var(--modal-bg-standard);
+  border-radius: 28px;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.3);
+  width: 90%; max-width: 600px;
+  padding: 40px;
+  text-align: left;
+}
+
+.lib-modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 30px;
+}
+.lib-header-left { display: flex; align-items: center; gap: 16px; }
+.lib-header-icon {
+  width: 56px; height: 56px; background: #007DFF; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center; color: white;
+  box-shadow: 0 10px 25px rgba(0, 125, 255, 0.25);
+}
+.lib-header-title { font-size: 32px; font-weight: 800; color: var(--modal-text-main); line-height: 1; letter-spacing: -1px; }
+
+.lib-list-scroll { list-style: none; padding: 0; margin: 0; max-height: 450px; overflow-y: auto; }
+
+/* Library Card Item */
+.lib-item-card {
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(128, 128, 128, 0.04);
+  border: 1px solid rgba(128, 128, 128, 0.08);
+  border-radius: 20px; padding: 16px; margin-bottom: 12px;
+  transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+  cursor: pointer; /* クリック可能にするため追加 */
+}
+.lib-item-card:hover { transform: translateY(-2px); background: rgba(128, 128, 128, 0.08); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+
+.lib-card-left { display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0; }
+.lib-card-thumb {
+  width: 72px; height: 72px; border-radius: 14px; object-fit: cover;
+  background: #eee; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+.lib-card-info { display: flex; flex-direction: column; overflow: hidden; justify-content: center; }
+.lib-card-meta { font-size: 12px; color: var(--modal-text-sub); font-weight: 600; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 6px; }
+.lib-card-title { font-size: 18px; font-weight: 800; color: var(--modal-text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
+
+.lib-card-arrow { /* 右端の矢印 */
+  width: 32px; height: 32px; 
+  display: flex; align-items: center; justify-content: center; 
+  opacity: 0.3;
+}
+
+/* スマホ用ライブラリ表示調整 */
+@media (max-width: 480px) {
+  #libraryModal .modal-sheet {
+    width: 96%; 
+    padding: 20px; 
+  }
+  .lib-item-card { padding: 8px; }
+  .lib-card-thumb { width: 32px; height: 32px; }
+  .lib-card-left { gap: 8px; }
+  .lib-card-title { font-size: 9px; white-space: nowrap; }
+  .lib-card-meta { font-size: 8px; white-space: nowrap; letter-spacing: -0.5px; }
+}
+
+/* =========================================
+   ★追加：スマホ用全画面メニューCSS
+   ========================================= */
+
+/* デフォルトでは非表示 */
+.mobile-menu-trigger { display: none; }
+.mobile-nav-overlay { display: none; }
+
+/* スマホ表示時（768px以下） */
+@media (max-width: 768px) {
+    /* ハンバーガーアイコン */
+    .mobile-menu-trigger { 
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
+        background: transparent; 
+        border: none; 
+        color: var(--sidebar-text); 
+        cursor: pointer;
+        padding: 8px;
+        margin-right: 4px; /* ロゴとの間隔を詰める */
+    }
+    
+    /* ブランドエリアの配置調整 */
+    .rgl-brand {
+        /* ハンバーガーアイコンの後ろにロゴを表示するための調整 */
+        order: 2; 
+    }
+    .mobile-menu-trigger {
+        order: 1;
+    }
+    
+    /* 全画面メニューオーバーレイ */
+    .mobile-nav-overlay {
+        display: flex; 
+        flex-direction: column;
+        position: fixed; 
+        inset: 0; 
+        background: var(--bg-color); 
+        z-index: 10001; /* アカウントメニューより上 */
+        padding: 40px;
+        transform: translateX(-100%); /* 左からスライド */
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        visibility: hidden;
+    }
+    
+    .mobile-nav-overlay.active { 
+        transform: translateX(0); 
+        visibility: visible;
+    }
+    
+    /* 閉じるボタン */
+    .mobile-menu-close {
+        align-self: flex-end;
+        background: transparent;
+        border: 1px solid var(--btn-close-border);
+        color: var(--modal-text-main);
+        width: 44px; height: 44px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        margin-bottom: 40px;
+    }
+    
+    /* メニューコンテンツ */
+    .mobile-nav-content { 
+        display: flex; 
+        flex-direction: column; 
+        gap: 40px; /* アイテム間隔 */
+        flex: 1; /* 残りのスペースを埋める */
+    }
+    
+    .mobile-nav-item { 
+        font-family: var(--font-stack);
+        font-size: 32px; 
+        font-weight: 800; 
+        color: var(--modal-text-main); 
+        text-decoration: none; 
+        text-align: left; 
+        opacity: 0;
+        transform: translateX(-20px);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    
+    /* メニューオープン時のアニメーション */
+    .mobile-nav-overlay.active .mobile-nav-item {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    
+    /* 遅延表示 */
+    .mobile-nav-overlay.active .mobile-nav-item:nth-child(1) { transition-delay: 0.1s; }
+    .mobile-nav-overlay.active .mobile-nav-item:nth-child(2) { transition-delay: 0.2s; }
+    .mobile-nav-overlay.active .mobile-nav-item:nth-child(3) { transition-delay: 0.3s; }
+    
+    /* ★追加: メニュー内の言語切り替え配置用 */
+    .mobile-menu-footer {
+        margin-top: auto;
+        padding-top: 20px;
+        border-top: 1px solid rgba(128,128,128,0.1);
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.3s ease 0.4s; /* 遅延アニメーション */
+        position: relative; /* リスト表示の基準 */
+    }
+    .mobile-nav-overlay.active .mobile-menu-footer {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    /* 言語リストのポップアップ位置調整 (ボタンの上に出す) */
+    .mobile-menu-footer .lang-list {
+        position: absolute;
+        bottom: 60px; /* ボタンの上に */
+        left: 0;
+        width: 100%;
+        display: none;
+    }
+    .mobile-menu-footer .lang-list.open {
+        display: block;
+        animation: fadeInUp 0.3s ease;
+    }
+    
+    /* =========================================
+       ★重要修正: スマホヘッダー（右上のアカウント表示）
+       ========================================= */
+    
+    /* モバイルRGL調整 */
+    .rgl-wrapper { flex-direction: column; }
+    
+    /* サイドバー（モバイルでは左上のハンバーガーエリアとして機能） */
+    .rgl-sidebar { 
+        width: 100%; 
+        height: auto; 
+        padding: 0; 
+        border-right: none; 
+        border-bottom: 1px solid rgba(128,128,128,0.1); 
+        overflow: visible;
+        position: relative;
+        z-index: 100;
+        /* 背景色を「こい灰色」（変数の色）に */
+        background-color: var(--sidebar-bg); 
+    }
+    
+    .rgl-brand-area { 
+        padding: 16px 12px; /* 左寄せのためにpaddingを減らす */
+        display: flex;
+        align-items: center;
+        justify-content: flex-start; /* 左揃え */
+        gap: 8px; /* アイコンとロゴの間隔を詰める */
+        width: 100%;
+        /* 右側にスペースを空ける（アカウントアイコン用） */
+        padding-right: 120px; 
+    }
+    
+    /* ★修正: スマホのみサイドバー内のリストを確実に非表示 */
+    .rgl-scroll-content, 
+    .rgl-menu-section, 
+    #secAvailable, 
+    #secLibrary { display: none !important; }
+    .rgl-bottom-controls { display: none; } 
+    
+    /* ★修正: ヘッダーを絶対配置で右上に固定 */
+    .rgl-header { 
+        position: fixed !important; /* Fixedに変更して画面追従 */
+        top: 0;
+        right: 0;
+        width: auto;
+        height: 70px; /* サイドバーの高さ(approx 60-70px)に合わせる */
+        background: transparent !important;
+        padding: 0 16px;
+        z-index: 200; /* サイドバーより手前 */
+        display: flex !important;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        pointer-events: none; /* コンテナ自体はクリック透過 */
+    }
+    
+    /* ヘッダー内の要素はクリック可能にする */
+    .rgl-header > * {
+        pointer-events: auto;
+    }
+
+    /* タブは消す */
+    .rgl-tabs { display: none !important; }
+    
+    .rgl-hero { padding: 30px 20px; min-height: 50vh; }
+    .rgl-logo-text { font-size: 32px; }
+    
+    /* ニュースモーダル（モバイル用調整） */
+    .modal-sheet.is-success { max-width: 92%; border-radius: 24px; height: auto; max-height: 85vh; overflow-y: auto; }
+    .success-container { flex-direction: column; min-height: auto; }
+    .success-visual { width: 100%; height: 220px; flex: none; }
+    .success-details { padding: 24px; flex: auto; }
+    
+    /* モバイル用ニュースモーダルの全幅調整 */
+    #newsModal .modal-sheet {
+        width: 92% !important;
+        min-width: 0 !important;
+        max-height: 80vh;
+        overflow-y: auto;
+        padding: 24px !important;
+    }
+    
+    /* ★重要修正: スマホ用アカウントドロップダウンの位置固定 */
+    .account-dropdown {
+        position: fixed; /* 固定配置に変更 */
+        top: 70px;       /* ヘッダーの下 */
+        right: 5%;       /* 右端から少し空ける */
+        width: 90%;      /* 画面幅の90% */
+        left: auto;
+        transform: translateY(-10px);
+    }
+    
+    .account-dropdown.open {
+        transform: translateY(0);
+    }
 }
 
 footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font-size: 12px; }
 [data-theme="dark"] footer { color: #888; }
 
-.lang-fab { position: fixed; bottom: 30px; right: 30px; background: var(--modal-text-main); color: var(--bg-color); padding: 12px 20px; border-radius: 30px; font-weight: 700; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: flex; gap: 8px; align-items: center; z-index: 50; transition: 0.3s; }
-[data-theme="dark"] .lang-fab { background: #fff; color: #000; }
-.lang-list { position: fixed; bottom: 90px; right: 30px; background: var(--card-bg); backdrop-filter: blur(20px); padding: 10px; border-radius: 20px; list-style: none; display: none; box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 49; }
-.lang-list.open { display: block; animation: popIn 0.3s; }
-.lang-list li { padding: 10px 20px; cursor: pointer; border-radius: 12px; color: var(--modal-text-main); font-size: 14px; font-family: var(--font-stack); }
-[data-theme="dark"] .lang-list li { color: #fff; }
-@keyframes popIn { from{opacity:0; transform:scale(0.8);} to{opacity:1; transform:scale(1);} }
-
-.loading-spinner { width: 30px; height: 30px; border: 3px solid rgba(128,128,128,0.2); border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+.loading-spinner {
+  display: inline-block; 
+  vertical-align: middle; 
+  width: 24px;            
+  height: 24px;
+  border: 3px solid rgba(128,128,128,0.2);
+  border-top: 3px solid var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-right: 8px;      
+}
 @keyframes spin { to{transform: rotate(360deg);} }
 
-/* --- モバイル・スマホ専用の調整 --- */
-@media (max-width: 600px) {
-  .modal-title { font-size: 20px; }
-  .content-title { font-size: 22px; margin-bottom: 16px; }
-  .message-title { font-size: 18px; }
-  .info-extra { font-size: 12px; line-height: 1.5; }
-  .product-name-row { font-size: 18px; }
-  .code-field { font-size: 16px !important; }
-  .lang-name { font-size: 16px; font-weight: 600; }
-}
 </style>
 </head>
 <body>
 
-<canvas id="particleCanvas"></canvas>
+<canvas id="particleCanvas" width="1125" height="605"></canvas>
 
-<div id="langSelectionOverlay" class="modal-overlay active" style="opacity:1; background:var(--bg-color); z-index:10000;">
-  <div class="theme-pill intro-theme-btn" id="introThemeToggle"><i data-lucide="sun" id="introThemeIcon"></i></div>
+<div id="langSelectionOverlay" class="modal-overlay active" style="opacity: 1; background: var(--bg-color); z-index: 10000; display: none;">
+  <div class="theme-pill intro-theme-btn" id="introThemeToggle"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="moon" aria-hidden="true" id="introThemeIcon" class="lucide lucide-moon lucide-sun"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path></svg></div>
   <div class="intro-container">
-    <div class="intro-header">
-      <span class="intro-brand">Harmony Enhanced</span>
-      <h2 class="intro-title">Select Language</h2>
-    </div>
+    <div class="intro-header"><span class="intro-brand">kiryu10 Developers</span><h2 class="intro-title">Select Language</h2></div>
     <div class="lang-grid">
-      <div class="lang-card font-jp" onclick="setInitialLanguage('ja')" style="--delay:0.1s"><div class="lang-name">日本語</div></div>
-      <div class="lang-card font-en" onclick="setInitialLanguage('en')" style="--delay:0.2s"><div class="lang-name">English</div></div>
-      <div class="lang-card font-cn-s" onclick="setInitialLanguage('zh')" style="--delay:0.3s"><div class="lang-name">简体中文</div></div>
-      <div class="lang-card font-cn-t" onclick="setInitialLanguage('zh-TW')" style="--delay:0.4s"><div class="lang-name">繁體中文</div></div>
-      <div class="lang-card font-kr" onclick="setInitialLanguage('ko')" style="--delay:0.5s"><div class="lang-name">한국어</div></div>
-      <div class="lang-card font-ru" onclick="setInitialLanguage('ru')" style="--delay:0.6s"><div class="lang-name">Русский</div></div>
+      <div class="lang-card font-jp" onclick="setInitialLanguage(&#39;ja&#39;)"><div class="lang-name">日本語</div></div>
+      <div class="lang-card font-en" onclick="setInitialLanguage(&#39;en&#39;)"><div class="lang-name">English</div></div>
+      <div class="lang-card font-cn-s" onclick="setInitialLanguage(&#39;zh&#39;)"><div class="lang-name">简体中文</div></div>
+      <div class="lang-card font-cn-t" onclick="setInitialLanguage(&#39;zh-TW&#39;)"><div class="lang-name">繁體中文</div></div>
+      <div class="lang-card font-kr" onclick="setInitialLanguage(&#39;ko&#39;)"><div class="lang-name">한국어</div></div>
+      <div class="lang-card font-ru" onclick="setInitialLanguage(&#39;ru&#39;)"><div class="lang-name">Русский</div></div>
     </div>
   </div>
 </div>
 
-<div class="wrapper" id="mainContainer" style="opacity:0;">
-  <header>
-    <div class="brand"><i data-lucide="graduation-cap"></i> <span data-translate="header_brand">kiryu-sensya</span></div>
-    <div class="theme-pill" id="themeToggle"><i data-lucide="sun" id="themeIcon"></i></div>
-  </header>
-  <div class="hero-text">
-    <h1 class="hero-title" data-translate="hero_title">System<br>Activation</h1>
-    <div class="hero-sub" data-translate="hero_sub">Manage your access and resources.</div>
-  </div>
-  <div class="bento-grid">
-    <div class="widget widget-hero" id="btnOpenModal">
-      <div class="icon-bubble"><i data-lucide="ticket-check" size="32"></i></div>
-      <div class="widget-content">
-        <h3 data-translate="card1_title">ACTIVATION</h3>
-        <p data-translate="card1_desc">Enter code to unlock.</p>
-        <div class="btn-float"><span data-translate="card1_btn">Start</span> <i data-lucide="arrow-right" size="16"></i></div>
-      </div>
+<div class="mobile-nav-overlay" id="mobileNav">
+    <button class="mobile-menu-close" id="mobileMenuCloseBtn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
+    <div class="mobile-nav-content">
+        <a href="index.html" class="mobile-nav-item" data-translate="card1_title">ホーム</a>
+        <a href="#" class="mobile-nav-item" id="btnMobileNewsLink" data-translate="card2_title">ニュース</a>
+        <a href="support.html" class="mobile-nav-item" data-translate="card3_title">サポート</a>
     </div>
-    <div class="widget widget-news" id="btnOpenNews">
-      <div style="display:flex; justify-content:space-between;">
-        <div style="background:#FFEFEB; color:#FF5C00; width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center;"><i data-lucide="notepad-text" size="24"></i></div>
-        <i data-lucide="arrow-up-right" size="20" style="opacity:0.5;"></i>
-      </div>
-      <div class="widget-content">
-        <h3 style="font-size:20px;" data-translate="card2_title">News</h3>
-        <p style="font-size:12px;" data-translate="card2_desc">Check updates.</p>
-      </div>
+    <div class="mobile-menu-footer">
+         <div class="lang-trigger-sidebar" id="mobileLangTrigger">
+             <span style="display:flex;align-items:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="globe" aria-hidden="true" size="16" class="lucide lucide-globe"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg> <span id="mobileCurrentLangLabel">日本語</span></span>
+             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-up" aria-hidden="true" size="14" style="opacity:0.5;" class="lucide lucide-chevron-up"><path d="m18 15-6-6-6 6"></path></svg>
+         </div>
+         <ul class="lang-list" id="mobileLangMenu">
+            <li class="lang-option" data-value="ja">日本語</li>
+            <li class="lang-option" data-value="en">English</li>
+            <li class="lang-option" data-value="zh">简体中文</li>
+            <li class="lang-option" data-value="zh-TW">繁體中文</li>
+            <li class="lang-option" data-value="ko">한국어</li>
+            <li class="lang-option" data-value="ru">Русский</li>
+         </ul>
     </div>
+</div>
+
+<div class="rgl-wrapper" id="mainContainer" style="opacity: 1;">
     
-    <a href="support.html" class="widget widget-support">
-      <div style="display:flex; justify-content:space-between;">
-        <div style="background:#E8F0FE; color:#1967D2; width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center;"><i data-lucide="search-alert" size="24"></i></div>
-        <i data-lucide="arrow-up-right" size="20" style="opacity:0.5;"></i>
-      </div>
-      <div class="widget-content">
-        <h3 style="font-size:20px;" data-translate="card3_title">Support</h3>
-        <p style="font-size:12px;" data-translate="card3_desc">Contact us.</p>
-      </div>
-    </a>
+    <aside class="rgl-sidebar">
+        <div class="rgl-brand-area">
+            <button class="mobile-menu-trigger" id="mobileMenuBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="menu" aria-hidden="true" class="lucide lucide-menu"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg>
+            </button>
+            <div class="rgl-brand"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="graduation-cap" aria-hidden="true" class="lucide lucide-graduation-cap"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"></path><path d="M22 10v6"></path><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"></path></svg> <span data-translate="header_brand">kr_開発者版</span></div>
+        </div>
+        
+        <div class="rgl-scroll-content">
+            <div class="rgl-menu-section" id="secAvailable" style="display: block;">
+                <div class="rgl-menu-title" data-translate="label_available">利用可能</div>
+                <div id="sidebarAvailableList" class="rgl-sidebar-list"><div style="padding:10px; opacity:0.5; font-size:12px;">-</div></div>
+            </div>
+            
+            <div class="rgl-menu-section" id="secLibrary" style="display:none;">
+                <div class="rgl-menu-title" data-translate="label_library">ライブラリ</div>
+                <div id="sidebarLibraryList" class="rgl-sidebar-list"><div style="padding:10px; opacity:0.5; font-size:12px;">Loading...</div></div>
+            </div>
+        </div>
 
-  </div>
-  <footer>
-    <div><span data-translate="footer_admin">Enforcement Administrator</span>: <a href="https://developer-kiryu10.vercel.app/" target="_blank" style="color:inherit;text-decoration:none;font-weight:700;">kiryu-sensya</a></div>
-    <div style="opacity:0.5; margin-top:5px;">© 2019-2026 kiryu-sensya All Rights Reserved</div>
-  </footer>
+        <div class="rgl-bottom-controls">
+            <div style="position:relative;">
+                 <button class="lang-trigger-sidebar" id="langTrigger">
+                     <span style="display:flex;align-items:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="globe" aria-hidden="true" size="16" class="lucide lucide-globe"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg> <span id="currentLangLabel">日本語</span></span>
+                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-up" aria-hidden="true" size="14" style="opacity:0.5;" class="lucide lucide-chevron-up"><path d="m18 15-6-6-6 6"></path></svg>
+                 </button>
+                 <ul class="lang-list" id="langMenu">
+                    <li class="lang-option" data-value="ja">日本語</li>
+                    <li class="lang-option" data-value="en">English</li>
+                    <li class="lang-option" data-value="zh">简体中文</li>
+                    <li class="lang-option" data-value="zh-TW">繁體中文</li>
+                    <li class="lang-option" data-value="ko">한국어</li>
+                    <li class="lang-option" data-value="ru">Русский</li>
+                  </ul>
+            </div>
+            
+            <div style="margin-top:20px; font-size:10px; opacity:0.3; text-align:center;">
+                © 2026 kiryu-sensya
+           </div>
+        </div>
+    </aside>
+
+    <main class="rgl-main">
+        <div class="rgl-bg-image" id="heroBgImage"></div>
+        
+        <nav class="rgl-header">
+            <div class="rgl-tabs">
+                <a href="index.html" class="rgl-tab active" data-translate="card1_title">ホーム</a>
+                <a href="#" class="rgl-tab" id="btnOpenNews" data-translate="card2_title">ニュース</a>
+                <a href="support.html" class="rgl-tab" data-translate="card3_title">サポート</a>
+            </div>
+            
+            <div class="theme-pill" id="themeToggle">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="moon" aria-hidden="true" id="themeIcon" class="lucide lucide-moon lucide-sun"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path></svg>
+            </div>
+
+            <div style="position:relative;">
+                <div class="theme-pill" id="btnOpenAccount" style="width:40px; height:40px; border:none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="user-round" aria-hidden="true" size="20" class="lucide lucide-user-round"><circle cx="12" cy="8" r="5"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg> 
+                </div>
+
+                <div id="accountDropdown" class="account-dropdown">
+                    <div id="loggedInView" style="display: block;">
+                      <div class="account-mini-header">
+                        <span class="mini-user-id" id="displayUserEmail" style="font-size:16px; font-weight:800; word-break: break-all;">122</span>
+                      </div>
+                      <div class="menu-list">
+                         <button class="menu-btn" id="btnMenuRedeem">
+                            <span data-translate="btn_redeem_code">コード引き換え</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="key-round" aria-hidden="true" size="18" class="lucide lucide-key-round"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"></path><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"></circle></svg>
+                         </button>
+                         
+                         <button class="menu-btn" id="btnShowLibrary" style="display:flex;">
+                            <span data-translate="label_library">ライブラリ</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="package-open" aria-hidden="true" size="18" class="lucide lucide-package-open"><path d="M12 22v-9"></path><path d="m2.9 14.4 8.1 4.5 8.1-4.5"></path><path d="m19 5.3-7 4-7-4"></path><path d="m12 9.3 8.1 4.6"></path><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path></svg>
+                         </button>
+
+                         <button class="menu-btn" id="btnLogout" style="color:#FF3B30;">
+                           <span data-translate="btn_logout">ログアウト</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="log-out" aria-hidden="true" size="18" class="lucide lucide-log-out"><path d="m16 17 5-5-5-5"></path><path d="M21 12H9"></path><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path></svg>
+                         </button>
+                      </div>
+                    </div>
+
+                    <div id="loggedOutView" style="display: none;">
+                      <div style="text-align:center; margin-bottom:20px;">
+                        <h2 style="margin:0; font-size:20px; color:var(--modal-text-main);" data-translate="label_welcome">ようこそ</h2>
+                        <p style="color:var(--modal-text-sub); margin:4px 0 0 0; font-size:12px;" data-translate="label_sync_desc">ログインして同期を開始</p>
+                      </div>
+                      <div class="auth-tabs">
+                        <div class="auth-tab active" data-tab="login" data-translate="tab_login">ログイン</div>
+                        <div class="auth-tab" data-tab="register" data-translate="tab_signup">新規登録</div>
+                      </div>
+                      <div style="text-align:left;">
+                        <div class="form-group">
+                          <label class="form-label" data-translate="form_email">ユーザー名</label>
+                          <input type="email" id="inputEmail" class="form-input" placeholder="">
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label" data-translate="form_pass">パスワード</label>
+                          <input type="password" id="inputPass" class="form-input" placeholder="">
+                        </div>
+                        <div id="authStatus" style="color:#FF3B30; font-size:11px; margin-top:10px; min-height:16px; text-align:center;"></div>
+                        <button id="btnAuthAction" class="btn-primary" style="height:44px; margin-top:10px;" data-translate="btn_login_action">ログイン</button>
+                      </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="rgl-hero">
+            <div class="rgl-hero-content">
+                <h1 class="rgl-logo-text" id="heroTitle" data-translate="hero_title">個人認証センター</h1>
+                <p class="rgl-desc" id="heroDesc" data-translate="hero_sub" style="display:none !important;">アクセス権限とリソースの管理。プロダクトコードを入力してコンテンツを解除してください。</p>
+                <div class="rgl-action-bar">
+                    <button id="heroActionBtn" class="rgl-cta-btn">
+                        <span data-translate="btn_redeem_code">コード引き換え</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
 </div>
 
-<div class="custom-lang-wrapper">
-  <div class="lang-fab" id="langTrigger"><i data-lucide="globe" size="18"></i> <span id="currentLangLabel">日本語</span></div>
-  <ul class="lang-list" id="langMenu">
-    <li class="lang-option" data-value="ja">日本語</li>
-    <li class="lang-option" data-value="en">English</li>
-    <li class="lang-option" data-value="zh">简体中文</li>
-    <li class="lang-option" data-value="zh-TW">繁體中文</li>
-    <li class="lang-option" data-value="ko">한국어</li>
-    <li class="lang-option" data-value="ru">Русский</li>
-  </ul>
+<div id="libraryModal" class="modal-overlay">
+  <div class="modal-sheet">
+    <div style="position:absolute; top:24px; right:24px; cursor:pointer; opacity:0.6;" id="libCloseBtn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" size="24" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></div>
+    <div class="lib-modal-header">
+      <div class="lib-header-left">
+        <div class="lib-header-icon"><i data-lucide="package-open" size="28"></i></div>
+        <div class="lib-header-title" data-translate="label_library">Library</div>
+      </div>
+    </div>
+    <ul id="libraryList" class="lib-list-scroll"></ul>
+  </div>
+</div>
+
+<div id="adminModal" class="modal-overlay">
+  <div class="modal-sheet">
+    <div style="position:absolute; top:24px; right:24px; cursor:pointer; opacity:0.6;" id="adminCloseBtn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" size="24" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></div>
+    <h2 style="font-size:24px; font-weight:800; margin-bottom:20px;">Admin Console</h2>
+    <div style="margin-bottom:20px; background:rgba(0,125,255,0.1); padding:10px; border-radius:12px; font-size:12px; font-weight:700;">
+      Logged in as Administrator
+    </div>
+      
+    <div style="margin-bottom:20px; padding-top:10px;">
+      <label style="font-size:12px; font-weight:700; display:block; margin-bottom:5px;">Target Username</label>
+      <div style="display:flex; gap:10px;">
+        <input type="email" id="targetUserEmail" class="form-input" placeholder="Username">
+        <button id="btnAdminSearch" class="btn-primary" style="width:100px; margin-top:0;">Search</button>
+      </div>
+    </div>
+    <div id="adminResultArea" style="max-height:300px; overflow-y:auto; border:1px solid rgba(128,128,128,0.1); border-radius:12px; padding:10px;">
+      <p style="text-align:center; opacity:0.5; font-size:12px;">Results will appear here...</p>
+    </div>
+  </div>
 </div>
 
 <div id="langSwitchingOverlay" style="position:fixed; inset:0; background:var(--bg-color); z-index:9999; display:none; align-items:center; justify-content:center;">
@@ -515,208 +1317,455 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 
 <div id="authModal" class="modal-overlay">
   <div class="modal-sheet" id="modalContainer">
-    <div style="position:absolute; top:20px; right:20px; cursor:pointer; opacity:0.6; z-index:10;" id="modalCloseBtn"><i data-lucide="x" size="24"></i></div>
-
-    <div id="inputPhase">
-      <h2 class="modal-title" data-translate="modal_title">Activation</h2>
-      <p class="modal-sub" data-translate="modal_sub">Enter access code</p>
-      <input type="text" id="activationCode" class="code-field" placeholder="Activation Code" autocomplete="off">
-      <button id="btnConfirm" class="btn-primary" data-translate="modal_btn_auth">CHECK</button>
+    <div style="position:absolute; top:20px; right:20px; cursor:pointer; opacity:0.6; z-index:10;" id="modalCloseBtn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" size="24" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></div>
+    <div id="inputPhase" style="display: flex; opacity: 1;">
+      <h2 class="modal-title" data-translate="modal_title">アクティベーション</h2>
+      <p class="modal-sub" data-translate="modal_sub">アクティベーションコードを使用すると、コンテンツにアクセスできます。アクティベーションコードを利用するには、以下の入力欄に入力してください。</p>
+      <input type="text" id="activationCode" class="code-field" placeholder="アクティベーションコード" autocomplete="off">
+      <button id="btnConfirm" class="btn-primary" data-translate="modal_btn_auth">確認</button>
       <div id="statusContainer"></div>
     </div>
-
-    <div id="successPhase">
+    <div id="successPhase" style="display: none; opacity: 0;">
       <div class="success-container">
         <div class="success-visual">
-          <img id="successImage" src="" alt="Content">
+          <img id="successImage" src="support.html" alt="Content">
         </div>
         <div class="success-details">
           <div style="flex:1;">
-              
-            <div class="success-badge" id="successBadge">
-              <i data-lucide="check" size="14"></i> <span data-translate="success_badge">Code Verifiyed</span>
-            </div>
-              
+            <div class="success-badge" id="successBadge" style="display:none;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check" aria-hidden="true" size="14" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg> <span data-translate="success_badge">コードが認証されました。</span></div>
             <h3 id="successTitle" class="content-title"></h3>
-
-            <div id="infoSection">
+            <p id="successSubText" style="color:var(--modal-text-sub); margin:-15px 0 16px 2px; font-size:13px; line-height:1.5;"></p>
+            <div id="infoSection" style="display: block;">
                <div id="successNameDisplay" class="message-title">...</div>
-               <div class="info-box">
-                 <div id="successExtraInfo" class="info-extra"></div>
-               </div>
+               <div class="info-box"><div id="successExtraInfo" class="info-extra"></div></div>
             </div>
-
             <div id="productDisplay" class="product-display" style="display:none;">
-               <div class="product-name-row">
-                 <span id="productName">...</span>
-                 <i data-lucide="check" size="26" style="color:var(--rgl-green);"></i>
-               </div>
+               <div class="product-name-row"><span id="productName">...</span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check" aria-hidden="true" size="26" style="color:var(--rgl-green);" class="lucide lucide-check"><path d="M20 6 9 17l-5-5"></path></svg></div>
             </div>
+          </div>
+          
+          <div style="margin-top: auto; padding-top: 10px;">
+            <div id="redeemErrorMsg" style="color:#FF3B30; font-size:13px; font-weight:700; text-align:center; margin-bottom:16px; display:none;"></div>
+            <div class="action-row" style="margin-top: 0;">
+              <button id="modalCloseSub" class="btn-close-sub" data-translate="btn_close">閉じる</button>
+              <button id="btnRedeem" class="btn-action" style="display: flex;"><span data-translate="btn_continue">認証する</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="arrow-right" aria-hidden="true" size="18" class="lucide lucide-arrow-right"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></button>
+              <a href="index.html" id="btnDownload" class="btn-action" style="display:none;"></a>
+              <button id="btnOpenLibraryMobile" class="btn-action" style="display:none; background: var(--primary); color: white;"><span data-translate="btn_open_library">ライブラリを開く</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="package-open" aria-hidden="true" size="18" class="lucide lucide-package-open"><path d="M12 22v-9"></path><path d="m2.9 14.4 8.1 4.5 8.1-4.5"></path><path d="m19 5.3-7 4-7-4"></path><path d="m12 9.3 8.1 4.6"></path><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path></svg></button>
+            </div>
+          </div>
 
-          </div>
-            
-          <div class="action-row">
-            <button id="modalCloseSub" class="btn-close-sub" data-translate="btn_close">Close</button>
-            <button id="btnRedeem" class="btn-action">
-              <span data-translate="btn_continue">CONTINUE</span> <i data-lucide="arrow-right" size="18"></i>
-            </button>
-            <a href="#" id="btnDownload" class="btn-action">
-              <span data-translate="btn_download">Download</span> <i data-lucide="download" size="18"></i>
-            </a>
-          </div>
         </div>
       </div>
     </div>
-
   </div>
 </div>
 
 <div id="newsModal" class="modal-overlay">
   <div class="modal-sheet" style="padding:40px;">
-    <div style="position:absolute; top:20px; right:20px; cursor:pointer;" id="newsCloseX"><i data-lucide="x" size="24"></i></div>
-    <h2 data-translate="news_title" style="margin:0 0 20px 0; color:var(--modal-text-main);">News Feed</h2>
-    <ul id="newsList" style="list-style:none; padding:0; max-height:400px; overflow-y:auto;">
-      <li style="text-align:center; opacity:0.6;"><span data-translate="news_loading">Loading</span><span class="loading-dots"></span></li>
-    </ul>
+    <div style="position:absolute; top:20px; right:20px; cursor:pointer;" id="newsCloseX"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" size="24" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></div>
+    <h2 data-translate="news_title" style="margin:0 0 20px 0; color:var(--modal-text-main);">最新情報</h2>
+    <ul id="newsList" style="list-style:none; padding:0; max-height:400px; overflow-y:auto;"><li style="text-align:center;opacity:0.6;padding:20px;">Error</li></ul>
   </div>
 </div>
 
 <script>
-lucide.createIcons();
 const GAS_API_URL="api/proxy"; 
+
 let CURRENT_LANG="ja";
+let currentUser = null; 
+let pendingActivationCode = null;
+let pendingAction = null;
+let tempAdminCreds = { user: "", pass: "" };
+let libraryTimerId = null;
+let heroTimer = null;
+let selectedHeroItem = null;
+let currentHeroContext = 'default';
+let modalDownloadTimer = null; 
+
+// Helper
+const gId = (i) => document.getElementById(i);
+const setListener = (el, ev, fn) => { if(el) el.addEventListener(ev, fn); };
+
+// ライブラリ表示用にコードにハイフンを入れる関数
+const formatDisplayCode = (code) => {
+  if (!code) return "";
+  const clean = code.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const sz = clean.length >= 25 ? 5 : 4;
+  let res = '';
+  for(let i=0; i<clean.length; i++) {
+    res += (i > 0 && i % sz === 0 ? '-' : '') + clean[i];
+  }
+  return res;
+};
 
 const TRANSLATIONS={
  ja:{
-  header_brand:"_.k__yu.10", hero_title:"個人認証センター", hero_sub:"アクセス権限とリソースの管理",
-  card1_title:"アクティベーション",card1_desc:"コードでコンテンツを解除",card1_btn:"引き換える",
-  card2_title:"ニュース",card2_desc:"最新情報を確認",card2_btn:"確認",
-  card3_title:"サポート",card3_desc:"お問い合わせはこちら",card3_btn:"接続",
-  modal_title:"アクティベーション",modal_sub:"コードを入力してください",modal_placeholder:"アクティベーションコード",modal_btn_auth:"確認",
+  header_brand:"_.k__yu.10", hero_title:"個人認証センター", hero_sub:"アクセス権限とリソースの管理。プロダクトコードを入力してコンテンツを解除してください。",
+  card1_title:"ホーム",card2_title:"ニュース",card3_title:"サポート",
+  modal_title:"アクティベーション",modal_sub:"アクティベーションコードを使用すると、コンテンツにアクセスできます。アクティベーションコードを利用するには、以下の入力欄に入力してください。",modal_placeholder:"アクティベーションコード",modal_btn_auth:"確認",
   msg_verifying:"確認中",msg_success_btn:"成功",
-  msg_invalid:"このコードは無効です",msg_used:"このコードは使用済みです",msg_error:"エラーが発生しました",
+  msg_invalid:"このコードは無効です",msg_used:"このコードは使用済みです",msg_error:"エラーが発生しました", 
+  msg_already_owned: "このコンテンツは既に所有しています。", msg_already_owned_mobile: "このコンテンツは既に所有しています。ライブラリからダウンロードしてください。", btn_open_library: "ライブラリを開く",
   success_badge:"コードが認証されました。",
-  success_title_preview:"コンテンツの確認", success_title_final:"認証成功",
-  btn_close:"閉じる",btn_continue:"認証する",btn_download:"ダウンロード",news_title:"最新情報",news_label:"履歴",news_loading:"更新を確認中",
-  footer_admin:"システム管理者"
+  success_title_preview:"コンテンツの確認", 
+  msg_preview_sub:"続行すると以下のコンテンツを受け取ります:", 
+  success_title_final:"認証成功!!", 
+  msg_success_sub: "このコードで以下のコンテンツが認証されました:",
+  btn_close:"閉じる",btn_continue:"認証する",btn_download:"ダウンロード",news_title:"最新情報",news_loading:"更新を確認中",
+  footer_admin:"システム管理者",
+  menu_login: "ログイン", menu_account: "アカウント", lib_updating: "読み込み中",
+  label_logged_in: "ユーザーID", label_library: "ライブラリ", label_welcome: "ようこそ", label_sync_desc: "ログインして同期を開始",
+  tab_login: "ログイン", tab_signup: "新規登録", form_email: "ユーザー名", form_pass: "パスワード",
+  btn_login_action: "ログイン", btn_signup_action: "登録する", btn_logout: "ログアウト",
+  msg_empty_lib: "まだここにはないようです。",
+  msg_logging_in: "ログイン中", msg_signing_up: "新規作成中",
+  label_store_cat: "ストア", label_available: "利用可能",
+  btn_redeem_code: "コード引き換え", btn_hero_download: "ダウンロード",
+  status_owned: "所有済み", status_locked: "未所有"
  },
  en:{
-  header_brand:"_.k__yu.10", hero_title:"Activation", hero_sub:"Manage your access and resources.",
-  card1_title:"Activation",card1_desc:"Unlock content via code",card1_btn:"Redeem",
-  card2_title:"News",card2_desc:"Check updates",card2_btn:"View",
-  card3_title:"Support",card3_desc:"Contact us",card3_btn:"Connect",
-  modal_title:"Activation",modal_sub:"Enter Activtion code",modal_placeholder:"Activation Code",modal_btn_auth:"CHECK",
+  header_brand:"_.k__yu.10", hero_title:"Personal Activation Center", hero_sub:"Manage your access and resources. Redeem your product code to unlock exclusive content.",
+  card1_title:"Home",card2_title:"News",card3_title:"Support",
+  modal_title:"Activation",modal_sub:"Redeem the activation code to download the content. To use the activation code, please enter it in the field below.",modal_placeholder:"Activation Code",modal_btn_auth:"CHECK",
   msg_verifying:"Checking",msg_success_btn:"Success",
-  msg_invalid:"This code is invalid.",msg_used:"This code has already been used.",msg_error:"Error occurred",
+  msg_invalid:"This code is invalid.",msg_used:"This code has already been used.",msg_error:"Error occurred", 
+  msg_already_owned: "You already own this content.", msg_already_owned_mobile: "You already own this content. Please download it from your library.", btn_open_library: "Open Library",
   success_badge:"Code Verified",
-  success_title_preview:"Confirm Content", success_title_final:"Activation Successful",
-  btn_close:"Close",btn_continue:"Confirm",btn_download:"Download",news_title:"News",news_label:"Log",news_loading:"Checking for updates",
-  footer_admin:"Enforcement Administrator"
+  success_title_preview:"Confirm Content", 
+  msg_preview_sub: "The code will activate the following contents:", 
+  success_title_final:"Activation Successful!!", 
+  msg_success_sub: "The code has activated the following contents:",
+  btn_close:"Close",btn_continue:"Redeem",btn_download:"Download",news_title:"News",news_loading:"Checking for updates",
+  footer_admin:"Enforcement Administrator",
+  menu_login: "Login", menu_account: "Account", lib_updating: "Loading",
+  label_logged_in: "USER ID", label_library: "Library", label_welcome: "Welcome", label_sync_desc: "Login to sync content.",
+  tab_login: "Login", tab_signup: "Sign Up", form_email: "User Number", form_pass: "Password",
+  btn_login_action: "Login", btn_signup_action: "Sign Up", btn_logout: "Log Out",
+  msg_empty_lib: "No content available.",
+  msg_logging_in: "Logging in", msg_signing_up: "Creating account",
+  label_store_cat: "Store", label_available: "Available",
+  btn_redeem_code: "REDEEM CODE", btn_hero_download: "DOWNLOAD",
+  status_owned: "Owned", status_locked: "Not Owned"
  },
  zh:{ 
-  header_brand:"_.k__yu.10", hero_title:"个人代码检查中心", hero_sub:"管理您的访问权限和资源。", 
-  card1_title:"激活",card1_desc:"解锁内容",card1_btn:"兑换代码", 
-  card2_title:"新闻",card2_desc:"查看更新",card2_btn:"查看", 
-  card3_title:"支持",card3_desc:"联系我们",card3_btn:"联系", 
-  modal_title:"激活",modal_sub:"输入激活码",modal_placeholder:"激活码",modal_btn_auth:"检查", 
+  header_brand:"_.k__yu.10", hero_title:"个人代码检查中心", hero_sub:"管理您的访问权限和资源。兑换产品代码以解锁独家内容。", 
+  card1_title:"首页",card2_title:"新闻",card3_title:"支持", 
+  modal_title:"激活",modal_sub:"请兑换激活码以下载内容。使用激活码时请将其输入下方字段",modal_placeholder:"激活码",modal_btn_auth:"检查", 
   msg_verifying:"正在检查",msg_success_btn:"成功", 
   msg_invalid:"该代码无效。",msg_used:"该代码已被使用。",msg_error:"错误", 
+  msg_already_owned: "您已经拥有此内容。", msg_already_owned_mobile: "您已经拥有此内容。请从您的库中下载。", btn_open_library: "打开库",
   success_badge:"代码已检查",
-  success_title_preview:"确认内容", success_title_final:"激活完成",
-  btn_close:"关闭",btn_continue:"确认",btn_download:"下载",news_title:"最新消息",news_label:"日志",news_loading:"正在检查更新", 
-  footer_admin:"系统管理长" 
+  success_title_preview:"确认内容", 
+  msg_preview_sub: "该代码将激活以下内容:", 
+  success_title_final:"激活成功!!", 
+  msg_success_sub: "该代码已激活以下内容:",
+  btn_close:"关闭",btn_continue:"兑换",btn_download:"下载",news_title:"最新消息",news_loading:"正在检查更新", 
+  footer_admin:"系统管理长",
+  menu_login: "登录", menu_account: "账户", lib_updating: "正在加载",
+  label_logged_in: "用户ID", label_library: "我的库", label_welcome: "欢迎", label_sync_desc: "登录以同步内容",
+  tab_login: "登录", tab_signup: "注册", form_email: "账户名", form_pass: "密码",
+  btn_login_action: "登录", btn_signup_action: "注册", btn_logout: "登出",
+  msg_empty_lib: "此处无内容。",
+  msg_logging_in: "正在登录", msg_signing_up: "正在注册",
+  label_store_cat: "商店", label_available: "可用",
+  btn_redeem_code: "兑换代码", btn_hero_download: "下载",
+  status_owned: "已拥有", status_locked: "未拥有"
  },
  "zh-TW":{ 
-  header_brand:"_.k__yu.10", hero_title:"個人代碼檢查中心", hero_sub:"管理您的存取權限與資源。", 
-  card1_title:"激活",card1_desc:"解鎖內容",card1_btn:"兌換代碼", 
-  card2_title:"新聞",card2_desc:"查看更新",card2_btn:"查看", 
-  card3_title:"支援",card3_desc:"聯絡我們",card3_btn:"聯絡", 
-  modal_title:"激活",modal_sub:"輸入啟用碼",modal_placeholder:"啟動碼",modal_btn_auth:"檢查", 
+  header_brand:"_.k__yu.10", hero_title:"個人代碼檢查中心", hero_sub:"管理您的存取權限與資源。兌換產品代碼以解鎖獨家內容。", 
+  card1_title:"首頁",card2_title:"新聞",card3_title:"支援", 
+  modal_title:"激活",modal_sub:"請兌換啟用碼以下載內容。使用啟用碼時請於下方欄位輸入",modal_placeholder:"啟動碼",modal_btn_auth:"檢查", 
   msg_verifying:"正在檢查",msg_success_btn:"成功", 
   msg_invalid:"該代碼無效",msg_used:"該代碼已被使用",msg_error:"錯誤", 
+  msg_already_owned: "您已經擁有此內容。", msg_already_owned_mobile: "您已經擁有此內容。請從您的庫中下載。", btn_open_library: "打開庫",
   success_badge:"代碼已檢查",
-  success_title_preview:"確認內容", success_title_final:"激活完成",
-  btn_close:"關閉",btn_continue:"確認",btn_download:"下載",news_title:"最新消息",news_label:"日誌",news_loading:"正在檢查更新", 
-  footer_admin:"系統管理長" 
+  success_title_preview:"確認內容", 
+  msg_preview_sub: "該代碼將激活以下內容:", 
+  success_title_final:"激活成功!!", 
+  msg_success_sub: "該程式碼已啟動以下內容:",
+  btn_close:"關閉",btn_continue:"兌換",btn_download:"下載",news_title:"最新消息",news_loading:"正在檢查更新", 
+  footer_admin:"系統管理長",
+  menu_login: "登入", menu_account: "帳戶", lib_updating: "載入中",
+  label_logged_in: "用戶ID", label_library: "我的庫", label_welcome: "歡迎", label_sync_desc: "登入以同步內容",
+  tab_login: "登入", tab_signup: "註冊", form_email: "帳號名稱", form_pass: "密碼",
+  btn_login_action: "登入", btn_signup_action: "註冊", btn_logout: "登出",
+  msg_empty_lib: "沒有內容。",
+  msg_logging_in: "正在登入中...", msg_signing_up: "正在註冊中",
+  label_store_cat: "商店", label_available: "可用",
+  btn_redeem_code: "兌換代碼", btn_hero_download: "下載",
+  status_owned: "已擁有", status_locked: "未擁有"
  },
  ko:{ 
-  header_brand:"_.k__yu.10", hero_title:"시스템 인증 포털", hero_sub:"액세스 권한 및 리소스 관리", 
-  card1_title:"활성화",card1_desc:"콘텐츠 잠금 해제",card1_btn:"코드 교환", 
-  card2_title:"뉴스",card2_desc:"최신 정보",card2_btn:"보기", 
-  card3_title:"지원",card3_desc:"문의하기",card3_btn:"연결", 
-  modal_title:"활성화",modal_sub:"코드 입력",modal_placeholder:"활성화 코드",modal_btn_auth:"확인", 
+  header_brand:"_.k__yu.10", hero_title:"개인 코드 검사 센터", hero_sub:"액세스 권한 및 리소스 관리. 제품 코드를 사용하여 콘텐츠 잠금을 해제하세요.", 
+  card1_title:"메인 페이지",card2_title:"뉴스",card3_title:"지원", 
+  modal_title:"활성화",modal_sub:"활성화 코드를 사용해 콘텐츠를 다운로드하세요. 활성화 코드를 사용하려면 아래 필드에 입력해 주세요.",modal_placeholder:"활성화 코드",modal_btn_auth:"확인", 
   msg_verifying:"확인 중",msg_success_btn:"성공", 
-  msg_invalid:"이미 사용된 코드입니다.",msg_used:"이미 사용된 코드입니다.",msg_error:"오류", 
+  msg_invalid:"유효하지 않은 코드입니다.",msg_used:"이미 사용된 코드입니다.",msg_error:"오류", 
+  msg_already_owned: "이미 이 콘텐츠를 소유하고 있습니다.", msg_already_owned_mobile: "이미 이 콘텐츠를 소유하고 있습니다. 라이브러리에서 다운로드하세요.", btn_open_library: "라이브러리 열기",
   success_badge:"코드 인증됨",
-  success_title_preview:"콘텐츠 확인", success_title_final:"활성화 완료",
-  btn_close:"닫기",btn_continue:"확인",btn_download:"다운로드",news_title:"뉴스",news_label:"로그",news_loading:"로딩 중", 
-  footer_admin:"시스템 관리자" 
+  success_title_preview:"콘텐츠 확인", 
+  msg_preview_sub: "해당 코드를 실행하면 다음 콘텐츠가 활성화됩니다:", 
+  success_title_final:"활성화 완료!!", 
+  msg_success_sub: "해당 코드가 다음 콘텐츠를 활성화했습니다:",
+  btn_close:"닫기",btn_continue:"사용",btn_download:"다운로드",news_title:"뉴스",news_loading:"업데이트 확인 중", 
+  footer_admin:"시스템 관리자",
+  menu_login: "로그인", menu_account: "계정", lib_updating: "로딩 중",
+  label_logged_in: "사용자 ID", label_library: "라이브러리", label_welcome: "환영합니다", label_sync_desc: "동기화하려면 로그인",
+  tab_login: "로그인", tab_signup: "가입", form_email: "계정 이름", form_pass: "비밀번호",
+  btn_login_action: "로그인", btn_signup_action: "가입", btn_logout: "로그아웃",
+  msg_empty_lib: "콘텐츠가 없습니다. ",
+  msg_logging_in: "로그인 중", msg_signing_up: "계정 생성 중",
+  label_store_cat: "상점", label_available: "사용 가능",
+  btn_redeem_code: "코드 교환", btn_hero_download: "다운로드",
+  status_owned: "소유함", status_locked: "미소유"
  },
  ru:{ 
-  header_brand:"_.k__yu.10", hero_title:"Активация", hero_sub:"Управление доступом и ресурсами", 
-      card1_title:"Активация",card1_desc:"Разблокировка",card1_btn:"Активируйте код", 
-      card2_title:"Новости",card2_desc:"Обновления",card2_btn:"См.", 
-      card3_title:"Поддержка",card3_desc:"Связь",card3_btn:"Связь", 
-      modal_title:"Проверка",modal_sub:"Введите код",modal_placeholder:"Код активации",modal_btn_auth:"Подтверждение", 
-      msg_verifying:"Подтверждение",msg_success_btn:"Успех", 
-      msg_invalid:"Неверный код",msg_used:"Этот код уже был использован.",msg_error:"Ошибка", 
-      success_badge:"Подтверждено",
-      success_title_preview:"Проверка контента", success_title_final:"Успешно",
-      btn_close:"Закрыть",btn_continue:"обмен",btn_download:"Скачать",news_title:"Новости",news_label:"Лог",news_loading:"Загрузка", 
-      footer_admin:"Администратор" 
+  header_brand:"_.k__yu.10", hero_title:"Центр личной активации", hero_sub:"Управление доступом и ресурсами. Активируйте код продукта для разблокировки.", 
+  card1_title:"главная страница",card2_title:"Новости",card3_title:"Поддержка", 
+  modal_title:"Проверка",modal_sub:"Погасите код активации, чтобы загрузить контент. Чтобы использовать код активации, введите его в поле ниже.",modal_placeholder:"Код активации",modal_btn_auth:"Подтверждение", 
+  msg_verifying:"Подтверждение",msg_success_btn:"Успех", 
+  msg_invalid:"Неверный код",msg_used:"Этот код уже был использован.",msg_error:"Ошибка", 
+  msg_already_owned: "Вы уже владеете этим контентом.", msg_already_owned_mobile: "Вы уже владеете этим контентом. Пожалуйста, загрузите его из вашей библиотеки.", btn_open_library: "Открыть библиотеку",
+  success_badge:"Подтверждено", 
+  success_title_preview:"Проверка контента", 
+  msg_preview_sub: "Данный код активирует следующее содержимое:", 
+  success_title_final:"Успешно!!", 
+  msg_success_sub: "Код активировал следующее содержимое:",
+  btn_close:"Закрыть",btn_continue:"Погасить",btn_download:"Скачать",news_title:"Новости",news_loading:"Проверка обновлений", 
+  footer_admin:"Администратор",
+  menu_login: "Вход", menu_account: "Учетная запись", lib_updating: "Загрузка",
+  label_logged_in: "ID пользователя", label_library: "Библиотека", label_welcome: "Привет", label_sync_desc: "Войдите для синхронизации",
+  tab_login: "Вход", tab_signup: "Регистрация", form_email: "Название счета", form_pass: "Пароль",
+  btn_login_action: "Войти", btn_signup_action: "Создать", btn_logout: "Выйти",
+  msg_empty_lib: "Контент недоступен.",
+  msg_logging_in: "Вход", msg_signing_up: "Создание",
+  label_store_cat: "Магазин", label_available: "Доступно",
+  btn_redeem_code: "Активировать код", btn_hero_download: "Скачать",
+  status_owned: "В наличии", status_locked: "Не в наличии"
  }
 };
+if(!TRANSLATIONS.zh) TRANSLATIONS.zh = TRANSLATIONS.en;
+if(!TRANSLATIONS["zh-TW"]) TRANSLATIONS["zh-TW"] = TRANSLATIONS.en;
+if(!TRANSLATIONS.ko) TRANSLATIONS.ko = TRANSLATIONS.en;
+if(!TRANSLATIONS.ru) TRANSLATIONS.ru = TRANSLATIONS.en;
 
-const gId=i=>document.getElementById(i);
-const setListener=(el,ev,fn)=>{if(el)el.addEventListener(ev,fn)};
+
 const els={
  overlay: gId('langSelectionOverlay'), main: gId('mainContainer'), 
- authModal: gId('authModal'), modalCon: gId('modalContainer'), openAuth: gId('btnOpenModal'), closeAuth: gId('modalCloseBtn'), closeSub: gId('modalCloseSub'),
+ authModal: gId('authModal'), modalCon: gId('modalContainer'), openAuth: null, closeAuth: gId('modalCloseBtn'), closeSub: gId('modalCloseSub'),
  inputPh: gId('inputPhase'), successPh: gId('successPhase'), code: gId('activationCode'), confirm: gId('btnConfirm'), status: gId('statusContainer'),
- sImg: gId('successImage'), sTitle: gId('successTitle'), sProdName: gId('productName'), sProdDisplay: gId('productDisplay'), 
+ sImg: gId('successImage'), sTitle: gId('successTitle'), sSubText: gId('successSubText'), sProdName: gId('productName'), sProdDisplay: gId('productDisplay'), 
  sInfoSec: gId('infoSection'), sNameDisp: gId('successNameDisplay'), sExtra: gId('successExtraInfo'), sBadge: gId('successBadge'), 
- btnRedeem: gId('btnRedeem'), btnDownload: gId('btnDownload'),
+ redeemErrorMsg: gId('redeemErrorMsg'),
+ btnRedeem: gId('btnRedeem'), btnDownload: gId('btnDownload'), btnOpenLibraryMobile: gId('btnOpenLibraryMobile'),
  newsList: gId('newsList'), newsModal: gId('newsModal'), openNews: gId('btnOpenNews'), closeNews: gId('newsCloseX'),
- // Support Elements Removed
- langWrapper: gId('customLangWrapper'), langTrigger: gId('langTrigger'), langMenu: gId('langMenu'), currentLangLabel: gId('currentLangLabel')
+ langWrapper: gId('customLangWrapper'), langTrigger: gId('langTrigger'), langMenu: gId('langMenu'), currentLangLabel: gId('currentLangLabel'),
+ accountDropdown: gId('accountDropdown'), openAccount: gId('btnOpenAccount'),
+ loggedInView: gId('loggedInView'), loggedOutView: gId('loggedOutView'), displayUserId: gId('displayUserId'), displayUserEmail: gId('displayUserEmail'),
+ btnLogout: gId('btnLogout'), btnMenuRedeem: gId('btnMenuRedeem'), btnShowLibrary: gId('btnShowLibrary'),
+ libraryListSidebar: gId('sidebarLibraryList'),
+ availableListSidebar: gId('sidebarAvailableList'),
+ secAvailable: gId('secAvailable'), secLibrary: gId('secLibrary'),
+ tabs: document.querySelectorAll('.auth-tab'), email: gId('inputEmail'), pass: gId('inputPass'), btnAuthAction: gId('btnAuthAction'), authStatus: gId('authStatus'),
+ adminModal: gId('adminModal'), adminCloseBtn: gId('adminCloseBtn'),
+ targetUserEmail: gId('targetUserEmail'), btnAdminSearch: gId('btnAdminSearch'), adminResultArea: gId('adminResultArea'),
+ heroActionBtn: gId('heroActionBtn'), heroTitle: gId('heroTitle'), heroDesc: gId('heroDesc'), heroBgImage: gId('heroBgImage'),
+ libraryModal: gId('libraryModal'), libCloseBtn: gId('libCloseBtn'), libraryList: gId('libraryList'),
+ 
+ mobileMenuBtn: gId('mobileMenuBtn'),
+ mobileNav: gId('mobileNav'),
+ mobileMenuCloseBtn: gId('mobileMenuCloseBtn'),
+ btnMobileNewsLink: gId('btnMobileNewsLink'),
+ mobileLangTrigger: gId('mobileLangTrigger'),
+ mobileCurrentLangLabel: gId('mobileCurrentLangLabel')
 };
 
 const formatCodeInput = (val) => {
+ if(!val) return "";
  val = val.toUpperCase().replace(/[^A-Z0-9]/g, '');
  let sz = val.length >= 25 ? 5 : 4, res = '';
  for(let i=0; i<val.length; i++) res += (i>0 && i%sz===0 ? '-' : '') + val[i];
  return res;
 };
 
-// ▼▼▼ 修正: イベントリスナー設定関数 (入力フォーマット適用含む) ▼▼▼
+document.addEventListener('DOMContentLoaded', () => {
+  try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+  
+  // 1. ユーザーが手動で選んだ言語の保存データがあるか確認
+  let sLang = localStorage.getItem('user_lang');
+  
+  // 2. データがない（初回アクセス）場合は、端末の言語を読み取る
+  if (!sLang) {
+      const browserLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+      
+      // 言語コードの判定
+      if (browserLang.startsWith('ja')) {
+          sLang = 'ja';
+      } else if (browserLang.includes('zh-tw') || browserLang.includes('zh-hk') || browserLang.includes('zh-hant')) {
+          sLang = 'zh-TW';
+      } else if (browserLang.startsWith('zh')) {
+          sLang = 'zh';
+      } else if (browserLang.startsWith('ko')) {
+          sLang = 'ko';
+      } else if (browserLang.startsWith('ru')) {
+          sLang = 'ru';
+      } else {
+          sLang = 'en'; // スペイン語など、上記以外の言語はすべて「英語」にする
+      }
+  }
+  
+  // 3. 判定した言語（または手動で設定済みの言語）を適用して画面を表示
+  setInitialLanguage(sLang, true);
+
+  const sUser = localStorage.getItem('user_session_identity');
+  if (sUser) {
+    try {
+        const identity = JSON.parse(sUser);
+        currentUser = { userId: identity.userId, email: identity.email, history: [] };
+        fetchUserHistory(); 
+    } catch(e) { console.error(e); }
+  }
+  updateAccountUI();
+  if (!currentUser) { /* 未ログイン時処理 */ }
+  initThemeAndParticles();
+  initCustomDropdown();
+  setupEventListeners();
+});
 function setupEventListeners() {
-  // アクティベーションモーダル開閉
-  setListener(els.openAuth, 'click', openAuthModal);
+  setListener(els.openAccount, 'click', (e) => {
+    e.stopPropagation(); 
+    updateAccountUI();
+    toggleDropdown(); 
+  });
+
+  document.addEventListener('click', (e) => {
+    if (els.accountDropdown && !els.accountDropdown.contains(e.target) && !els.openAccount.contains(e.target)) {
+        toggleDropdown(false);
+    }
+  });
+
+  if (els.btnMenuRedeem) {
+      els.btnMenuRedeem.addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleDropdown(false);
+          openAuthModal();
+      });
+  }
+
+  if (els.btnShowLibrary) {
+      els.btnShowLibrary.addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleDropdown(false);
+          els.libraryModal.classList.add('active');
+      });
+  }
+
+  setListener(els.libCloseBtn, 'click', () => els.libraryModal.classList.remove('active'));
+  setListener(els.libraryModal, 'click', (e) => { if(e.target === els.libraryModal) els.libraryModal.classList.remove('active'); });
+
+  if (els.btnLogout) {
+      els.btnLogout.addEventListener('click', (e) => {
+        if(e) e.preventDefault();
+        e.stopPropagation();
+        logout();
+      });
+  }
+  
+  if (els.btnOpenLibraryMobile) {
+      els.btnOpenLibraryMobile.addEventListener('click', (e) => {
+          e.preventDefault();
+          closeAuthModal(); // アクティベーション画面を閉じる
+          els.libraryModal.classList.add('active'); // ライブラリ画面を開く
+      });
+  }
+
   setListener(els.closeAuth, 'click', closeAuthModal);
   setListener(els.closeSub, 'click', closeAuthModal);
-  setListener(els.authModal, 'click', (e) => { if(e.target === els.authModal) closeAuthModal(); });
+  if(els.authModal) setListener(els.authModal, 'click', (e) => { if(e.target === els.authModal) closeAuthModal(); });
 
-  // ニュースモーダル開閉
   setListener(els.openNews, 'click', () => els.newsModal.classList.add('active'));
   setListener(els.closeNews, 'click', () => els.newsModal.classList.remove('active'));
-  setListener(els.newsModal, 'click', (e) => { if(e.target === els.newsModal) els.newsModal.classList.remove('active'); });
+  if(els.newsModal) setListener(els.newsModal, 'click', (e) => { if(e.target === els.newsModal) els.newsModal.classList.remove('active'); });
 
-  // 認証実行アクション
+  setListener(els.adminCloseBtn, 'click', () => els.adminModal.classList.remove('active'));
+  if(els.adminModal) setListener(els.adminModal, 'click', (e) => { if(e.target === els.adminModal) els.adminModal.classList.remove('active'); });
+  setListener(els.btnAdminSearch, 'click', performAdminSearch);
+
   setListener(els.confirm, 'click', () => performAuth(els.code.value));
-  setListener(els.code, 'keydown', (e) => { if(e.key === 'Enter') els.confirm.click(); });
-  
-  // ★重要: ここで入力制限と自動ハイフンを適用
-  setListener(els.code, 'input', (e) => { els.code.value = formatCodeInput(els.code.value); });
-}
-// ▲▲▲ 追加ここまで ▲▲▲
+  if(els.code) {
+      setListener(els.code, 'keydown', (e) => { if(e.key === 'Enter') els.confirm.click(); });
+      setListener(els.code, 'input', (e) => { els.code.value = formatCodeInput(els.code.value); });
+  }
 
-document.addEventListener('DOMContentLoaded',()=>{
- const sLang = localStorage.getItem('user_lang');
- initThemeAndParticles(); 
- initCustomDropdown();
- setupEventListeners(); // ★イベントリスナー起動
- if(sLang) setInitialLanguage(sLang, true); else fetchNews();
-});
+  setListener(els.heroActionBtn, 'click', (e) => {
+     e.stopPropagation(); 
+     
+     // ★変更: PC（768px超）で所有済みアイテムが選択されている場合はダウンロード等を行う
+     // スマホ（768px以下）では常にコード引き換えモード（モーダルを開く）として動作する
+     if(window.innerWidth > 768 && currentHeroContext === 'owned' && selectedHeroItem) {
+        const targetUrl = selectedHeroItem.url || selectedHeroItem.actionUrl;
+        if(targetUrl) {
+            window.open(targetUrl, '_blank');
+        }
+     } else {
+        if (!currentUser) {
+            toggleDropdown(true);
+            pendingAction = 'open_activation';
+        } else {
+            openAuthModal();
+        }
+     }
+  });
+
+  if (els.tabs) {
+      els.tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          els.tabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          const mode = tab.dataset.tab;
+          const t = TRANSLATIONS[CURRENT_LANG];
+          els.btnAuthAction.textContent = mode === 'login' ? t.btn_login_action : t.btn_signup_action;
+          els.authStatus.textContent = '';
+        });
+      });
+  }
+  setListener(els.btnAuthAction, 'click', performAuthAction);
+  
+  if (els.mobileMenuBtn) {
+      els.mobileMenuBtn.addEventListener('click', () => {
+          els.mobileNav.classList.add('active');
+      });
+  }
+  if (els.mobileMenuCloseBtn) {
+      els.mobileMenuCloseBtn.addEventListener('click', () => {
+          els.mobileNav.classList.remove('active');
+      });
+  }
+  if (els.btnMobileNewsLink) {
+      els.btnMobileNewsLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          els.mobileNav.classList.remove('active'); 
+          els.newsModal.classList.add('active');    
+      });
+  }
+  if (els.mobileLangTrigger) {
+      els.mobileLangTrigger.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const list = gId('mobileLangMenu');
+          list.classList.toggle('open');
+      });
+  }
+}
+
+function toggleDropdown(forceState) {
+    if (forceState === undefined) {
+        els.accountDropdown.classList.toggle('open');
+    } else if (forceState) {
+        els.accountDropdown.classList.add('open');
+    } else {
+        els.accountDropdown.classList.remove('open');
+    }
+}
 
 function setInitialLanguage(lang, immediate = false){
  localStorage.setItem('user_lang',lang); updateLanguage(lang); 
@@ -725,53 +1774,128 @@ function setInitialLanguage(lang, immediate = false){
 }
 
 function showMainContent(){
- gId('mainContainer').style.opacity = '1'; lucide.createIcons();
+ gId('mainContainer').style.opacity = '1'; 
+ try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
  const urlCode = new URLSearchParams(window.location.search).get('code');
  if(urlCode) {
-   setTimeout(()=>{ openAuthModal(); els.code.value = formatCodeInput(urlCode); performAuth(els.code.value); }, 800);
+   setTimeout(()=>{ 
+     if(!currentUser) { 
+       pendingActivationCode = urlCode;
+       toggleDropdown(true); 
+     }
+     else { 
+       openAuthModal(); 
+       els.code.value = formatCodeInput(urlCode); 
+       performAuth(els.code.value); 
+     }
+   }, 800);
    setTimeout(fetchNews, 3000);
  } else fetchNews();
 }
 
 function initCustomDropdown() {
-    els.langTrigger.addEventListener('click', (e) => { e.stopPropagation(); els.langMenu.classList.toggle('open'); });
+    els.langTrigger.addEventListener('click', (e) => { 
+        e.stopPropagation(); 
+        els.langMenu.classList.toggle('open'); 
+    });
     document.querySelectorAll('.lang-option').forEach(opt => {
         opt.addEventListener('click', () => {
             const val = opt.getAttribute('data-value');
-            const overlay = gId('langSwitchingOverlay');
-            if(overlay) overlay.style.display = 'flex';
-            els.langMenu.classList.remove('open');
-            setTimeout(() => {
-                localStorage.setItem('user_lang', val); updateLanguage(val); fetchNews(); 
-                setTimeout(() => { if(overlay) overlay.style.display = 'none'; }, 600);
-            }, 300);
+            
+            // 共通処理: 言語設定、表示更新、コンテンツ再取得
+            localStorage.setItem('user_lang', val);
+            updateLanguage(val);
+            fetchNews();
+            
+            // 重要: ログイン中なら履歴とAvailableリストを再取得して言語を反映させる
+            if (currentUser) {
+                fetchAvailableContent();
+                fetchUserHistory();
+            }
+
+            if (opt.closest('#mobileLangMenu')) {
+                // スマホ用メニューからの操作
+                gId('mobileLangMenu').classList.remove('open');
+                els.mobileNav.classList.remove('active');
+            } else {
+                // PC用メニューからの操作
+                const overlay = gId('langSwitchingOverlay');
+                if(overlay) overlay.style.display = 'flex';
+                els.langMenu.classList.remove('open');
+                setTimeout(() => {
+                    setTimeout(() => { if(overlay) overlay.style.display = 'none'; }, 600);
+                }, 300);
+            }
         });
     });
-    document.addEventListener('click', (e) => { if (!els.langWrapper.contains(e.target)) els.langMenu.classList.remove('open'); });
+    document.addEventListener('click', (e) => { 
+        if (!els.langTrigger.contains(e.target)) els.langMenu.classList.remove('open'); 
+        if (!els.accountDropdown.contains(e.target) && !els.openAccount.contains(e.target)) {
+            toggleDropdown(false);
+        }
+        if(els.mobileLangTrigger && !els.mobileLangTrigger.contains(e.target)) {
+            gId('mobileLangMenu').classList.remove('open');
+        }
+    });
+}
+
+function logout() {
+  localStorage.removeItem('user_session_identity');
+  currentUser = null;
+  window.location.reload(); 
 }
 
 function updateLanguage(lang){
- CURRENT_LANG=lang; document.documentElement.lang=lang; const t=TRANSLATIONS[lang]; if(!t)return;
- document.querySelectorAll('[data-translate]').forEach(el=>{ const k=el.getAttribute('data-translate'); if(k!=='news_content'&&t[k]) el.innerHTML=t[k]; });
- 
- const langMap = {
-   ja: '日本語', en: 'English', zh: '简体中文', 'zh-TW': '繁體中文', ko: '한국어', ru: 'Русский'
- };
- if(els.currentLangLabel) els.currentLangLabel.textContent = langMap[lang] || 'Language';
- if(t.modal_placeholder) els.code.placeholder=t.modal_placeholder;
+  CURRENT_LANG = lang; 
+  document.documentElement.lang = lang; 
+  const t = TRANSLATIONS[lang]; 
+  if(!t) return;
+  document.querySelectorAll('[data-translate]').forEach(el => { 
+    const k = el.getAttribute('data-translate'); 
+    if(k !== 'news_content' && t[k]) el.innerHTML = t[k]; 
+  });
+  const langMap = { ja: '日本語', en: 'English', zh: '简体中文', 'zh-TW': '繁體中文', ko: '한국어', ru: 'Русский' };
+  if(els.currentLangLabel) els.currentLangLabel.textContent = langMap[lang] || 'Language';
+  if(els.mobileCurrentLangLabel) els.mobileCurrentLangLabel.textContent = langMap[lang] || 'Language'; 
+  if(t.modal_placeholder && els.code) els.code.placeholder = t.modal_placeholder;
+  updateAccountUI();
 }
 
 async function fetchNews(){
- if(!els.newsList)return;
- const t=TRANSLATIONS[CURRENT_LANG];
- els.newsList.innerHTML=`<li style="text-align:center;opacity:0.6;padding:20px;">${t.news_loading||"Loading"}<span class="loading-dots"></span></li>`;
- try{
- const d = await(await fetch(`${GAS_API_URL}?type=news&lang=${CURRENT_LANG}&_t=${Date.now()}`)).json();
- els.newsList.innerHTML='';
- if(d.success&&d.news&&d.news.length>0){
- d.news.forEach(i=>{ els.newsList.insertAdjacentHTML('beforeend',`<li style="padding:15px 0; border-bottom:1px solid rgba(128,128,128,0.1);"><div style="font-size:12px;color:var(--primary);font-weight:700;">${i.date}</div><div style="font-size:14px;margin-top:4px;">${i.content}</div></li>`); });
- }else els.newsList.innerHTML=`<li style="text-align:center;opacity:0.6;padding:20px;">-</li>`;
- }catch(e){ els.newsList.innerHTML=`<li style="text-align:center;opacity:0.6;padding:20px;">Error</li>`; }
+  if(!els.newsList)return;
+  const t=TRANSLATIONS[CURRENT_LANG];
+  els.newsList.innerHTML=`<li style="text-align:center;opacity:0.6;padding:20px;"><span class="loading-dots">${t.news_loading||"Loading"}</span></li>`;
+  try{
+    const d = await(await fetch(`${GAS_API_URL}?type=news&lang=${CURRENT_LANG}&_t=${Date.now()}`)).json();
+    els.newsList.innerHTML='';
+    if(d.success&&d.news&&d.news.length>0){
+      d.news.forEach(i=>{ 
+        const formattedDate = formatDateByLang(i.date, CURRENT_LANG);
+        els.newsList.insertAdjacentHTML('beforeend',`
+          <li style="padding:15px 0; border-bottom:1px solid rgba(128,128,128,0.1);">
+            <div style="font-size:21px; color:var(--primary); font-weight:700;">${formattedDate}</div>
+            <div style="font-size:14px; margin-top:4px;">${i.content}</div>
+          </li>`
+        ); 
+      });
+    }else els.newsList.innerHTML=`<li style="text-align:center;opacity:0.6;padding:20px;">-</li>`;
+  }catch(e){ els.newsList.innerHTML=`<li style="text-align:center;opacity:0.6;padding:20px;">Error</li>`; }
+}
+
+function formatDateByLang(dateStr, lang) {
+  if (!dateStr) return "";
+  const parts = dateStr.replace(/-/g, '/').split('/');
+  if (parts.length !== 3) return dateStr; 
+  const y = parts[0]; const m = parseInt(parts[1], 10); const d = parseInt(parts[2], 10);
+  const mm = m.toString().padStart(2, '0'); const dd = d.toString().padStart(2, '0');
+  const enMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const ruMonths = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+  switch (lang) {
+    case 'ja': case 'zh': case 'zh-TW': return `${y}年${mm}月${dd}日`;
+    case 'ko': return `${y}년 ${mm}월 ${dd}일`;
+    case 'ru': return `${dd} ${ruMonths[m - 1]} ${y}`;
+    case 'en': default: return `${enMonths[m - 1]} ${dd}, ${y}`;
+  }
 }
 
 function openAuthModal(){ els.authModal.classList.add('active'); resetAuthModal(); els.code.focus(); }
@@ -781,58 +1905,143 @@ let currentAuthRequestId = 0;
 
 function resetAuthModal(){
   currentAuthRequestId++; 
-
   els.inputPh.style.display='flex'; els.inputPh.style.opacity='1';
   els.successPh.style.display='none'; els.successPh.style.opacity='0';
-  els.code.value=""; 
-  els.code.disabled=false; 
-  els.confirm.disabled=false;
+  els.code.value=""; els.code.disabled=false; els.confirm.disabled=false;
   els.confirm.textContent=TRANSLATIONS[CURRENT_LANG].modal_btn_auth;
-  els.status.innerHTML=""; 
-  els.modalCon.classList.remove('is-success');
-  els.sImg.src="";
-  
+  els.status.innerHTML=""; els.modalCon.classList.remove('is-success'); els.sImg.src="";
   els.sTitle.style.display = ''; 
-  els.sTitle.style.color = '';
-  els.sInfoSec.style.display = 'block'; 
-  els.sProdDisplay.style.display = 'none'; 
+  els.sTitle.style.color = "var(--modal-text-main)"; 
+  els.sSubText.innerHTML = ''; 
+  els.sInfoSec.style.display = 'block'; els.sProdDisplay.style.display = 'none'; 
   els.sBadge.classList.remove('visible');
-
-  // ▼▼▼ ボタン強制リセット ▼▼▼
+  
+  if (els.redeemErrorMsg) els.redeemErrorMsg.style.display = 'none';
+  if (els.btnOpenLibraryMobile) els.btnOpenLibraryMobile.style.display = 'none';
+  
   els.btnRedeem.disabled = false;
+  els.btnRedeem.style.display = 'flex';
+  els.btnRedeem.innerHTML = `<span data-translate="btn_continue">${TRANSLATIONS[CURRENT_LANG].btn_continue}</span> <i data-lucide="arrow-right" size="18"></i>`; 
+  els.btnDownload.style.display = 'none';
+  const newBtn = els.btnRedeem.cloneNode(true);
+  if(els.btnRedeem.parentNode) els.btnRedeem.parentNode.replaceChild(newBtn, els.btnRedeem);
+  els.btnRedeem = newBtn;
   els.btnRedeem.innerHTML = `<span data-translate="btn_continue">${TRANSLATIONS[CURRENT_LANG].btn_continue}</span> <i data-lucide="arrow-right" size="18"></i>`;
-  lucide.createIcons();
+  try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
 }
 
-// 2. 認証処理関数
+function showMobileItemDetail(item) {
+    if(modalDownloadTimer) clearInterval(modalDownloadTimer); 
+
+    els.authModal.classList.add('active');
+    
+    currentAuthRequestId++;
+    els.inputPh.style.display='none'; 
+    els.successPh.style.display='block'; 
+    setTimeout(() => els.successPh.style.opacity='1', 50);
+    els.modalCon.classList.add('is-success');
+    
+    els.sBadge.classList.remove('visible');
+    els.sBadge.style.display = 'none';
+    
+    const t = TRANSLATIONS[CURRENT_LANG];
+    els.sTitle.style.display = 'block'; 
+    els.sTitle.textContent = t.success_title_final; 
+    els.sTitle.style.color = "var(--modal-text-main)";
+    
+    els.sSubText.innerHTML = t.msg_success_sub || "Code verified.";
+    
+    els.sProdName.textContent = item.title;
+    els.sProdDisplay.style.display = 'block';
+    els.sInfoSec.style.display = 'none'; 
+    
+    if (els.redeemErrorMsg) els.redeemErrorMsg.style.display = 'none';
+    if (els.btnOpenLibraryMobile) els.btnOpenLibraryMobile.style.display = 'none';
+
+    if(item.imageUrl && item.imageUrl.startsWith("http")){ 
+        els.sImg.src=item.imageUrl; 
+    } else { 
+        els.sImg.src="https://static.wixstatic.com/media/2f0694_a82787a4837b40a9be0c361cfe71ff95~mv2.png/v1/fill/w_1200,h_1200,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/Polish_20260125_100959885.png"; 
+    }
+    
+    els.btnRedeem.style.display = 'none'; 
+    els.btnDownload.style.display = 'flex';
+    
+    const startModalTimer = () => {
+        const now = new Date();
+        const releaseDate = item.releaseDateIso ? new Date(item.releaseDateIso) : null;
+        
+        if (releaseDate && releaseDate > now) {
+            // ロック中
+            const diff = releaseDate - now;
+            const oneDay = 24 * 60 * 60 * 1000;
+            
+            els.btnDownload.style.pointerEvents = 'none';
+            els.btnDownload.style.opacity = '0.6';
+            els.btnDownload.removeAttribute('href'); 
+
+            if (diff > oneDay) {
+               const y = releaseDate.getFullYear();
+               const m = releaseDate.getMonth() + 1;
+               const d = releaseDate.getDate();
+               els.btnDownload.innerHTML = `<span>${y}/${String(m).padStart(2,'0')}/${String(d).padStart(2,'0')}</span>`;
+            } else {
+               const h = Math.floor(diff / (1000 * 60 * 60));
+               const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+               const s = Math.floor((diff % (1000 * 60)) / 1000);
+               const hh = String(h).padStart(2, '0');
+               const mm = String(m).padStart(2, '0');
+               const ss = String(s).padStart(2, '0');
+               els.btnDownload.innerHTML = `<span>${hh}:${mm}:${ss}</span>`;
+            }
+        } else {
+            // 解禁済み
+            if(modalDownloadTimer) clearInterval(modalDownloadTimer);
+            els.btnDownload.style.pointerEvents = 'auto';
+            els.btnDownload.style.opacity = '1';
+            els.btnDownload.href = item.url;
+            els.btnDownload.target = "_blank";
+            const btnLabel = item.buttonLabel || t.btn_hero_download || "Download";
+            const btnIcon = item.icon || "download";
+            els.btnDownload.innerHTML = `<span>${btnLabel}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="${btnIcon}" aria-hidden="true" size="18" class="lucide lucide-${btnIcon}"></svg>`;
+            try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+        }
+    };
+
+    startModalTimer();
+    modalDownloadTimer = setInterval(startModalTimer, 1000);
+    
+    try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+}
+
 async function performAuth(code, mode = 'check') {
   const t = TRANSLATIONS[CURRENT_LANG];
   const thisRequestId = currentAuthRequestId;
+  const uId = currentUser ? currentUser.userId : "GUEST";
+  const safeCode = (code || "").replace(/[^A-Za-z0-9\-]/g, "").trim();
+  const spinnerHtml = `<span class="loading-spinner" style="border-top-color:currentColor; width:18px; height:18px; border-width:2px; margin:0;"></span>`;
 
-  // UI操作
   if (mode === 'check') {
+    if(!safeCode) return;
     els.code.disabled = true; els.confirm.disabled = true;
-    els.confirm.innerHTML = `${t.msg_verifying}<span class="loading-dots"></span>`;
+    els.confirm.innerHTML = `<span class="loading-dots">${t.msg_verifying}</span>`;
     els.status.innerHTML = "";
   } else if (mode === 'redeem') {
     els.btnRedeem.disabled = true;
-    els.btnRedeem.innerHTML = `<div class="loading-spinner" style="width:20px;height:20px;border-color:var(--bg-color);border-top-color:transparent;"></div>`;
+    els.btnRedeem.innerHTML = `${spinnerHtml}`;
   }
 
   try {
-    let url = `${GAS_API_URL}?key=${encodeURIComponent(code)}&lang=${CURRENT_LANG}&mode=${mode}&_t=${Date.now()}`;
+    let url = `${GAS_API_URL}?key=${encodeURIComponent(safeCode)}&lang=${CURRENT_LANG}&mode=${mode}&userId=${uId}&_t=${Date.now()}`;
     let d = await (await fetch(url)).json();
-    
     if (thisRequestId !== currentAuthRequestId) return;
 
     if (mode === 'check') {
       if (d.success) {
         els.confirm.innerHTML = `<i data-lucide="check"></i>`;
-        lucide.createIcons(); 
-        
+        try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
         await new Promise(r => setTimeout(r, 600));
         if (thisRequestId !== currentAuthRequestId) return;
-        
         els.modalCon.classList.add('is-success');
         els.inputPh.style.opacity = '0';
         setTimeout(() => {
@@ -841,206 +2050,527 @@ async function performAuth(code, mode = 'check') {
           els.successPh.style.display = 'block';
           setTimeout(() => els.successPh.style.opacity = '1', 50);
         }, 400);
-
         setupPreviewUI(d, t);
-        
-        // ボタンをリフレッシュしてリセット
         const newBtn = els.btnRedeem.cloneNode(true);
         els.btnRedeem.parentNode.replaceChild(newBtn, els.btnRedeem);
         els.btnRedeem = newBtn;
-        
-        // ★ここでボタンの表示を強制的に「続行」に戻す
         els.btnRedeem.innerHTML = `<span data-translate="btn_continue">${t.btn_continue}</span> <i data-lucide="arrow-right" size="18"></i>`;
-        lucide.createIcons();
-
+        try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
         els.btnRedeem.disabled = false;
-        els.btnRedeem.addEventListener('click', () => { performAuth(code, 'redeem'); });
-
-      } else {
-        throw new Error(d.message);
-      }
+        els.btnRedeem.addEventListener('click', (e) => { 
+            e.preventDefault();
+            performAuth(safeCode, 'redeem'); 
+        });
+      } else { throw new Error(d.message); }
     } else if (mode === 'redeem') {
-      if (d.success) {
-        transitionToFinal(d);
+      if (d.success) { 
+        await saveUnlockedItemLocal(d, safeCode);
+        if(window.innerWidth <= 768) {
+           const item = {
+             title: d.bundleLabel || d.message,
+             imageUrl: d.imageUrl,
+             url: d.actionUrl,
+             releaseDateIso: d.releaseDateIso,
+             buttonLabel: d.Button_Label,
+             icon: d.btnIcon
+           };
+           showMobileItemDetail(item);
+        } else {
+           transitionToFinal(d);
+           if (currentUser.history.length > 0) {
+              updateHeroView(currentUser.history[0], true); 
+           }
+        }
       } else {
-        els.btnRedeem.disabled = false;
-        els.btnRedeem.innerHTML = `<span data-translate="btn_continue">${t.btn_continue}</span> <i data-lucide="arrow-right" size="18"></i>`;
-        lucide.createIcons();
-        alert(d.message === "This code has already been used." ? t.msg_used : t.msg_error);
+        try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+        
+        let errorText = t.msg_error;
+        let hideRedeemButton = false;
+        
+        if (d.isAlreadyOwned || d.message === "Already owned") {
+            if (window.innerWidth <= 768) {
+                errorText = t.msg_already_owned_mobile || "このコンテンツは既に所有しています。ライブラリからダウンロードしてください。";
+                if(els.btnOpenLibraryMobile) els.btnOpenLibraryMobile.style.display = 'flex';
+            } else {
+                errorText = t.msg_already_owned || "このコンテンツは既に所有しています。";
+            }
+            hideRedeemButton = true;
+        } else if (d.message === "This code has already been used.") {
+            errorText = t.msg_used;
+            hideRedeemButton = true;
+        }
+        
+        if (els.redeemErrorMsg) {
+            els.redeemErrorMsg.textContent = errorText;
+            els.redeemErrorMsg.style.display = 'block';
+        }
+
+        if (hideRedeemButton) {
+            els.btnRedeem.style.display = 'none';
+        } else {
+            els.btnRedeem.disabled = false;
+            els.btnRedeem.innerHTML = `<span data-translate="btn_continue">${t.btn_continue}</span> <i data-lucide="arrow-right" size="18"></i>`;
+        }
       }
     }
   } catch (e) {
     if (thisRequestId !== currentAuthRequestId) return;
-
     if (mode === 'check') {
-      els.code.disabled = false; 
-      els.confirm.disabled = false; 
-      els.confirm.textContent = t.modal_btn_auth;
-      
-      let msg = e.message || "Error";
-      let errorText = t.msg_error;
-      if (msg === "This code has already been used." || msg.includes("used")) errorText = t.msg_used;
-      else if (msg === "Invalid code" || msg === "This code is disabled." || msg.includes("Invalid")) errorText = t.msg_invalid;
-      
-      els.status.innerHTML = `<span style="color:#FF3B30; font-size:13px; font-weight:700;">${errorText}</span>`;
+       els.code.disabled = false; els.confirm.disabled = false; els.confirm.textContent = t.modal_btn_auth;
+       let msg = e.message || "Error";
+       let errorText = t.msg_error;
+       if (msg.includes("used")) errorText = t.msg_used;
+       else if (msg.includes("Invalid") || msg.includes("disabled")) errorText = t.msg_invalid;
+       els.status.innerHTML = `<span style="color:#FF3B30; font-size:13px; font-weight:700;">${errorText}</span>`;
     } else {
+      if (els.redeemErrorMsg) {
+          els.redeemErrorMsg.textContent = t.msg_error;
+          els.redeemErrorMsg.style.display = 'block';
+      }
       els.btnRedeem.disabled = false;
+      els.btnRedeem.style.display = 'flex';
       els.btnRedeem.innerHTML = `<span data-translate="btn_continue">${t.btn_continue}</span> <i data-lucide="arrow-right" size="18"></i>`;
-      lucide.createIcons();
-      alert(t.msg_error);
+      try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
     }
-    console.error(e);
   }
 }
 
 function setupPreviewUI(d, t) {
- els.sBadge.classList.remove('visible'); 
- els.btnRedeem.style.display = 'flex';      
- els.btnDownload.style.display = 'none'; 
- els.sProdDisplay.style.display = 'none'; 
- els.sInfoSec.style.display = 'block';      
- els.sTitle.style.display = '';             
-  
+ els.sBadge.classList.remove('visible'); els.btnRedeem.style.display = 'flex'; 
+ els.sProdDisplay.style.display = 'none'; els.sInfoSec.style.display = 'block'; els.sTitle.style.display = '';                      
  els.sTitle.textContent = t.success_title_preview; 
- els.sProdName.textContent = d.bundleLabel; 
- els.sNameDisp.textContent = d.message;        
+ els.sTitle.style.color = "var(--modal-text-main)";
+ els.sSubText.innerHTML = t.msg_preview_sub || "Please verify content";
+ els.sProdName.textContent = d.bundleLabel; els.sNameDisp.textContent = d.message;            
  els.sExtra.innerHTML = d.extraInfo ? d.extraInfo.replace(/\n/g, '<br>') : ""; 
-  
- if(d.imageUrl && d.imageUrl.startsWith("http")){ els.sImg.src=d.imageUrl; } 
- else { els.sImg.src="https://placehold.co/600x400/000000/00E050?text=Protected"; } 
-  
- lucide.createIcons();
+ if(d.imageUrl && d.imageUrl.startsWith("http")){ els.sImg.src=d.imageUrl; } else { els.sImg.src="https://static.wixstatic.com/media/2f0694_a82787a4837b40a9be0c361cfe71ff95~mv2.png/v1/fill/w_1200,h_1200,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/Polish_20260125_100959885.png"; } 
+ try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
 }
 
 function transitionToFinal(d) {
   const t = TRANSLATIONS[CURRENT_LANG];
-
+  els.btnRedeem.style.display = 'none'; 
+  
   els.btnDownload.style.display = 'flex';
-  els.btnDownload.style.pointerEvents = 'none'; 
-  els.btnDownload.style.opacity = '0.6';
-  els.btnDownload.removeAttribute('href');
-  els.btnDownload.innerHTML = `<div class="loading-spinner"></div>`;
+  els.btnDownload.style.pointerEvents = 'auto';
+  els.btnDownload.style.opacity = '1';
+  els.btnDownload.href = d.actionUrl;
+  els.btnDownload.target = "_blank";
+  const btnLabel = d.buttonLabel || t.btn_hero_download || "Download";
+  const btnIcon = d.btnIcon || "download";
+  els.btnDownload.innerHTML = `<span>${btnLabel}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="${btnIcon}" aria-hidden="true" size="18" class="lucide lucide-${btnIcon}"></svg>`;
 
-  els.btnRedeem.style.display = 'none';
   els.sInfoSec.style.display = 'none'; 
-  els.sBadge.classList.remove('visible');
+  els.sBadge.classList.remove('visible'); 
+  els.sBadge.style.display = 'none';
   els.sTitle.style.display = 'block'; 
   els.sTitle.textContent = t.success_title_final; 
-  els.sTitle.style.color = "#04CF22";
+  els.sTitle.style.color = "var(--modal-text-main)";
+  els.sSubText.innerHTML = t.msg_success_sub || "Code verified.";
   els.sProdDisplay.style.display = 'block'; 
-
- checkDownloadUrl(d);
+  
+  try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
 }
 
-function showError(msg, t) {
- let errorText = t.msg_error;
- if (msg === "This code has already been used.") errorText = t.msg_used;
- else if (msg === "Invalid code" || msg === "This code is disabled.") errorText = t.msg_invalid;
- els.status.innerHTML = `<span style="color:#FF3B30; font-size:13px; font-weight:700;">${errorText}</span>`;
+async function performAuthAction() {
+  const mode = document.querySelector('.auth-tab.active').dataset.tab; 
+  const email = els.email.value.trim();
+  const pass = els.pass.value.trim();
+  const t = TRANSLATIONS[CURRENT_LANG];
+  if (!email || !pass) { els.authStatus.textContent = "Please enter email and password."; return; }
+  els.btnAuthAction.disabled = true;
+  els.btnAuthAction.innerHTML = `<span class="loading-dots">${mode === 'login' ? t.msg_logging_in : t.msg_signing_up}</span>`;
+  try {
+    const actionType = mode === 'login' ? 'user_login' : 'register';
+    const res = await fetch(`${GAS_API_URL}?type=${actionType}&email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}`);
+    const data = await res.json();
+    if (data.success) {
+      if (data.isAdmin) {
+        toggleDropdown(false);
+        els.email.value = ""; els.pass.value = "";
+        tempAdminCreds.user = email;
+        tempAdminCreds.pass = pass;
+        els.adminModal.classList.add('active');
+        els.btnAuthAction.disabled = false;
+        els.btnAuthAction.textContent = mode==='login'?TRANSLATIONS[CURRENT_LANG].btn_login_action:TRANSLATIONS[CURRENT_LANG].btn_signup_action;
+        return; 
+      }
+      currentUser = { userId: data.userId, email: email, history: data.history || [] };
+      localStorage.setItem('user_session_identity', JSON.stringify({ userId: data.userId, email: email }));
+      
+      updateAccountUI(); 
+      fetchUserHistory(); 
+      
+      els.email.value = ""; els.pass.value = "";
+      if (pendingActivationCode) {
+          setTimeout(() => {
+              toggleDropdown(false); 
+              openAuthModal(); 
+              const codeToUse = formatCodeInput(pendingActivationCode);
+              els.code.value = codeToUse;
+              performAuth(codeToUse); 
+              pendingActivationCode = null;
+          }, 500);
+      } else if (pendingAction === 'open_activation') {
+          setTimeout(() => {
+              toggleDropdown(false);
+              openAuthModal();
+              pendingAction = null;
+          }, 500);
+      }
+    } else { els.authStatus.textContent = data.message || "Error occurred."; }
+  } catch (e) { els.authStatus.textContent = "Network Error."; } 
+  finally { 
+    els.btnAuthAction.disabled = false; 
+    els.btnAuthAction.textContent = mode==='login'?TRANSLATIONS[CURRENT_LANG].btn_login_action:TRANSLATIONS[CURRENT_LANG].btn_signup_action;
+  }
 }
 
-function checkDownloadUrl(initialData) {
- let isFetching = false;
- let currentData = initialData; 
+function setHeroButtonState(state, forceUnlock = false) {
+    // ★追加: スマホの場合はボタンの状態を更新しない（常にコード引き換えのまま）
+    if (window.innerWidth <= 768) return;
 
- const updateUI = async () => {
-   const now = Date.now();
-   const targetTime = currentData.releaseDateIso ? new Date(currentData.releaseDateIso).getTime() : 0;
-   const diff = targetTime - now;
+    const btn = els.heroActionBtn;
+    const t = TRANSLATIONS[CURRENT_LANG];
+    
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    btn.style.cursor = 'pointer';
+    btn.classList.remove('is-download'); 
 
-   if (currentData.actionUrl) {
-     clearInterval(timerId); 
-     els.btnDownload.href = currentData.actionUrl;
-     els.btnDownload.style.pointerEvents = 'auto';
-     els.btnDownload.style.opacity = '1';
-     const labelText = currentData.buttonLabel || "Download";
-     const iconType = currentData.btnIcon || 'download';
-     els.btnDownload.innerHTML = `<span>${labelText}</span> <i data-lucide="${iconType}" size="18"></i>`;
-     lucide.createIcons();
-     return; 
-   } 
+    if (state === 'owned') {
+        const now = new Date();
+        const releaseDate = selectedHeroItem.releaseDateIso ? new Date(selectedHeroItem.releaseDateIso) : null;
 
-   if (diff <= 0) {
-     els.btnDownload.innerHTML = `<div class="loading-spinner" style="width:20px;height:20px;border-width:2px;border-color:rgba(0,0,0,0.2);border-top-color:#000;"></div>`;
-     if (!isFetching) {
-       isFetching = true;
-       try {
-         const code = els.code.value.trim();
-         const res = await fetch(`${GAS_API_URL}?key=${encodeURIComponent(code)}&lang=${CURRENT_LANG}&mode=poll&_t=${Date.now()}`);
-         const retryD = await res.json();
-         if (retryD.success && retryD.actionUrl) {
-           currentData = retryD;
-         }
-       } catch(e) {
-         console.error("Auto-fetch failed", e);
-       } finally {
-         isFetching = false; 
-       }
-     }
-   } else {
-     const m = Math.floor(diff / (1000 * 60));
-     const s = Math.floor((diff % (1000 * 60)) / 1000);
-     els.btnDownload.innerHTML = `<span style="font-feature-settings:'tnum';">${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span>`;
-   }
- };
+        if (!forceUnlock && releaseDate && releaseDate > now) {
+            startHeroCountdown(releaseDate);
+        } else {
+            let iconName = selectedHeroItem.icon || 'download';
+            const displayLabel = selectedHeroItem.buttonLabel || t.btn_hero_download;
 
- const timerId = setInterval(updateUI, 1000);
- updateUI();
+            btn.innerHTML = `<span>${displayLabel}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="${iconName}" aria-hidden="true" size="20" class="lucide lucide-${iconName}"></svg>`;
+            btn.classList.add('is-download');
+            
+            currentHeroContext = 'owned';
+            try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+        }
+    } else {
+        btn.innerHTML = `<span data-translate="btn_redeem_code">${t.btn_redeem_code}</span>`;
+        btn.classList.remove('is-download');
+        currentHeroContext = 'available';
+    }
 }
+
+function startHeroCountdown(targetDate) {
+    const btn = els.heroActionBtn;
+    btn.classList.add('is-download'); 
+    btn.style.opacity = '0.7';
+    btn.style.cursor = 'default';
+    
+    const enMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const ruMonths = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+
+    const update = () => {
+        const now = new Date();
+        const diff = targetDate - now;
+
+        if (diff <= 0) {
+            if(heroTimer) clearInterval(heroTimer);
+            setHeroButtonState('owned', true); 
+            return;
+        }
+
+        const oneDay = 24 * 60 * 60 * 1000;
+
+        if (diff > oneDay) {
+            const y = targetDate.getFullYear();
+            const m = targetDate.getMonth(); 
+            const d = targetDate.getDate();
+            const mm = String(m + 1).padStart(2, '0');
+            const dd = String(d).padStart(2, '0');
+            let dateString = "";
+            switch (CURRENT_LANG) {
+                case 'ja': case 'zh': case 'zh-TW': dateString = `${y}年${mm}月${dd}日`; break;
+                case 'ko': dateString = `${y}년 ${mm}월 ${dd}일`; break;
+                case 'ru': dateString = `${dd} ${ruMonths[m]} ${y}`; break;
+                case 'en': default: dateString = `${enMonths[m]} ${dd}, ${y}`; break;
+            }
+            btn.innerHTML = `<span>${dateString}</span>`;
+        } else {
+            const h = Math.floor(diff / (1000 * 60 * 60));
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((diff % (1000 * 60)) / 1000);
+            const hh = String(h).padStart(2, '0');
+            const mm = String(m).padStart(2, '0');
+            const ss = String(s).padStart(2, '0');
+            btn.innerHTML = `<span>${hh}:${mm}:${ss}</span>`;
+        }
+    };
+    update(); 
+    heroTimer = setInterval(update, 1000);
+}
+
+function updateHeroView(item, isOwned) {
+    // ★追加: スマホの場合は背景画像やボタンを更新しない
+    if (window.innerWidth <= 768) {
+        return; 
+    }
+    selectedHeroItem = item;
+    els.heroTitle.textContent = item.title;
+    if(heroTimer) { clearInterval(heroTimer); heroTimer = null; }
+    els.heroDesc.style.display = 'none';
+    if (item.imageUrl && item.imageUrl.startsWith('http')) {
+        els.heroBgImage.style.backgroundImage = `url('${item.imageUrl}')`;
+    }
+    setHeroButtonState(isOwned ? 'owned' : 'available');
+}
+
+function updateAccountUI() {
+  const t = TRANSLATIONS[CURRENT_LANG];
+  if (currentUser) {
+    els.loggedOutView.style.display = 'none';
+    els.loggedInView.style.display = 'block';
+    if(els.displayUserEmail) els.displayUserEmail.textContent = currentUser.email || '-';
+    
+    const hasHistory = (currentUser.history && currentUser.history.length > 0);
+    if (hasHistory) {
+      els.secLibrary.style.display = 'block';
+      els.libraryListSidebar.innerHTML = "";
+      currentUser.history.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'sidebar-game-item';
+            div.onclick = () => {
+                document.querySelectorAll('.sidebar-game-item').forEach(el => el.classList.remove('active'));
+                div.classList.add('active');
+                updateHeroView(item, true); 
+            };
+            const imgUrl = (item.imageUrl && item.imageUrl.startsWith('http')) ? item.imageUrl : 'https://via.placeholder.com/32';
+            div.innerHTML = `
+              <div class="sidebar-game-info">
+                <img src="${imgUrl}" class="sidebar-game-thumb" onerror="this.style.background='#555'">
+                <div class="sidebar-game-text">
+                   <div class="sidebar-game-title">${item.title}</div>
+                </div>
+              </div>
+            `;
+            els.libraryListSidebar.appendChild(div);
+      });
+    } else {
+      els.secLibrary.style.display = 'none';
+    }
+    els.secAvailable.style.display = 'block';
+
+    if(libraryTimerId) { clearInterval(libraryTimerId); libraryTimerId = null; }
+    els.libraryList.innerHTML = "";
+    
+    if (!currentUser.history || currentUser.history.length === 0) {
+      els.libraryList.innerHTML = `<li style='text-align:center; opacity:0.5; padding:20px; font-size:13px;'>${t.msg_empty_lib}</li>`;
+    } else {
+      const now = Date.now();
+      let hasLockedItems = false;
+      currentUser.history.forEach(item => {
+        const li = document.createElement('li');
+        li.className = 'lib-item-card';
+        const displayCode = formatDisplayCode(item.code); 
+        const img = item.imageUrl && item.imageUrl.startsWith('http') 
+          ? `<img src="${item.imageUrl}" class="lib-card-thumb">` 
+          : `<div class="lib-card-thumb" style="display:flex;align-items:center;justify-content:center;color:#999;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="image" aria-hidden="true" class="lucide lucide-image"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path></svg></div>`;
+        
+        li.onclick = () => {
+             els.libraryModal.classList.remove('active');
+             showMobileItemDetail(item);
+        };
+        li.innerHTML = `<div class="lib-card-left">${img}<div class="lib-card-info"><div class="lib-card-meta">${item.date} • ${displayCode}</div><div class="lib-card-title">${item.title}</div></div></div>`;
+        els.libraryList.appendChild(li);
+        const releaseTime = item.releaseDateIso ? new Date(item.releaseDateIso).getTime() : 0;
+        if (releaseTime > now) hasLockedItems = true;
+      });
+      try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+      if (hasLockedItems) startLibraryTimer();
+    }
+
+  } else {
+    els.loggedOutView.style.display = 'block';
+    els.loggedInView.style.display = 'none';
+    els.secLibrary.style.display = 'none';
+    els.secAvailable.style.display = 'none';
+  }
+}
+
+function startLibraryTimer() {
+    if (libraryTimerId) clearInterval(libraryTimerId);
+    libraryTimerId = setInterval(() => {
+        const now = Date.now();
+        // ★変更: PC（768px超）の場合のみヒーローセクションを更新
+        if (window.innerWidth > 768 && selectedHeroItem && selectedHeroItem.releaseDateIso) {
+             const releaseTime = new Date(selectedHeroItem.releaseDateIso).getTime();
+             if (releaseTime <= now && currentHeroContext === 'owned' && !els.heroActionBtn.classList.contains('is-download')) {
+                  setHeroButtonState('owned', true);
+             }
+        }
+    }, 1000);
+}
+
+async function saveUnlockedItemLocal(data, code) {
+  if (!currentUser) {
+      currentUser = { userId: "GUEST", email: "Guest", history: [] };
+  }
+  const newItem = {
+    code: code, 
+    title: data.bundleLabel || data.message || "Unknown Content", 
+    message: data.message,
+    url: data.actionUrl, 
+    date: new Date().toLocaleDateString(), 
+    icon: data.btnIcon || 'download', 
+    lang: CURRENT_LANG,
+    imageUrl: data.imageUrl, 
+    releaseDateIso: data.releaseDateIso || null,
+    groupId: data.groupId,
+    buttonLabel: data.Button_Label || null 
+  };
+  
+  const idx = currentUser.history.findIndex(h => h.code === code);
+  if (idx > -1) currentUser.history.splice(idx, 1);
+  currentUser.history.unshift(newItem);
+  updateAccountUI();
+  const items = els.availableListSidebar.querySelectorAll('.sidebar-game-item');
+  items.forEach(el => {
+      const c = el.getAttribute('data-code');
+      const g = el.getAttribute('data-group-id');
+      const tAttr = el.getAttribute('data-title');
+      const isCodeMatch = (c === code);
+      const isGroupMatch = (newItem.groupId && g == newItem.groupId);
+      const isTitleMatch = (tAttr && newItem.title && tAttr.trim() === newItem.title.trim());
+
+      if (isCodeMatch || isGroupMatch || isTitleMatch) {
+          el.remove();
+      }
+  });
+  if (els.availableListSidebar.children.length === 0) {
+      const t = TRANSLATIONS[CURRENT_LANG];
+      els.availableListSidebar.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">${t.msg_empty_lib || "No content"}</div>`;
+  }
+}
+
+async function fetchAvailableContent() {
+    if (!currentUser) return;
+    const list = els.availableListSidebar;
+    const t = TRANSLATIONS[CURRENT_LANG];
+    list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">Loading...</div>`;
+    const ownedGroups = new Set();
+    const ownedCodes = new Set();
+    const ownedTitles = new Set();
+    if (currentUser && currentUser.history) {
+        currentUser.history.forEach(h => {
+            if (h.groupId) ownedGroups.add(h.groupId); 
+            if (h.code) ownedCodes.add(h.code);
+            if (h.title) ownedTitles.add(h.title);         
+        });
+    }
+    try {
+        const res = await fetch(`${GAS_API_URL}?type=get_available&lang=${CURRENT_LANG}`);
+        const d = await res.json();
+        list.innerHTML = '';
+        let hasItems = false; 
+        if(d.success && d.items && d.items.length > 0) {
+            d.items.forEach((item, index) => {
+                if (item.active === false) return; 
+                if (item.groupId && ownedGroups.has(item.groupId)) return; 
+                if (!item.groupId && ownedCodes.has(item.code)) return; 
+                if (item.title && ownedTitles.has(item.title)) return;
+                hasItems = true;
+                const div = document.createElement('div');
+                div.className = 'sidebar-game-item';
+                div.setAttribute('data-code', item.code);
+                if(item.groupId) div.setAttribute('data-group-id', item.groupId);
+                if(item.title) div.setAttribute('data-title', item.title);
+                div.onclick = () => {
+                    document.querySelectorAll('.sidebar-game-item').forEach(el => el.classList.remove('active'));
+                    div.classList.add('active');
+                    updateHeroView(item, false); 
+                };
+                div.innerHTML = `<div class="sidebar-game-info"><img src="${item.imageUrl}" class="sidebar-game-thumb"><div class="sidebar-game-text"><div class="sidebar-game-title">${item.title}</div></div></div>`;
+                list.appendChild(div);
+                if (!selectedHeroItem && !document.querySelector('.sidebar-game-item.active') && (!currentUser || !currentUser.history.length)) {
+                    updateHeroView(item, false);
+                    div.classList.add('active');
+                }
+            });
+        } 
+        if (!hasItems) {
+             list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">${t.msg_empty_lib || "No content"}</div>`;
+        }
+    } catch(e) {
+        list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">-</div>`;
+    }
+}
+
+async function fetchUserHistory() {
+  if (!currentUser) return;
+  els.libraryListSidebar.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">Loading...</div>`;
+  try { 
+    const res = await fetch(`${GAS_API_URL}?type=get_history&userId=${currentUser.userId}&lang=${CURRENT_LANG}&_t=${Date.now()}`);
+    const data = await res.json();
+    if (data.success && Array.isArray(data.history)) {
+      currentUser.history = data.history; 
+      updateAccountUI();
+      if (currentUser.history.length > 0) {
+            updateHeroView(currentUser.history[0], true);
+      }
+    }
+  } catch (e) { 
+      updateAccountUI(); 
+  } finally {
+      fetchAvailableContent();
+  }
+}
+
+async function performAdminSearch() {
+  const target = els.targetUserEmail.value.trim();
+  if(!target) { alert("Please enter target email."); return; }
+  els.btnAdminSearch.disabled = true; els.adminResultArea.innerHTML = `<div style="text-align:center; padding:20px;"><span class="loading-dots">Searching</span></div>`;
+  try {
+    const res = await fetch(`${GAS_API_URL}?type=admin_search&adminUser=${encodeURIComponent(tempAdminCreds.user)}&adminPass=${encodeURIComponent(tempAdminCreds.pass)}&targetEmail=${encodeURIComponent(target)}&_t=${Date.now()}`);
+    const d = await res.json();
+    if(d.success) {
+      if(!d.history || d.history.length === 0) {
+        els.adminResultArea.innerHTML = `<p style="text-align:center; opacity:0.6;">No history found.</p>`;
+      } else {
+        let h = `<div style="font-weight:700; font-size:12px;">User ID: ${d.userId}</div><ul style="list-style:none; padding:0;">`;
+        d.history.forEach(i => { h += `<li style="background:rgba(128,128,128,0.05); padding:10px; border-radius:8px; margin-bottom:5px; font-size:13px;"><b>${i.title}</b><br><small>${i.code} / ${i.date}</small></li>`; });
+        els.adminResultArea.innerHTML = h + `</ul>`;
+      }
+    } else { els.adminResultArea.innerHTML = `<p style="color:red; text-align:center;">${d.message}</p>`; }
+  } catch(e) { els.adminResultArea.innerHTML = `<p style="color:red; text-align:center;">Network Error</p>`; }
+  finally { els.btnAdminSearch.disabled = false; els.btnAdminSearch.textContent = "Search"; }
+}
+
 function initThemeAndParticles() {
   const htmlEl = document.documentElement;
   const toggleBtns = [gId('themeToggle'), gId('introThemeToggle')];
   const icons = [gId('themeIcon'), gId('introThemeIcon')];
   let particleHue = 210;
-
-  function updateParticleStyle(isLight) { particleHue = isLight ? 210 : 220; }
-    
   function applyTheme(theme) {
-    if (theme === 'light') { 
-        htmlEl.setAttribute('data-theme', 'light');
-        icons.forEach(ic => { if(ic) ic.setAttribute('data-lucide', 'sun'); });
-        updateParticleStyle(true); 
-    } else { 
-        htmlEl.setAttribute('data-theme', 'dark'); 
-        icons.forEach(ic => { if(ic) ic.setAttribute('data-lucide', 'moon'); });
-        updateParticleStyle(false); 
-    }
-    lucide.createIcons();
+    htmlEl.setAttribute('data-theme', theme);
+    icons.forEach(ic => { if(ic) ic.setAttribute('data-lucide', theme === 'light' ? 'sun' : 'moon'); });
+    particleHue = theme === 'light' ? 210 : 220; 
+    try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
   }
-
-  const savedTheme = localStorage.getItem('user_theme');
-  const systemQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
-  if (savedTheme) { applyTheme(savedTheme); } 
-  else { applyTheme(systemQuery.matches ? 'dark' : 'light'); }
-
-  systemQuery.addEventListener('change', (e) => {
-    const newTheme = e.matches ? 'dark' : 'light';
-    applyTheme(newTheme);
-    localStorage.setItem('user_theme', newTheme);
-  });
-
-  toggleBtns.forEach(btn => {
-    if(!btn) return;
-    btn.addEventListener('click', () => {
-        const current = htmlEl.getAttribute('data-theme');
-        const next = current === 'light' ? 'dark' : 'light';
-        applyTheme(next);
-        localStorage.setItem('user_theme', next);
-    });
-  });
-
-  const canvas = gId('particleCanvas'); const ctx = canvas.getContext('2d'); let particlesArray;
-  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  const saved = localStorage.getItem('user_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  applyTheme(saved);
+  toggleBtns.forEach(btn => btn && btn.addEventListener('click', () => {
+    const next = htmlEl.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    applyTheme(next); localStorage.setItem('user_theme', next);
+  }));
+  const canvas = gId('particleCanvas'); const ctx = canvas.getContext('2d'); canvas.width = innerWidth; canvas.height = innerHeight;
   class Particle {
     constructor() { this.x=Math.random()*canvas.width; this.y=Math.random()*canvas.height; this.size=Math.random()*150+50; this.speedX=Math.random()*0.2-0.1; this.speedY=Math.random()*0.2-0.1; this.opacity=Math.random()*0.3+0.1; }
-    update() { this.x+=this.speedX; this.y+=this.speedY; if(this.x<-100||this.x>canvas.width+100)this.speedX*=-1; if(this.y<-100||this.y>canvas.height+100)this.speedY*=-1; }
+    update() { this.x+=this.speedX; this.y+=this.speedY; if(this.x<0||this.x>canvas.width)this.speedX*=-1; if(this.y<0||this.y>canvas.height)this.speedY*=-1; }
     draw() { ctx.fillStyle=`hsla(${particleHue}, 100%, 50%, ${this.opacity*0.2})`; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); }
   }
-  function initParticles() { particlesArray=[]; for(let i=0;i<8;i++)particlesArray.push(new Particle()); }
-  function animateParticles() { ctx.clearRect(0,0,canvas.width,canvas.height); for(let i=0;i<particlesArray.length;i++){ particlesArray[i].update(); particlesArray[i].draw(); } requestAnimationFrame(animateParticles); }
-  window.addEventListener('resize', () => { canvas.width=innerWidth; canvas.height=innerHeight; initParticles(); });
-  initParticles(); animateParticles();
+  let p = []; for(let i=0;i<8;i++) p.push(new Particle());
+  function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); p.forEach(i=>{i.update();i.draw();}); requestAnimationFrame(animate); }
+  window.addEventListener('resize', () => { canvas.width=innerWidth; canvas.height=innerHeight; }); animate();
 }
 </script>
 </body>
