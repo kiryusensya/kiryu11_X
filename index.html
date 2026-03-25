@@ -1048,6 +1048,77 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 .loading-spinner { display: inline-block; vertical-align: middle; width: 24px; height: 24px; border: 3px solid rgba(128,128,128,0.2); border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 8px; }
 @keyframes spin { to{transform: rotate(360deg);} }
 
+/* --- モーダル入力画面 (PC用2カラムレイアウト) --- */
+.phase-input-left { display: none; }
+.phase-input-desc-pc { display: none; }
+.phase-input-body { display: flex; flex-direction: column; align-items: center; width: 100%; }
+.phase-input-controls { width: 100%; display: flex; flex-direction: column; }
+
+@media (min-width: 769px) {
+  .modal-sheet.is-input-wide {
+    max-width: 970px;
+  }
+  .modal-sheet.is-input-wide #phase-input {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .modal-sheet.is-input-wide .phase-input-title {
+    text-align: left;
+    font-size: 26px;
+    margin: 0 0 24px 0;
+    width: 100%;
+  }
+  .modal-sheet.is-input-wide .phase-input-sub-mobile {
+    display: none;
+  }
+  .modal-sheet.is-input-wide .phase-input-body {
+    flex-direction: row;
+    gap: 30px;
+    align-items: stretch;
+  }
+  .modal-sheet.is-input-wide .phase-input-left {
+    display: flex;
+    width: 380px;
+    flex-shrink: 0;
+  }
+  .modal-sheet.is-input-wide .phase-input-left img {
+    width: 100%;
+    border-radius: 16px;
+    object-fit: cover;
+    background: rgba(128,128,128,0.2);
+  }
+  .modal-sheet.is-input-wide .phase-input-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .modal-sheet.is-input-wide .phase-input-controls {
+    flex-direction: row;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  .modal-sheet.is-input-wide .phase-input-controls .code-field {
+    margin-top: 0;
+    flex: 1;
+    height: 56px;
+    text-align: left;
+    padding: 0 20px;
+  }
+  .modal-sheet.is-input-wide .phase-input-controls .btn-primary {
+    margin-top: 0;
+    width: 120px;
+    height: 56px;
+    border-radius: 16px !important;
+  }
+  .modal-sheet.is-input-wide .phase-input-desc-pc {
+    display: flex;
+    flex: 1;
+    margin-bottom: 0;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1256,11 +1327,27 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
     <div style="position:absolute; top:20px; right:20px; cursor:pointer; z-index:10;" id="modalCloseBtn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" size="24" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></div>
     
     <div id="phase-input" style="display: flex; opacity: 1;">
-      <h2 class="modal-title" data-translate="modal_title">アクティベーション</h2>
-      <p class="modal-sub" data-translate="modal_sub">アクティベーションコードを使用すると、コンテンツにアクセスできます。アクティベーションコードを利用するには、以下の入力欄に入力してください。</p>
-      <input type="text" id="activationCode" class="code-field" placeholder="アクティベーションコード" autocomplete="off">
-      <button id="btnConfirm" class="btn-primary" data-translate="modal_btn_auth">確認</button>
-      <div id="statusContainer"></div>
+      <h2 class="modal-title phase-input-title" data-translate="modal_title">アクティベーション</h2>
+      <!-- ★ id="mobileInputDesc" を追加 -->
+      <p class="modal-sub phase-input-sub-mobile" id="mobileInputDesc" data-translate="modal_sub">アクティベーションコードを使用すると、コンテンツにアクセスできます。アクティベーションコードを利用するには、以下の入力欄に入力してください。</p>
+      
+      <div class="phase-input-body">
+          <div class="phase-input-left">
+              <img src="https://static.wixstatic.com/media/2f0694_4d2ff9ae44cb47edad6e3bb1f8b83ae2~mv2.jpg/v1/fill/w_375,h_234,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/2f0694_4d2ff9ae44cb47edad6e3bb1f8b83ae2~mv2.jpg" alt="Code Background">
+          </div>
+          <div class="phase-input-right">
+              <div class="phase-input-controls">
+                  <input type="text" id="activationCode" class="code-field" placeholder="アクティベーションコード" autocomplete="off">
+                  <button id="btnConfirm" class="btn-primary" data-translate="modal_btn_auth">確認</button>
+              </div>
+              <div class="modal-grey-box phase-input-desc-pc">
+                  <!-- ★ id="pcInputDesc" を追加 -->
+                  <p class="modal-box-text" id="pcInputDesc" data-translate="modal_sub">アクティベーションコードを使用すると、コンテンツにアクセスできます。<br>アクティベーションコードを利用するには、以下の入力欄に入力してください。</p>
+              </div>
+          </div>
+      </div>
+      <!-- ★ 不要になった statusContainer は非表示にしておくか削除します -->
+      <div id="statusContainer" style="display: none;"></div>
     </div>
 
     <div id="phase-preview" style="display: none; opacity: 0;" class="new-modal-layout">
@@ -2165,8 +2252,20 @@ function updateLanguage(lang){
   updateAccountUI();
 }
 
-function openAuthModal(){ els.authModal.classList.add('active'); resetAuthModal(); els.code.focus(); }
-function closeAuthModal(){ els.authModal.classList.remove('active'); setTimeout(()=>els.modalCon.classList.remove('is-wide'), 500); }
+function openAuthModal(){ 
+  els.authModal.classList.add('active'); 
+  els.modalCon.classList.add('is-input-wide'); // ← PC幅を広げるクラスを追加
+  resetAuthModal(); 
+  els.code.focus(); 
+}
+
+function closeAuthModal(){ 
+  els.authModal.classList.remove('active'); 
+  setTimeout(()=> { 
+      els.modalCon.classList.remove('is-wide'); 
+      els.modalCon.classList.remove('is-input-wide'); // ← 閉じた時にクラスを外す
+  }, 500); 
+}
 
 function resetAuthModal(){
   currentAuthRequestId++; 
