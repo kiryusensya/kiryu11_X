@@ -1078,7 +1078,7 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
   }
   .modal-sheet.is-input-wide .phase-input-left {
     display: flex;
-    width: 380px;
+    width: 360px;
     flex-shrink: 0;
   }
   .modal-sheet.is-input-wide .phase-input-left img {
@@ -1105,17 +1105,24 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
     height: 56px;
     text-align: left;
     padding: 0 20px;
+    border-radius: 50px; /* ★修正 */
   }
   .modal-sheet.is-input-wide .phase-input-controls .btn-primary {
     margin-top: 0;
     width: 120px;
     height: 56px;
-    border-radius: 16px !important;
+    border-radius: 50px !important; /* ★修正 */
   }
   .modal-sheet.is-input-wide .phase-input-desc-pc {
     display: flex;
     flex: 1;
     margin-bottom: 0;
+    justify-content: flex-start; /* ★追加 */
+    align-items: flex-start;     /* ★追加 */
+  }
+  .modal-sheet.is-input-wide .phase-input-desc-pc .modal-box-text {
+    text-align: left; /* ★追加 */
+    margin: 0;        /* ★追加 */
   }
 }
 
@@ -1333,7 +1340,7 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
       
       <div class="phase-input-body">
           <div class="phase-input-left">
-              <img src="https://static.wixstatic.com/media/2f0694_4d2ff9ae44cb47edad6e3bb1f8b83ae2~mv2.jpg/v1/fill/w_375,h_234,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/2f0694_4d2ff9ae44cb47edad6e3bb1f8b83ae2~mv2.jpg" alt="Code Background">
+              <img src="https://static.wixstatic.com/media/2f0694_a82787a4837b40a9be0c361cfe71ff95~mv2.png/v1/fill/w_1200,h_1200,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/Polish_20260125_100959885.png" alt="Code Background">
           </div>
           <div class="phase-input-right">
               <div class="phase-input-controls">
@@ -1823,7 +1830,9 @@ document.addEventListener('DOMContentLoaded', () => {
     heroDesc: gId('heroDesc'),
     heroBgImage: gId('heroBgImage'),
     targetUserEmail: gId('targetUserEmail'),
-    adminResultArea: gId('adminResultArea')
+    adminResultArea: gId('adminResultArea'),
+    pcInputDesc: gId('pcInputDesc'),         // ★追加
+    mobileInputDesc: gId('mobileInputDesc') // ★追加
   };
 
   try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
@@ -2287,6 +2296,8 @@ function resetAuthModal(){
   els.btnErrorClose.style.width = "100%";
 
   const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja;
+  if (els.pcInputDesc) els.pcInputDesc.innerHTML = t.modal_sub;
+  if (els.mobileInputDesc) els.mobileInputDesc.innerHTML = t.modal_sub;
   const titleTops = els.phasePreview.querySelectorAll('.modal-title-top, .mobile-title');
   titleTops.forEach(el => el.textContent = t.preview_title);
   const label = els.phasePreview.querySelector('.modal-label');
@@ -2392,7 +2403,7 @@ async function performAuth(code, mode = 'check') {
   if (mode === 'check') {
     if(!safeCode) return;
     els.code.disabled = true; els.confirm.disabled = true;
-    els.confirm.innerHTML = `<span class="loading-dots">${t.msg_verifying}</span>`;
+    els.confirm.innerHTML = spinnerHtml;
     els.status.innerHTML = "";
   } else if (mode === 'redeem') {
     els.btnPreviewRedeem.disabled = true;
@@ -2580,22 +2591,46 @@ async function performAuth(code, mode = 'check') {
       }
     }
   } catch (e) {
+    console.error("Auth Error:", e);
     if (thisRequestId !== currentAuthRequestId) return;
+
+    // APIから送られてきたエラーメッセージを優先して使う
+    // e.message があればそれを使い、なければ言語ごとのデフォルトエラーを表示
+    let serverMessage = e.message || "";
+    
     if (mode === 'check') {
-       els.code.disabled = false; els.confirm.disabled = false; els.confirm.textContent = t.modal_btn_auth;
-       let msg = e.message || "Error";
-       let errorText = t.msg_error;
-       if (msg.includes("used")) errorText = t.msg_used;
-       else if (msg.includes("Invalid") || msg.includes("disabled")) errorText = t.msg_invalid;
-       els.status.innerHTML = `<span style="color:#FF3B30; font-size:13px; font-weight:700;">${errorText}</span>`;
+       els.code.disabled = false; 
+       els.confirm.disabled = false; 
+       els.confirm.textContent = t.modal_btn_auth;
+       
+       let errorDisplay = t.msg_error; // デフォルト：エラーが発生しました
+       
+       // 大文字小文字を気にせず(toLowerCase)チェックするように修正
+       const lowMsg = serverMessage.toLowerCase();
+       if (lowMsg.includes("used")) {
+           errorDisplay = t.msg_used;
+       } else if (lowMsg.includes("invalid") || lowMsg.includes("not found")) {
+           errorDisplay = t.msg_invalid; // これで「コードが無効です」が出るようになります
+       } else if (lowMsg.includes("required")) {
+           errorDisplay = "Code is required";
+       }
+
+       const errorHtml = `<span style="color:#FF3B30; font-size:14px; font-weight:700;">${errorDisplay}</span>`;
+       if (els.pcInputDesc) els.pcInputDesc.innerHTML = errorHtml;
+       if (els.mobileInputDesc) els.mobileInputDesc.innerHTML = errorHtml;
+       
     } else {
+       // Redeemモード（確認ボタン押下後）のエラー表示
        els.btnPreviewRedeem.disabled = false;
        els.btnPreviewRedeem.innerHTML = t.btn_continue;
+       
        els.errorCodeText.textContent = generateErrorCode();
        els.errorTime.textContent = currentAuthTime;
-       els.errorMessage.textContent = t.msg_error;
-       els.errorSubMessage.innerHTML = "";
-       els.errorInfoBox.style.display = 'none';
+       
+       // エラーモーダルのタイトルと本文をセット
+       els.errorMessage.textContent = t.msg_invalid; // タイトルを「無効」に
+       els.errorSubMessage.textContent = serverMessage; // 詳細にAPIからのメッセージを表示
+       els.errorInfoBox.style.display = 'block';
        
        els.btnErrorClose.style.flex = "none";
        els.btnErrorClose.style.width = "100%";
