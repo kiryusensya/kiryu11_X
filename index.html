@@ -2943,6 +2943,11 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
     // 「無料」ではなく「所有済み（各言語対応）」のテキストにする
     let priceText = item.price > 0 ? `${item.price} pt` : (t.status_owned || `所有済み`);
 
+    // 解禁時間かどうかの判定を追加
+    const releaseDate = item.releaseDateIso ? new Date(item.releaseDateIso) : null;
+    const now = new Date();
+    const isLocked = releaseDate && releaseDate > now;
+
     if (treatAsOwned) {
         checkMarkHtml = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px; vertical-align:middle; flex-shrink:0;"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
         btnHtml = `<button class="mobile-store-btn is-owned-download"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>${t.btn_download || "ダウンロード"}</button>`;
@@ -2963,15 +2968,72 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
     if (treatAsOwned) {
         const dlBtn = mDiv.querySelector('.is-owned-download');
         if (dlBtn) {
-            dlBtn.onclick = (e) => {
-                e.stopPropagation();
-                // ログインしていなければアカウント画面を開く
-                if (!currentUser) { toggleDropdown(true); return; }
-                
-                const targetUrl = item.url || item.actionUrl;
-                if (targetUrl) window.open(targetUrl, '_blank');
-                else showMobileItemDetail(item, false);
-            };
+            if (isLocked) {
+                // まだ解禁されていない場合はクリックを無効化し、カウントダウン化
+                dlBtn.style.pointerEvents = 'none';
+                dlBtn.style.background = 'rgba(128, 128, 128, 0.2)';
+                dlBtn.style.color = 'var(--modal-text-main)';
+                dlBtn.style.border = '1px solid transparent';
+
+                const updateMobileCountdown = () => {
+                    if (!document.body.contains(dlBtn)) return true; // DOMから消えたらタイマー停止
+                    const currentNow = new Date();
+                    const diff = releaseDate - currentNow;
+
+                    if (diff <= 0) {
+                        // 解禁されたら通常スタイルに戻す
+                        dlBtn.style.pointerEvents = 'auto';
+                        dlBtn.style.background = 'rgba(0, 125, 255, 0.1)';
+                        dlBtn.style.color = 'var(--primary)';
+                        dlBtn.style.border = '1px solid rgba(0, 125, 255, 0.3)';
+                        dlBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>${t.btn_download || "ダウンロード"}`;
+                        
+                        dlBtn.onclick = (e) => {
+                            e.stopPropagation();
+                            if (!currentUser) { toggleDropdown(true); return; }
+                            const targetUrl = item.url || item.actionUrl;
+                            if (targetUrl) window.open(targetUrl, '_blank');
+                            else showMobileItemDetail(item, false);
+                        };
+                        return true; 
+                    }
+
+                    // カウントダウン表示の更新
+                    const oneDay = 24 * 60 * 60 * 1000;
+                    if (diff > oneDay) {
+                        const y = releaseDate.getFullYear();
+                        const m = releaseDate.getMonth() + 1;
+                        const d = releaseDate.getDate();
+                        dlBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> <span>${y}/${String(m).padStart(2,'0')}/${String(d).padStart(2,'0')}</span>`;
+                    } else {
+                        const h = Math.floor(diff / (1000 * 60 * 60));
+                        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                        const s = Math.floor((diff % (1000 * 60)) / 1000);
+                        const hh = String(h).padStart(2, '0');
+                        const mm = String(m).padStart(2, '0');
+                        const ss = String(s).padStart(2, '0');
+                        dlBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> <span>${hh}:${mm}:${ss}</span>`;
+                    }
+                    return false;
+                };
+
+                updateMobileCountdown();
+                const timerId = setInterval(() => {
+                    if (updateMobileCountdown()) {
+                        clearInterval(timerId);
+                    }
+                }, 1000);
+
+            } else {
+                // 解禁済みの通常の動作
+                dlBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    if (!currentUser) { toggleDropdown(true); return; }
+                    const targetUrl = item.url || item.actionUrl;
+                    if (targetUrl) window.open(targetUrl, '_blank');
+                    else showMobileItemDetail(item, false);
+                };
+            }
         }
     } else {
         const mBtn = mDiv.querySelector('.mobile-store-btn');
@@ -2979,7 +3041,6 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
             mBtn.onclick = (e) => {
                 e.stopPropagation();
                 if (!currentUser) { toggleDropdown(true); return; }
-                // ポイントアイテムの場合は必ず確認プレビューを開く
                 showPurchasePreview(item, item.price);
             };
         }
