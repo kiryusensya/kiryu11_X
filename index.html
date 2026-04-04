@@ -971,8 +971,17 @@ button, input, textarea { font-family: var(--font-stack); }
     
     /* サイドバー内のコンテンツ非表示 */
     .rgl-scroll-content, .rgl-bottom-controls { display: none !important; } 
+    .rgl-main { position: static !important; }
 
-    .rgl-header { position: fixed !important; top: 0; right: 0; width: auto; height: 70px; background: transparent !important; padding: 0 16px; z-index: 200; display: flex !important; align-items: center; justify-content: flex-end; gap: 10px; pointer-events: none; }
+    /* ▼ fixed を absolute に変更 ▼ */
+    .rgl-header { 
+        position: absolute !important; 
+        top: 0; right: 0; width: auto; height: 70px; 
+        background: transparent !important; padding: 0 16px; 
+        z-index: 200; display: flex !important; 
+        align-items: center; justify-content: flex-end; 
+        gap: 10px; pointer-events: none; 
+    }
     .rgl-header > * { pointer-events: auto; }
     .rgl-tabs { display: none !important; }
     
