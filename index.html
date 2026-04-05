@@ -2349,7 +2349,7 @@ function showMobileItemDetail(item, isNewRedeem = false) {
     if(item.imageUrl && item.imageUrl.startsWith("http")){ 
         els.successImage.src=item.imageUrl; 
     } else { 
-        els.successImage.src="https://static.wixstatic.com/media/2f0694_a82787a4837b40a9be0c361cfe71ff95~mv2.png/v1/fill/w_1200,h_1200,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/Polish_20260125_100959885.png"; 
+        els.successImage.src="https://static.wixstatic.com/media/2f0694_359489b1737c4f0e940672c75c559fb1~mv2.jpg/v1/fill/w_1200,h_578,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/IMG_20260103_005543%5B1%5D.jpg"; 
     }
 
     els.btnSuccessClose.style.flex = "3";
@@ -2782,7 +2782,9 @@ function updateHeroView(item, isOwned) {
     // ★追加: アイテムが選択されたらHeroの中身を表示する
     document.querySelector('.rgl-hero-content').style.display = 'block';
     
-    els.heroTitle.textContent = item.title;
+    // ★変更: item.title（詳しいタイトル）ではなく item.message（メッセージ）を割り当て
+    els.heroTitle.textContent = item.message || item.title; 
+    
     if(heroTimer) { clearInterval(heroTimer); heroTimer = null; }
     els.heroDesc.style.display = 'none';
     if (item.imageUrl && item.imageUrl.startsWith('http')) els.heroBgImage.style.backgroundImage = `url('${item.imageUrl}')`;
