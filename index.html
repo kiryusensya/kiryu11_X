@@ -1610,7 +1610,7 @@ success_pt_title: "Point Charge Complete",
  zh:{ 
   header_brand:"_.k__yu.10", hero_title:"个人代码检查中心", hero_sub:"管理您的访问权限和资源。兑換产品代码以解锁独家内容。", 
   card1_title:"首页", tab_store:"商店", card3_title:"支持", 
-  modal_title:"兑換代码",modal_sub:"请兑換激活码以下载内容。"<span class=\"pc-only-text\"><br>代码格式如下:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"兑換代码",modal_btn_auth:"检查", 
+  modal_title:"兑換代码",modal_sub:"请兑換激活码以下载内容。<span class=\"pc-only-text\"><br>代码格式如下:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"兑換代码",modal_btn_auth:"检查", 
   msg_verifying:"正在检查",msg_success_btn:"成功", 
   msg_invalid:"该代码无效。",msg_used:"该代码已被使用。",msg_error:"错误", 
   msg_already_owned: "您已经拥有此内容。", msg_already_owned_mobile: "请从商店中选择内容进行下载。", btn_open_library: "打开库",
@@ -2140,8 +2140,8 @@ async function buyItemWithPoints(code, price) {
             let errorSubText = data.message;
             let showInfoBox = true;
             
-            if (data.message === "Already owned") {
-                errorMainText = t.error_owned_msg || "既に所有しているようです。";
+         if (data.message === "Already owned") {
+            errorMainText = t.error_owned_msg || "既に所有しているようです。";
                 errorSubText = window.innerWidth <= 768 ? (t.msg_already_owned_mobile || "ストアからコンテンツを選択してダウンロードしてください。") : (t.error_owned_sub || "左ライブラリメニューからコンテンツを選択してダウンロードしてください。");
                 
                 els.btnErrorClose.style.flex = "none";
