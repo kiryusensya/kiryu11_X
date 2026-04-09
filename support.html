@@ -414,6 +414,43 @@ body {
 
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
+  /* --- エラーコード検索用モーダル (index.htmlから流用) --- */
+.code-modal-overlay {
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px);
+    z-index: 10000; display: flex; justify-content: center; align-items: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.5s ease;
+}
+.code-modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+.code-modal-sheet {
+    background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
+    border-radius: 32px; box-shadow: 0 30px 80px rgba(0,0,0,0.15);
+    position: relative; overflow: hidden; width: 90%; max-width: 470px; padding: 40px;
+    transform: translateY(60px) scale(0.85); opacity: 0;
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.code-modal-overlay.active .code-modal-sheet { transform: translateY(0) scale(1); opacity: 1; }
+
+[data-theme="dark"] .code-modal-sheet { background: rgba(50, 50, 50, 0.7); box-shadow: 0 30px 80px rgba(0,0,0,0.5); }
+
+.code-modal-title { margin:0 0 10px 0; font-size:24px; font-weight:800; color:var(--modal-text-main); text-align: center; }
+.code-modal-sub { color:var(--modal-text-sub); margin:0; font-size:14px; text-align: center; }
+
+.code-search-field {
+    width: 100%; border: none; background: rgba(128, 128, 128, 0.1); height: 56px; border-radius: 16px;
+    text-align: center; outline: none; transition: 0.3s; margin-top: 24px;
+    color: var(--modal-text-main); font-family: var(--font-stack); font-size: 17px; font-weight: 700; padding: 0 10px;
+}
+[data-theme="dark"] .code-search-field { color: #fff; background: rgba(255,255,255,0.1); }
+.code-search-field:focus { background: rgba(0, 125, 255, 0.1); color: var(--primary); }
+
+.btn-search-code {
+    width: 100%; height: 50px; margin-top: 20px; border: none; background: var(--primary); color: white;
+    border-radius: 50px; font-size: 16px; font-weight: 700; cursor: pointer; transition: transform 0.2s; font-family: var(--font-stack);
+}
+.btn-search-code:active { transform: scale(0.96); }
+.btn-search-code:disabled { opacity: 0.6; pointer-events: none; }
+
 /* Mobile Warning (Not used but kept for structure if needed) */
 #mobile-warning { display: none; }
 @media (max-width: 768px) {
@@ -470,7 +507,7 @@ body {
     </div>
 
     <div class="bento-grid">
-        <div class="bento-card card-large-left" onclick="openDetail('web')">
+        <div class="bento-card card-large-left" onclick="openErrorModal()">
             <i data-lucide="mail" class="card-icon" style="color:#007DFF;"></i>
             <div class="card-title" data-translate="card_web_title">Web Page Inquiry</div>
             <div class="card-desc">kiryu10.vercel.app</div>
@@ -505,18 +542,31 @@ body {
 <div class="detail-modal-overlay" id="detailOverlay">
     <div class="detail-modal">
         <button class="close-btn" onclick="closeDetail()"><i data-lucide="x"></i></button>
-        <div class="detail-visual" id="modalVisual">
-            <i class="fa-brands fa-instagram" id="modalIcon"></i>
+        <div class="code-modal-overlay" id="errorSearchModal">
+    <div class="code-modal-sheet">
+        <button class="close-btn" onclick="closeErrorModal()" style="position:absolute; top:20px; right:20px; background:transparent;"><i data-lucide="x"></i></button>
+
+        <div id="error-phase-input" style="display: flex; flex-direction: column; align-items: center;">
+            <h2 class="code-modal-title" data-translate="error_modal_title">エラーコード検索</h2>
+            <p class="code-modal-sub" data-translate="error_modal_sub">サポートが必要なエラーコードを入力してください。</p>
+
+            <div style="width: 100%;">
+                <input type="text" id="errorCodeInput" class="code-search-field" placeholder="1011" autocomplete="off">
+                <button id="btnErrorCheck" class="btn-search-code" onclick="searchErrorCode()"><span data-translate="btn_search">検索</span></button>
+            </div>
+            <div id="errorSearchStatus" style="color:#FF3B30; font-size:13px; margin-top:10px; min-height:16px; text-align:center;"></div>
         </div>
-        <div class="detail-content">
-            <div class="detail-title" id="modalTitle">Title</div>
-            <div class="detail-text" id="modalDesc">Desc</div>
-            <a href="#" target="_blank" class="btn-inquiry" id="modalBtn">
-                <span data-translate="btn_inquiry">Contact</span>
-                <i data-lucide="arrow-right"></i>
-            </a>
+
+        <div id="error-phase-result" style="display: none; flex-direction: column;">
+            <h2 class="code-modal-title" style="text-align: left; margin-bottom: 20px;" data-translate="error_result_title">検索結果</h2>
+            <div style="background: rgba(128,128,128,0.1); border-radius: 16px; padding: 20px; text-align: left;">
+                <h3 style="margin: 0 0 10px 0; font-size: 18px; color: var(--primary);" id="resultErrorCode"></h3>
+                <p style="margin: 0; font-size: 14px; line-height: 1.6; color: var(--modal-text-main); white-space: pre-wrap;" id="resultErrorMessage"></p>
+            </div>
+            <button class="btn-search-code" onclick="resetErrorModal()" style="margin-top: 24px;"><span data-translate="btn_back">戻る</span></button>
         </div>
     </div>
+</div>
 </div>
 
 <script>
@@ -588,7 +638,10 @@ body {
             desc_xbox: "Xbox Live経由で接続します。\nゲーマータグ: kiryusensya",
             desc_ps: "PlayStation Network経由で接続します。\nオンラインID: kiryu_sensya",
             desc_insta: "最新情報の確認やDMはこちらから。\nID: _.k__yu.10",
-            desc_discord: "リアルタイムサポートチャット。\nID: kiryu_sensya"
+            desc_discord: "リアルタイムサポートチャット。\nID: kiryu_sensya",
+            error_modal_title: "エラー検索", error_modal_sub: "サポートが必要なエラーコードを入力してください。",
+            btn_search: "検索", error_empty: "エラーコードを入力してください。", error_not_found: "エラーコードが見つかりません。",
+            error_result_title: "検索結果", btn_back: "戻る"
         },
         en: { 
             brand_name: "_.k__yu.10 | Support", brand_mobile: "Support",
@@ -599,7 +652,10 @@ body {
             desc_xbox: "Connect via Xbox Live.\nGamertag: kiryusensya",
             desc_ps: "Connect via PlayStation Network.\nOnline ID: kiryu_sensya",
             desc_insta: "Follow for updates and DMs.\nID: _.k__yu.10",
-            desc_discord: "Real-time support chat.\nID: kiryu_sensya"
+            desc_discord: "Real-time support chat.\nID: kiryu_sensya",
+            error_modal_title: "Error Search", error_modal_sub: "Enter the error code you need support with.",
+            btn_search: "Search", error_empty: "Please enter an error code.", error_not_found: "Error code not found.",
+            error_result_title: "Result", btn_back: "Back"
         },
         zh: { 
             brand_name: "_.k__yu.10 | Support", brand_mobile: "Support",
@@ -610,7 +666,10 @@ body {
             desc_xbox: "通过 Xbox Live 连接。\n玩家代号: kiryusensya",
             desc_ps: "通过 PlayStation Network 连接。\n在线ID: kiryu_sensya",
             desc_insta: "关注最新动态及私信。\nID: _.k__yu.10",
-            desc_discord: "实时支持聊天。\nID: kiryu_sensya"
+            desc_discord: "实时支持聊天。\nID: kiryu_sensya",
+            error_modal_title: "错误查询", error_modal_sub: "请输入需要支持的错误代码。",
+            btn_search: "查询", error_empty: "请输入错误代码。", error_not_found: "未找到该错误代码。",
+            error_result_title: "查询结果", btn_back: "返回"
         },
         "zh-TW": { 
             brand_name: "_.k__yu.10 | Support", brand_mobile: "Support",
@@ -621,7 +680,10 @@ body {
             desc_xbox: "透過 Xbox Live 連接。\n玩家代號: kiryusensya",
             desc_ps: "透過 PlayStation Network 連接。\n線上ID: kiryu_sensya",
             desc_insta: "追蹤最新動態及私訊。\nID: _.k__yu.10",
-            desc_discord: "即時支援聊天。\nID: kiryu_sensya"
+            desc_discord: "即時支援聊天。\nID: kiryu_sensya",
+            error_modal_title: "錯誤查詢", error_modal_sub: "請輸入需要支援的錯誤代碼。",
+            btn_search: "查詢", error_empty: "請輸入錯誤代碼。", error_not_found: "未找到該錯誤代碼。",
+            error_result_title: "查詢結果", btn_back: "返回"
         },
         ko: { 
             brand_name: "_.k__yu.10 | Support", brand_mobile: "Support",
@@ -632,7 +694,10 @@ body {
             desc_xbox: "Xbox Live를 통해 연결합니다.\n게이머태그: kiryusensya",
             desc_ps: "PlayStation Network를 통해 연결합니다.\n온라인 ID: kiryu_sensya",
             desc_insta: "최신 정보 확인 및 DM은 여기로.\nID: _.k__yu.10",
-            desc_discord: "실시간 지원 채팅.\nID: kiryu_sensya"
+            desc_discord: "실시간 지원 채팅.\nID: kiryu_sensya",
+            error_modal_title: "오류 검색", error_modal_sub: "지원이 필요한 오류 코드를 입력하세요.",
+            btn_search: "검색", error_empty: "오류 코드를 입력하세요.", error_not_found: "오류 코드를 찾을 수 없습니다.",
+            error_result_title: "검색 결과", btn_back: "뒤로"
         },
         ru: { 
             brand_name: "_.k__yu.10 | Support", brand_mobile: "Support",
@@ -643,7 +708,10 @@ body {
             desc_xbox: "Подключение через Xbox Live.\nТег игрока: kiryusensya",
             desc_ps: "Подключение через PlayStation Network.\nOnline ID: kiryu_sensya",
             desc_insta: "Следите за обновлениями и пишите в DM.\nID: _.k__yu.10",
-            desc_discord: "Чат поддержки в реальном времени.\nID: kiryu_sensya"
+            desc_discord: "Чат поддержки в реальном времени.\nID: kiryu_sensya",
+            error_modal_title: "Поиск ошибки", error_modal_sub: "Введите код ошибки для поддержки.",
+            btn_search: "Поиск", error_empty: "Введите код ошибки.", error_not_found: "Код ошибки не найден.",
+            error_result_title: "Результат", btn_back: "Назад"
         }
     };
 
@@ -759,6 +827,81 @@ body {
     initTheme();
     animate();
     setLanguage();
+
+  / index.html と同じAPIのURLを設定
+    const GAS_API_URL = "api/proxy"; 
+
+    // エラー検索モーダル制御
+    const errModalOverlay = document.getElementById('errorSearchModal');
+    
+    window.openErrorModal = function() {
+        resetErrorModal();
+        errModalOverlay.classList.add('active');
+        setTimeout(() => document.getElementById('errorCodeInput').focus(), 100);
+    };
+
+    window.closeErrorModal = function() {
+        errModalOverlay.classList.remove('active');
+    };
+    
+    // 背景クリックで閉じる処理
+    errModalOverlay.addEventListener('click', (e) => { 
+        if(e.target === errModalOverlay) closeErrorModal(); 
+    });
+
+    window.resetErrorModal = function() {
+        document.getElementById('error-phase-input').style.display = 'flex';
+        document.getElementById('error-phase-result').style.display = 'none';
+        document.getElementById('errorCodeInput').value = '';
+        document.getElementById('errorSearchStatus').textContent = '';
+        document.getElementById('btnErrorCheck').disabled = false;
+        setLanguage(); // 翻訳の再適用
+    };
+
+    // 検索処理
+    window.searchErrorCode = async function() {
+        const code = document.getElementById('errorCodeInput').value.trim();
+        const statusEl = document.getElementById('errorSearchStatus');
+        const btn = document.getElementById('btnErrorCheck');
+        const lang = localStorage.getItem('user_lang') || 'ja';
+        const t = TRANSLATIONS[lang] || TRANSLATIONS.ja;
+
+        if (!code) {
+            statusEl.textContent = t.error_empty || "エラーコードを入力してください。";
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = `<i data-lucide="loader" class="fa-spin"></i>`; // 簡易ローダー
+        lucide.createIcons();
+        statusEl.textContent = "";
+
+        try {
+            const res = await fetch(`${GAS_API_URL}?type=error_search&code=${encodeURIComponent(code)}&lang=${lang}`);
+            const data = await res.json();
+
+            if (data.success) {
+                document.getElementById('error-phase-input').style.display = 'none';
+                document.getElementById('error-phase-result').style.display = 'flex';
+                document.getElementById('resultErrorCode').textContent = "Error: " + data.code;
+                document.getElementById('resultErrorMessage').textContent = data.errorMessage;
+            } else {
+                statusEl.textContent = data.message === "Error code not found" ? (t.error_not_found || "見つかりません。") : data.message;
+            }
+        } catch (e) {
+            statusEl.textContent = "Network Error";
+        } finally {
+            btn.disabled = false;
+            if(document.getElementById('error-phase-input').style.display === 'flex') {
+                btn.innerHTML = `<span data-translate="btn_search">${t.btn_search}</span>`;
+            }
+        }
+    };
+    
+    // Enterキーで検索実行
+    document.getElementById('errorCodeInput').addEventListener('keydown', function(e) {
+        if(e.key === 'Enter') searchErrorCode();
+    });
 </script>
 </body>
 </html>
