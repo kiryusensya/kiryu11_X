@@ -2129,10 +2129,14 @@ async function buyItemWithPoints(code, price) {
             
             try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
         } else {
-            els.errorCodeText.textContent = generateErrorCode();
+            // ★修正：エラーコードの固定化（所有済みは1011）
+            let specificErrorCode = generateErrorCode();
+            if (data.message === "Already owned") {
+                specificErrorCode = "1011";
+            }
+            els.errorCodeText.textContent = specificErrorCode;
             els.errorTime.textContent = currentAuthTime;
 
-            // ★追加: 本物のエラーの時はタイトルを「エラー」に戻す
             const titlePrefix = els.phaseError.querySelector('[data-translate="error_title_prefix"]');
             if (titlePrefix) titlePrefix.textContent = t.error_title_prefix || "エラー";
 
@@ -2140,8 +2144,8 @@ async function buyItemWithPoints(code, price) {
             let errorSubText = data.message;
             let showInfoBox = true;
             
-         if (data.message === "Already owned") {
-            errorMainText = t.error_owned_msg || "既に所有しているようです。";
+            if (data.message === "Already owned") {
+                errorMainText = t.error_owned_msg || "既に所有しているようです。";
                 errorSubText = window.innerWidth <= 768 ? (t.msg_already_owned_mobile || "ストアからコンテンツを選択してダウンロードしてください。") : (t.error_owned_sub || "左ライブラリメニューからコンテンツを選択してダウンロードしてください。");
                 
                 els.btnErrorClose.style.flex = "none";
@@ -2410,6 +2414,8 @@ async function performAuth(code, mode = 'check') {
   const t = TRANSLATIONS[CURRENT_LANG];
   const thisRequestId = currentAuthRequestId;
   const uId = currentUser ? currentUser.userId : "GUEST";
+  
+  // ハイフンを含む正規フォーマットに自動整形
   const safeCode = formatCodeInput(code);
   const spinnerHtml = `<span class="loading-spinner" style="border-top-color:currentColor; width:18px; height:18px; border-width:2px; margin:0;"></span>`;
 
@@ -2456,12 +2462,9 @@ async function performAuth(code, mode = 'check') {
         if (thisRequestId !== currentAuthRequestId) return;
         
         els.previewImage.src = currentContentData.imageUrl;
-        // ★ 変更：画像下にはメッセージ名
         els.previewTitleUnderImg.textContent = currentContentData.message;
-        // ★ 変更：右側には詳しいタイトル
         els.previewTitle.textContent = currentContentData.detailedTitle;
         
-        // ★ 変更：下のボックス中に詳細説明
         if (currentContentData.detailedDesc) {
             els.previewWarningText.innerHTML = currentContentData.detailedDesc.replace(/\n/g, '<br>');
             els.previewWarningBox.style.display = 'flex';
@@ -2491,31 +2494,24 @@ async function performAuth(code, mode = 'check') {
       } else { throw new Error(d.message); }
     } else if (mode === 'redeem') {
       if (d.success) { 
-        // --- (ポイントチャージモードの処理は既存のまま) ---
+        // ★修正：POINT成功時の画面切り替えと残高更新
         if (d.isPointMode) {
-            // サーバーから最新のポイント残高を取得してUIを更新
             fetchUserHistory();
-
-            // 成功画面のテキストを設定
             const successTops = els.phaseSuccess.querySelectorAll('.modal-title-top, .mobile-title');
             successTops.forEach(el => el.textContent = t.success_pt_title || "ポイントチャージ完了");
-            
             const label = els.phaseSuccess.querySelector('.modal-label');
             if(label) label.textContent = (t.success_pt_msg || "追加されました。").replace('%s', d.message);
-
-            // 成功画面の画像や詳細テキストの設定
+            
             els.successImage.src = currentContentData.imageUrl || "https://static.wixstatic.com/media/2f0694_a82787a4837b40a9be0c361cfe71ff95~mv2.png/v1/fill/w_1200,h_1200,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/Polish_20260125_100959885.png";
             els.successTitleUnderImg.textContent = d.message;
             els.successBundleName.textContent = currentContentData.message || d.message;
             els.successMessageText.innerHTML = "";
             els.successTime.textContent = currentAuthTime;
 
-            // ダウンロードボタンは非表示にする
             els.btnSuccessClose.style.flex = "none";
             els.btnSuccessClose.style.width = "100%";
             els.btnSuccessDownload.style.display = "none";
 
-            // 確認画面から成功画面へのフェード切り替え
             els.phasePreview.style.opacity = '0';
             setTimeout(() => {
                 if (thisRequestId !== currentAuthRequestId) return;
@@ -2523,7 +2519,6 @@ async function performAuth(code, mode = 'check') {
                 els.phaseSuccess.style.display = 'flex';
                 setTimeout(() => els.phaseSuccess.style.opacity = '1', 50);
             }, 400);
-
             return;
         }
 
@@ -2541,9 +2536,7 @@ async function performAuth(code, mode = 'check') {
            showMobileItemDetail(item, true); 
         } else {
            els.successImage.src = currentContentData.imageUrl;
-           // ★ 変更：画像下にはメッセージ名
            els.successTitleUnderImg.textContent = currentContentData.message;
-           // ★ 変更：認証成功画面はバンドル名
            els.successBundleName.textContent = currentContentData.bundleLabel;
            els.successMessageText.innerHTML = t.success_msg_box.replace(/\n/g, '<br>');
            els.successTime.textContent = currentAuthTime;
@@ -2564,27 +2557,31 @@ async function performAuth(code, mode = 'check') {
         try {
             if(typeof lucide !== 'undefined') lucide.createIcons();
             
-            const randomErrorCode = generateErrorCode();
-            els.errorCodeText.textContent = randomErrorCode;
-            els.errorTime.textContent = currentAuthTime;
-
             let errorMainText = "";
             let errorSubText = "";
             let showInfoBox = true;
+            let specificErrorCode = generateErrorCode(); // ★追加：デフォルトはランダム
             
             const msg = d.message || "";
             if (d.isAlreadyOwned || msg === "Already owned" || msg.includes("所有") || msg.includes("済") || msg.includes("owned")) {
                 errorMainText = t.error_owned_msg || "既に所有しているようです。";
                 errorSubText = window.innerWidth <= 768 ? (t.msg_already_owned_mobile || "ストアからコンテンツを選択してダウンロードしてください。") : (t.error_owned_sub || "左ライブラリメニューからコンテンツを選択してダウンロードしてください。");
-                
+                specificErrorCode = "1011"; // ★追加：所有済みエラー
                 els.btnErrorClose.style.flex = "none";
                 els.btnErrorClose.style.width = "100%";
             } else if (msg === "This code has already been used." || msg.includes("使用済") || msg.includes("used")) {
                 errorMainText = t.error_used_msg || t.msg_used;
                 errorSubText = "";
+                specificErrorCode = "1013"; // ★追加：使用済みエラー
                 els.btnErrorClose.style.flex = "none";
                 els.btnErrorClose.style.width = "100%";
                 showInfoBox = false;
+            } else if (msg.toLowerCase().includes("invalid") || msg.toLowerCase().includes("not found")) {
+                errorMainText = t.msg_invalid || "コードが無効です";
+                errorSubText = msg;
+                specificErrorCode = "1012"; // ★追加：無効エラー
+                els.btnErrorClose.style.flex = "none";
+                els.btnErrorClose.style.width = "100%";
             } else {
                 errorMainText = t.msg_error;
                 errorSubText = msg;
@@ -2592,6 +2589,9 @@ async function performAuth(code, mode = 'check') {
                 els.btnErrorClose.style.width = "100%";
                 showInfoBox = errorSubText ? true : false;
             }
+            
+            els.errorCodeText.textContent = specificErrorCode;
+            els.errorTime.textContent = currentAuthTime;
             
             els.errorMessage.textContent = errorMainText;
             if(showInfoBox && errorSubText) {
@@ -2619,8 +2619,6 @@ async function performAuth(code, mode = 'check') {
     console.error("Auth Error:", e);
     if (thisRequestId !== currentAuthRequestId) return;
 
-    // APIから送られてきたエラーメッセージを優先して使う
-    // e.message があればそれを使い、なければ言語ごとのデフォルトエラーを表示
     let serverMessage = e.message || "";
     
     if (mode === 'check') {
@@ -2628,16 +2626,13 @@ async function performAuth(code, mode = 'check') {
        els.confirm.disabled = false; 
        els.confirm.textContent = t.modal_btn_auth;
        
-       let errorDisplay = t.msg_error; // デフォルト：エラーが発生しました
+       let errorDisplay = t.msg_error; 
        
-       // 大文字小文字を気にせず(toLowerCase)チェックするように修正
        const lowMsg = serverMessage.toLowerCase();
        if (lowMsg.includes("used")) {
            errorDisplay = t.msg_used;
-       } else if (lowMsg.includes("invalid") || lowMsg.includes("not found")) {
-           errorDisplay = t.msg_invalid; // これで「コードが無効です」が出るようになります
-       } else if (lowMsg.includes("required")) {
-           errorDisplay = "Code is required";
+       } else if (lowMsg.includes("invalid") || lowMsg.includes("not found") || lowMsg.includes("code is required")) {
+           errorDisplay = t.msg_invalid;
        }
 
        const errorHtml = `<span style="color:#FF3B30; font-size:14px; font-weight:700;">${errorDisplay}</span>`;
@@ -2645,16 +2640,25 @@ async function performAuth(code, mode = 'check') {
        if (els.mobileInputDesc) els.mobileInputDesc.innerHTML = errorHtml;
        
     } else {
-       // Redeemモード（確認ボタン押下後）のエラー表示
        els.btnPreviewRedeem.disabled = false;
        els.btnPreviewRedeem.innerHTML = t.btn_continue;
        
-       els.errorCodeText.textContent = generateErrorCode();
+       // ★修正：システムエラー側のエラーコード固定化
+       const lowMsg = serverMessage.toLowerCase();
+       let specificErrorCode = generateErrorCode();
+       if (lowMsg.includes("invalid") || lowMsg.includes("not found")) {
+           specificErrorCode = "1012";
+       } else if (lowMsg.includes("already owned") || lowMsg.includes("owned")) {
+           specificErrorCode = "1011";
+       } else if (lowMsg.includes("used")) {
+           specificErrorCode = "1013";
+       }
+       
+       els.errorCodeText.textContent = specificErrorCode;
        els.errorTime.textContent = currentAuthTime;
        
-       // エラーモーダルのタイトルと本文をセット
-       els.errorMessage.textContent = t.msg_invalid; // タイトルを「無効」に
-       els.errorSubMessage.textContent = serverMessage; // 詳細にAPIからのメッセージを表示
+       els.errorMessage.textContent = t.msg_invalid;
+       els.errorSubMessage.textContent = serverMessage;
        els.errorInfoBox.style.display = 'block';
        
        els.btnErrorClose.style.flex = "none";
