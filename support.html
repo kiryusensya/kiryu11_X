@@ -542,7 +542,21 @@ body {
 <div class="detail-modal-overlay" id="detailOverlay">
     <div class="detail-modal">
         <button class="close-btn" onclick="closeDetail()"><i data-lucide="x"></i></button>
-        <div class="code-modal-overlay" id="errorSearchModal">
+        <div class="detail-visual" id="modalVisual">
+            <i class="fa-brands fa-instagram" id="modalIcon"></i>
+        </div>
+        <div class="detail-content">
+            <div class="detail-title" id="modalTitle">Title</div>
+            <div class="detail-text" id="modalDesc">Desc</div>
+            <a href="#" target="_blank" class="btn-inquiry" id="modalBtn">
+                <span data-translate="btn_inquiry">Contact</span>
+                <i data-lucide="arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="code-modal-overlay" id="errorSearchModal">
     <div class="code-modal-sheet">
         <button class="close-btn" onclick="closeErrorModal()" style="position:absolute; top:20px; right:20px; background:transparent;"><i data-lucide="x"></i></button>
 
@@ -566,7 +580,6 @@ body {
             <button class="btn-search-code" onclick="resetErrorModal()" style="margin-top: 24px;"><span data-translate="btn_back">戻る</span></button>
         </div>
     </div>
-</div>
 </div>
 
 <script>
@@ -828,7 +841,7 @@ body {
     animate();
     setLanguage();
 
-  / index.html と同じAPIのURLを設定
+    // index.html と同じAPIのURLを設定 (★スラッシュを2つに修正しました)
     const GAS_API_URL = "api/proxy"; 
 
     // エラー検索モーダル制御
