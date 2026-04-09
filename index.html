@@ -2410,7 +2410,7 @@ async function performAuth(code, mode = 'check') {
   const t = TRANSLATIONS[CURRENT_LANG];
   const thisRequestId = currentAuthRequestId;
   const uId = currentUser ? currentUser.userId : "GUEST";
-  const safeCode = (code || "").replace(/[^A-Za-z0-9\-]/g, "").trim();
+  const safeCode = formatCodeInput(code);
   const spinnerHtml = `<span class="loading-spinner" style="border-top-color:currentColor; width:18px; height:18px; border-width:2px; margin:0;"></span>`;
 
   if (mode === 'check') {
@@ -2493,8 +2493,38 @@ async function performAuth(code, mode = 'check') {
       if (d.success) { 
         // --- (ポイントチャージモードの処理は既存のまま) ---
         if (d.isPointMode) {
-           // ... (省略: 変更なし)
-           return;
+            // サーバーから最新のポイント残高を取得してUIを更新
+            fetchUserHistory();
+
+            // 成功画面のテキストを設定
+            const successTops = els.phaseSuccess.querySelectorAll('.modal-title-top, .mobile-title');
+            successTops.forEach(el => el.textContent = t.success_pt_title || "ポイントチャージ完了");
+            
+            const label = els.phaseSuccess.querySelector('.modal-label');
+            if(label) label.textContent = (t.success_pt_msg || "追加されました。").replace('%s', d.message);
+
+            // 成功画面の画像や詳細テキストの設定
+            els.successImage.src = currentContentData.imageUrl || "https://static.wixstatic.com/media/2f0694_a82787a4837b40a9be0c361cfe71ff95~mv2.png/v1/fill/w_1200,h_1200,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/Polish_20260125_100959885.png";
+            els.successTitleUnderImg.textContent = d.message;
+            els.successBundleName.textContent = currentContentData.message || d.message;
+            els.successMessageText.innerHTML = "";
+            els.successTime.textContent = currentAuthTime;
+
+            // ダウンロードボタンは非表示にする
+            els.btnSuccessClose.style.flex = "none";
+            els.btnSuccessClose.style.width = "100%";
+            els.btnSuccessDownload.style.display = "none";
+
+            // 確認画面から成功画面へのフェード切り替え
+            els.phasePreview.style.opacity = '0';
+            setTimeout(() => {
+                if (thisRequestId !== currentAuthRequestId) return;
+                els.phasePreview.style.display = 'none';
+                els.phaseSuccess.style.display = 'flex';
+                setTimeout(() => els.phaseSuccess.style.opacity = '1', 50);
+            }, 400);
+
+            return;
         }
 
         await saveUnlockedItemLocal(d, safeCode);
