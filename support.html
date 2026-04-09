@@ -56,8 +56,7 @@ body {
   color: var(--modal-text-main);
   font-family: var(--font-stack);
   min-height: 100vh;
-  /* PCでは画面いっぱいに収めるため overflow: hidden 推奨だが、コンテンツが多い場合は auto */
-  overflow: hidden; 
+  overflow-x: hidden; 
   display: flex;
   flex-direction: column;
   transition: background-color 0.5s ease;
@@ -81,7 +80,6 @@ body {
     pointer-events: none;
 }
 
-/* 左側エリア (ハンバーガー + ブランド) */
 .header-left-group {
     position: absolute;
     top: 30px;
@@ -92,9 +90,8 @@ body {
     pointer-events: auto;
 }
 
-/* ハンバーガーアイコン (デフォルト非表示、スマホで表示) */
 .hamburger-btn {
-    display: none; /* PCでは非表示 */
+    display: none;
     background: transparent;
     border: none;
     color: var(--sidebar-text);
@@ -115,11 +112,8 @@ body {
     color: var(--sidebar-text);
 }
 .header-brand i { color: #FFA500; }
-
-/* ブランド名表示切替用クラス */
 .brand-text-mobile { display: none; }
 
-/* 右側エリア (タブ + テーマ + ユーザー) */
 .header-right {
     position: absolute;
     top: 24px;
@@ -130,7 +124,6 @@ body {
     pointer-events: auto;
 }
 
-/* タブスタイル (PC用) */
 .rgl-tabs { display: flex; gap: 30px; }
 .rgl-tab {
     position: relative;
@@ -177,16 +170,15 @@ body {
 .theme-pill:hover { transform: scale(1.1); }
 [data-theme="dark"] .theme-pill { color: #fff; }
 
-/* --- メインコンテンツエリア (全画面対応) --- */
+/* --- メインコンテンツエリア --- */
 .support-wrapper {
     width: 100%;
-    height: 100vh; /* 画面いっぱいに */
-    /* ヘッダーの高さを考慮して上部パディングを設定 */
+    min-height: 100vh;
     padding: 100px 40px 40px 40px; 
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center; 
+    justify-content: flex-start; /* 中央配置から上寄せに変更 */
     z-index: 5;
     position: relative;
     box-sizing: border-box;
@@ -194,7 +186,7 @@ body {
 
 .page-title-area {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 40px;
     animation: fadeInUp 0.6s ease forwards;
     flex-shrink: 0;
 }
@@ -205,263 +197,103 @@ body {
 }
 .page-sub { opacity: 0.6; font-size: 13px; }
 
-/* BENTO GRID LAYOUT (Full Screen Optimized) */
-.bento-grid {
-    display: grid;
-    /* PCでは幅制限解除して画面いっぱいにする */
+/* --- エラー検索専用カードレイアウト --- */
+.search-card-wrapper {
     width: 100%;
-    height: 100%;
-    max-width: none; 
-    margin: 0;
-    
-    grid-template-columns: 1.4fr 1fr 1fr; 
-    /* 高さを画面いっぱいにするために 1fr を使用 */
-    grid-template-rows: 1fr 1fr;
-    gap: 20px;
+    max-width: 800px; /* PCでの最大幅 */
+    animation: fadeInUp 0.8s ease forwards;
 }
 
-.bento-card {
+.search-card {
     background: var(--card-bg);
-    border: 1px solid rgba(128,128,128,0.1);
-    border-radius: 24px;
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s var(--spring-ease);
-    backdrop-filter: blur(20px);
-    position: relative;
-    overflow: hidden;
-    text-decoration: none;
-    color: var(--modal-text-main);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-}
-.bento-card:hover {
-    transform: translateY(-4px) scale(1.005);
-    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-    border-color: rgba(128,128,128,0.5);
-    z-index: 10;
-}
-[data-theme="dark"] .bento-card:hover { border-color: #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
-
-/* 左側の大きなカード */
-.card-large-left {
-    grid-column: 1 / 2;
-    grid-row: 1 / 3; /* 縦一杯 */
-    background: linear-gradient(135deg, rgba(0,125,255,0.1) 0%, var(--card-bg) 100%);
-}
-.card-large-left .card-icon { font-size: 80px; margin-bottom: 24px; }
-.card-large-left .card-title { font-size: 32px; font-weight: 800; text-align: center; }
-.card-large-left .card-desc { font-size: 16px; margin-top: 8px; }
-
-/* 右側の小さなカード */
-.card-icon { font-size: 40px; margin-bottom: 12px; transition: transform 0.3s; }
-.bento-card:hover .card-icon { transform: scale(1.1) rotate(5deg); }
-.card-title { font-size: 18px; font-weight: 800; margin-bottom: 2px; }
-.card-desc { font-size: 12px; opacity: 0.6; }
-
-/* --- スマホメニューオーバーレイ (index.htmlベース) --- */
-.nav-overlay {
-    position: fixed;
-    inset: 0;
-    background: var(--bg-color);
-    z-index: 10000;
+    border: 1px solid rgba(128,128,128,0.2);
+    border-radius: 32px;
     padding: 40px;
     display: flex;
     flex-direction: column;
-    transform: translateX(-100%);
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    visibility: hidden;
-}
-.nav-overlay.active {
-    transform: translateX(0);
-    visibility: visible;
-}
-
-.nav-close-btn {
-    align-self: flex-end;
-    background: transparent;
-    border: 1px solid var(--btn-close-border);
+    align-items: center;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.1);
     color: var(--modal-text-main);
-    width: 44px; height: 44px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    margin-bottom: 40px;
+    transition: all 0.3s var(--spring-ease);
 }
+[data-theme="dark"] .search-card { border-color: rgba(255,255,255,0.1); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
 
-.nav-content {
+.search-title { margin:0 0 10px 0; font-size:24px; font-weight:800; text-align: center; }
+.search-sub { color:var(--modal-text-sub); margin:0 0 30px 0; font-size:14px; text-align: center; }
+
+.search-input-group {
+    width: 100%;
+    max-width: 500px;
     display: flex;
     flex-direction: column;
-    gap: 40px;
-    margin-top: 40px;
+    gap: 16px;
 }
 
-.nav-item {
-    font-size: 32px;
-    font-weight: 800;
-    color: var(--modal-text-main);
-    text-decoration: none;
-    opacity: 0;
-    transform: translateX(-20px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
+.code-search-field {
+    width: 100%; border: 1px solid rgba(128,128,128,0.2); background: rgba(128, 128, 128, 0.05);
+    height: 56px; border-radius: 16px;
+    text-align: center; outline: none; transition: 0.3s;
+    color: var(--modal-text-main); font-family: var(--font-stack); font-size: 17px; font-weight: 700; padding: 0 20px;
 }
-.nav-overlay.active .nav-item {
-    opacity: 1;
-    transform: translateX(0);
+[data-theme="dark"] .code-search-field { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); }
+.code-search-field:focus { border-color: var(--primary); background: rgba(0, 125, 255, 0.05); }
+
+.btn-search-code {
+    width: 100%; height: 56px; border: none; background: var(--primary); color: white;
+    border-radius: 50px; font-size: 16px; font-weight: 700; cursor: pointer; transition: transform 0.2s; font-family: var(--font-stack);
 }
+.btn-search-code:active { transform: scale(0.98); }
+.btn-search-code:disabled { opacity: 0.6; pointer-events: none; }
+
+/* 検索結果エリア */
+.search-result-area {
+    width: 100%;
+    margin-top: 30px;
+    padding-top: 30px;
+    border-top: 1px solid rgba(128,128,128,0.2);
+    display: none;
+    flex-direction: column;
+    animation: fadeInUp 0.4s ease forwards;
+}
+.result-box {
+    background: rgba(128,128,128,0.1);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: left;
+}
+.result-code-title { margin: 0 0 12px 0; font-size: 20px; color: var(--primary); font-weight: 800;}
+.result-message { margin: 0; font-size: 15px; line-height: 1.6; white-space: pre-wrap; font-weight: 500;}
+
+
+/* スマホメニューオーバーレイ */
+.nav-overlay {
+    position: fixed; inset: 0; background: var(--bg-color); z-index: 10000; padding: 40px; display: flex; flex-direction: column; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); visibility: hidden;
+}
+.nav-overlay.active { transform: translateX(0); visibility: visible; }
+.nav-close-btn { align-self: flex-end; background: transparent; border: 1px solid var(--btn-close-border); color: var(--modal-text-main); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 40px; }
+.nav-content { display: flex; flex-direction: column; gap: 40px; margin-top: 40px; }
+.nav-item { font-size: 32px; font-weight: 800; color: var(--modal-text-main); text-decoration: none; opacity: 0; transform: translateX(-20px); transition: opacity 0.3s ease, transform 0.3s ease; }
+.nav-overlay.active .nav-item { opacity: 1; transform: translateX(0); }
 .nav-overlay.active .nav-item:nth-child(1) { transition-delay: 0.1s; }
 .nav-overlay.active .nav-item:nth-child(2) { transition-delay: 0.2s; }
 
 /* スマホ対応レスポンシブ */
 @media (max-width: 900px) {
-    body { overflow-y: auto; height: auto; }
-    
-    /* PCタブ非表示、ハンバーガー表示 */
     .rgl-tabs { display: none; }
     .hamburger-btn { display: flex; }
-    
-    /* PC用ブランド名非表示、スマホ用ブランド名表示 */
     .brand-text-pc { display: none; }
     .brand-text-mobile { display: inline; }
-    
     .unified-header { height: auto; }
-    /* ヘッダー左側（ロゴ）の配置 */
     .header-left-group { top: 0; left: 0; margin: 24px 0 0 24px; position: relative; }
+    .header-right { top: 24px; right: 24px; margin: 0; position: absolute; }
+    .support-wrapper { padding: 100px 20px 40px 20px; }
     
-    /* ヘッダー右側（アイコン群）の配置変更: 
-       ヘッダータイトル(Support)と同じ高さにするため top: 24px に戻す */
-    .header-right { 
-        top: 24px; /* ヘッダー内の左側要素(margin-top:24px)と高さを合わせる */
-        right: 24px; /* 右端に配置 */
-        margin: 0;
-        position: absolute;
-    }
-
-    .support-wrapper { 
-        height: auto; 
-        min-height: 100vh;
-        padding: 100px 20px 40px 20px; 
-    }
-    
-    .bento-grid {
-        display: flex;
-        flex-direction: column;
-        height: auto;
-        gap: 20px;
-    }
-    .card-large-left {
-        height: 220px;
-    }
-    .card-large-left .card-icon { font-size: 50px; }
-    .card-large-left .card-title { font-size: 24px; }
-    
-    .bento-card.card-small {
-        height: 160px;
-    }
-}
-
-/* 詳細モーダル */
-.detail-modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(15px);
-    z-index: 9999;
-    display: flex; justify-content: center; align-items: center;
-    opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
-}
-.detail-modal-overlay.active { opacity: 1; pointer-events: auto; }
-
-.detail-modal {
-    background: var(--bg-color);
-    width: 800px; max-width: 90%;
-    border-radius: 32px;
-    border: 1px solid rgba(128,128,128,0.2);
-    box-shadow: 0 50px 100px rgba(0,0,0,0.5);
-    display: flex;
-    overflow: hidden;
-    transform: scale(0.95);
-    transition: transform 0.4s var(--spring-ease);
-}
-.detail-modal-overlay.active .detail-modal { transform: scale(1); }
-[data-theme="dark"] .detail-modal { background: #1a1a1a; }
-
-.detail-visual {
-    flex: 1; background: #000; position: relative; min-height: 350px;
-    display: flex; align-items: center; justify-content: center;
-}
-.detail-visual i { font-size: 100px; color: rgba(255,255,255,0.3); }
-
-.detail-content {
-    flex: 1; padding: 40px; display: flex; flex-direction: column; justify-content: center;
-}
-.detail-title { font-size: 28px; font-weight: 800; margin-bottom: 12px; }
-.detail-text { font-size: 14px; opacity: 0.7; line-height: 1.6; margin-bottom: 30px; white-space: pre-wrap; }
-.btn-inquiry {
-    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-    height: 50px; padding: 0 30px; background: var(--modal-text-main); color: var(--bg-color);
-    border-radius: 50px; font-weight: 800; font-size: 15px; cursor: pointer; text-decoration: none;
-    transition: transform 0.2s; width: fit-content;
-}
-.btn-inquiry:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
-.close-btn {
-    position: absolute; top: 15px; right: 15px; width: 36px; height: 36px; border-radius: 50%;
-    background: rgba(128,128,128,0.1); display: flex; align-items: center; justify-content: center;
-    cursor: pointer; border: none; color: var(--modal-text-main); font-size: 18px;
+    .search-card { padding: 30px 20px; }
 }
 
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* --- エラーコード検索用モーダル (index.htmlから流用) --- */
-.code-modal-overlay {
-    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px);
-    z-index: 10000; display: flex; justify-content: center; align-items: center;
-    opacity: 0; pointer-events: none; transition: opacity 0.5s ease;
-}
-.code-modal-overlay.active { opacity: 1; pointer-events: auto; }
-
-.code-modal-sheet {
-    background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
-    border-radius: 32px; box-shadow: 0 30px 80px rgba(0,0,0,0.15);
-    position: relative; overflow: hidden; width: 90%; max-width: 470px; padding: 40px;
-    transform: translateY(60px) scale(0.85); opacity: 0;
-    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.code-modal-overlay.active .code-modal-sheet { transform: translateY(0) scale(1); opacity: 1; }
-
-[data-theme="dark"] .code-modal-sheet { background: rgba(50, 50, 50, 0.7); box-shadow: 0 30px 80px rgba(0,0,0,0.5); }
-
-.code-modal-title { margin:0 0 10px 0; font-size:24px; font-weight:800; color:var(--modal-text-main); text-align: center; }
-.code-modal-sub { color:var(--modal-text-sub); margin:0; font-size:14px; text-align: center; }
-
-.code-search-field {
-    width: 100%; border: none; background: rgba(128, 128, 128, 0.1); height: 56px; border-radius: 16px;
-    text-align: center; outline: none; transition: 0.3s; margin-top: 24px;
-    color: var(--modal-text-main); font-family: var(--font-stack); font-size: 17px; font-weight: 700; padding: 0 10px;
-}
-[data-theme="dark"] .code-search-field { color: #fff; background: rgba(255,255,255,0.1); }
-.code-search-field:focus { background: rgba(0, 125, 255, 0.1); color: var(--primary); }
-
-.btn-search-code {
-    width: 100%; height: 50px; margin-top: 20px; border: none; background: var(--primary); color: white;
-    border-radius: 50px; font-size: 16px; font-weight: 700; cursor: pointer; transition: transform 0.2s; font-family: var(--font-stack);
-}
-.btn-search-code:active { transform: scale(0.96); }
-.btn-search-code:disabled { opacity: 0.6; pointer-events: none; }
-
-/* Mobile Warning (Not used but kept for structure if needed) */
-#mobile-warning { display: none; }
-@media (max-width: 768px) {
-  body > *:not(#mobile-warning) { 
-      /* display: none !important; */
-  }
-  #mobile-warning {
-    /* display: flex !important; */
-    display: none !important;
-  }
-}
 </style>
 </head>
 <body>
@@ -503,81 +335,33 @@ body {
 <div class="support-wrapper">
     <div class="page-title-area">
         <h1 class="page-title" data-translate="page_title">Support Center</h1>
-        <div class="page-sub" data-translate="page_sub">Select a service to connect</div>
+        <div class="page-sub" data-translate="page_sub">エラーコード検索</div>
     </div>
 
-    <div class="bento-grid">
-        <div class="bento-card card-large-left" onclick="openErrorModal()">
-            <i data-lucide="mail" class="card-icon" style="color:#007DFF;"></i>
-            <div class="card-title" data-translate="card_web_title">Web Page Inquiry</div>
-            <div class="card-desc">kiryu10.vercel.app</div>
-        </div>
+    <div class="search-card-wrapper">
+        <div class="search-card">
+            
+            <i data-lucide="search" style="color:var(--primary); width:48px; height:48px; margin-bottom:20px;"></i>
+            <h2 class="search-title" data-translate="error_modal_title">エラーコード検索</h2>
+            <p class="search-sub" data-translate="error_modal_sub">サポートが必要なエラーコードを入力してください。</p>
 
-        <div class="bento-card card-small" onclick="openDetail('xbox')">
-            <i class="fa-brands fa-xbox card-icon" style="color:#107C10;"></i>
-            <div class="card-title">Xbox</div>
-            <div class="card-desc">kiryusensya</div>
-        </div>
-
-        <div class="bento-card card-small" onclick="openDetail('ps')">
-            <i class="fa-brands fa-playstation card-icon" style="color:#0070D1;"></i>
-            <div class="card-title">PlayStation</div>
-            <div class="card-desc">kiryu_sensya</div>
-        </div>
-
-        <div class="bento-card card-small" onclick="openDetail('instagram')">
-            <i class="fa-brands fa-instagram card-icon" style="color:#E1306C;"></i>
-            <div class="card-title">Instagram</div>
-            <div class="card-desc">_.k__yu.10</div>
-        </div>
-
-        <div class="bento-card card-small" onclick="openDetail('discord')">
-            <i class="fa-brands fa-discord card-icon" style="color:#5865F2;"></i>
-            <div class="card-title">Discord</div>
-            <div class="card-desc">kiryu_sensya</div>
-        </div>
-    </div>
-</div>
-
-<div class="detail-modal-overlay" id="detailOverlay">
-    <div class="detail-modal">
-        <button class="close-btn" onclick="closeDetail()"><i data-lucide="x"></i></button>
-        <div class="detail-visual" id="modalVisual">
-            <i class="fa-brands fa-instagram" id="modalIcon"></i>
-        </div>
-        <div class="detail-content">
-            <div class="detail-title" id="modalTitle">Title</div>
-            <div class="detail-text" id="modalDesc">Desc</div>
-            <a href="#" target="_blank" class="btn-inquiry" id="modalBtn">
-                <span data-translate="btn_inquiry">Contact</span>
-                <i data-lucide="arrow-right"></i>
-            </a>
-        </div>
-    </div>
-</div>
-
-<div class="code-modal-overlay" id="errorSearchModal">
-    <div class="code-modal-sheet">
-        <button class="close-btn" onclick="closeErrorModal()" style="position:absolute; top:20px; right:20px; background:transparent;"><i data-lucide="x"></i></button>
-
-        <div id="error-phase-input" style="display: flex; flex-direction: column; align-items: center;">
-            <h2 class="code-modal-title" data-translate="error_modal_title">エラーコード検索</h2>
-            <p class="code-modal-sub" data-translate="error_modal_sub">サポートが必要なエラーコードを入力してください。</p>
-
-            <div style="width: 100%;">
-                <input type="text" id="errorCodeInput" class="code-search-field" placeholder="1011" autocomplete="off">
-                <button id="btnErrorCheck" class="btn-search-code" onclick="searchErrorCode()"><span data-translate="btn_search">検索</span></button>
+            <div class="search-input-group">
+                <input type="text" id="errorCodeInput" class="code-search-field" placeholder="例: 1011" autocomplete="off">
+                <button id="btnErrorCheck" class="btn-search-code" onclick="searchErrorCode()"><span data-translate="btn_search">検索する</span></button>
+                <div id="errorSearchStatus" style="color:#FF3B30; font-size:13px; min-height:20px; text-align:center;"></div>
             </div>
-            <div id="errorSearchStatus" style="color:#FF3B30; font-size:13px; margin-top:10px; min-height:16px; text-align:center;"></div>
-        </div>
 
-        <div id="error-phase-result" style="display: none; flex-direction: column;">
-            <h2 class="code-modal-title" style="text-align: left; margin-bottom: 20px;" data-translate="error_result_title">検索結果</h2>
-            <div style="background: rgba(128,128,128,0.1); border-radius: 16px; padding: 20px; text-align: left;">
-                <h3 style="margin: 0 0 10px 0; font-size: 18px; color: var(--primary);" id="resultErrorCode"></h3>
-                <p style="margin: 0; font-size: 14px; line-height: 1.6; color: var(--modal-text-main); white-space: pre-wrap;" id="resultErrorMessage"></p>
+            <div id="searchResultArea" class="search-result-area">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <h3 style="margin:0; font-size:18px; font-weight:800;" data-translate="error_result_title">検索結果</h3>
+                    <button onclick="resetSearch()" style="background:transparent; border:none; color:var(--modal-text-sub); cursor:pointer; font-size:14px; text-decoration:underline;" data-translate="btn_back">クリア</button>
+                </div>
+                <div class="result-box">
+                    <h4 class="result-code-title" id="resultErrorCode">Error: ----</h4>
+                    <p class="result-message" id="resultErrorMessage"></p>
+                </div>
             </div>
-            <button class="btn-search-code" onclick="resetErrorModal()" style="margin-top: 24px;"><span data-translate="btn_back">戻る</span></button>
+
         </div>
     </div>
 </div>
@@ -601,130 +385,55 @@ body {
         });
     }
 
-    // Support Data
-    const supportData = {
-        web: {
-            titleKey: "card_web_title",
-            descKey: "desc_web",
-            iconClass: "lucide-mail",
-            color: "#007DFF",
-            url: "https://kiryu10.vercel.app"
-        },
-        xbox: {
-            title: "Xbox Network", 
-            descKey: "desc_xbox",
-            iconClass: "fa-brands fa-xbox",
-            color: "#107C10",
-            url: "https://www.xbox.com/ja-JP/play/user/kiryusensya"
-        },
-        ps: {
-            title: "PlayStation Network", 
-            descKey: "desc_ps",
-            iconClass: "fa-brands fa-playstation",
-            color: "#0070D1",
-            url: "#"
-        },
-        instagram: {
-            title: "Instagram", 
-            descKey: "desc_insta",
-            iconClass: "fa-brands fa-instagram",
-            color: "#E1306C",
-            url: "https://www.instagram.com/_.k__yu.10"
-        },
-        discord: {
-            title: "Discord", 
-            descKey: "desc_discord",
-            iconClass: "fa-brands fa-discord",
-            color: "#5865F2",
-            url: "https://discord.gg/rVAJp56V"
-        }
-    };
-
     // Translations
     const TRANSLATIONS = {
         ja: { 
             brand_name: "_.k__yu.10 | Support", brand_mobile: "Support",
             tab_home: "ホーム", tab_news: "ニュース", tab_support: "サポート",
-            page_title: "サポートセンター", page_sub: "接続するサービスを選択してください", 
-            card_web_title: "Webページのお問い合わせ", btn_inquiry: "問い合わせる",
-            desc_web: "公式サイトに関するお問い合わせはこちらから。\n kiryu10.vercel.app",
-            desc_xbox: "Xbox Live経由で接続します。\nゲーマータグ: kiryusensya",
-            desc_ps: "PlayStation Network経由で接続します。\nオンラインID: kiryu_sensya",
-            desc_insta: "最新情報の確認やDMはこちらから。\nID: _.k__yu.10",
-            desc_discord: "リアルタイムサポートチャット。\nID: kiryu_sensya",
+            page_title: "サポートセンター", page_sub: "エラーコードを検索して解決策を見つけます", 
             error_modal_title: "エラー検索", error_modal_sub: "サポートが必要なエラーコードを入力してください。",
-            btn_search: "検索", error_empty: "エラーコードを入力してください。", error_not_found: "エラーコードが見つかりません。",
-            error_result_title: "検索結果", btn_back: "戻る"
+            btn_search: "検索する", error_empty: "エラーコードを入力してください。", error_not_found: "エラーコードが見つかりません。",
+            error_result_title: "検索結果", btn_back: "クリア"
         },
         en: { 
             brand_name: "_.k__yu.10 | Support", brand_mobile: "Support",
             tab_home: "Home", tab_news: "NEWS", tab_support: "Support",
-            page_title: "Support Center", page_sub: "Select a service to connect", 
-            card_web_title: "Web Page Inquiry", btn_inquiry: "Contact Support",
-            desc_web: "Contact us regarding the official website.\n kiryu10.vercel.app",
-            desc_xbox: "Connect via Xbox Live.\nGamertag: kiryusensya",
-            desc_ps: "Connect via PlayStation Network.\nOnline ID: kiryu_sensya",
-            desc_insta: "Follow for updates and DMs.\nID: _.k__yu.10",
-            desc_discord: "Real-time support chat.\nID: kiryu_sensya",
+            page_title: "Support Center", page_sub: "Search for error codes to find solutions", 
             error_modal_title: "Error Search", error_modal_sub: "Enter the error code you need support with.",
             btn_search: "Search", error_empty: "Please enter an error code.", error_not_found: "Error code not found.",
-            error_result_title: "Result", btn_back: "Back"
+            error_result_title: "Result", btn_back: "Clear"
         },
         zh: { 
             brand_name: "_.k__yu.10 | Support", brand_mobile: "Support",
             tab_home: "首页", tab_news: "新闻", tab_support: "支持",
-            page_title: "服务中心", page_sub: "选择要连接的服务", 
-            card_web_title: "网页咨询", btn_inquiry: "联系我们",
-            desc_web: "关于官方网站的咨询请点击此处。\n kiryu10.vercel.app",
-            desc_xbox: "通过 Xbox Live 连接。\n玩家代号: kiryusensya",
-            desc_ps: "通过 PlayStation Network 连接。\n在线ID: kiryu_sensya",
-            desc_insta: "关注最新动态及私信。\nID: _.k__yu.10",
-            desc_discord: "实时支持聊天。\nID: kiryu_sensya",
+            page_title: "服务中心", page_sub: "搜索错误代码以查找解决方案", 
             error_modal_title: "错误查询", error_modal_sub: "请输入需要支持的错误代码。",
             btn_search: "查询", error_empty: "请输入错误代码。", error_not_found: "未找到该错误代码。",
-            error_result_title: "查询结果", btn_back: "返回"
+            error_result_title: "查询结果", btn_back: "清除"
         },
         "zh-TW": { 
             brand_name: "_.k__yu.10 | Support", brand_mobile: "Support",
             tab_home: "首頁", tab_news: "新聞", tab_support: "支援",
-            page_title: "服務中心", page_sub: "選擇要連接的服務", 
-            card_web_title: "網頁諮詢", btn_inquiry: "聯絡我們",
-            desc_web: "關於官方網站的諮詢請點擊此處。\n kiryu10.vercel.app",
-            desc_xbox: "透過 Xbox Live 連接。\n玩家代號: kiryusensya",
-            desc_ps: "透過 PlayStation Network 連接。\n線上ID: kiryu_sensya",
-            desc_insta: "追蹤最新動態及私訊。\nID: _.k__yu.10",
-            desc_discord: "即時支援聊天。\nID: kiryu_sensya",
+            page_title: "服務中心", page_sub: "搜尋錯誤代碼以尋找解決方案", 
             error_modal_title: "錯誤查詢", error_modal_sub: "請輸入需要支援的錯誤代碼。",
             btn_search: "查詢", error_empty: "請輸入錯誤代碼。", error_not_found: "未找到該錯誤代碼。",
-            error_result_title: "查詢結果", btn_back: "返回"
+            error_result_title: "查詢結果", btn_back: "清除"
         },
         ko: { 
             brand_name: "_.k__yu.10 | Support", brand_mobile: "Support",
             tab_home: "메인 페이지", tab_news: "뉴스", tab_support: "지원",
-            page_title: "서비스 센터", page_sub: "연결할 서비스를 선택하세요", 
-            card_web_title: "웹 페이지 문의", btn_inquiry: "문의하기",
-            desc_web: "공식 웹사이트 관련 문의는 여기로.\n kiryu10.vercel.app",
-            desc_xbox: "Xbox Live를 통해 연결합니다.\n게이머태그: kiryusensya",
-            desc_ps: "PlayStation Network를 통해 연결합니다.\n온라인 ID: kiryu_sensya",
-            desc_insta: "최신 정보 확인 및 DM은 여기로.\nID: _.k__yu.10",
-            desc_discord: "실시간 지원 채팅.\nID: kiryu_sensya",
+            page_title: "서비스 센터", page_sub: "오류 코드를 검색하여 해결책을 찾으세요", 
             error_modal_title: "오류 검색", error_modal_sub: "지원이 필요한 오류 코드를 입력하세요.",
             btn_search: "검색", error_empty: "오류 코드를 입력하세요.", error_not_found: "오류 코드를 찾을 수 없습니다.",
-            error_result_title: "검색 결과", btn_back: "뒤로"
+            error_result_title: "검색 결과", btn_back: "지우기"
         },
         ru: { 
             brand_name: "_.k__yu.10 | Support", brand_mobile: "Support",
             tab_home: "Главная", tab_news: "Новости", tab_support: "Поддержка",
-            page_title: "Центр поддержки", page_sub: "Выберите сервис", 
-            card_web_title: "Запрос по сайту", btn_inquiry: "Связаться",
-            desc_web: "Свяжитесь с нами через официальный сайт.\n kiryu10.vercel.app",
-            desc_xbox: "Подключение через Xbox Live.\nТег игрока: kiryusensya",
-            desc_ps: "Подключение через PlayStation Network.\nOnline ID: kiryu_sensya",
-            desc_insta: "Следите за обновлениями и пишите в DM.\nID: _.k__yu.10",
-            desc_discord: "Чат поддержки в реальном времени.\nID: kiryu_sensya",
+            page_title: "Центр поддержки", page_sub: "Поиск кодов ошибок для поиска решений", 
             error_modal_title: "Поиск ошибки", error_modal_sub: "Введите код ошибки для поддержки.",
             btn_search: "Поиск", error_empty: "Введите код ошибки.", error_not_found: "Код ошибки не найден.",
-            error_result_title: "Результат", btn_back: "Назад"
+            error_result_title: "Результат", btn_back: "Очистить"
         }
     };
 
@@ -740,41 +449,6 @@ body {
         });
         return t;
     }
-
-    // モーダル
-    const overlay = document.getElementById('detailOverlay');
-    const mTitle = document.getElementById('modalTitle');
-    const mDesc = document.getElementById('modalDesc');
-    const mBtn = document.getElementById('modalBtn');
-    const mVisual = document.getElementById('modalVisual');
-
-    window.openDetail = function(key) {
-        const data = supportData[key];
-        const t = setLanguage();
-        if(!data) return;
-
-        mTitle.textContent = data.titleKey ? (t[data.titleKey] || data.title) : data.title;
-        mDesc.innerText = t[data.descKey] || data.descKey;
-        mBtn.href = data.url;
-        
-        mVisual.innerHTML = '';
-        const iconEl = document.createElement('i');
-        if(data.iconClass.includes('lucide')) {
-            iconEl.setAttribute('data-lucide', data.iconClass.replace('lucide-', ''));
-        } else {
-            iconEl.className = data.iconClass;
-        }
-        iconEl.style.fontSize = "100px";
-        iconEl.style.color = "rgba(255,255,255,0.8)";
-        mVisual.appendChild(iconEl);
-        mVisual.style.background = `linear-gradient(135deg, ${data.color} 0%, #000000 100%)`;
-
-        overlay.classList.add('active');
-        lucide.createIcons();
-    }
-
-    window.closeDetail = function() { overlay.classList.remove('active'); }
-    overlay.addEventListener('click', (e) => { if(e.target === overlay) closeDetail(); });
 
     // テーマ設定
     const themeToggle = document.getElementById('themeToggle');
@@ -841,43 +515,27 @@ body {
     animate();
     setLanguage();
 
-    // index.html と同じAPIのURLを設定 (★スラッシュを2つに修正しました)
+    // -----------------------------------------
+    // エラー検索機能
+    // -----------------------------------------
     const GAS_API_URL = "api/proxy"; 
 
-    // エラー検索モーダル制御
-    const errModalOverlay = document.getElementById('errorSearchModal');
-    
-    window.openErrorModal = function() {
-        resetErrorModal();
-        errModalOverlay.classList.add('active');
-        setTimeout(() => document.getElementById('errorCodeInput').focus(), 100);
-    };
-
-    window.closeErrorModal = function() {
-        errModalOverlay.classList.remove('active');
-    };
-    
-    // 背景クリックで閉じる処理
-    errModalOverlay.addEventListener('click', (e) => { 
-        if(e.target === errModalOverlay) closeErrorModal(); 
-    });
-
-    window.resetErrorModal = function() {
-        document.getElementById('error-phase-input').style.display = 'flex';
-        document.getElementById('error-phase-result').style.display = 'none';
+    window.resetSearch = function() {
         document.getElementById('errorCodeInput').value = '';
         document.getElementById('errorSearchStatus').textContent = '';
-        document.getElementById('btnErrorCheck').disabled = false;
-        setLanguage(); // 翻訳の再適用
+        document.getElementById('searchResultArea').style.display = 'none';
+        document.getElementById('errorCodeInput').focus();
     };
 
-    // 検索処理
     window.searchErrorCode = async function() {
         const code = document.getElementById('errorCodeInput').value.trim();
         const statusEl = document.getElementById('errorSearchStatus');
         const btn = document.getElementById('btnErrorCheck');
+        const resultArea = document.getElementById('searchResultArea');
         const lang = localStorage.getItem('user_lang') || 'ja';
         const t = TRANSLATIONS[lang] || TRANSLATIONS.ja;
+
+        resultArea.style.display = 'none'; // 検索中は結果を隠す
 
         if (!code) {
             statusEl.textContent = t.error_empty || "エラーコードを入力してください。";
@@ -885,7 +543,7 @@ body {
         }
 
         btn.disabled = true;
-        btn.innerHTML = `<i data-lucide="loader" class="fa-spin"></i>`; // 簡易ローダー
+        btn.innerHTML = `<i data-lucide="loader" class="fa-spin" style="animation: spin 1s linear infinite;"></i>`; 
         lucide.createIcons();
         statusEl.textContent = "";
 
@@ -894,27 +552,33 @@ body {
             const data = await res.json();
 
             if (data.success) {
-                document.getElementById('error-phase-input').style.display = 'none';
-                document.getElementById('error-phase-result').style.display = 'flex';
                 document.getElementById('resultErrorCode').textContent = "Error: " + data.code;
                 document.getElementById('resultErrorMessage').textContent = data.errorMessage;
+                resultArea.style.display = 'flex'; // 結果を表示
             } else {
                 statusEl.textContent = data.message === "Error code not found" ? (t.error_not_found || "見つかりません。") : data.message;
             }
         } catch (e) {
-            statusEl.textContent = "Network Error";
+            statusEl.textContent = "Network Error: 接続に失敗しました。";
         } finally {
             btn.disabled = false;
-            if(document.getElementById('error-phase-input').style.display === 'flex') {
-                btn.innerHTML = `<span data-translate="btn_search">${t.btn_search}</span>`;
-            }
+            btn.innerHTML = `<span data-translate="btn_search">${t.btn_search}</span>`;
         }
     };
     
     // Enterキーで検索実行
     document.getElementById('errorCodeInput').addEventListener('keydown', function(e) {
-        if(e.key === 'Enter') searchErrorCode();
+        if(e.key === 'Enter') {
+            e.preventDefault();
+            searchErrorCode();
+        }
     });
+
+    // スピナーアニメーション用のCSS追加（JS内から）
+    const style = document.createElement('style');
+    style.innerHTML = `@keyframes spin { 100% { transform: rotate(360deg); } }`;
+    document.head.appendChild(style);
+
 </script>
 </body>
 </html>
