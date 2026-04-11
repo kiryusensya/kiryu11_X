@@ -2086,8 +2086,8 @@ async function buyItemWithPoints(code, price) {
     try {
         const res = await fetch(GAS_API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams({
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
                 type: 'purchase',
                 userId: currentUser.userId,
                 code: code,
@@ -2129,7 +2129,6 @@ async function buyItemWithPoints(code, price) {
             
             try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
         } else {
-            // ★修正：エラーコードの固定化（所有済みは1011）
             let specificErrorCode = generateErrorCode();
             if (data.message === "Already owned") {
                 specificErrorCode = "1011";
@@ -2415,7 +2414,6 @@ async function performAuth(code, mode = 'check') {
   const thisRequestId = currentAuthRequestId;
   const uId = currentUser ? currentUser.userId : "GUEST";
   
-  // ハイフンを含む正規フォーマットに自動整形
   const safeCode = formatCodeInput(code);
   const spinnerHtml = `<span class="loading-spinner" style="border-top-color:currentColor; width:18px; height:18px; border-width:2px; margin:0;"></span>`;
 
@@ -2433,12 +2431,13 @@ async function performAuth(code, mode = 'check') {
   try {
     const res = await fetch(GAS_API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         key: safeCode,
         lang: CURRENT_LANG,
         mode: mode,
         userId: uId,
+        type: mode === 'check' ? 'check' : 'redeem',
         _t: Date.now()
       })
     });
@@ -2494,7 +2493,6 @@ async function performAuth(code, mode = 'check') {
       } else { throw new Error(d.message); }
     } else if (mode === 'redeem') {
       if (d.success) { 
-        // ★修正：POINT成功時の画面切り替えと残高更新
         if (d.isPointMode) {
             fetchUserHistory();
             const successTops = els.phaseSuccess.querySelectorAll('.modal-title-top, .mobile-title');
@@ -2560,26 +2558,26 @@ async function performAuth(code, mode = 'check') {
             let errorMainText = "";
             let errorSubText = "";
             let showInfoBox = true;
-            let specificErrorCode = generateErrorCode(); // ★追加：デフォルトはランダム
+            let specificErrorCode = generateErrorCode(); 
             
             const msg = d.message || "";
             if (d.isAlreadyOwned || msg === "Already owned" || msg.includes("所有") || msg.includes("済") || msg.includes("owned")) {
                 errorMainText = t.error_owned_msg || "既に所有しているようです。";
                 errorSubText = window.innerWidth <= 768 ? (t.msg_already_owned_mobile || "ストアからコンテンツを選択してダウンロードしてください。") : (t.error_owned_sub || "左ライブラリメニューからコンテンツを選択してダウンロードしてください。");
-                specificErrorCode = "1011"; // ★追加：所有済みエラー
+                specificErrorCode = "1011"; 
                 els.btnErrorClose.style.flex = "none";
                 els.btnErrorClose.style.width = "100%";
             } else if (msg === "This code has already been used." || msg.includes("使用済") || msg.includes("used")) {
                 errorMainText = t.error_used_msg || t.msg_used;
                 errorSubText = "";
-                specificErrorCode = "1013"; // ★追加：使用済みエラー
+                specificErrorCode = "1013"; 
                 els.btnErrorClose.style.flex = "none";
                 els.btnErrorClose.style.width = "100%";
                 showInfoBox = false;
             } else if (msg.toLowerCase().includes("invalid") || msg.toLowerCase().includes("not found")) {
                 errorMainText = t.msg_invalid || "コードが無効です";
                 errorSubText = msg;
-                specificErrorCode = "1012"; // ★追加：無効エラー
+                specificErrorCode = "1012"; 
                 els.btnErrorClose.style.flex = "none";
                 els.btnErrorClose.style.width = "100%";
             } else {
@@ -2643,7 +2641,6 @@ async function performAuth(code, mode = 'check') {
        els.btnPreviewRedeem.disabled = false;
        els.btnPreviewRedeem.innerHTML = t.btn_continue;
        
-       // ★修正：システムエラー側のエラーコード固定化
        const lowMsg = serverMessage.toLowerCase();
        let specificErrorCode = generateErrorCode();
        if (lowMsg.includes("invalid") || lowMsg.includes("not found")) {
@@ -2686,8 +2683,8 @@ async function performAuthAction() {
     const actionType = mode === 'login' ? 'user_login' : 'register';
     const res = await fetch(GAS_API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ type: actionType, email: email, password: pass })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: actionType, email: email, password: pass })
     });
     const data = await res.json();
     if (data.success) {
@@ -3195,8 +3192,14 @@ async function performAdminSearch() {
   try {
     const res = await fetch(GAS_API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ type: 'admin_search', adminUser: tempAdminCreds.user, adminPass: tempAdminCreds.pass, targetEmail: target, _t: Date.now() })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        type: 'admin_search', 
+        adminUser: tempAdminCreds.user, 
+        adminPass: tempAdminCreds.pass, 
+        targetEmail: target, 
+        _t: Date.now() 
+      })
     });
     const d = await res.json();
     if(d.success) {
