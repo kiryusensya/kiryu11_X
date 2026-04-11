@@ -5,16 +5,12 @@ const supabaseKey = process.env.SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default async function handler(req, res) {
-  // どんな通信も受け入れるための設定
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // ★修正1: GETリクエスト（履歴やストアの取得）もPOSTリクエストも両方受け取る！
   const params = req.method === 'POST' ? req.body : req.query;
   const type = params.type;
   const lang = params.lang || 'ja';
@@ -22,14 +18,10 @@ export default async function handler(req, res) {
   try {
     // 1. ユーザー登録
     if (type === 'register') {
-      const email = params.email;
-      const password = params.password;
+      const { email, password } = params;
       if (!email || !password) return res.status(200).json({ success: false, message: "Missing credentials" });
-
-      // ★修正2: .single() ではなく .maybeSingle() にして、0件でもクラッシュさせない
       const { data: existing } = await supabase.from('users').select('id').eq('email', email).maybeSingle();
       if (existing) return res.status(200).json({ success: false, message: "Exists" });
-
       const { data: newUser, error } = await supabase.from('users').insert([{ email, password, points: 0 }]).select().single();
       if (error) throw error;
       return res.status(200).json({ success: true, userId: newUser.id, message: "OK" });
@@ -37,10 +29,8 @@ export default async function handler(req, res) {
 
     // 2. ユーザーログイン
     if (type === 'user_login') {
-      const email = params.email;
-      const password = params.password;
+      const { email, password } = params;
       const { data: user } = await supabase.from('users').select('*').eq('email', email).maybeSingle();
-      
       if (user && user.password === password) {
         return res.status(200).json({ success: true, userId: user.id, points: user.points, history: [] });
       }
@@ -50,7 +40,14 @@ export default async function handler(req, res) {
     // 3. 利用可能なコンテンツ一覧 (Store)
     if (type === 'get_available') {
       const userId = params.userId;
-      const { data: availableCodes } = await supabase.from('codes').select('*').eq('有効/無効', true).neq('Types', 'POINT');
+      
+      // ★修正1: 「有効/無効」がTRUE ＆ 「show/ hide」が 'show' のものだけを取得！
+      const { data: availableCodes } = await supabase
+        .from('codes')
+        .select('*')
+        .eq('有効/無効', true)
+        .eq('show/ hide', 'show')
+        .neq('Types', 'POINT');
       
       let ownedCodeIds = new Set();
       let ownedGroupIds = new Set();
@@ -70,7 +67,16 @@ export default async function handler(req, res) {
       const lMap = { ja: 'jp', en: 'en', zh: 'SC', 'zh-TW': 'TC', ko: 'ko', ru: 'ru' };
       const suffix = lMap[lang] || 'jp';
 
-      const items = (availableCodes || []).map(code => {
+      // ★修正2: 1回きり(ONCE)で、既に使用済みのものはストアに出さない
+      const filteredCodes = (availableCodes || []).filter(code => {
+          const codeType = (code.Types || "").trim().toUpperCase();
+          const isOnce = (codeType === 'ONCE' || codeType === '');
+          const isUsed = code["USED?"] === true || String(code["USED?"]).trim().toUpperCase() === 'TRUE';
+          if (isOnce && isUsed) return false; 
+          return true;
+      });
+
+      const items = filteredCodes.map(code => {
         const isOwned = ownedCodeIds.has(code.id) || (code["重複"] && ownedGroupIds.has(code["重複"]));
         return {
           code: code["アクティベーションコード"],
@@ -97,11 +103,7 @@ export default async function handler(req, res) {
       if (!userId || userId === "GUEST") return res.status(200).json({ success: false, message: "No User ID" });
 
       const { data: user, error: userErr } = await supabase.from('users').select('points').eq('id', userId).maybeSingle();
-      
-      // ★ここが重要！ユーザーがDBにいない場合はちゃんと "User not found" を返す
-      if (userErr || !user) {
-          return res.status(200).json({ success: false, message: "User not found" });
-      }
+      if (userErr || !user) return res.status(200).json({ success: false, message: "User not found" });
 
       const { data: histories } = await supabase
         .from('histories')
