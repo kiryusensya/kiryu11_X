@@ -1,3 +1,14 @@
-"dependencies": {
+{
+  "name": "developer-kiryu10",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "@upstash/ratelimit": "latest",
+    "@upstash/redis": "latest",
     "@supabase/supabase-js": "^2.42.0"
   }
+}
