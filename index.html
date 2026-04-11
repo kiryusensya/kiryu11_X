@@ -3148,7 +3148,7 @@ async function fetchAvailableContent() {
 
 async function fetchUserHistory() {
   if (!currentUser) return;
-  els.libraryListSidebar.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">Loading...</div>`;
+  
   try { 
     const res = await fetch(`${GAS_API_URL}?type=get_history&userId=${currentUser.userId}&lang=${CURRENT_LANG}&_t=${Date.now()}`);
     const data = await res.json();
@@ -3157,20 +3157,18 @@ async function fetchUserHistory() {
       currentUser.history = data.history; 
       currentUser.points = data.points || 0;
       updateAccountUI();
-      if (currentUser.history.length > 0) {
-            updateHeroView(currentUser.history[0], true);
-      }
-    } else if (data.message === "User not found") {
-      console.warn("User session invalid. Logging out...");
-      localStorage.removeItem('user_session_identity');
+    } 
+    // ★ここが重要：DBから「ユーザーが見つからない」と返ってきたら、即座にブラウザの記憶も消す
+    else if (data.message === "User not found" || data.success === false) {
+      console.warn("ユーザーが存在しないためログアウトします...");
+      localStorage.removeItem('user_session_identity'); // ブラウザの記憶を消す
       currentUser = null;
-      window.location.reload(); 
+      window.location.reload(); // ページをリフレッシュしてログイン画面に戻す
       return;
     }
   } catch (e) { 
-      updateAccountUI(); 
-  } finally {
-      fetchAvailableContent();
+      // 通信エラーなどの場合
+      console.error("履歴取得エラー:", e);
   }
 }
 
