@@ -2104,14 +2104,12 @@ async function buyItemWithPoints(code, price) {
             
             const successTops = els.phaseSuccess.querySelectorAll('.modal-title-top, .mobile-title');
             successTops.forEach(el => el.textContent = t.success_buy_title || "購入完了");
-            
             const label = els.phaseSuccess.querySelector('.modal-label');
             if(label) label.textContent = t.success_buy_desc || "以下のコンテンツが正常に処理されました。";
             
             els.successImage.src = currentContentData.imageUrl || "https://via.placeholder.com/300";
             els.successTitleUnderImg.textContent = currentContentData.title;
             els.successBundleName.textContent = currentContentData.title;
-            
             els.successMessageText.innerHTML = t.success_msg_box.replace(/\n/g, '<br>');
             els.successTime.textContent = currentAuthTime;
             
@@ -2126,16 +2124,12 @@ async function buyItemWithPoints(code, price) {
               els.phaseSuccess.style.display = 'flex';
               setTimeout(() => els.phaseSuccess.style.opacity = '1', 50);
             }, 400);
-            
             try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
         } else {
             let specificErrorCode = generateErrorCode();
-            if (data.message === "Already owned") {
-                specificErrorCode = "1011";
-            }
+            if (data.message === "Already owned") specificErrorCode = "1011";
             els.errorCodeText.textContent = specificErrorCode;
             els.errorTime.textContent = currentAuthTime;
-
             const titlePrefix = els.phaseError.querySelector('[data-translate="error_title_prefix"]');
             if (titlePrefix) titlePrefix.textContent = t.error_title_prefix || "エラー";
 
@@ -2146,13 +2140,9 @@ async function buyItemWithPoints(code, price) {
             if (data.message === "Already owned") {
                 errorMainText = t.error_owned_msg || "既に所有しているようです。";
                 errorSubText = window.innerWidth <= 768 ? (t.msg_already_owned_mobile || "ストアからコンテンツを選択してダウンロードしてください。") : (t.error_owned_sub || "左ライブラリメニューからコンテンツを選択してダウンロードしてください。");
-                
-                els.btnErrorClose.style.flex = "none";
-                els.btnErrorClose.style.width = "100%";
-            } else {
-                els.btnErrorClose.style.flex = "none";
-                els.btnErrorClose.style.width = "100%";
             }
+            els.btnErrorClose.style.flex = "none";
+            els.btnErrorClose.style.width = "100%";
             
             els.errorMessage.textContent = errorMainText;
             if(showInfoBox && errorSubText) {
@@ -2625,7 +2615,6 @@ async function performAuth(code, mode = 'check') {
        els.confirm.textContent = t.modal_btn_auth;
        
        let errorDisplay = t.msg_error; 
-       
        const lowMsg = serverMessage.toLowerCase();
        if (lowMsg.includes("used")) {
            errorDisplay = t.msg_used;
@@ -2670,7 +2659,7 @@ async function performAuth(code, mode = 'check') {
     }
   }
 }
-
+  
 async function performAuthAction() {
   const mode = document.querySelector('.auth-tab.active').dataset.tab; 
   const email = els.email.value.trim();
