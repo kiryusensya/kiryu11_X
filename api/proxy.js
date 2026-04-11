@@ -155,12 +155,15 @@ export default async function handler(req, res) {
         return res.status(200).json({ success: false, message: "This code is invalid." });
       }
 
-      // ★ポイント1: 文字のズレや空白を吸収し、NULL（空欄）もONCE扱いにする
       const codeType = (master.Types || "").trim().toUpperCase();
       const isOnce = (codeType === 'ONCE' || codeType === '');
 
-      // ★ポイント2: 使用済みのONCEコードは弾く
-      if (isOnce && master["USED?"]) {
+      // ★ 超・厳格な使用済みチェック（"FALSE"や空白スペースを無視する）
+      const rawUsed = master["USED?"];
+      const isCodeUsed = rawUsed === true || String(rawUsed).trim().toUpperCase() === 'TRUE';
+
+      // ONCEコードが使用済みの場合
+      if (isOnce && isCodeUsed) {
         return res.status(200).json({ success: false, message: "This code has already been used." });
       }
 
@@ -175,9 +178,10 @@ export default async function handler(req, res) {
         desc:     master[`詳細(${suffix})`] || master["詳細(jp)"]
       };
 
+      // ポイントコードの処理
       if (codeType === 'POINT' && mode === 'redeem') {
         if (userId === "GUEST") return res.status(200).json({ success: false, message: "Login required" });
-        if (master["USED?"]) return res.status(200).json({ success: false, message: "This code has already been used." });
+        if (isCodeUsed) return res.status(200).json({ success: false, message: "This code has already been used." });
 
         const { data: user } = await supabase.from('users').select('points').eq('id', userId).single();
         if (user) {
@@ -191,6 +195,7 @@ export default async function handler(req, res) {
         });
       }
 
+      // 通常コンテンツコードの処理
       if (codeType !== 'POINT') {
         let isOwned = false;
         if (userId !== "GUEST") {
@@ -208,10 +213,8 @@ export default async function handler(req, res) {
         if (mode === 'redeem') {
           if (userId !== "GUEST") await supabase.from('histories').insert([{ user_id: userId, code_id: master.id }]);
           
-          // ★ポイント3: ONCE（または空欄）の場合は、データベースを「使用済み(TRUE)」に更新する
           if (isOnce) {
-            const { error: updErr } = await supabase.from('codes').update({ "USED?": true }).eq('id', master.id);
-            if (updErr) console.error("USEDフラグの更新エラー:", updErr);
+            await supabase.from('codes').update({ "USED?": true }).eq('id', master.id);
           }
         }
 
