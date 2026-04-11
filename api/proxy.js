@@ -5,19 +5,31 @@ const supabaseKey = process.env.SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ message: "Method Not Allowed" });
+  // どんな通信も受け入れるための設定
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
 
-  const params = req.body;
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  // ★修正1: GETリクエスト（履歴やストアの取得）もPOSTリクエストも両方受け取る！
+  const params = req.method === 'POST' ? req.body : req.query;
   const type = params.type;
   const lang = params.lang || 'ja';
 
   try {
     // 1. ユーザー登録
     if (type === 'register') {
-      const { email, password } = params;
+      const email = params.email;
+      const password = params.password;
       if (!email || !password) return res.status(200).json({ success: false, message: "Missing credentials" });
-      const { data: existing } = await supabase.from('users').select('id').eq('email', email).single();
+
+      // ★修正2: .single() ではなく .maybeSingle() にして、0件でもクラッシュさせない
+      const { data: existing } = await supabase.from('users').select('id').eq('email', email).maybeSingle();
       if (existing) return res.status(200).json({ success: false, message: "Exists" });
+
       const { data: newUser, error } = await supabase.from('users').insert([{ email, password, points: 0 }]).select().single();
       if (error) throw error;
       return res.status(200).json({ success: true, userId: newUser.id, message: "OK" });
@@ -25,8 +37,10 @@ export default async function handler(req, res) {
 
     // 2. ユーザーログイン
     if (type === 'user_login') {
-      const { email, password } = params;
-      const { data: user } = await supabase.from('users').select('*').eq('email', email).single();
+      const email = params.email;
+      const password = params.password;
+      const { data: user } = await supabase.from('users').select('*').eq('email', email).maybeSingle();
+      
       if (user && user.password === password) {
         return res.status(200).json({ success: true, userId: user.id, points: user.points, history: [] });
       }
@@ -35,13 +49,13 @@ export default async function handler(req, res) {
 
     // 3. 利用可能なコンテンツ一覧 (Store)
     if (type === 'get_available') {
-      const { userId } = params;
+      const userId = params.userId;
       const { data: availableCodes } = await supabase.from('codes').select('*').eq('有効/無効', true).neq('Types', 'POINT');
       
       let ownedCodeIds = new Set();
       let ownedGroupIds = new Set();
 
-      if (userId) {
+      if (userId && userId !== "GUEST") {
         const { data: history } = await supabase.from('histories').select('code_id').eq('user_id', userId);
         if (history) {
             const codeIds = history.map(h => h.code_id);
@@ -79,11 +93,15 @@ export default async function handler(req, res) {
 
     // 4. ユーザー履歴の取得
     if (type === 'get_history') {
-      const { userId } = params;
-      if (!userId) return res.status(200).json({ success: false, message: "No User ID" });
+      const userId = params.userId;
+      if (!userId || userId === "GUEST") return res.status(200).json({ success: false, message: "No User ID" });
 
-      const { data: user } = await supabase.from('users').select('points').eq('id', userId).single();
-      if (!user) return res.status(200).json({ success: false, message: "User not found" });
+      const { data: user, error: userErr } = await supabase.from('users').select('points').eq('id', userId).maybeSingle();
+      
+      // ★ここが重要！ユーザーがDBにいない場合はちゃんと "User not found" を返す
+      if (userErr || !user) {
+          return res.status(200).json({ success: false, message: "User not found" });
+      }
 
       const { data: histories } = await supabase
         .from('histories')
@@ -96,6 +114,7 @@ export default async function handler(req, res) {
 
       const historyData = (histories || []).map(h => {
         const c = h.codes;
+        if(!c) return null;
         return {
           code: c["アクティベーションコード"],
           date: h.created_at,
@@ -109,7 +128,7 @@ export default async function handler(req, res) {
           groupId: c["重複"],
           buttonLabel: c[`ボタン(${suffix})`] || c["ボタン(jp)"]
         };
-      });
+      }).filter(Boolean);
 
       return res.status(200).json({ success: true, points: user.points, history: historyData });
     }
@@ -119,10 +138,10 @@ export default async function handler(req, res) {
       const { userId, code } = params;
       if (!userId || userId === "GUEST") return res.status(200).json({ success: false, message: "Login required" });
 
-      const { data: master } = await supabase.from('codes').select('*').eq('アクティベーションコード', code).single();
+      const { data: master } = await supabase.from('codes').select('*').eq('アクティベーションコード', code).maybeSingle();
       if (!master) return res.status(200).json({ success: false, message: "Item not found" });
 
-      const { data: user } = await supabase.from('users').select('points').eq('id', userId).single();
+      const { data: user } = await supabase.from('users').select('points').eq('id', userId).maybeSingle();
       if (!user) return res.status(200).json({ success: false, message: "User not found" });
 
       const { data: existingHist } = await supabase.from('histories').select('codes(重複)').eq('user_id', userId);
@@ -146,7 +165,7 @@ export default async function handler(req, res) {
       const { key, userId, mode } = params;
       const safeCode = (key || "").replace(/[^A-Z0-9\-]/gi, "").toUpperCase();
 
-      const { data: master, error } = await supabase.from('codes').select('*').eq('アクティベーションコード', safeCode).single();
+      const { data: master, error } = await supabase.from('codes').select('*').eq('アクティベーションコード', safeCode).maybeSingle();
 
       if (error || !master) return res.status(200).json({ success: false, message: "This code is invalid." });
 
@@ -158,11 +177,9 @@ export default async function handler(req, res) {
       const codeType = (master.Types || "").trim().toUpperCase();
       const isOnce = (codeType === 'ONCE' || codeType === '');
 
-      // ★ 超・厳格な使用済みチェック（"FALSE"や空白スペースを無視する）
       const rawUsed = master["USED?"];
       const isCodeUsed = rawUsed === true || String(rawUsed).trim().toUpperCase() === 'TRUE';
 
-      // ONCEコードが使用済みの場合
       if (isOnce && isCodeUsed) {
         return res.status(200).json({ success: false, message: "This code has already been used." });
       }
@@ -178,12 +195,11 @@ export default async function handler(req, res) {
         desc:     master[`詳細(${suffix})`] || master["詳細(jp)"]
       };
 
-      // ポイントコードの処理
       if (codeType === 'POINT' && mode === 'redeem') {
-        if (userId === "GUEST") return res.status(200).json({ success: false, message: "Login required" });
+        if (!userId || userId === "GUEST") return res.status(200).json({ success: false, message: "Login required" });
         if (isCodeUsed) return res.status(200).json({ success: false, message: "This code has already been used." });
 
-        const { data: user } = await supabase.from('users').select('points').eq('id', userId).single();
+        const { data: user } = await supabase.from('users').select('points').eq('id', userId).maybeSingle();
         if (user) {
            await supabase.from('users').update({ points: user.points + (master["Point PPP"] || 0) }).eq('id', userId);
            await supabase.from('codes').update({ "USED?": true }).eq('id', master.id);
@@ -195,10 +211,9 @@ export default async function handler(req, res) {
         });
       }
 
-      // 通常コンテンツコードの処理
       if (codeType !== 'POINT') {
         let isOwned = false;
-        if (userId !== "GUEST") {
+        if (userId && userId !== "GUEST") {
           const { data: existingHist } = await supabase.from('histories').select('codes(アクティベーションコード, 重複)').eq('user_id', userId);
           if (existingHist) {
             isOwned = existingHist.some(h => h.codes && (h.codes["アクティベーションコード"] === safeCode || (master["重複"] && h.codes["重複"] === master["重複"])));
@@ -211,11 +226,8 @@ export default async function handler(req, res) {
         const retUrl = ((mode === 'redeem' || mode === 'poll') && isRelease) ? master.Action_url : "";
 
         if (mode === 'redeem') {
-          if (userId !== "GUEST") await supabase.from('histories').insert([{ user_id: userId, code_id: master.id }]);
-          
-          if (isOnce) {
-            await supabase.from('codes').update({ "USED?": true }).eq('id', master.id);
-          }
+          if (userId && userId !== "GUEST") await supabase.from('histories').insert([{ user_id: userId, code_id: master.id }]);
+          if (isOnce) await supabase.from('codes').update({ "USED?": true }).eq('id', master.id);
         }
 
         return res.status(200).json({
