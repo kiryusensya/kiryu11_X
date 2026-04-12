@@ -8,6 +8,9 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
 
@@ -41,13 +44,8 @@ export default async function handler(req, res) {
     if (type === 'get_available') {
       const userId = params.userId;
       
-      // ★修正1: 「有効/無効」がTRUE ＆ 「show/ hide」が 'show' のものだけを取得！
-      const { data: availableCodes } = await supabase
-        .from('codes')
-        .select('*')
-        .eq('有効/無効', true)
-        .eq('show/ hide', 'show')
-        .neq('Types', 'POINT');
+      // ★超強化: DBの細かいエラーを避けるため全件取得してJSで安全に仕分けする
+      const { data: allCodes } = await supabase.from('codes').select('*');
       
       let ownedCodeIds = new Set();
       let ownedGroupIds = new Set();
@@ -67,12 +65,18 @@ export default async function handler(req, res) {
       const lMap = { ja: 'jp', en: 'en', zh: 'SC', 'zh-TW': 'TC', ko: 'ko', ru: 'ru' };
       const suffix = lMap[lang] || 'jp';
 
-      // ★修正2: 1回きり(ONCE)で、既に使用済みのものはストアに出さない
-      const filteredCodes = (availableCodes || []).filter(code => {
-          const codeType = (code.Types || "").trim().toUpperCase();
-          const isOnce = (codeType === 'ONCE' || codeType === '');
-          const isUsed = code["USED?"] === true || String(code["USED?"]).trim().toUpperCase() === 'TRUE';
-          if (isOnce && isUsed) return false; 
+      const filteredCodes = (allCodes || []).filter(c => {
+          // 有効か、showか、POINTじゃないかをチェック（空白ズレなども吸収）
+          const isActive = c["有効/無効"] === true || String(c["有効/無効"]).toUpperCase() === 'TRUE';
+          const isShow = String(c["show/ hide"] || "").trim().toLowerCase() === 'show';
+          const cType = String(c.Types || "").trim().toUpperCase();
+          if (!isActive || !isShow || cType === 'POINT') return false;
+
+          // 使用済みのONCEは出さない
+          const isOnce = (cType === 'ONCE' || cType === '');
+          const isUsed = c["USED?"] === true || String(c["USED?"]).trim().toUpperCase() === 'TRUE';
+          if (isOnce && isUsed) return false;
+
           return true;
       });
 
@@ -178,7 +182,6 @@ export default async function handler(req, res) {
 
       const codeType = (master.Types || "").trim().toUpperCase();
       const isOnce = (codeType === 'ONCE' || codeType === '');
-
       const rawUsed = master["USED?"];
       const isCodeUsed = rawUsed === true || String(rawUsed).trim().toUpperCase() === 'TRUE';
 
@@ -204,7 +207,7 @@ export default async function handler(req, res) {
         const { data: user } = await supabase.from('users').select('points').eq('id', userId).maybeSingle();
         if (user) {
            await supabase.from('users').update({ points: user.points + (master["Point PPP"] || 0) }).eq('id', userId);
-           await supabase.from('codes').update({ "USED?": true }).eq('id', master.id);
+           await supabase.from('codes').update({ "USED?": true }).eq('アクティベーションコード', safeCode);
         }
 
         return res.status(200).json({
@@ -228,8 +231,14 @@ export default async function handler(req, res) {
         const retUrl = ((mode === 'redeem' || mode === 'poll') && isRelease) ? master.Action_url : "";
 
         if (mode === 'redeem') {
-          if (userId && userId !== "GUEST") await supabase.from('histories').insert([{ user_id: userId, code_id: master.id }]);
-          if (isOnce) await supabase.from('codes').update({ "USED?": true }).eq('id', master.id);
+          if (userId && userId !== "GUEST") {
+             const { error: histErr } = await supabase.from('histories').insert([{ user_id: userId, code_id: master.id }]);
+             if(histErr) console.error("履歴追加エラー:", histErr);
+          }
+          if (isOnce) {
+             const { error: updErr } = await supabase.from('codes').update({ "USED?": true }).eq('アクティベーションコード', safeCode);
+             if(updErr) console.error("使用済み更新エラー:", updErr);
+          }
         }
 
         return res.status(200).json({
