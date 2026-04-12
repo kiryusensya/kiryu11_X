@@ -3066,7 +3066,6 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
 }
 
 async function fetchAvailableContent() {
-    if (!currentUser) return;
     const list = els.availableListSidebar;
     const t = TRANSLATIONS[CURRENT_LANG];
     
@@ -3074,11 +3073,18 @@ async function fetchAvailableContent() {
     const mobileList = gId('mobileStoreGrid');
 
     try {
-        // 1. まず通信してサーバーから最新データを取得する（待機）
-        const res = await fetch(`${GAS_API_URL}?type=get_available&lang=${CURRENT_LANG}`);
+        // GET通信から、より安全なPOST通信に変更
+        const res = await fetch(GAS_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: 'get_available',
+                lang: CURRENT_LANG,
+                userId: currentUser ? currentUser.userId : "GUEST"
+            })
+        });
         const d = await res.json();
         
-        // 2. データが届いたら、ここで初めて画面をリセットする！
         list.innerHTML = '';
         if (mobileList) mobileList.innerHTML = '';
         
@@ -3086,7 +3092,6 @@ async function fetchAvailableContent() {
         let hasMobileItems = false;
         let hasItems = false; 
         
-        // 3. 所有済みの履歴アイテムを描画
         if (currentUser && currentUser.history) {
             currentUser.history.forEach(h => {
                 if (h.groupId) ownedGroups.add(h.groupId); 
@@ -3098,11 +3103,8 @@ async function fetchAvailableContent() {
             });
         }
 
-        // 4. ストアの未所有アイテムを描画
         if(d.success && d.items && d.items.length > 0) {
             d.items.forEach((item, index) => {
-                if (item.active === false) return; 
-                
                 const isOwned = (item.groupId && ownedGroups.has(item.groupId)) || (!item.groupId && ownedCodes.has(item.code)) || (item.title && ownedTitles.has(item.title));
                 
                 if (!isOwned) {
@@ -3141,34 +3143,51 @@ async function fetchAvailableContent() {
              mobileList.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px; grid-column: 1 / -1; text-align:center;">${t.msg_empty_lib || "No content"}</div>`;
         }
     } catch(e) {
+        console.error("Fetch Error:", e);
         list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">-</div>`;
         if (mobileList) mobileList.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px; grid-column: 1 / -1; text-align:center;">-</div>`;
     }
 }
 
 async function fetchUserHistory() {
-  if (!currentUser) return;
-  
+  if (!currentUser) {
+      // 未ログイン状態なら、履歴は無視してストアだけ取得する
+      fetchAvailableContent();
+      return;
+  }
+  els.libraryListSidebar.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">Loading...</div>`;
   try { 
-    const res = await fetch(`${GAS_API_URL}?type=get_history&userId=${currentUser.userId}&lang=${CURRENT_LANG}&_t=${Date.now()}`);
+    // GET通信から、より安全なPOST通信に変更
+    const res = await fetch(GAS_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            type: 'get_history',
+            userId: currentUser.userId,
+            lang: CURRENT_LANG
+        })
+    });
     const data = await res.json();
     
     if (data.success && Array.isArray(data.history)) {
       currentUser.history = data.history; 
       currentUser.points = data.points || 0;
       updateAccountUI();
-    } 
-    // ★ここが重要：DBから「ユーザーが見つからない」と返ってきたら、即座にブラウザの記憶も消す
-    else if (data.message === "User not found" || data.success === false) {
-      console.warn("ユーザーが存在しないためログアウトします...");
-      localStorage.removeItem('user_session_identity'); // ブラウザの記憶を消す
+      if (currentUser.history.length > 0) {
+            updateHeroView(currentUser.history[0], true);
+      }
+    } else if (data.message === "User not found" || data.success === false) {
+      console.warn("User session invalid. Logging out...");
+      localStorage.removeItem('user_session_identity');
       currentUser = null;
-      window.location.reload(); // ページをリフレッシュしてログイン画面に戻す
+      window.location.reload(); 
       return;
     }
   } catch (e) { 
-      // 通信エラーなどの場合
-      console.error("履歴取得エラー:", e);
+      console.error("History Fetch Error:", e);
+      updateAccountUI(); 
+  } finally {
+      fetchAvailableContent();
   }
 }
 
