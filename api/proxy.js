@@ -5,6 +5,7 @@ const supabaseKey = process.env.SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default async function handler(req, res) {
+  // 通信の許可とキャッシュ（古い記憶）の無効化
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -43,8 +44,6 @@ export default async function handler(req, res) {
     // 3. 利用可能なコンテンツ一覧 (Store)
     if (type === 'get_available') {
       const userId = params.userId;
-      
-      // ★超強化: DBの細かいエラーを避けるため全件取得してJSで安全に仕分けする
       const { data: allCodes } = await supabase.from('codes').select('*');
       
       let ownedCodeIds = new Set();
@@ -66,13 +65,12 @@ export default async function handler(req, res) {
       const suffix = lMap[lang] || 'jp';
 
       const filteredCodes = (allCodes || []).filter(c => {
-          // 有効か、showか、POINTじゃないかをチェック（空白ズレなども吸収）
           const isActive = c["有効/無効"] === true || String(c["有効/無効"]).toUpperCase() === 'TRUE';
           const isShow = String(c["show/ hide"] || "").trim().toLowerCase() === 'show';
           const cType = String(c.Types || "").trim().toUpperCase();
+          
           if (!isActive || !isShow || cType === 'POINT') return false;
 
-          // 使用済みのONCEは出さない
           const isOnce = (cType === 'ONCE' || cType === '');
           const isUsed = c["USED?"] === true || String(c["USED?"]).trim().toUpperCase() === 'TRUE';
           if (isOnce && isUsed) return false;
@@ -166,7 +164,9 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, remainingPoints: user.points - price });
     }
 
+    // ==========================================
     // 6. コードの確認(check) と 引き換え(redeem)
+    // ==========================================
     if (type === 'check' || type === 'redeem') {
       const { key, userId, mode } = params;
       const safeCode = (key || "").replace(/[^A-Z0-9\-]/gi, "").toUpperCase();
@@ -182,10 +182,12 @@ export default async function handler(req, res) {
 
       const codeType = (master.Types || "").trim().toUpperCase();
       const isOnce = (codeType === 'ONCE' || codeType === '');
+      
       const rawUsed = master["USED?"];
       const isCodeUsed = rawUsed === true || String(rawUsed).trim().toUpperCase() === 'TRUE';
 
-      if (isOnce && isCodeUsed) {
+      // ★修正: 1回限定コード または POINTコード が使用済みの場合弾く
+      if ((isOnce || codeType === 'POINT') && isCodeUsed) {
         return res.status(200).json({ success: false, message: "This code has already been used." });
       }
 
@@ -200,9 +202,28 @@ export default async function handler(req, res) {
         desc:     master[`詳細(${suffix})`] || master["詳細(jp)"]
       };
 
-      if (codeType === 'POINT' && mode === 'redeem') {
+      // ★大修正: 確認(check)モードなら、POINTでもONCEでもとりあえずプレビュー情報を返す！
+      if (mode === 'check') {
+        return res.status(200).json({
+          success: true,
+          bundleLabel: txt.bundle,
+          message: txt.message,
+          detailedTitle: txt.title,
+          detailedDesc: txt.desc,
+          buttonLabel: txt.btnLabel,
+          imageUrl: master.Imag_Url,
+          icon: master.アイコン || 'download',
+          groupId: master["重複"]
+        });
+      }
+
+      // ------------------------------------------
+      // ▼ ここから下は引き換え実行 (mode === 'redeem') の処理
+      // ------------------------------------------
+
+      // POINTコードの引き換え
+      if (codeType === 'POINT') {
         if (!userId || userId === "GUEST") return res.status(200).json({ success: false, message: "Login required" });
-        if (isCodeUsed) return res.status(200).json({ success: false, message: "This code has already been used." });
 
         const { data: user } = await supabase.from('users').select('points').eq('id', userId).maybeSingle();
         if (user) {
@@ -216,6 +237,7 @@ export default async function handler(req, res) {
         });
       }
 
+      // 通常コンテンツコード (ONCE, MULTIなど) の引き換え
       if (codeType !== 'POINT') {
         let isOwned = false;
         if (userId && userId !== "GUEST") {
@@ -225,20 +247,20 @@ export default async function handler(req, res) {
           }
         }
 
-        if (mode === 'redeem' && isOwned) return res.status(200).json({ success: false, isAlreadyOwned: true, message: "Already owned" });
+        // 既に持っているかチェック
+        if (isOwned) return res.status(200).json({ success: false, isAlreadyOwned: true, message: "Already owned" });
 
         const isRelease = !master["解禁時間"] || (now >= new Date(master["解禁時間"]));
-        const retUrl = ((mode === 'redeem' || mode === 'poll') && isRelease) ? master.Action_url : "";
+        const retUrl = isRelease ? master.Action_url : "";
 
-        if (mode === 'redeem') {
-          if (userId && userId !== "GUEST") {
-             const { error: histErr } = await supabase.from('histories').insert([{ user_id: userId, code_id: master.id }]);
-             if(histErr) console.error("履歴追加エラー:", histErr);
-          }
-          if (isOnce) {
-             const { error: updErr } = await supabase.from('codes').update({ "USED?": true }).eq('アクティベーションコード', safeCode);
-             if(updErr) console.error("使用済み更新エラー:", updErr);
-          }
+        // 履歴の追加 と ONCEなら使用済みに更新
+        if (userId && userId !== "GUEST") {
+           const { error: histErr } = await supabase.from('histories').insert([{ user_id: userId, code_id: master.id }]);
+           if(histErr) console.error("履歴追加エラー:", histErr);
+        }
+        if (isOnce) {
+           const { error: updErr } = await supabase.from('codes').update({ "USED?": true }).eq('アクティベーションコード', safeCode);
+           if(updErr) console.error("使用済み更新エラー:", updErr);
         }
 
         return res.status(200).json({
