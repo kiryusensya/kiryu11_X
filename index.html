@@ -1,281 +1,3253 @@
-import { createClient } from '@supabase/supabase-js';
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>_.k__yu.10</title>
+<link rel="icon" href="https://static.wixstatic.com/media/2f0694_eb4d3063598a4cc5b6bd6b8e31cba915~mv2.png/v1/crop/x_248,y_0,w_1065,h_950/fill/w_816,h_728,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/1767545356653.png">
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+<link href="./_.k__yu.10__Developers_files/css2" rel="stylesheet">
+<link rel="stylesheet" href="./_.k__yu.10__Developers_files/all.min.css">
+<script src="https://unpkg.com/lucide@latest"></script>
 
-export default async function handler(req, res) {
-  // 通信の許可とキャッシュ（古い記憶）の無効化
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
+<style>
+/* --- FONT FACE DEFINITIONS --- */
+@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Medium.woff') format('woff'); font-weight: 500; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
 
-  if (req.method === 'OPTIONS') return res.status(200).end();
+/* --- THEME VARIABLES --- */
+:root {
+  --primary: #007DFF;
+  --bright-green: #04CF22;
+  --bg-color: #F1F3F5;
+  --card-bg: rgba(255, 255, 255, 0.6);
+  --card-border: rgba(255, 255, 255, 0.6);
+  --modal-text-main: #000000;
+  --modal-text-sub: #666666;
+  --success-text-green: #04CF22;
+  --btn-close-border: #000000;
+  --btn-close-text: #000000;
+  --radius-xl: 24px;
+  --radius-l: 16px;
+  --spring-ease: cubic-bezier(0.33, 1, 0.68, 1);
+  --shadow-soft: 0 10px 30px rgba(0,0,0,0.05);
+  --rgl-green: #04CF22;
+   
+  /* Account System */
+  --dropdown-bg: rgba(255, 255, 255, 0.95);
+  --modal-bg-standard: #FFFFFF;
 
-  const params = req.method === 'POST' ? req.body : req.query;
-  const type = params.type;
-  const lang = params.lang || 'ja';
+  /* RGL Layout Variables */
+  --sidebar-bg: #E0E0E0;
+  --sidebar-text: #000;
+  --sidebar-width: 340px;
+  --nav-text: #000;
+  --hero-overlay: linear-gradient(to right, rgba(241,243,245,0.95) 0%, rgba(241,243,245,0.8) 40%, rgba(241,243,245,0.1) 100%);
+  --sidebar-item-hover: rgba(0,0,0,0.05);
 
-  try {
-    // 1. ユーザー登録
-    if (type === 'register') {
-      const { email, password } = params;
-      if (!email || !password) return res.status(200).json({ success: false, message: "Missing credentials" });
-      const { data: existing } = await supabase.from('users').select('id').eq('email', email).maybeSingle();
-      if (existing) return res.status(200).json({ success: false, message: "Exists" });
-      const { data: newUser, error } = await supabase.from('users').insert([{ email, password, points: 0 }]).select().single();
-      if (error) throw error;
-      return res.status(200).json({ success: true, userId: newUser.id, message: "OK" });
+  --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
+}
+
+:root:lang(ja) { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
+:root:lang(zh) { --font-stack: 'HarmonyOS Sans', 'HarmonyOS Sans SC', sans-serif; }
+:root:lang(zh-TW) { --font-stack: 'HarmonyOS Sans', 'HarmonyOS Sans TC', sans-serif; }
+:root:lang(ko) { --font-stack: 'HarmonyOS Sans', 'Noto Sans KR', sans-serif; }
+:root:lang(ru) { --font-stack: 'HarmonyOS Sans', sans-serif; }
+:root:lang(en) { --font-stack: 'HarmonyOS Sans', sans-serif; }
+
+[data-theme="dark"] {
+  --bg-color: #121212;
+  --card-bg: rgba(40, 40, 40, 0.5);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --modal-text-main: #FFFFFF;
+  --modal-text-sub: #A0A0A0;
+  --success-text-green: #04CF22;
+  --btn-close-border: #FFFFFF;
+  --btn-close-text: #FFFFFF;
+  --shadow-soft: 0 15px 40px rgba(0,0,0,0.4);
+   
+  /* Account System */
+  --dropdown-bg: rgba(20, 20, 20, 0.98);
+  --modal-bg-standard: #1A1A1A;
+
+  /* RGL Layout Variables Dark */
+  --sidebar-bg: #000000;
+  --sidebar-text: #fff;
+  --nav-text: #fff;
+  --hero-overlay: linear-gradient(to right, rgba(18,18,18,0.95) 0%, rgba(18,18,18,0.8) 40%, rgba(18,18,18,0.1) 100%);
+  --sidebar-item-hover: rgba(255,255,255,0.1);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(128, 128, 128, 0.2); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(128, 128, 128, 0.4); }
+[data-theme="dark"] ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); }
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
+
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  margin: 0; padding: 0;
+  background-color: var(--bg-color);
+  color: var(--modal-text-main);
+  font-family: var(--font-stack);
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden; 
+  display: flex; 
+  transition: background-color 0.5s ease;
+}
+
+button, input, textarea { font-family: var(--font-stack); }
+
+#particleCanvas {
+  position: fixed; inset: 0; width: 100%; height: 100%;
+  z-index: 0; opacity: 0.4; pointer-events: none;
+  filter: blur(80px);
+}
+
+.loading-dots::after {
+  content: ''; animation: dots-loop 1.5s infinite steps(1);
+  display: inline-block; width: 1em; text-align: left;
+}
+@keyframes dots-loop { 0% { content: '.'; } 33% { content: '..'; } 66% { content: '...'; } 100% { content: ''; } }
+
+/* --- RGL LAYOUT STRUCTURE --- */
+.rgl-wrapper {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  position: relative;
+}
+
+/* SIDEBAR */
+.rgl-sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--sidebar-bg);
+  display: flex;
+  flex-direction: column; 
+  padding: 0; 
+  flex-shrink: 0;
+  border-right: 1px solid rgba(128,128,128,0.1);
+  color: var(--sidebar-text);
+  z-index: 100;
+  overflow: hidden; 
+}
+
+/* Fixed Brand Area */
+.rgl-brand-area {
+  padding: 30px 24px 20px 24px;
+  flex-shrink: 0;
+}
+.rgl-brand {
+  font-family: var(--font-stack);
+  font-weight: 800;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--sidebar-text);
+}
+.rgl-brand i { color: #FFA500; } 
+
+/* Scrollable Menu Area */
+.rgl-scroll-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.rgl-menu-section {
+  margin-bottom: 30px;
+  flex-shrink: 0;
+  transition: opacity 0.3s ease;
+}
+
+.rgl-menu-title {
+  font-size: 20px;
+  font-weight: 700;
+  opacity: 0.6;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Sidebar List Item */
+.rgl-sidebar-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.sidebar-game-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    border: 1px solid transparent; 
+    margin-bottom: 8px;
+}
+.sidebar-game-item:hover { background: var(--sidebar-item-hover); }
+.sidebar-game-item.active { 
+    background: var(--sidebar-item-hover); 
+    border-color: rgba(128,128,128,0.1);
+}
+
+.sidebar-game-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    overflow: hidden;
+    width: 100%;
+}
+.sidebar-game-thumb {
+    width: 32px; height: 32px; border-radius: 6px; object-fit: cover; background: #888; flex-shrink: 0;
+}
+.sidebar-game-text {
+    display: flex; flex-direction: column; overflow: hidden;
+}
+.sidebar-game-title {
+    font-size: 16px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    color: var(--sidebar-text);
+}
+.sidebar-game-status { display: none; } 
+
+/* Sidebar Bottom Controls */
+.rgl-bottom-controls {
+  margin-top: auto;
+  padding: 20px 24px 30px 24px;
+  flex-shrink: 0;
+  border-top: 1px solid rgba(128,128,128,0.1);
+}
+
+/* MAIN CONTENT AREA */
+.rgl-main {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background-color: var(--bg-color);
+}
+
+/* RGL Header / Tabs */
+.rgl-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: 24px 40px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 20px;
+}
+
+.rgl-tabs {
+  display: flex;
+  gap: 30px;
+}
+
+.rgl-tab {
+  font-size: 14px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--nav-text);
+  opacity: 0.6;
+  cursor: pointer;
+  transition: opacity 0.3s;
+  text-decoration: none;
+  position: relative;
+}
+.rgl-tab:hover { opacity: 1; }
+.rgl-tab.active { opacity: 1; }
+
+.theme-pill {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--card-bg); border: 1px solid rgba(128,128,128,0.2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: transform 0.3s; backdrop-filter: blur(10px); color: var(--modal-text-main);
+}
+.theme-pill:hover { transform: scale(1.1); }
+[data-theme="dark"] .theme-pill { color: #fff; }
+
+
+/* Hero Section within Main */
+.rgl-hero {
+  padding: 40px 60px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  background: none !important;
+}
+
+/* Background Image Setting */
+.rgl-bg-image {
+    position: absolute;
+    top: 0; 
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center top;
+    mask-image: none !important;
+    -webkit-mask-image: none !important;
+    opacity: 1 !important;
+    z-index: 0;
+    transition: background-image 0.5s ease-in-out;
+}
+
+.rgl-hero::before, .rgl-hero::after {
+    display: none !important;
+    background: none !important;
+    content: none !important;
+}
+
+.rgl-hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 600px;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.1); 
+}
+
+/* --- タイトル --- */
+.rgl-logo-text {
+  font-size: 42px;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 20px;
+  font-family: var(--font-stack);
+  text-transform: none !important;
+  color: var(--modal-text-main);
+  text-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.rgl-desc {
+    display: none !important;
+}
+
+/* Action Bar Area */
+.rgl-action-bar {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* --- ボタン --- */
+.rgl-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 56px;
+    min-width: 200px;
+    padding: 0 40px;
+    
+    background-color: var(--modal-text-main);
+    color: var(--bg-color);
+    
+    font-weight: 800;
+    font-size: 18px;
+    border-radius: 50px;
+    cursor: pointer;
+    text-transform: none !important;
+    
+    transition: all 0.2s;
+    border: none;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    font-family: var(--font-stack);
+}
+.rgl-cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+}
+[data-theme="dark"] .rgl-cta-btn { background: #fff; color: #000; }
+
+.rgl-cta-btn.is-download {
+    background-color: var(--primary);
+    color: #fff;
+}
+.rgl-cta-btn.is-download:hover {
+    box-shadow: 0 15px 30px rgba(0, 125, 255, 0.4);
+}
+
+/* --- 購入用ボタン (PC用) --- */
+.rgl-buy-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 56px;
+    min-width: 200px;
+    padding: 0 40px;
+    
+    /* ライトモード時: ボタン白 / 文字黒 */
+    background-color: #FFFFFF;
+    color: #000000;
+    
+    font-weight: 800;
+    font-size: 18px;
+    border-radius: 50px;
+    cursor: pointer;
+    text-transform: none !important;
+    
+    transition: all 0.2s;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    font-family: var(--font-stack);
+}
+.rgl-buy-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+}
+/* ダークモード時: ボタン黒 / 文字白 */
+[data-theme="dark"] .rgl-buy-btn { 
+    background-color: #000000; 
+    color: #FFFFFF; 
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* ★ PC用の購入ボタン等に追加されたスマホ用クラスを無効化（PC版の完全保護） */
+.mobile-store-view { display: none !important; }
+
+/* Sidebar Language Selector */
+.lang-trigger-sidebar {
+    width: 100%;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px !important;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--sidebar-text);
+    border-radius: 50px !important;
+    background: transparent;
+    transition: all 0.2s ease;
+    font-family: var(--font-stack);
+    border: 1px solid transparent;
+}
+.lang-trigger-sidebar:hover {
+    background: rgba(128, 128, 128, 0.15);
+}
+[data-theme="dark"] .lang-trigger-sidebar {
+    border: 1px solid rgba(255, 255, 255, 0.6) !important;
+    background: rgba(255, 255, 255, 0.05);
+}
+[data-theme="dark"] .lang-trigger-sidebar:hover {
+    border-color: #fff !important;
+    background: rgba(255, 255, 255, 0.15);
+}
+.lang-list { position: absolute; bottom: 80px; left: 24px; width: 200px; background: var(--card-bg); backdrop-filter: blur(20px); padding: 5px; border-radius: 12px; list-style: none; display: none; box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 200; border: 1px solid rgba(128,128,128,0.1); }
+.lang-list.open { display: block; animation: popIn 0.3s; }
+.lang-list li { padding: 10px 15px; cursor: pointer; border-radius: 8px; color: var(--modal-text-main); font-size: 13px; font-family: var(--font-stack); }
+.lang-list li:hover { background: rgba(128,128,128,0.1); }
+[data-theme="dark"] .lang-list li { color: #fff; }
+
+/* Hide old elements */
+.wrapper, .bento-grid, .hero-text, header, footer { display: none !important; }
+
+/* Keep Animations */
+@keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+/* --- INTRO DESIGN --- */
+.intro-theme-btn {
+  position: absolute; top: 40px; right: 40px; z-index: 10002;
+  border-color: var(--card-border);
+}
+@media (max-width: 600px) { .intro-theme-btn { top: 24px; right: 24px; } }
+
+.intro-container {
+  text-align: center; width: 100%; max-width: 900px; padding: 40px 24px;
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column; justify-content: center; min-height: 80vh;
+}
+
+.intro-header { 
+  margin-bottom: 50px; opacity: 0; animation: fadeInUp 0.8s ease forwards;
+}
+
+.intro-brand { 
+  font-family: 'HarmonyOS Sans', sans-serif;
+  font-size: 14px; 
+  opacity: 0.5; font-weight: 700; 
+  margin-bottom: 16px; display: block; 
+  color: var(--modal-text-main);
+}
+
+.intro-title {
+  font-family: 'HarmonyOS Sans', sans-serif;
+  font-size: 42px; font-weight: 700; color: var(--modal-text-main);
+  margin: 0; line-height: 1.2; letter-spacing: -1px;
+}
+[data-theme="dark"] .intro-title { color: #fff; }
+
+.lang-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 100%;
+}
+.lang-card {
+  position: relative; background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: 24px; height: 120px; cursor: pointer; 
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.4s var(--spring-ease); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+  box-shadow: var(--shadow-soft); opacity: 0; animation: fadeInUp 0.6s var(--spring-ease) forwards;
+  animation-delay: var(--delay, 0s); overflow: hidden;
+}
+.lang-card:hover {
+  transform: translateY(-5px) scale(1.02); background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 20px 50px rgba(0, 125, 255, 0.15); border-color: rgba(0, 125, 255, 0.3);
+}
+[data-theme="dark"] .lang-card:hover {
+  background: rgba(70, 70, 70, 0.8); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6); border-color: rgba(255, 255, 255, 0.3);
+}
+.lang-name { font-size: 22px; font-weight: 700; color: var(--modal-text-main); transition: 0.3s; }
+[data-theme="dark"] .lang-name { color: #fff; }
+.lang-card:hover .lang-name { transform: scale(1.05); letter-spacing: 0.5px; }
+
+.font-jp { font-family: 'Noto Sans JP', sans-serif; }
+.font-en { font-family: 'HarmonyOS Sans', sans-serif; }
+.font-cn-s { font-family: 'HarmonyOS Sans SC', sans-serif; }
+.font-cn-t { font-family: 'HarmonyOS Sans TC', sans-serif; }
+.font-kr { font-family: 'Noto Sans KR', sans-serif; }
+.font-ru { font-family: 'HarmonyOS Sans', sans-serif; }
+
+/* ====================================================
+   ★ MODAL SYSTEM (Glassmorphism & Dynamic Island)
+   ==================================================== */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px);
+  z-index: 9999; display: flex; justify-content: center; align-items: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.5s ease;
+}
+.modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+/* 1. 入力画面のモーダル */
+.modal-sheet {
+  background: rgba(255, 255, 255, 0.7) !important;
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: none !important; 
+  border-radius: 32px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.15);
+  position: relative; overflow: hidden;
+  width: 90%; max-width: 470px; 
+  padding: 40px;
+  font-family: var(--font-stack);
+  
+  clip-path: inset(80% 30% 0% 30% round 50px);
+  transform: translateY(60px) scale(0.85);
+  opacity: 0;
+  
+  transition: clip-path 0.7s cubic-bezier(0.34, 1.56, 0.64, 1),
+              transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background-color 0.5s ease,
+              max-width 0.5s ease,
+              opacity 0.4s ease;
+}
+
+.modal-overlay.active .modal-sheet {
+  clip-path: inset(0% 0% 0% 0% round 32px);
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+/* 2. ワイド画面のモーダル（PCの確認・成功・エラー） */
+.modal-sheet.is-wide {
+  max-width: 900px;
+}
+
+/* ダークモード対応 */
+[data-theme="dark"] .modal-sheet {
+  background: rgba(50, 50, 50, 0.7) !important;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+}
+
+.modal-overlay:not(.active) #phase-input,
+.modal-overlay:not(.active) #phase-preview,
+.modal-overlay:not(.active) #phase-success,
+.modal-overlay:not(.active) #phase-error {
+  opacity: 0 !important;
+  transform: scale(0.95);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.modal-overlay.active #phase-input,
+.modal-overlay.active #phase-preview,
+.modal-overlay.active #phase-success,
+.modal-overlay.active #phase-error {
+  transition: opacity 0.5s ease 0.2s, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s;
+}
+
+.modal-overlay:not(.active) #modalCloseBtn {
+  opacity: 0 !important;
+  transition: opacity 0.2s ease;
+}
+.modal-overlay.active #modalCloseBtn {
+  opacity: 0.6 !important;
+  transition: opacity 0.3s ease 0.4s;
+}
+.modal-overlay.active #modalCloseBtn:hover {
+  opacity: 1 !important;
+}
+
+/* INPUT PHASE */
+#phase-input { 
+  width: 100%; transition: opacity 0.3s ease; 
+  text-align: center; display: flex; flex-direction: column; align-items: center; position: relative; 
+}
+.modal-title { margin:0 0 10px 0; font-size:24px; font-weight:800; color:var(--modal-text-main); text-align: center; }
+[data-theme="dark"] .modal-title { color: #fff; }
+.modal-sub { color:var(--modal-text-sub); margin:0; font-size:14px; text-align: center; }
+[data-theme="dark"] .modal-sub { color: #aaa; }
+
+.code-field {
+  width: 100%; border: none; background: rgba(128, 128, 128, 0.1);
+  height: 56px; border-radius: 16px; 
+  text-align: center; outline: none; transition: 0.3s; margin-top: 24px;
+  color: var(--modal-text-main); font-family: var(--font-stack);
+  font-size: 17px; font-weight: 700; letter-spacing: 0; padding: 0 10px;
+}
+[data-theme="dark"] .code-field { color: #fff; background: rgba(255,255,255,0.1); }
+.code-field:focus { background: rgba(0, 125, 255, 0.1); color: var(--primary); }
+
+.btn-primary {
+  width: 100%; height: 50px; margin-top: 20px; border: none;
+  background: var(--primary); color: white; border-radius: 25px;
+  font-size: 16px; font-weight: 700; cursor: pointer;
+  transition: transform 0.2s; font-family: var(--font-stack);
+  border-radius: 50px !important;
+}
+.btn-primary:active { transform: scale(0.96); }
+
+#statusContainer { 
+  margin-top: 0; min-height: 0; position: absolute; bottom: -30px; left: 0; width: 100%; text-align: center;
+}
+
+/* --- 新しいモーダルレイアウト (PC表示) --- */
+.new-modal-layout {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    text-align: left;
+    font-family: var(--font-stack);
+}
+.modal-title-top {
+    font-size: 26px;
+    font-weight: 800;
+    margin: 0 0 24px 0;
+    color: var(--modal-text-main);
+}
+.modal-body-flex {
+    display: flex;
+    gap: 30px;
+    align-items: stretch;
+}
+.modal-left-col {
+    width: 380px; 
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+}
+.modal-left-col img {
+    width: 100%;
+    flex: 1; 
+    border-radius: 16px;
+    object-fit: cover;
+    background: rgba(128,128,128,0.2);
+}
+.modal-thumb-title {
+    margin-top: 24px; 
+    height: 48px; 
+    line-height: 48px; 
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--modal-text-main);
+    text-align: center;
+    width: 100%;
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis; 
+}
+.modal-right-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.mobile-title {
+    display: none; /* PCでは非表示 */
+}
+.modal-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--modal-text-main);
+    margin: 0 0 4px 0;
+}
+.modal-main-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--modal-text-main);
+    margin: 0 0 20px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.modal-grey-box {
+    background: rgba(128,128,128,0.1);
+    border-radius: 16px;
+    padding: 20px;
+    flex: 1; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-bottom: 24px; 
+}
+.modal-box-text {
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.5;
+    color: var(--modal-text-main);
+    margin: 0;
+    white-space: pre-wrap;
+}
+.modal-box-text.is-warning {
+    opacity: 0.7;
+    font-weight: normal;
+}
+.modal-box-time {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--modal-text-main);
+    margin: 20px 0 0 0; 
+}
+.modal-btn-row {
+    display: flex;
+    gap: 12px;
+    margin-top: auto; 
+    height: 48px; 
+}
+.btn-outline {
+    height: 48px;
+    border-radius: 24px;
+    border: 2px solid var(--modal-text-main);
+    background: transparent;
+    color: var(--modal-text-main);
+    font-weight: 800;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 3;
+}
+.btn-outline:hover {
+    background: rgba(128,128,128,0.1);
+}
+.btn-solid {
+    height: 48px;
+    border-radius: 24px;
+    border: none;
+    background: var(--modal-text-main);
+    color: var(--bg-color);
+    font-weight: 800;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex: 7;
+}
+.btn-solid:hover:not(:disabled) {
+    opacity: 0.8;
+}
+
+.error-layout .error-title-color {
+    color: #FF3B30;
+}
+.modal-body-error {
+    display: flex;
+    flex-direction: column;
+}
+.modal-error-main-msg {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--modal-text-main);
+    margin: 0 0 20px 0;
+}
+
+[data-theme="dark"] .error-layout .error-title-color { color: #FF453A; }
+[data-theme="dark"] .btn-outline { border-color: rgba(255,255,255,0.6); color: #fff; }
+[data-theme="dark"] .btn-outline:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
+[data-theme="dark"] .btn-solid { background: #fff; color: #000; }
+[data-theme="dark"] .modal-grey-box { background: rgba(255,255,255,0.1); }
+
+/* --- ACCOUNT DROPDOWN STYLES --- */
+.account-dropdown {
+  position: absolute; top: 80px; right: 40px; width: 320px; 
+  background: var(--dropdown-bg);
+  backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(128,128,128,0.2); border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2); padding: 24px;
+  z-index: 2000; opacity: 0; transform: translateY(-10px) scale(0.98);
+  pointer-events: none; transition: all 0.3s var(--spring-ease);
+  transform-origin: top right; text-align: left; display: flex; flex-direction: column;
+}
+.account-dropdown.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; visibility: visible; }
+
+/* Header inside Dropdown */
+.account-mini-header { 
+  display: flex; flex-direction: column; align-items: flex-start;
+  margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid rgba(128,128,128,0.1); 
+}
+.label-logged-in { font-size: 10px; font-weight: 700; opacity: 0.6; margin-bottom: 2px; text-transform: uppercase; }
+.mini-user-id { font-size: 16px; font-weight: 800; color: var(--modal-text-main); letter-spacing: -0.5px; word-break: break-all;}
+/* ポイント色：ライト時黒/ダーク時白に追従させるためカラーはvar()で指定 */
+#displayUserPoints { font-size:14px; font-weight:700; color:var(--modal-text-main); margin-top:4px; display:flex; align-items:center; gap:4px; }
+
+/* Menu List inside Dropdown */
+.menu-list { display: flex; flex-direction: column; gap: 4px; }
+.menu-btn {
+  background: transparent; border: none; text-align: left;
+  padding: 14px 12px; font-size: 16px; font-weight: 700;
+  color: var(--modal-text-main); cursor: pointer; border-radius: 12px;
+  display: flex; justify-content: space-between; align-items: center;
+  transition: background 0.2s; font-family: var(--font-stack);
+}
+.menu-btn:hover { background: rgba(128,128,128,0.08); }
+.menu-btn i { opacity: 0.5; }
+
+/* Login Form inside Dropdown */
+.auth-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid rgba(128,128,128,0.2); padding-bottom:10px; }
+.auth-tab { flex: 1; text-align: center; padding: 8px; cursor: pointer; font-weight: 700; opacity: 0.5; transition: 0.3s; color: var(--modal-text-main); font-size: 14px; font-family: var(--font-stack); }
+.auth-tab.active { opacity: 1; border-bottom: 2px solid var(--primary); color: var(--primary); }
+.form-group { text-align: left; margin-bottom: 12px; }
+.form-label { font-size: 11px; font-weight: 700; margin-bottom: 4px; display: block; opacity: 0.7; color: var(--modal-text-main); font-family: var(--font-stack); }
+.form-input { width: 100%; height: 44px; border-radius: 10px; border: 1px solid rgba(128,128,128,0.2); background: transparent; padding: 0 12px; color: var(--modal-text-main); font-family: inherit; outline: none; font-size: 14px; font-weight: 500; }
+.form-input:focus { border-color: var(--primary); background: rgba(128,128,128,0.05); }
+
+
+/* ★ スマホ用表示のオーバーライド（PC用デザインは一切変えずにスマホだけ変える） */
+.mobile-menu-trigger { display: none; }
+.mobile-nav-overlay { display: none; }
+
+@media (max-width: 768px) {
+    /* ログイン状態に応じてHero(認証センター)とStore表示を切り替え */
+    body.is-logged-in .rgl-hero { display: none !important; }
+    body.is-logged-in .mobile-store-view { display: block !important; padding: 20px; position: relative; z-index: 10; }
+    
+    body:not(.is-logged-in) .rgl-hero { display: flex !important; }
+    body:not(.is-logged-in) .mobile-store-view { display: none !important; }
+    
+    /* PC用購入ボタンをスマホ画面では非表示 */
+    .rgl-buy-btn { display: none !important; }
+
+    /* ストア用ヘッダーとコード引き換えボタン */
+    .mobile-store-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        margin-top: 10px;
+    }
+    .mobile-store-redeem-btn {
+        background: transparent;
+        border: 1px solid var(--modal-text-main);
+        color: var(--modal-text-main);
+        font-size: 11px;
+        font-weight: 700;
+        padding: 6px 12px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-family: var(--font-stack);
+    }
+    
+    .mobile-store-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: 12px;
+    }
+    .mobile-store-card {
+        background: rgba(30, 30, 30, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    [data-theme="light"] .mobile-store-card {
+        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+   .pc-only-text {
+      display: none !important;
+    }
+    .mobile-store-thumb {
+        width: 100%;
+        aspect-ratio: 21 / 9;
+        object-fit: cover;
+        border-radius: 8px;
+        background: rgba(128,128,128,0.2);
+    }
+    .mobile-store-title {
+        font-size: 12px;
+        font-weight: 800;
+        color: var(--modal-text-main);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-top: 4px;
+        display: flex;
+        align-items: center;
+    }
+    .mobile-store-price {
+        font-size: 10px;
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-weight: 700;
+    }
+    .mobile-store-btn {
+        width: 100%;
+        height: 26px;
+        border-radius: 6px;
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        font-size: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.2s;
+    }
+    .mobile-store-btn:active { transform: scale(0.95); }
+    
+    /* 所有済みのダウンロードボタン */
+    .mobile-store-btn.is-owned-download {
+        background: rgba(0, 125, 255, 0.1);
+        color: var(--primary);
+        border: 1px solid rgba(0, 125, 255, 0.3);
+        cursor: pointer;
+    }
+    .mobile-store-btn.is-owned-download:active {
+        background: rgba(0, 125, 255, 0.2);
     }
 
-    // 2. ユーザーログイン
-    if (type === 'user_login') {
-      const { email, password } = params;
-      const { data: user } = await supabase.from('users').select('*').eq('email', email).maybeSingle();
-      if (user && user.password === password) {
-        return res.status(200).json({ success: true, userId: user.id, points: user.points, history: [] });
-      }
-      return res.status(200).json({ success: false, message: "Invalid" });
+    /* スマホメニューなど元々のスマホ用CSS */
+    .mobile-menu-trigger { display: flex; align-items: center; justify-content: center; background: transparent; border: none; color: var(--sidebar-text); cursor: pointer; padding: 8px; margin-right: 4px; }
+    .rgl-brand { order: 2; }
+    .mobile-menu-trigger { order: 1; }
+    .mobile-nav-overlay { display: flex; flex-direction: column; position: fixed; inset: 0; background: var(--bg-color); z-index: 10001; padding: 40px; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); visibility: hidden; }
+    .mobile-nav-overlay.active { transform: translateX(0); visibility: visible; }
+    .mobile-menu-close { align-self: flex-end; background: transparent; border: 1px solid var(--btn-close-border); color: var(--modal-text-main); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 40px; }
+    .mobile-nav-content { display: flex; flex-direction: column; gap: 40px; flex: 1; }
+    .mobile-nav-item { font-family: var(--font-stack); font-size: 32px; font-weight: 800; color: var(--modal-text-main); text-decoration: none; text-align: left; opacity: 0; transform: translateX(-20px); transition: opacity 0.3s ease, transform 0.3s ease; }
+    .mobile-nav-overlay.active .mobile-nav-item { opacity: 1; transform: translateX(0); }
+    .mobile-nav-overlay.active .mobile-nav-item:nth-child(1) { transition-delay: 0.1s; }
+    .mobile-nav-overlay.active .mobile-nav-item:nth-child(2) { transition-delay: 0.2s; }
+    .mobile-menu-footer { margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(128,128,128,0.1); opacity: 0; transform: translateY(20px); transition: all 0.3s ease 0.3s; position: relative; }
+    .mobile-nav-overlay.active .mobile-menu-footer { opacity: 1; transform: translateY(0); }
+    .mobile-menu-footer .lang-list { position: absolute; bottom: 60px; left: 0; width: 100%; display: none; }
+    .mobile-menu-footer .lang-list.open { display: block; animation: fadeInUp 0.3s ease; }
+    
+    .rgl-wrapper { flex-direction: column; }
+    .rgl-sidebar { width: 100%; height: auto; padding: 0; border-right: none; border-bottom: 1px solid rgba(128,128,128,0.1); overflow: visible; position: relative; z-index: 100; background-color: var(--sidebar-bg); }
+    .rgl-brand-area { padding: 16px 12px; display: flex; align-items: center; justify-content: flex-start; gap: 8px; width: 100%; padding-right: 120px; }
+    
+    /* サイドバー内のコンテンツ非表示 */
+    .rgl-scroll-content, .rgl-bottom-controls { display: none !important; } 
+    .rgl-main { position: static !important; }
+
+    /* ▼ fixed を absolute に変更 ▼ */
+    .rgl-header { 
+        position: absolute !important; 
+        top: 0; right: 0; width: auto; height: 70px; 
+        background: transparent !important; padding: 0 16px; 
+        z-index: 200; display: flex !important; 
+        align-items: center; justify-content: flex-end; 
+        gap: 10px; pointer-events: none; 
     }
+    .rgl-header > * { pointer-events: auto; }
+    .rgl-tabs { display: none !important; }
+    
+    .rgl-hero { padding: 30px 20px; min-height: 30vh; }
+    .rgl-logo-text { font-size: 32px; }
+    .account-dropdown { position: fixed; top: 70px; right: 5%; width: 90%; left: auto; transform: translateY(-10px); }
+    .account-dropdown.open { transform: translateY(0); }
 
-    // 3. 利用可能なコンテンツ一覧 (Store)
-    if (type === 'get_available') {
-      const userId = params.userId;
-      const { data: allCodes } = await supabase.from('codes').select('*');
-      
-      let ownedCodeIds = new Set();
-      let ownedGroupIds = new Set();
-
-      if (userId && userId !== "GUEST") {
-        const { data: history } = await supabase.from('histories').select('code_id').eq('user_id', userId);
-        if (history) {
-            const codeIds = history.map(h => h.code_id);
-            ownedCodeIds = new Set(codeIds);
-            if (codeIds.length > 0) {
-                const { data: ownedCodes } = await supabase.from('codes').select('重複').in('id', codeIds);
-                if(ownedCodes) ownedGroupIds = new Set(ownedCodes.map(c => c["重複"]).filter(Boolean));
-            }
-        }
-      }
-
-      const lMap = { ja: 'jp', en: 'en', zh: 'SC', 'zh-TW': 'TC', ko: 'ko', ru: 'ru' };
-      const suffix = lMap[lang] || 'jp';
-
-      const filteredCodes = (allCodes || []).filter(c => {
-          const isActive = c["有効/無効"] === true || String(c["有効/無効"]).toUpperCase() === 'TRUE';
-          const isShow = String(c["show/ hide"] || "").trim().toLowerCase() === 'show';
-          const cType = String(c.Types || "").trim().toUpperCase();
-          
-          if (!isActive || !isShow || cType === 'POINT') return false;
-
-          const isOnce = (cType === 'ONCE' || cType === '');
-          const isUsed = c["USED?"] === true || String(c["USED?"]).trim().toUpperCase() === 'TRUE';
-          if (isOnce && isUsed) return false;
-
-          return true;
-      });
-
-      const items = filteredCodes.map(code => {
-        const isOwned = ownedCodeIds.has(code.id) || (code["重複"] && ownedGroupIds.has(code["重複"]));
-        return {
-          code: code["アクティベーションコード"],
-          title: code[`タイトル(${suffix})`] || code["タイトル(jp)"],
-          message: code[`メッセージ(${suffix})`] || code["メッセージ(jp)"],
-          extraInfo: code[`詳細(${suffix})`] || code["詳細(jp)"],
-          imageUrl: code.Imag_Url,
-          url: code.Action_url,
-          releaseDateIso: code["解禁時間"],
-          icon: code.アイコン || 'download',
-          groupId: code["重複"],
-          buttonLabel: code[`ボタン(${suffix})`] || code["ボタン(jp)"],
-          price: code["価格"] || 0,
-          isOwned: isOwned
-        };
-      });
-
-      return res.status(200).json({ success: true, items });
+    /* モーダル用スマホ最適化 */
+    .modal-sheet.is-wide {
+        padding: 0 !important;
+        max-width: 92%;
+        border-radius: 24px;
+        height: auto;
+        max-height: 85vh;
+        overflow-y: auto;
     }
-
-    // 4. ユーザー履歴の取得
-    if (type === 'get_history') {
-      const userId = params.userId;
-      if (!userId || userId === "GUEST") return res.status(200).json({ success: false, message: "No User ID" });
-
-      const { data: user, error: userErr } = await supabase.from('users').select('points').eq('id', userId).maybeSingle();
-      if (userErr || !user) return res.status(200).json({ success: false, message: "User not found" });
-
-      const { data: histories } = await supabase
-        .from('histories')
-        .select(`created_at, codes (*)`)
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
-
-      const lMap = { ja: 'jp', en: 'en', zh: 'SC', 'zh-TW': 'TC', ko: 'ko', ru: 'ru' };
-      const suffix = lMap[lang] || 'jp';
-
-      const historyData = (histories || []).map(h => {
-        const c = h.codes;
-        if(!c) return null;
-        return {
-          code: c["アクティベーションコード"],
-          date: h.created_at,
-          title: c[`タイトル(${suffix})`] || c["タイトル(jp)"],
-          message: c[`メッセージ(${suffix})`] || c["メッセージ(jp)"],
-          url: c.Action_url,
-          imageUrl: c.Imag_Url,
-          icon: c.アイコン || 'download',
-          releaseDateIso: c["解禁時間"],
-          extraInfo: c[`詳細(${suffix})`] || c["詳細(jp)"],
-          groupId: c["重複"],
-          buttonLabel: c[`ボタン(${suffix})`] || c["ボタン(jp)"]
-        };
-      }).filter(Boolean);
-
-      return res.status(200).json({ success: true, points: user.points, history: historyData });
+    .modal-title-top { display: none !important; }
+    .mobile-title {
+        display: block; 
+        font-size: 22px;
+        font-weight: 800;
+        color: var(--modal-text-main);
+        margin: 0 0 16px 0;
     }
-
-    // 5. ポイントでの購入
-    if (type === 'purchase') {
-      const { userId, code } = params;
-      if (!userId || userId === "GUEST") return res.status(200).json({ success: false, message: "Login required" });
-
-      const { data: master } = await supabase.from('codes').select('*').eq('アクティベーションコード', code).maybeSingle();
-      if (!master) return res.status(200).json({ success: false, message: "Item not found" });
-
-      const { data: user } = await supabase.from('users').select('points').eq('id', userId).maybeSingle();
-      if (!user) return res.status(200).json({ success: false, message: "User not found" });
-
-      const { data: existingHist } = await supabase.from('histories').select('codes(重複)').eq('user_id', userId);
-      let alreadyOwned = false;
-      if (existingHist) {
-         alreadyOwned = existingHist.some(h => h.codes && (h.codes["アクティベーションコード"] === code || (master["重複"] && h.codes["重複"] === master["重複"])));
-      }
-      if (alreadyOwned) return res.status(200).json({ success: false, message: "Already owned" });
-
-      const price = master["価格"] || 0;
-      if (user.points < price) return res.status(200).json({ success: false, message: "Not enough points" });
-
-      await supabase.from('users').update({ points: user.points - price }).eq('id', userId);
-      await supabase.from('histories').insert([{ user_id: userId, code_id: master.id }]);
-
-      return res.status(200).json({ success: true, remainingPoints: user.points - price });
+    .modal-body-flex { flex-direction: column; gap: 0; align-items: stretch; }
+    .modal-left-col { width: 100%; }
+    .modal-left-col img {
+        border-radius: 24px 24px 0 0;
+        height: 220px;
+        object-fit: cover;
+        flex: none;
+        width: 100%;
     }
-
-    // ==========================================
-    // 6. コードの確認(check) と 引き換え(redeem)
-    // ==========================================
-    if (type === 'check' || type === 'redeem') {
-      const { key, userId, mode } = params;
-      const safeCode = (key || "").replace(/[^A-Z0-9\-]/gi, "").toUpperCase();
-
-      const { data: master, error } = await supabase.from('codes').select('*').eq('アクティベーションコード', safeCode).maybeSingle();
-
-      if (error || !master) return res.status(200).json({ success: false, message: "This code is invalid." });
-
-      const now = new Date();
-      if (master["有効時間"] && now > new Date(master["有効時間"])) {
-        return res.status(200).json({ success: false, message: "This code is invalid." });
-      }
-
-      const codeType = (master.Types || "").trim().toUpperCase();
-      const isOnce = (codeType === 'ONCE' || codeType === '');
-      
-      const rawUsed = master["USED?"];
-      const isCodeUsed = rawUsed === true || String(rawUsed).trim().toUpperCase() === 'TRUE';
-
-      // ★修正: 1回限定コード または POINTコード が使用済みの場合弾く
-      if ((isOnce || codeType === 'POINT') && isCodeUsed) {
-        return res.status(200).json({ success: false, message: "This code has already been used." });
-      }
-
-      const lMap = { ja: 'jp', en: 'en', zh: 'SC', 'zh-TW': 'TC', ko: 'ko', ru: 'ru' };
-      const suffix = lMap[lang] || 'jp';
-
-      const txt = {
-        btnLabel: master[`ボタン(${suffix})`] || master["ボタン(jp)"],
-        bundle:   master[`バンドル(${suffix})`] || master["バンドル(jp)"],
-        message:  master[`メッセージ(${suffix})`] || master["メッセージ(jp)"],
-        title:    master[`タイトル(${suffix})`] || master["タイトル(jp)"],
-        desc:     master[`詳細(${suffix})`] || master["詳細(jp)"]
-      };
-
-      // ★大修正: 確認(check)モードなら、POINTでもONCEでもとりあえずプレビュー情報を返す！
-      if (mode === 'check') {
-        return res.status(200).json({
-          success: true,
-          bundleLabel: txt.bundle,
-          message: txt.message,
-          detailedTitle: txt.title,
-          detailedDesc: txt.desc,
-          buttonLabel: txt.btnLabel,
-          imageUrl: master.Imag_Url,
-          icon: master.アイコン || 'download',
-          groupId: master["重複"]
-        });
-      }
-
-      // ------------------------------------------
-      // ▼ ここから下は引き換え実行 (mode === 'redeem') の処理
-      // ------------------------------------------
-
-      // POINTコードの引き換え
-      if (codeType === 'POINT') {
-        if (!userId || userId === "GUEST") return res.status(200).json({ success: false, message: "Login required" });
-
-        const { data: user } = await supabase.from('users').select('points').eq('id', userId).maybeSingle();
-        if (user) {
-           await supabase.from('users').update({ points: user.points + (master["Point PPP"] || 0) }).eq('id', userId);
-           await supabase.from('codes').update({ "USED?": true }).eq('アクティベーションコード', safeCode);
-        }
-
-        return res.status(200).json({
-          success: true, isPointMode: true, addedPoints: master["Point PPP"] || 0,
-          message: `${master["Point PPP"] || 0} pt`, title: txt.title || "ポイントチャージ完了"
-        });
-      }
-
-      // 通常コンテンツコード (ONCE, MULTIなど) の引き換え
-      if (codeType !== 'POINT') {
-        let isOwned = false;
-        if (userId && userId !== "GUEST") {
-          const { data: existingHist } = await supabase.from('histories').select('codes(アクティベーションコード, 重複)').eq('user_id', userId);
-          if (existingHist) {
-            isOwned = existingHist.some(h => h.codes && (h.codes["アクティベーションコード"] === safeCode || (master["重複"] && h.codes["重複"] === master["重複"])));
-          }
-        }
-
-        // 既に持っているかチェック
-        if (isOwned) return res.status(200).json({ success: false, isAlreadyOwned: true, message: "Already owned" });
-
-        const isRelease = !master["解禁時間"] || (now >= new Date(master["解禁時間"]));
-        const retUrl = isRelease ? master.Action_url : "";
-
-        // 履歴の追加 と ONCEなら使用済みに更新
-        if (userId && userId !== "GUEST") {
-           const { error: histErr } = await supabase.from('histories').insert([{ user_id: userId, code_id: master.id }]);
-           if(histErr) console.error("履歴追加エラー:", histErr);
-        }
-        if (isOnce) {
-           const { error: updErr } = await supabase.from('codes').update({ "USED?": true }).eq('アクティベーションコード', safeCode);
-           if(updErr) console.error("使用済み更新エラー:", updErr);
-        }
-
-        return res.status(200).json({
-          success: true, actionUrl: retUrl, bundleLabel: txt.bundle, message: txt.message,         
-          detailedTitle: txt.title, detailedDesc: txt.desc, buttonLabel: txt.btnLabel,
-          imageUrl: master.Imag_Url, isReleaseDateReached: isRelease, releaseDateIso: master["解禁時間"],
-          btnIcon: master.アイコン || 'download', groupId: master["重複"]
-        });
-      }
+    .modal-thumb-title { display: none !important; }
+    .modal-right-col { padding: 24px; }
+    .modal-main-title { font-size: 20px; white-space: normal; }
+    .modal-grey-box {
+        background: rgba(128,128,128,0.05) !important; 
+        border: 1px solid rgba(128,128,128,0.1) !important;
+        padding: 16px !important;
+        margin-bottom: 24px;
+        border-radius: 12px;
+        flex: none;
     }
+    [data-theme="dark"] .modal-grey-box {
+        background: rgba(255,255,255,0.05) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+    }
+    .modal-box-text.is-warning {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--modal-text-sub);
+        background: transparent; 
+        padding: 0;
+        border: none;
+        opacity: 1;
+    }
+    .modal-box-time { margin: 10px 0 0 0; }
+    .modal-btn-row { margin-top: 0; height: 50px; }
+    .btn-outline, .btn-solid { height: 50px; border-radius: 50px; }
+    #phase-error .modal-title-top {
+        display: block !important;
+        padding: 24px 24px 0 24px;
+        margin: 0;
+        font-size: 20px;
+    }
+    #phase-error .modal-body-error { padding: 24px; }
+}
 
-    return res.status(200).json({ success: false, message: "Invalid request" });
+footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font-size: 12px; }
+[data-theme="dark"] footer { color: #888; }
 
-  } catch (error) {
-    console.error("API Error:", error);
-    return res.status(500).json({ success: false, message: "Internal Server Error" });
+.loading-spinner { display: inline-block; vertical-align: middle; width: 24px; height: 24px; border: 3px solid rgba(128,128,128,0.2); border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 8px; }
+@keyframes spin { to{transform: rotate(360deg);} }
+
+/* --- モーダル入力画面 (PC用2カラムレイアウト) --- */
+.phase-input-left { display: none; }
+.phase-input-desc-pc { display: none; }
+.phase-input-body { display: flex; flex-direction: column; align-items: center; width: 100%; }
+.phase-input-controls { width: 100%; display: flex; flex-direction: column; }
+
+@media (min-width: 769px) {
+  .modal-sheet.is-input-wide {
+    max-width: 980px;
+  }
+  .modal-sheet.is-input-wide #phase-input {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .modal-sheet.is-input-wide .phase-input-title {
+    text-align: left;
+    font-size: 26px;
+    margin: 0 0 24px 0;
+    width: 100%;
+  }
+  .modal-sheet.is-input-wide .phase-input-sub-mobile {
+    display: none;
+  }
+  .modal-sheet.is-input-wide .phase-input-body {
+    flex-direction: row;
+    gap: 30px;
+    align-items: stretch;
+  }
+  .modal-sheet.is-input-wide .phase-input-left {
+    display: flex;
+    width: 360px;
+    flex-shrink: 0;
+  }
+  .modal-sheet.is-input-wide .phase-input-left img {
+    width: 100%;
+    border-radius: 16px;
+    object-fit: cover;
+    background: rgba(128,128,128,0.2);
+  }
+  .modal-sheet.is-input-wide .phase-input-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .modal-sheet.is-input-wide .phase-input-controls {
+    flex-direction: row;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  .modal-sheet.is-input-wide .phase-input-controls .code-field {
+    margin-top: 0;
+    flex: 1;
+    height: 56px;
+    text-align: left;
+    padding: 0 20px;
+    border-radius: 50px; /* ★修正 */
+  }
+  .modal-sheet.is-input-wide .phase-input-controls .btn-primary {
+    margin-top: 0;
+    width: 120px;
+    height: 56px;
+    border-radius: 50px !important; /* ★修正 */
+  }
+  .modal-sheet.is-input-wide .phase-input-desc-pc {
+    display: flex;
+    flex: 1;
+    margin-bottom: 0;
+    justify-content: flex-start; /* ★追加 */
+    align-items: flex-start;     /* ★追加 */
+  }
+  .modal-sheet.is-input-wide .phase-input-desc-pc .modal-box-text {
+    text-align: left; /* ★追加 */
+    margin: 0;        /* ★追加 */
   }
 }
+
+</style>
+</head>
+<body>
+
+<canvas id="particleCanvas" width="1125" height="605"></canvas>
+
+<div id="langSelectionOverlay" class="modal-overlay active" style="opacity: 1; background: var(--bg-color); z-index: 10000; display: none;">
+  <div class="theme-pill intro-theme-btn" id="introThemeToggle"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="moon" aria-hidden="true" id="introThemeIcon" class="lucide lucide-moon lucide-sun"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path></svg></div>
+  <div class="intro-container">
+    <div class="intro-header"><span class="intro-brand">kiryu10 Developers</span><h2 class="intro-title">Select Language</h2></div>
+    <div class="lang-grid">
+      <div class="lang-card font-jp" onclick="setInitialLanguage('ja')"><div class="lang-name">日本語</div></div>
+      <div class="lang-card font-en" onclick="setInitialLanguage('en')"><div class="lang-name">English</div></div>
+      <div class="lang-card font-cn-s" onclick="setInitialLanguage('zh')"><div class="lang-name">简体中文</div></div>
+      <div class="lang-card font-cn-t" onclick="setInitialLanguage('zh-TW')"><div class="lang-name">繁體中文</div></div>
+      <div class="lang-card font-kr" onclick="setInitialLanguage('ko')"><div class="lang-name">한국어</div></div>
+      <div class="lang-card font-ru" onclick="setInitialLanguage('ru')"><div class="lang-name">Русский</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="mobile-nav-overlay" id="mobileNav">
+    <button class="mobile-menu-close" id="mobileMenuCloseBtn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
+    <div class="mobile-nav-content">
+        <a href="index.html" class="mobile-nav-item" data-translate="card1_title">Home</a>
+        <a href="https://kiryu10-standard.vercel.app" class="mobile-nav-item" data-translate="card3_title">Standard</a>
+    </div>
+    <div class="mobile-menu-footer">
+         <div class="lang-trigger-sidebar" id="mobileLangTrigger">
+             <span style="display:flex;align-items:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="globe" aria-hidden="true" size="16" class="lucide lucide-globe"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg> <span id="mobileCurrentLangLabel">日本語</span></span>
+             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-up" aria-hidden="true" size="14" style="opacity:0.5;" class="lucide lucide-chevron-up"><path d="m18 15-6-6-6 6"></path></svg>
+         </div>
+         <ul class="lang-list" id="mobileLangMenu">
+            <li class="lang-option" data-value="ja">日本語</li>
+            <li class="lang-option" data-value="en">English</li>
+            <li class="lang-option" data-value="zh">简体中文</li>
+            <li class="lang-option" data-value="zh-TW">繁體中文</li>
+            <li class="lang-option" data-value="ko">한국어</li>
+            <li class="lang-option" data-value="ru">Русский</li>
+         </ul>
+    </div>
+</div>
+
+<div class="rgl-wrapper" id="mainContainer" style="opacity: 1;">
+    
+    <aside class="rgl-sidebar">
+        <div class="rgl-brand-area">
+            <button class="mobile-menu-trigger" id="mobileMenuBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="menu" aria-hidden="true" class="lucide lucide-menu"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg>
+            </button>
+            <div class="rgl-brand"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="graduation-cap" aria-hidden="true" class="lucide lucide-graduation-cap"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"></path><path d="M22 10v6"></path><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"></path></svg> <span data-translate="header_brand">_.k__yu.10</span></div>
+        </div>
+        
+        <div class="rgl-scroll-content">
+            <div class="rgl-menu-section" id="secAvailable" style="display: block;">
+                <div class="rgl-menu-title" data-translate="label_available">利用可能</div>
+                <div id="sidebarAvailableList" class="rgl-sidebar-list"><div style="padding:10px; opacity:0.5; font-size:12px;">-</div></div>
+            </div>
+            
+            <div class="rgl-menu-section" id="secLibrary" style="display:none;">
+                <div class="rgl-menu-title" data-translate="label_library">ライブラリ</div>
+                <div id="sidebarLibraryList" class="rgl-sidebar-list"><div style="padding:10px; opacity:0.5; font-size:12px;">Loading...</div></div>
+            </div>
+        </div>
+
+        <div class="rgl-bottom-controls">
+            <div style="position:relative;">
+                 <button class="lang-trigger-sidebar" id="langTrigger">
+                     <span style="display:flex;align-items:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="globe" aria-hidden="true" size="16" class="lucide lucide-globe"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg> <span id="currentLangLabel">日本語</span></span>
+                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-up" aria-hidden="true" size="14" style="opacity:0.5;" class="lucide lucide-chevron-up"><path d="m18 15-6-6-6 6"></path></svg>
+                 </button>
+                 <ul class="lang-list" id="langMenu">
+                    <li class="lang-option" data-value="ja">日本語</li>
+                    <li class="lang-option" data-value="en">English</li>
+                    <li class="lang-option" data-value="zh">简体中文</li>
+                    <li class="lang-option" data-value="zh-TW">繁體中文</li>
+                    <li class="lang-option" data-value="ko">한국어</li>
+                    <li class="lang-option" data-value="ru">Русский</li>
+                 </ul>
+            </div>
+            
+            <div style="margin-top:20px; font-size:10px; opacity:0.3; text-align:center;">
+                © 2026 kiryu-sensya
+           </div>
+        </div>
+    </aside>
+
+    <main class="rgl-main">
+        <div class="rgl-bg-image" id="heroBgImage"></div>
+        
+        <nav class="rgl-header">
+            <div class="rgl-tabs">
+                <a href="index.html" class="rgl-tab active" data-translate="card1_title">Home</a>
+                <a href="https://kiryu10-standard.vercel.app/" class="rgl-tab" data-translate="card3_title">Standard</a>
+            </div>
+            
+            <div class="theme-pill" id="themeToggle">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="moon" aria-hidden="true" id="themeIcon" class="lucide lucide-moon lucide-sun"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path></svg>
+            </div>
+
+            <div style="position:relative;">
+                <div class="theme-pill" id="btnOpenAccount" style="width:40px; height:40px; border:none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="user-round" aria-hidden="true" size="20" class="lucide lucide-user-round"><circle cx="12" cy="8" r="5"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg> 
+                </div>
+
+                <div id="accountDropdown" class="account-dropdown">
+                    <div id="loggedInView" style="display: block;">
+                      <div class="account-mini-header">
+                        <span class="mini-user-id" id="displayUserEmail" style="font-size:16px; font-weight:800; word-break: break-all;">122</span>
+                        <span id="displayUserPoints">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-coins"><circle cx="8" cy="8" r="6"></circle><path d="M18.09 10.37A6 6 0 1 1 10.34 18"></path><path d="M7 6h1v4"></path><path d="m16.71 13.88.7.71-2.82 2.82"></path></svg>
+                            <span id="ptValue">0</span> pt
+                        </span>
+                      </div>
+                      <div class="menu-list">
+                         <button class="menu-btn" id="btnMenuRedeem">
+                            <span data-translate="btn_redeem_code">コード引き換え</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="key-round" aria-hidden="true" size="18" class="lucide lucide-key-round"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"></path><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"></circle></svg>
+                         </button>
+
+                         <button class="menu-btn" id="btnLogout" style="color:#FF3B30;">
+                           <span data-translate="btn_logout">ログアウト</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="log-out" aria-hidden="true" size="18" class="lucide lucide-log-out"><path d="m16 17 5-5-5-5"></path><path d="M21 12H9"></path><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path></svg>
+                         </button>
+                      </div>
+                    </div>
+
+                    <div id="loggedOutView" style="display: none;">
+                      <div style="text-align:center; margin-bottom:20px;">
+                        <h2 style="margin:0; font-size:20px; color:var(--modal-text-main);" data-translate="label_welcome">ようこそ</h2>
+                        <p style="color:var(--modal-text-sub); margin:4px 0 0 0; font-size:12px;" data-translate="label_sync_desc">ログインして同期を開始</p>
+                      </div>
+                      <div class="auth-tabs">
+                        <div class="auth-tab active" data-tab="login" data-translate="tab_login">ログイン</div>
+                        <div class="auth-tab" data-tab="register" data-translate="tab_signup">新規登録</div>
+                      </div>
+                      <div style="text-align:left;">
+                        <div class="form-group">
+                          <label class="form-label" data-translate="form_email">ユーザー名</label>
+                          <input type="email" id="inputEmail" class="form-input" placeholder="">
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label" data-translate="form_pass">パスワード</label>
+                          <input type="password" id="inputPass" class="form-input" placeholder="">
+                        </div>
+                        <div id="authStatus" style="color:#FF3B30; font-size:11px; margin-top:10px; min-height:16px; text-align:center;"></div>
+                        <button id="btnAuthAction" class="btn-primary" style="height:44px; margin-top:10px;" data-translate="btn_login_action">ログイン</button>
+                      </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="rgl-hero">
+            <div class="rgl-hero-content">
+                <h1 class="rgl-logo-text" id="heroTitle" data-translate="hero_title">個人認証センター</h1>
+                <p class="rgl-desc" id="heroDesc" data-translate="hero_sub" style="display:none !important;">アクセス権限とリソースの管理。プロダクトコードを入力してコンテンツを解除してください。</p>
+                <div class="rgl-action-bar">
+                    <button id="heroActionBtn" class="rgl-cta-btn">
+                        <span data-translate="btn_redeem_code">コード引き換え</span>
+                    </button>
+                    <button id="heroBuyBtn" class="rgl-buy-btn" style="display:none;">
+                        <span id="heroBuyBtnText">購入する</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="mobileStoreView" class="mobile-store-view">
+            <div class="mobile-store-header">
+                <h2 style="font-size: 24px; font-weight: 800; color: var(--modal-text-main); margin: 0;" data-translate="tab_store">ストア</h2>
+                <button class="mobile-store-redeem-btn" onclick="openAuthModal()" data-translate="btn_have_code">コードをお持ちですか</button>
+            </div>
+            <div id="mobileStoreGrid" class="mobile-store-grid"></div>
+        </div>
+
+    </main>
+
+</div>
+
+<div id="adminModal" class="modal-overlay">
+  <div class="modal-sheet">
+    <div style="position:absolute; top:24px; right:24px; cursor:pointer; opacity:0.6;" id="adminCloseBtn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" size="24" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></div>
+    <h2 style="font-size:24px; font-weight:800; margin-bottom:20px;">Admin Console</h2>
+    <div style="margin-bottom:20px; background:rgba(0,125,255,0.1); padding:10px; border-radius:12px; font-size:12px; font-weight:700;">
+      Logged in as Administrator
+    </div>
+      
+    <div style="margin-bottom:20px; padding-top:10px;">
+      <label style="font-size:12px; font-weight:700; display:block; margin-bottom:5px;">Target Username</label>
+      <div style="display:flex; gap:10px;">
+        <input type="email" id="targetUserEmail" class="form-input" placeholder="Username">
+        <button id="btnAdminSearch" class="btn-primary" style="width:100px; margin-top:0;">Search</button>
+      </div>
+    </div>
+    <div id="adminResultArea" style="max-height:300px; overflow-y:auto; border:1px solid rgba(128,128,128,0.1); border-radius:12px; padding:10px;">
+      <p style="text-align:center; opacity:0.5; font-size:12px;">Results will appear here...</p>
+    </div>
+  </div>
+</div>
+
+<div id="langSwitchingOverlay" style="position:fixed; inset:0; background:var(--bg-color); z-index:9999; display:none; align-items:center; justify-content:center;">
+  <div class="loading-spinner"></div>
+</div>
+
+<div id="authModal" class="modal-overlay">
+  <div class="modal-sheet" id="modalContainer">
+    <div style="position:absolute; top:20px; right:20px; cursor:pointer; z-index:10;" id="modalCloseBtn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" size="24" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></div>
+    
+    <div id="phase-input" style="display: flex; opacity: 1;">
+      <h2 class="modal-title phase-input-title" data-translate="modal_title">アクティベーション</h2>
+      <!-- ★ id="mobileInputDesc" を追加 -->
+      <p class="modal-sub phase-input-sub-mobile" id="mobileInputDesc" data-translate="modal_sub">アクティベーションコードを使用すると、コンテンツにアクセスできます。アクティベーションコードを利用するには、以下の入力欄に入力してください。</p>
+      
+      <div class="phase-input-body">
+          <div class="phase-input-left">
+              <img src="https://static.wixstatic.com/media/2f0694_4d2ff9ae44cb47edad6e3bb1f8b83ae2~mv2.jpg/v1/fill/w_375,h_234,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/2f0694_4d2ff9ae44cb47edad6e3bb1f8b83ae2~mv2.jpg" alt="Code Background">
+          </div>
+          <div class="phase-input-right">
+              <div class="phase-input-controls">
+                  <input type="text" id="activationCode" class="code-field" placeholder="アクティベーションコード" autocomplete="off">
+                  <button id="btnConfirm" class="btn-primary" data-translate="modal_btn_auth">確認</button>
+              </div>
+              <div class="modal-grey-box phase-input-desc-pc">
+                  <!-- ★ id="pcInputDesc" を追加 -->
+                  <p class="modal-box-text" id="pcInputDesc" data-translate="modal_sub">アクティベーションコードを使用すると、コンテンツにアクセスできます。<br>アクティベーションコードを利用するには、以下の入力欄に入力してください。</p>
+              </div>
+          </div>
+      </div>
+      <!-- ★ 不要になった statusContainer は非表示にしておくか削除します -->
+      <div id="statusContainer" style="display: none;"></div>
+    </div>
+
+    <div id="phase-preview" style="display: none; opacity: 0;" class="new-modal-layout">
+        <h2 class="modal-title-top" data-translate="preview_title">コンテンツ確認</h2>
+        <div class="modal-body-flex">
+            <div class="modal-left-col">
+                <img id="previewImage" src="" alt="Thumbnail">
+                <div id="previewTitleUnderImg" class="modal-thumb-title"></div>
+            </div>
+            <div class="modal-right-col">
+                <h2 class="mobile-title" data-translate="preview_title">コンテンツ確認</h2>
+                <p class="modal-label" data-translate="preview_desc">続行すると以下のコンテンツを受け取ります:</p>
+                <h3 id="previewTitle" class="modal-main-title"></h3>
+                <div class="modal-grey-box" id="previewWarningBox">
+                    <p class="modal-box-text is-warning" id="previewWarningText"></p>
+                </div>
+                <div class="modal-btn-row">
+                    <button class="btn-outline" id="btnPreviewClose" style="flex: 3;" data-translate="btn_close">閉じる</button>
+                    <button class="btn-solid" id="btnPreviewRedeem" style="flex: 7;" data-translate="btn_continue">認証する</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="phase-success" style="display: none; opacity: 0;" class="new-modal-layout">
+        <h2 class="modal-title-top" data-translate="success_title_final">認証成功!!</h2>
+        <div class="modal-body-flex">
+            <div class="modal-left-col">
+                <img id="successImage2" src="" alt="Thumbnail">
+                <div id="successTitleUnderImg" class="modal-thumb-title"></div>
+            </div>
+            <div class="modal-right-col">
+                <h2 class="mobile-title" data-translate="success_title_final">認証成功!!</h2>
+                <p class="modal-label" data-translate="success_desc">このコードで以下のコンテンツが認証されました:</p>
+                <h3 id="successBundleName" class="modal-main-title"></h3>
+                <div class="modal-grey-box">
+                    <p class="modal-box-text" id="successMessageText"></p>
+                    <p class="modal-box-time" id="successTime"></p>
+                </div>
+                <div class="modal-btn-row" id="successBtnRow">
+                    <button class="btn-outline" style="width: 100%; flex: none;" id="btnSuccessClose" data-translate="btn_close">閉じる</button>
+                    <a class="btn-solid" style="flex: 7; display: none; align-items:center; justify-content:center; text-decoration:none;" id="btnSuccessDownload" target="_blank"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="phase-error" style="display: none; opacity: 0;" class="new-modal-layout error-layout">
+        <h2 class="modal-title-top error-title-color">⚠ <span data-translate="error_title_prefix">エラー</span> <span id="errorCodeText"></span></h2>
+        <div class="modal-body-error">
+            <h3 id="errorMessage" class="modal-error-main-msg"></h3>
+            <div class="modal-grey-box" id="errorInfoBox" style="margin-bottom: 24px;">
+                <p class="modal-box-text" id="errorSubMessage"></p>
+                <p class="modal-box-time" id="errorTime"></p>
+            </div>
+            <div class="modal-btn-row" id="errorBtnRow">
+                <button class="btn-outline" style="width: 100%; flex: none;" id="btnErrorClose" data-translate="btn_close">閉じる</button>
+            </div>
+        </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const GAS_API_URL="api/proxy"; 
+
+let CURRENT_LANG="ja";
+let currentUser = null; 
+let pendingActivationCode = null;
+let pendingAction = null;
+let tempAdminCreds = { user: "", pass: "" };
+let libraryTimerId = null;
+let heroTimer = null;
+let selectedHeroItem = null;
+let currentHeroContext = 'default';
+let modalDownloadTimer = null; 
+
+let els = {};
+let currentAuthRequestId = 0;
+let currentContentData = {};
+let currentAuthTime = "";
+
+// Helper
+const gId = (i) => document.getElementById(i);
+const setListener = (el, ev, fn) => { if(el) el.addEventListener(ev, fn); };
+
+const formatDisplayCode = (code) => {
+  if (!code) return "";
+  const clean = code.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const sz = clean.length >= 25 ? 5 : 4;
+  let res = '';
+  for(let i=0; i<clean.length; i++) {
+    res += (i > 0 && i % sz === 0 ? '-' : '') + clean[i];
+  }
+  return res;
+};
+
+const formatCodeInput = (val) => {
+    if (!val) return "";
+    let clean = val.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    // 25文字以上なら5文字区切り、それ未満なら4文字区切りにする
+    let sz = clean.length >= 25 ? 5 : 4; 
+    let res = '';
+    for(let i=0; i<clean.length; i++) {
+        if(i > 0 && i % sz === 0) res += '-';
+        res += clean[i];
+    }
+    return res;
+};
+
+// 現在時刻を取得・フォーマット
+function getFormattedCurrentTime(lang) {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    const h = String(now.getHours()).padStart(2, '0');
+    const min = String(now.getMinutes()).padStart(2, '0');
+    const s = String(now.getSeconds()).padStart(2, '0');
+
+    if (['ja', 'zh', 'zh-TW'].includes(lang)) return `${y}年${m}月${d}日 ${h}:${min}:${s} JST`;
+    else if (lang === 'ko') return `${y}년 ${m}월 ${d}일 ${h}:${min}:${s} KST`;
+    else if (lang === 'ru') return `${d}.${m}.${y} ${h}:${min}:${s}`;
+    else return `${m}/${d}/${y} ${h}:${min}:${s}`;
+}
+
+// 過去の保存された時間を現在の言語に合わせて再フォーマット
+function formatSavedTime(timeStr, lang) {
+    if (!timeStr) return "";
+    if (timeStr.includes('JST') || timeStr.includes('KST')) return timeStr;
+
+    const d = new Date(timeStr.replace(/-/g, '/'));
+    if (isNaN(d.getTime())) return timeStr;
+
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const h = String(d.getHours()).padStart(2, '0');
+    const min = String(d.getMinutes()).padStart(2, '0');
+    const s = String(d.getSeconds()).padStart(2, '0');
+
+    if (['ja', 'zh', 'zh-TW'].includes(lang)) return `${y}年${m}月${day}日 ${h}:${min}:${s} JST`;
+    else if (lang === 'ko') return `${y}년 ${m}월 ${day}일 ${h}:${min}:${s} KST`;
+    else if (lang === 'ru') return `${day}.${m}.${y} ${h}:${min}:${s}`;
+    else return `${m}/${day}/${y} ${h}:${min}:${s}`;
+}
+
+function generateErrorCode() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+';
+    let code = '';
+    for(let i=0; i<20; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+    return code + '.' + Math.floor(Math.random()*10) + '.' + Math.floor(Math.random()*10);
+}
+
+const TRANSLATIONS={
+ ja:{
+  header_brand:"_.k__yu.10", hero_title:"個人認証センター", hero_sub:"アクセス権限とリソースの管理。コードを入力してコンテンツを解除してください。",
+  card1_title:"ホーム", tab_store:"ストア", card3_title:"スタンダード",
+  modal_title:"コード引き換え",modal_sub:"コードを使用すると、コンテンツにアクセスできます。<span class=\"pc-only-text\"><br>コードのフォーマット方式は以下のとおりです:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"引き換えコード",modal_btn_auth:"確認",
+  msg_verifying:"確認中",msg_success_btn:"成功",
+  msg_invalid:"コードが無効です",msg_used:"このコードは使用済みです",msg_error:"エラーが発生しました", 
+  msg_already_owned: "このコンテンツは既に所有しています。", msg_already_owned_mobile: "ストアからコンテンツを選択してダウンロードしてください。", btn_open_library: "ライブラリを開く",
+  success_badge:"コードが認証されました。",
+  preview_title: "引き換えの確認",
+  preview_desc: "続行すると以下のコンテンツを受け取ります:",
+  success_title_final: "認証成功!!",
+  success_desc: "以下のコンテンツが有効になりました:",
+  success_msg_box: "コードが正常に認証されました。\n左ライブラリメニューからコンテンツを選択してダウンロードしてください。",
+  error_title_prefix: "エラー",
+  error_used_msg: "コードが使用済みです",
+  error_owned_msg: "既に所有しているようです。",
+  error_owned_sub: "左ライブラリメニューからコンテンツを選択してダウンロードしてください。",
+  btn_close:"閉じる",btn_continue:"認証する",btn_download:"ダウンロード", btn_buy:"購入する",
+  
+  preview_buy_title: "購入確認",
+  preview_buy_desc: "以下のコンテンツを %s  で購入します:",
+  btn_buy_confirm: "購入確定",
+  success_buy_title: "購入完了",
+  success_buy_desc: "以下のコンテンツが正常に処理されました。",
+  error_points_title: "ポイント不足",
+  error_points_msg: "ポイントが不足しています。",
+  error_points_sub: "現在: %1  / 必要: %2 ",
+  success_pt_title: "ポイントチャージ完了",
+  success_pt_msg: "%s  追加されました。",
+
+  footer_admin:"システム管理者",
+  menu_login: "ログイン", menu_account: "アカウント", lib_updating: "読み込み中",
+  label_logged_in: "ユーザーID", label_library: "ライブラリ", label_welcome: "ようこそ", label_sync_desc: "ログインして同期を開始",
+  tab_login: "ログイン", tab_signup: "新規登録", form_email: "ユーザー名", form_pass: "パスワード",
+  btn_login_action: "ログイン", btn_signup_action: "登録する", btn_logout: "ログアウト",
+  msg_empty_lib: "まだここにはないようです。",
+  msg_logging_in: "ログイン中", msg_signing_up: "新規作成中",
+  label_store_cat: "ストア", label_available: "利用可能",
+  btn_redeem_code: "コード引き換え", btn_hero_download: "ダウンロード",
+  status_owned: "所有済み", status_locked: "未所有",
+  btn_have_code: "コードをお持ちですか"
+ },
+ en:{
+  header_brand:"_.k__yu.10", hero_title:"Personal Activation Center", hero_sub:"Manage your access and resources. Redeem your code to unlock exclusive content.",
+  card1_title:"Home", tab_store:"Store", card3_title:"Standard",
+  modal_title:"Redeem Code",modal_sub:"Redeem the code to download the content.<span class=\"pc-only-text\"><br>Codes areformatted like:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"Redeem Code",modal_btn_auth:"CHECK",
+  msg_verifying:"Checking",msg_success_btn:"Success",
+  msg_invalid:"This code is invalid.",msg_used:"This code has already been used.",msg_error:"Error occurred", 
+  msg_already_owned: "You already own this content.", msg_already_owned_mobile: "Please select the content from the store to download.", btn_open_library: "Open Library",
+  success_badge:"Activation Code Verified",
+  preview_title: "Confirm Redemption",
+  preview_desc: "If you continue, you will receive the following content:",
+  success_title_final: "Redeem Successful!!",
+  success_desc: "The following content has been activated:",
+  success_msg_box: "Redeem Code successfully verified.\nPlease select the content from the left library menu to download.",
+  error_title_prefix: "Error",
+  error_used_msg: "This code has already been used.",
+  error_owned_msg: "You already own it.",
+  error_owned_sub: "Please select the content from the left library menu to download.",
+  btn_close:"Close",btn_continue:"Redeem",btn_download:"Download", btn_buy:"Buy",
+  
+  preview_buy_title: "Confirm Purchase",
+  preview_buy_desc: "You will purchase the following content for %s pt:",
+  btn_buy_confirm: "Confirm",
+  success_buy_title: "Purchase Complete",
+  success_buy_desc: "The following content has been processed successfully.",
+  error_points_title: "Insufficient Points",
+  error_points_msg: "You do not have enough points.",
+  error_points_sub: "Current: %1  / Required: %2 ",
+success_pt_title: "Point Charge Complete",
+  success_pt_msg: "%s  has been added.",
+
+  footer_admin:"Enforcement Administrator",
+  menu_login: "Login", menu_account: "Account", lib_updating: "Loading",
+  label_logged_in: "USER ID", label_library: "Library", label_welcome: "Welcome", label_sync_desc: "Login to sync content.",
+  tab_login: "Login", tab_signup: "Sign Up", form_email: "User Number", form_pass: "Password",
+  btn_login_action: "Login", btn_signup_action: "Sign Up", btn_logout: "Log Out",
+  msg_empty_lib: "No content available.",
+  msg_logging_in: "Logging in", msg_signing_up: "Creating account",
+  label_store_cat: "Store", label_available: "Available",
+  btn_redeem_code: "Redeem Code", btn_hero_download: "DOWNLOAD",
+  status_owned: "Owned", status_locked: "Not Owned",
+  btn_have_code: "Have a code?"
+ },
+ zh:{ 
+  header_brand:"_.k__yu.10", hero_title:"个人代码检查中心", hero_sub:"管理您的访问权限和资源。兑換产品代码以解锁独家内容。", 
+  card1_title:"首页", tab_store:"商店", card3_title:"标准版", 
+  modal_title:"兑換代码",modal_sub:"请兑換激活码以下载内容。<span class=\"pc-only-text\"><br>代码格式如下:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"兑換代码",modal_btn_auth:"检查", 
+  msg_verifying:"正在检查",msg_success_btn:"成功", 
+  msg_invalid:"该代码无效。",msg_used:"该代码已被使用。",msg_error:"错误", 
+  msg_already_owned: "您已经拥有此内容。", msg_already_owned_mobile: "请从商店中选择内容进行下载。", btn_open_library: "打开库",
+  success_badge:"代码已检查",
+  preview_title: "确认内容",
+  preview_desc: "如果您继续，您将收到以下内容:",
+  success_title_final: "激活成功!!",
+  success_desc: "该代码已兑换以下内容:",
+  success_msg_box: "代码已成功兑换。\n请从左侧库菜单中选择要下载的内容。",
+  error_title_prefix: "错误",
+  error_used_msg: "该代码已被使用。",
+  error_owned_msg: "您已经有了。",
+  error_owned_sub: "请从左侧库菜单中选择要下载的内容。",
+  btn_close:"关闭",btn_continue:"兑換",btn_download:"下载", btn_buy:"购买", 
+  
+  preview_buy_title: "确认购买",
+  preview_buy_desc: "您将使用 %s pt 购买以下内容:",
+  btn_buy_confirm: "确认购买",
+  success_buy_title: "购买完成",
+  success_buy_desc: "以下内容已成功处理。",
+  error_points_title: "积分不足",
+  error_points_msg: "您的积分不足。",
+  error_points_sub: "当前: %1  / 需要: %2 ",
+  success_pt_title: "积分充值完成",
+  success_pt_msg: "已添加 %s 。",
+
+  footer_admin:"系统管理长",
+  menu_login: "登录", menu_account: "账户", lib_updating: "正在加载",
+  label_logged_in: "用户ID", label_library: "我的库", label_welcome: "欢迎", label_sync_desc: "登录以同步内容",
+  tab_login: "登录", tab_signup: "注册", form_email: "账户名", form_pass: "密码",
+  btn_login_action: "登录", btn_signup_action: "注册", btn_logout: "登出",
+  msg_empty_lib: "此处无内容。",
+  msg_logging_in: "正在登录", msg_signing_up: "正在注册",
+  label_store_cat: "商店", label_available: "可用",
+  btn_redeem_code: "兑換代码", btn_hero_download: "下载",
+  status_owned: "已拥有", status_locked: "未拥有",
+  btn_have_code: "有兑换码吗？"
+ },
+ "zh-TW":{ 
+  header_brand:"_.k__yu.10", hero_title:"個人代碼檢查中心", hero_sub:"管理您的存取權限與資源。兌換產品代碼以解鎖獨家內容。", 
+  card1_title:"首頁", tab_store:"商店", card3_title:"標準版", 
+  modal_title:"兌換代碼",modal_sub:"請兌換啟用碼以下載內容。<span class=\"pc-only-text\"><br>代碼格式如下:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"兌換代碼",modal_btn_auth:"檢查", 
+  msg_verifying:"正在檢查",msg_success_btn:"成功", 
+  msg_invalid:"該代碼無效",msg_used:"該代碼已被使用",msg_error:"錯誤", 
+  msg_already_owned: "您已經擁有此內容。", msg_already_owned_mobile: "請從商店中選擇內容進行下載。", btn_open_library: "打開庫",
+  success_badge:"代碼已檢查",
+  preview_title: "確認內容",
+  preview_desc: "如果您繼續，您將收到以下內容:",
+  success_title_final: "兌換成功!!",
+  success_desc: "該代碼已兌換以下內容:",
+  success_msg_box: "代碼已成功兌換。\n請從左側庫菜單中選擇要下載的內容。",
+  error_title_prefix: "錯誤",
+  error_used_msg: "該代碼已被使用。",
+  error_owned_msg: "你已經擁有了。",
+  error_owned_sub: "請從左側庫菜單中選擇要下載的內容。",
+  btn_close:"關閉",btn_continue:"兌換",btn_download:"下載", btn_buy:"購買", 
+  
+  preview_buy_title: "確認購買",
+  preview_buy_desc: "您將使用 %s pt 購買以下內容:",
+  btn_buy_confirm: "確認購買",
+  success_buy_title: "購買完成",
+  success_buy_desc: "以下內容已成功處理。",
+  error_points_title: "積分不足",
+  error_points_msg: "您的積分不足。",
+  error_points_sub: "當前: %1  / 需要: %2 ",
+  success_pt_title: "積分儲值完成",
+  success_pt_msg: "已新增 %s 。",
+
+  footer_admin:"系統管理長",
+  menu_login: "登入", menu_account: "帳戶", lib_updating: "載入中",
+  label_logged_in: "用戶ID", label_library: "我的庫", label_welcome: "歡迎", label_sync_desc: "登入以同步內容",
+  tab_login: "登入", tab_signup: "註冊", form_email: "帳號名稱", form_pass: "密碼",
+  btn_login_action: "登入", btn_signup_action: "註冊", btn_logout: "登出",
+  msg_empty_lib: "沒有內容。",
+  msg_logging_in: "正在登入中...", msg_signing_up: "正在註冊中",
+  label_store_cat: "商店", label_available: "可用",
+  btn_redeem_code: "兌換代碼", btn_hero_download: "下載",
+  status_owned: "已擁有", status_locked: "未擁有",
+  btn_have_code: "有兌換碼嗎？"
+ },
+ ko:{ 
+  header_brand:"_.k__yu.10", hero_title:"개인 코드 검사 센터", hero_sub:"액세스 권한 및 리소스 관리. 제품 코드를 사용하여 콘텐츠 잠금을 해제하세요.", 
+  card1_title:"메인 페이지", tab_store:"상점", card3_title:"표준 버전", 
+  modal_title:"활성화",modal_sub:"활성화 코드를 사용해 콘텐츠를 다운로드하세요.<span class=\"pc-only-text\"><br>코드 형식은 다음과 같습니다:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"활성화 코드",modal_btn_auth:"확인", 
+  msg_verifying:"확인 중",msg_success_btn:"성공", 
+  msg_invalid:"유효하지 않은 코드입니다.",msg_used:"이미 사용된 코드입니다.",msg_error:"오류", 
+  msg_already_owned: "이미 이 콘텐츠를 소유하고 있습니다.", msg_already_owned_mobile: "상점에서 콘텐츠를 선택하여 다운로드하세요.", btn_open_library: "라이브러리 열기",
+  success_badge:"코드 인증됨",
+  preview_title: "콘텐츠 확인",
+  preview_desc: "계속하면 다음 콘텐츠를 받게됩니다:",
+  success_title_final: "활성화 완료!!",
+  success_desc: "다음 콘텐츠가 활성화되었습니다:",
+  success_msg_box: "코드가 성공적으로 인증되었습니다.\n왼쪽 라이브러리 메뉴에서 다운로드할 콘텐츠를 선택하세요.",
+  error_title_prefix: "오류",
+  error_used_msg: "이미 사용된 코드입니다.",
+  error_owned_msg: "이미 가지고 있습니다.",
+  error_owned_sub: "왼쪽 라이브러리 메뉴에서 다운로드할 콘텐츠를 선택하세요.",
+  btn_close:"닫기",btn_continue:"사용",btn_download:"다운로드", btn_buy:"구매", 
+  
+  preview_buy_title: "구매 확인",
+  preview_buy_desc: "다음 콘텐츠를 %s pt로 구매합니다:",
+  btn_buy_confirm: "구매 확정",
+  success_buy_title: "구매 완료",
+  success_buy_desc: "다음 콘텐츠가 정상적으로 처리되었습니다.",
+  error_points_title: "포인트 부족",
+  error_points_msg: "포인트가 부족합니다.",
+  error_points_sub: "현재: %1  / 필요: %2 ",
+  success_pt_title: "포인트 충전 완료",
+  success_pt_msg: "%s 가 추가되었습니다.",
+
+  footer_admin:"시스템 관리자",
+  menu_login: "로그인", menu_account: "계정", lib_updating: "로딩 중",
+  label_logged_in: "사용자 ID", label_library: "라이브러리", label_welcome: "환영합니다", label_sync_desc: "동기화하려면 로그인",
+  tab_login: "로그인", tab_signup: "가입", form_email: "계정 이름", form_pass: "비밀번호",
+  btn_login_action: "로그인", btn_signup_action: "가입", btn_logout: "로그아웃",
+  msg_empty_lib: "콘텐츠가 없습니다. ",
+  msg_logging_in: "로그인 중", msg_signing_up: "계정 생성 중",
+  label_store_cat: "상점", label_available: "사용 가능",
+  btn_redeem_code: "코드 교환", btn_hero_download: "다운로드",
+  status_owned: "소유함", status_locked: "미소유",
+  btn_have_code: "코드가 있으신가요?"
+ },
+ ru:{ 
+  header_brand:"_.k__yu.10", hero_title:"Центр личной активации", hero_sub:"Управление доступом и ресурсами. Активируйте код продукта для разблокировки.", 
+  card1_title:"Главная", tab_store:"Магазин", card3_title:"Стандарт", 
+  modal_title:"Проверка",modal_sub:"Погасите код активации.<span class=\"pc-only-text\"><br>Коды имеют следующий формат:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"Код активации",modal_btn_auth:"проверить", 
+  msg_verifying:"Подтверждение",msg_success_btn:"Успех", 
+  msg_invalid:"Неверный код",msg_used:"Этот код уже был использован.",msg_error:"Ошибка", 
+  msg_already_owned: "Вы уже владеете этим контентом.", msg_already_owned_mobile: "Пожалуйста, выберите контент из магазина для скачивания.", btn_open_library: "Открыть библиотеку",
+  success_badge:"Подтверждено", 
+  preview_title: "Подтверждение",
+  preview_desc: "Вы получите следующее содержимое:",
+  success_title_final: "Успешно!!",
+  success_desc: "Если вы продолжите, вы получите следующий контент:",
+  success_msg_box: "Код успешно проверен.\nПожалуйста, выберите контент из левого меню библиотеки для загрузки.",
+  error_title_prefix: "Ошибка",
+  error_used_msg: "Этот код уже был использован.",
+  error_owned_msg: "Оно у вас уже есть.",
+  error_owned_sub: "Пожалуйста, выберите контент из левого меню библиотеки для загрузки.",
+  btn_close:"Закрыть",btn_continue:"Погасить",btn_download:"Скачать", btn_buy:"Купить", 
+  
+  preview_buy_title: "Подтверждение покупки",
+  preview_buy_desc: "Вы приобретете следующий контент за %s pt:",
+  btn_buy_confirm: "Подтвердить",
+  success_buy_title: "Покупка завершена",
+  success_buy_desc: "Следующий контент был успешно обработан.",
+  error_points_title: "Недостаточно очков",
+  error_points_msg: "У вас недостаточно очков.",
+  error_points_sub: "Текущие: %1  / Требуется: %2 ",
+  success_pt_title: "Пополнение завершено",
+  success_pt_msg: "Добавлено %s .",
+
+  footer_admin:"Администратор",
+  menu_login: "Вход", menu_account: "Учетная запись", lib_updating: "Загрузка",
+  label_logged_in: "ID пользователя", label_library: "Библиотека", label_welcome: "Привет", label_sync_desc: "Войдите для синхронизации",
+  tab_login: "Вход", tab_signup: "Регистрация", form_email: "Название счета", form_pass: "Пароль",
+  btn_login_action: "Войти", btn_signup_action: "Создать", btn_logout: "Выйти",
+  msg_empty_lib: "Контент недоступен.",
+  msg_logging_in: "Вход", msg_signing_up: "Создание",
+  label_store_cat: "Магазин", label_available: "Доступно",
+  btn_redeem_code: "Активировать код", btn_hero_download: "Скачать",
+  status_owned: "В наличии", status_locked: "Не в наличии",
+  btn_have_code: "Есть код?"
+ }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  els = {
+    openAccount: gId('btnOpenAccount'),
+    accountDropdown: gId('accountDropdown'),
+    btnMenuRedeem: gId('btnMenuRedeem'),
+    btnLogout: gId('btnLogout'),
+    closeAuth: gId('modalCloseBtn'),
+    btnPreviewClose: gId('btnPreviewClose'),
+    btnSuccessClose: gId('btnSuccessClose'),
+    btnErrorClose: gId('btnErrorClose'),
+    authModal: gId('authModal'),
+    adminModal: gId('adminModal'),
+    adminCloseBtn: gId('adminCloseBtn'),
+    btnAdminSearch: gId('btnAdminSearch'),
+    confirm: gId('btnConfirm'),
+    code: gId('activationCode'),
+    heroActionBtn: gId('heroActionBtn'),
+    heroBuyBtn: gId('heroBuyBtn'), // ★ 追加
+    tabs: document.querySelectorAll('.auth-tab'),
+    btnAuthAction: gId('btnAuthAction'),
+    mobileMenuBtn: gId('mobileMenuBtn'),
+    mobileNav: gId('mobileNav'),
+    mobileMenuCloseBtn: gId('mobileMenuCloseBtn'),
+    mobileLangTrigger: gId('mobileLangTrigger'),
+    langTrigger: gId('langTrigger'),
+    langMenu: gId('langMenu'),
+    overlay: gId('langSelectionOverlay'),
+    currentLangLabel: gId('currentLangLabel'),
+    mobileCurrentLangLabel: gId('mobileCurrentLangLabel'),
+    modalCon: gId('modalContainer'),
+    phaseInput: gId('phase-input'),
+    phasePreview: gId('phase-preview'),
+    phaseSuccess: gId('phase-success'),
+    phaseError: gId('phase-error'),
+    errorCodeText: gId('errorCodeText'),
+    errorTime: gId('errorTime'),
+    errorMessage: gId('errorMessage'),
+    errorSubMessage: gId('errorSubMessage'),
+    errorInfoBox: gId('errorInfoBox'),
+    previewImage: gId('previewImage'),
+    previewTitleUnderImg: gId('previewTitleUnderImg'),
+    previewTitle: gId('previewTitle'),
+    previewWarningText: gId('previewWarningText'),
+    previewWarningBox: gId('previewWarningBox'),
+    btnPreviewRedeem: gId('btnPreviewRedeem'),
+    successImage: gId('successImage2'),
+    successTitleUnderImg: gId('successTitleUnderImg'),
+    successBundleName: gId('successBundleName'),
+    successMessageText: gId('successMessageText'),
+    successTime: gId('successTime'),
+    btnSuccessDownload: gId('btnSuccessDownload'),
+    status: gId('statusContainer'),
+    email: gId('inputEmail'),
+    pass: gId('inputPass'),
+    authStatus: gId('authStatus'),
+    loggedOutView: gId('loggedOutView'),
+    loggedInView: gId('loggedInView'),
+    displayUserEmail: gId('displayUserEmail'),
+    secLibrary: gId('secLibrary'),
+    libraryListSidebar: gId('sidebarLibraryList'),
+    secAvailable: gId('secAvailable'),
+    availableListSidebar: gId('sidebarAvailableList'),
+    heroTitle: gId('heroTitle'),
+    heroDesc: gId('heroDesc'),
+    heroBgImage: gId('heroBgImage'),
+    targetUserEmail: gId('targetUserEmail'),
+    adminResultArea: gId('adminResultArea'),
+    pcInputDesc: gId('pcInputDesc'),         // ★追加
+    mobileInputDesc: gId('mobileInputDesc') // ★追加
+  };
+
+  try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+  
+  let sLang = localStorage.getItem('user_lang');
+  if (!sLang) {
+      const browserLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+      if (browserLang.startsWith('ja')) { sLang = 'ja'; } 
+      else if (browserLang.includes('zh-tw') || browserLang.includes('zh-hk') || browserLang.includes('zh-hant')) { sLang = 'zh-TW'; } 
+      else if (browserLang.startsWith('zh')) { sLang = 'zh'; } 
+      else if (browserLang.startsWith('ko')) { sLang = 'ko'; } 
+      else if (browserLang.startsWith('ru')) { sLang = 'ru'; } 
+      else { sLang = 'en'; }
+  }
+  
+  setInitialLanguage(sLang, true);
+
+  const sUser = localStorage.getItem('user_session_identity');
+  if (sUser) {
+    try {
+        const identity = JSON.parse(sUser);
+        currentUser = { userId: identity.userId, email: identity.email, history: [], points: 0 };
+        fetchUserHistory(); 
+    } catch(e) { console.error(e); }
+  }
+  updateAccountUI();
+  initThemeAndParticles();
+  initCustomDropdown();
+  setupEventListeners();
+});
+
+function setupEventListeners() {
+  setListener(els.openAccount, 'click', (e) => {
+    e.stopPropagation(); 
+    updateAccountUI();
+    toggleDropdown(); 
+  });
+
+  document.addEventListener('click', (e) => {
+    if (els.accountDropdown && !els.accountDropdown.contains(e.target) && !els.openAccount.contains(e.target)) {
+        toggleDropdown(false);
+    }
+  });
+
+  if (els.btnMenuRedeem) {
+      els.btnMenuRedeem.addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleDropdown(false);
+          openAuthModal();
+      });
+  }
+
+  if (els.btnLogout) {
+      els.btnLogout.addEventListener('click', (e) => {
+        if(e) e.preventDefault();
+        e.stopPropagation();
+        logout();
+      });
+  }
+
+  setListener(els.closeAuth, 'click', closeAuthModal);
+  setListener(els.btnPreviewClose, 'click', closeAuthModal);
+  setListener(els.btnSuccessClose, 'click', closeAuthModal);
+  setListener(els.btnErrorClose, 'click', closeAuthModal);
+
+  if(els.authModal) setListener(els.authModal, 'click', (e) => { if(e.target === els.authModal) closeAuthModal(); });
+
+  setListener(els.adminCloseBtn, 'click', () => els.adminModal.classList.remove('active'));
+  if(els.adminModal) setListener(els.adminModal, 'click', (e) => { if(e.target === els.adminModal) els.adminModal.classList.remove('active'); });
+  setListener(els.btnAdminSearch, 'click', performAdminSearch);
+
+  setListener(els.confirm, 'click', () => performAuth(els.code.value));
+  if(els.code) {
+      setListener(els.code, 'keydown', (e) => { if(e.key === 'Enter') els.confirm.click(); });
+      setListener(els.code, 'input', (e) => { els.code.value = formatCodeInput(els.code.value); });
+  }
+
+  setListener(els.heroActionBtn, 'click', (e) => {
+     e.stopPropagation(); 
+     
+     if(window.innerWidth > 768 && currentHeroContext === 'owned' && selectedHeroItem) {
+        if (selectedHeroItem.releaseDateIso) {
+            const releaseDate = new Date(selectedHeroItem.releaseDateIso);
+            if (releaseDate > new Date()) {
+                return; 
+            }
+        }
+        
+        const targetUrl = selectedHeroItem.url || selectedHeroItem.actionUrl;
+        if(targetUrl) {
+            window.open(targetUrl, '_blank');
+        }
+     } else {
+        if (!currentUser) {
+            toggleDropdown(true);
+            pendingAction = 'open_activation';
+        } else {
+            openAuthModal();
+        }
+     }
+  });
+
+  // ★ 追加: PC用の購入ボタンクリックイベント
+  setListener(els.heroBuyBtn, 'click', (e) => {
+     e.stopPropagation(); 
+     if (!currentUser) {
+         toggleDropdown(true);
+         return;
+     }
+     if (selectedHeroItem && selectedHeroItem.price > 0) {
+         showPurchasePreview(selectedHeroItem, selectedHeroItem.price);
+     }
+  });
+
+  if (els.tabs) {
+      els.tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          els.tabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          const mode = tab.dataset.tab;
+          const t = TRANSLATIONS[CURRENT_LANG];
+          els.btnAuthAction.textContent = mode === 'login' ? t.btn_login_action : t.btn_signup_action;
+          els.authStatus.textContent = '';
+        });
+      });
+  }
+  setListener(els.btnAuthAction, 'click', performAuthAction);
+  
+  if (els.mobileMenuBtn) {
+      els.mobileMenuBtn.addEventListener('click', () => {
+          els.mobileNav.classList.add('active');
+      });
+  }
+  if (els.mobileMenuCloseBtn) {
+      els.mobileMenuCloseBtn.addEventListener('click', () => {
+          els.mobileNav.classList.remove('active');
+      });
+  }
+  if (els.mobileLangTrigger) {
+      els.mobileLangTrigger.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const list = gId('mobileLangMenu');
+          list.classList.toggle('open');
+      });
+  }
+}
+
+function showPurchaseError(userPts, price) {
+    const t = TRANSLATIONS[CURRENT_LANG];
+    const thisRequestId = ++currentAuthRequestId; 
+    
+    els.errorCodeText.textContent = generateErrorCode();
+    els.errorTime.textContent = getFormattedCurrentTime(CURRENT_LANG);
+    els.errorMessage.textContent = t.error_points_msg || "ポイントが不足しています。";
+    
+    const subStr = t.error_points_sub || `現在: ${userPts} pt / 必要: ${price} pt`;
+    els.errorSubMessage.innerHTML = subStr.replace('%1', userPts).replace('%2', price);
+    els.errorInfoBox.style.display = 'flex';
+    
+    els.btnErrorClose.style.flex = "none";
+    els.btnErrorClose.style.width = "100%";
+    
+    // Preview画面からのスムーズなフェードアウト＆フェードイン
+    els.phasePreview.style.opacity = '0';
+    setTimeout(() => {
+        if (thisRequestId !== currentAuthRequestId) return;
+        els.phasePreview.style.display = 'none';
+        els.phaseError.style.display = 'flex';
+        setTimeout(() => els.phaseError.style.opacity = '1', 50);
+    }, 400);
+    
+    try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+}
+function showPurchasePreview(item, price) {
+    const t = TRANSLATIONS[CURRENT_LANG];
+    currentAuthRequestId++;
+    currentContentData = { ...item }; 
+    currentAuthTime = getFormattedCurrentTime(CURRENT_LANG);
+    
+    els.authModal.classList.add('active');
+    els.modalCon.classList.add('is-wide');
+    
+    els.phaseInput.style.display = 'none';
+    els.phaseSuccess.style.display = 'none';
+    els.phaseError.style.display = 'none';
+    
+    const ptDesc = (t.preview_buy_desc || "以下のコンテンツを %s pt で購入します:").replace('%s', price);
+    
+    const titleTops = els.phasePreview.querySelectorAll('.modal-title-top, .mobile-title');
+    titleTops.forEach(el => el.textContent = t.preview_buy_title || "購入確認");
+    
+    const label = els.phasePreview.querySelector('.modal-label');
+    if(label) label.textContent = ptDesc;
+    
+    els.previewImage.src = item.imageUrl || "https://via.placeholder.com/300";
+    els.previewTitleUnderImg.textContent = item.title;
+    els.previewTitle.textContent = item.title;
+    
+    els.previewWarningText.innerHTML = "";
+    els.previewWarningBox.style.display = 'none';
+    
+    els.btnPreviewRedeem.disabled = false;
+    els.btnPreviewRedeem.innerHTML = t.btn_buy_confirm || "購入確定";
+    
+    // ボタンのイベントリスナーをリセット（重複実行の防止）
+    const newBtn = els.btnPreviewRedeem.cloneNode(true);
+    els.btnPreviewRedeem.parentNode.replaceChild(newBtn, els.btnPreviewRedeem);
+    els.btnPreviewRedeem = newBtn;
+    
+    els.btnPreviewRedeem.addEventListener('click', (e) => { 
+        e.preventDefault();
+        
+        // どんな文字が混ざっていても、確実に「数字だけ」を取り出して比較する
+        const userPts = parseInt(String(currentUser.points).replace(/[^0-9]/g, ''), 10) || 0;
+        const itemPrice = parseInt(String(price).replace(/[^0-9]/g, ''), 10) || 0;
+        
+        if (userPts < itemPrice) {
+            // ポイントが足りない場合は「エラー」画面を出す
+            showPurchaseError(userPts, itemPrice);
+        } else {
+            // 足りている場合は購入処理へ進む
+            buyItemWithPoints(item.code, itemPrice);
+        }
+    });
+    
+    els.phasePreview.style.display = 'flex';
+    setTimeout(() => els.phasePreview.style.opacity = '1', 50);
+}
+
+async function buyItemWithPoints(code, price) {
+    const thisRequestId = currentAuthRequestId;
+    const t = TRANSLATIONS[CURRENT_LANG];
+    const spinnerHtml = `<span class="loading-spinner" style="border-top-color:currentColor; width:18px; height:18px; border-width:2px; margin:0;"></span>`;
+    
+    els.btnPreviewRedeem.disabled = true;
+    els.btnPreviewRedeem.innerHTML = spinnerHtml;
+    
+    try {
+        const res = await fetch(GAS_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: 'purchase',
+                userId: currentUser.userId,
+                code: code,
+                _t: Date.now()
+            })
+        });
+        const data = await res.json();
+        if (thisRequestId !== currentAuthRequestId) return;
+        
+        if (data.success) {
+            currentUser.points = data.remainingPoints;
+            updateAccountUI();
+            await fetchUserHistory(); 
+            
+            const successTops = els.phaseSuccess.querySelectorAll('.modal-title-top, .mobile-title');
+            successTops.forEach(el => el.textContent = t.success_buy_title || "購入完了");
+            const label = els.phaseSuccess.querySelector('.modal-label');
+            if(label) label.textContent = t.success_buy_desc || "以下のコンテンツが正常に処理されました。";
+            
+            els.successImage.src = currentContentData.imageUrl || "https://via.placeholder.com/300";
+            els.successTitleUnderImg.textContent = currentContentData.title;
+            els.successBundleName.textContent = currentContentData.title;
+            els.successMessageText.innerHTML = t.success_msg_box.replace(/\n/g, '<br>');
+            els.successTime.textContent = currentAuthTime;
+            
+            els.btnSuccessClose.style.flex = "none";
+            els.btnSuccessClose.style.width = "100%";
+            els.btnSuccessDownload.style.display = "none";
+            
+            els.phasePreview.style.opacity = '0';
+            setTimeout(() => {
+              if (thisRequestId !== currentAuthRequestId) return;
+              els.phasePreview.style.display = 'none';
+              els.phaseSuccess.style.display = 'flex';
+              setTimeout(() => els.phaseSuccess.style.opacity = '1', 50);
+            }, 400);
+            try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+        } else {
+            let specificErrorCode = generateErrorCode();
+            if (data.message === "Already owned") specificErrorCode = "1011";
+            els.errorCodeText.textContent = specificErrorCode;
+            els.errorTime.textContent = currentAuthTime;
+            const titlePrefix = els.phaseError.querySelector('[data-translate="error_title_prefix"]');
+            if (titlePrefix) titlePrefix.textContent = t.error_title_prefix || "エラー";
+
+            let errorMainText = "";
+            let errorSubText = data.message;
+            let showInfoBox = true;
+            
+            if (data.message === "Already owned") {
+                errorMainText = t.error_owned_msg || "既に所有しているようです。";
+                errorSubText = window.innerWidth <= 768 ? (t.msg_already_owned_mobile || "ストアからコンテンツを選択してダウンロードしてください。") : (t.error_owned_sub || "左ライブラリメニューからコンテンツを選択してダウンロードしてください。");
+            }
+            els.btnErrorClose.style.flex = "none";
+            els.btnErrorClose.style.width = "100%";
+            
+            els.errorMessage.textContent = errorMainText;
+            if(showInfoBox && errorSubText) {
+                els.errorSubMessage.innerHTML = errorSubText.replace(/\n/g, '<br>');
+                els.errorInfoBox.style.display = 'flex';
+            } else {
+                els.errorSubMessage.innerHTML = "";
+                els.errorInfoBox.style.display = 'none';
+            }
+            
+            els.phasePreview.style.opacity = '0';
+            setTimeout(() => {
+              if (thisRequestId !== currentAuthRequestId) return;
+              els.phasePreview.style.display = 'none';
+              els.phaseError.style.display = 'flex';
+              setTimeout(() => els.phaseError.style.opacity = '1', 50);
+            }, 400);
+        }
+    } catch(e) {
+        if (thisRequestId !== currentAuthRequestId) return;
+        els.btnPreviewRedeem.disabled = false;
+        els.btnPreviewRedeem.innerHTML = t.btn_buy_confirm || "購入確定";
+        alert("Network Error");
+    } 
+}
+
+function toggleDropdown(forceState) {
+    if (forceState === undefined) {
+        els.accountDropdown.classList.toggle('open');
+    } else if (forceState) {
+        els.accountDropdown.classList.add('open');
+    } else {
+        els.accountDropdown.classList.remove('open');
+    }
+}
+
+function setInitialLanguage(lang, immediate = false){
+ localStorage.setItem('user_lang',lang); updateLanguage(lang); 
+ if(immediate) { els.overlay.style.display='none'; showMainContent(); } 
+ else { els.overlay.style.opacity='0'; setTimeout(()=>{ els.overlay.style.display='none'; showMainContent(); }, 500); }
+}
+
+function showMainContent(){
+ gId('mainContainer').style.opacity = '1'; 
+ try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+ const urlCode = new URLSearchParams(window.location.search).get('code');
+ if(urlCode) {
+   setTimeout(()=>{ 
+     if(!currentUser) { 
+       pendingActivationCode = urlCode;
+       toggleDropdown(true); 
+     }
+     else { 
+       openAuthModal(); 
+       els.code.value = formatCodeInput(urlCode); 
+       performAuth(els.code.value); 
+     }
+   }, 800);
+ }
+}
+
+function initCustomDropdown() {
+    els.langTrigger.addEventListener('click', (e) => { 
+        e.stopPropagation(); 
+        els.langMenu.classList.toggle('open'); 
+    });
+    document.querySelectorAll('.lang-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+            const val = opt.getAttribute('data-value');
+            
+            localStorage.setItem('user_lang', val);
+            updateLanguage(val);
+            
+            if (currentUser) {
+                fetchUserHistory();
+                fetchAvailableContent();
+            }
+
+            if (opt.closest('#mobileLangMenu')) {
+                gId('mobileLangMenu').classList.remove('open');
+                els.mobileNav.classList.remove('active');
+            } else {
+                const overlay = gId('langSwitchingOverlay');
+                if(overlay) overlay.style.display = 'flex';
+                els.langMenu.classList.remove('open');
+                setTimeout(() => {
+                    setTimeout(() => { if(overlay) overlay.style.display = 'none'; }, 600);
+                }, 300);
+            }
+        });
+    });
+    document.addEventListener('click', (e) => { 
+        if (!els.langTrigger.contains(e.target)) els.langMenu.classList.remove('open'); 
+        if (!els.accountDropdown.contains(e.target) && !els.openAccount.contains(e.target)) {
+            toggleDropdown(false);
+        }
+        if(els.mobileLangTrigger && !els.mobileLangTrigger.contains(e.target)) {
+            gId('mobileLangMenu').classList.remove('open');
+        }
+    });
+}
+
+function logout() {
+  localStorage.removeItem('user_session_identity');
+  currentUser = null;
+  window.location.reload(); 
+}
+
+function updateLanguage(lang){
+  CURRENT_LANG = lang; 
+  document.documentElement.lang = lang; 
+  const t = TRANSLATIONS[lang]; 
+  if(!t) return;
+  document.querySelectorAll('[data-translate]').forEach(el => { 
+    const k = el.getAttribute('data-translate'); 
+    if(k !== 'news_content' && t[k]) el.innerHTML = t[k]; 
+  });
+  const langMap = { ja: '日本語', en: 'English', zh: '简体中文', 'zh-TW': '繁體中文', ko: '한국어', ru: 'Русский' };
+  if(els.currentLangLabel) els.currentLangLabel.textContent = langMap[lang] || 'Language';
+  if(els.mobileCurrentLangLabel) els.mobileCurrentLangLabel.textContent = langMap[lang] || 'Language'; 
+  if(t.modal_placeholder && els.code) els.code.placeholder = t.modal_placeholder;
+  updateAccountUI();
+}
+
+function openAuthModal(){ 
+  els.authModal.classList.add('active'); 
+  els.modalCon.classList.add('is-input-wide'); // ← PC幅を広げるクラスを追加
+  resetAuthModal(); 
+  els.code.focus(); 
+}
+
+function closeAuthModal(){ 
+  els.authModal.classList.remove('active'); 
+  setTimeout(()=> { 
+      els.modalCon.classList.remove('is-wide'); 
+      els.modalCon.classList.remove('is-input-wide'); // ← 閉じた時にクラスを外す
+  }, 500); 
+}
+
+function resetAuthModal(){
+  currentAuthRequestId++; 
+  els.phaseInput.style.display = 'flex'; els.phaseInput.style.opacity = '1';
+  els.phasePreview.style.display = 'none'; els.phasePreview.style.opacity = '0';
+  els.phaseSuccess.style.display = 'none'; els.phaseSuccess.style.opacity = '0';
+  els.phaseError.style.display = 'none'; els.phaseError.style.opacity = '0';
+  els.modalCon.classList.remove('is-wide');
+
+  els.code.value=""; els.code.disabled=false; els.confirm.disabled=false;
+  els.confirm.textContent=TRANSLATIONS[CURRENT_LANG].modal_btn_auth;
+  els.status.innerHTML=""; 
+  
+  els.btnSuccessClose.style.flex = "none";
+  els.btnSuccessClose.style.width = "100%";
+  els.btnSuccessDownload.style.display = "none";
+  
+  els.btnErrorClose.style.flex = "none";
+  els.btnErrorClose.style.width = "100%";
+
+  const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja;
+  if (els.pcInputDesc) els.pcInputDesc.innerHTML = t.modal_sub;
+  if (els.mobileInputDesc) els.mobileInputDesc.innerHTML = t.modal_sub;
+  const titleTops = els.phasePreview.querySelectorAll('.modal-title-top, .mobile-title');
+  titleTops.forEach(el => el.textContent = t.preview_title);
+  const label = els.phasePreview.querySelector('.modal-label');
+  if(label) label.textContent = t.preview_desc;
+  
+  const successTops = els.phaseSuccess.querySelectorAll('.modal-title-top, .mobile-title');
+  successTops.forEach(el => el.textContent = t.success_title_final);
+  const successLabel = els.phaseSuccess.querySelector('.modal-label');
+  if(successLabel) successLabel.textContent = t.success_desc;
+  
+  try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+}
+
+function showMobileItemDetail(item, isNewRedeem = false) {
+    if(modalDownloadTimer) clearInterval(modalDownloadTimer); 
+    
+    els.authModal.classList.add('active');
+    currentAuthRequestId++;
+    els.phaseInput.style.display='none'; 
+    els.phasePreview.style.display='none';
+    els.phaseError.style.display='none';
+    
+    els.phaseSuccess.style.display='flex'; 
+    setTimeout(() => els.phaseSuccess.style.opacity='1', 50);
+    els.modalCon.classList.add('is-wide');
+    
+    const t = TRANSLATIONS[CURRENT_LANG];
+    
+    els.successBundleName.textContent = item.bundleLabel || item.title;
+    els.successTitleUnderImg.textContent = item.message || item.title;
+    
+    if (isNewRedeem) {
+        els.successTime.textContent = currentAuthTime;
+    } else {
+        let savedTime = item.authTime || item.date || "";
+        els.successTime.textContent = formatSavedTime(savedTime, CURRENT_LANG);
+    }
+
+    if(item.imageUrl && item.imageUrl.startsWith("http")){ 
+        els.successImage.src=item.imageUrl; 
+    } else { 
+        els.successImage.src="https://static.wixstatic.com/media/2f0694_359489b1737c4f0e940672c75c559fb1~mv2.jpg/v1/fill/w_1200,h_578,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/IMG_20260103_005543%5B1%5D.jpg"; 
+    }
+
+    els.btnSuccessClose.style.flex = "3";
+    els.btnSuccessClose.style.width = "auto";
+    els.btnSuccessDownload.style.display = "flex";
+    
+    const startModalTimer = () => {
+        const now = new Date();
+        const releaseDate = item.releaseDateIso ? new Date(item.releaseDateIso) : null;
+        
+        if (releaseDate && releaseDate > now) {
+            const diff = releaseDate - now;
+            const oneDay = 24 * 60 * 60 * 1000;
+            
+            els.btnSuccessDownload.style.pointerEvents = 'none';
+            els.btnSuccessDownload.style.opacity = '0.6';
+            els.btnSuccessDownload.removeAttribute('href'); 
+            els.btnSuccessDownload.onclick = (e) => { e.preventDefault(); };
+
+            if (diff > oneDay) {
+               const y = releaseDate.getFullYear();
+               const m = releaseDate.getMonth() + 1;
+               const d = releaseDate.getDate();
+               els.btnSuccessDownload.innerHTML = `<span>${y}/${String(m).padStart(2,'0')}/${String(d).padStart(2,'0')}</span>`;
+            } else {
+               const h = Math.floor(diff / (1000 * 60 * 60));
+               const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+               const s = Math.floor((diff % (1000 * 60)) / 1000);
+               const hh = String(h).padStart(2, '0');
+               const mm = String(m).padStart(2, '0');
+               const ss = String(s).padStart(2, '0');
+               els.btnSuccessDownload.innerHTML = `<span>${hh}:${mm}:${ss}</span>`;
+            }
+        } else {
+            if(modalDownloadTimer) clearInterval(modalDownloadTimer);
+            els.btnSuccessDownload.style.pointerEvents = 'auto';
+            els.btnSuccessDownload.style.opacity = '1';
+            els.btnSuccessDownload.href = item.url;
+            els.btnSuccessDownload.onclick = null; 
+            els.btnSuccessDownload.target = "_blank";
+            const btnLabel = item.buttonLabel || t.btn_download || "ダウンロード";
+            const btnIcon = item.icon || "download";
+            els.btnSuccessDownload.innerHTML = `<span>${btnLabel}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="${btnIcon}" aria-hidden="true" size="18" class="lucide lucide-${btnIcon}"></svg>`;
+            try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+        }
+    };
+
+    startModalTimer();
+    modalDownloadTimer = setInterval(startModalTimer, 1000);
+    
+    try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+}
+
+async function performAuth(code, mode = 'check') {
+  const t = TRANSLATIONS[CURRENT_LANG];
+  const thisRequestId = currentAuthRequestId;
+  const uId = currentUser ? currentUser.userId : "GUEST";
+  
+  const safeCode = formatCodeInput(code);
+  const spinnerHtml = `<span class="loading-spinner" style="border-top-color:currentColor; width:18px; height:18px; border-width:2px; margin:0;"></span>`;
+
+  if (mode === 'check') {
+    if(!safeCode) return;
+    els.code.disabled = true; els.confirm.disabled = true;
+    els.confirm.innerHTML = spinnerHtml;
+    els.status.innerHTML = "";
+  } else if (mode === 'redeem') {
+    els.btnPreviewRedeem.disabled = true;
+    els.btnPreviewRedeem.innerHTML = `${spinnerHtml}`;
+    currentAuthTime = getFormattedCurrentTime(CURRENT_LANG);
+  }
+
+  try {
+    const res = await fetch(GAS_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        key: safeCode,
+        lang: CURRENT_LANG,
+        mode: mode,
+        userId: uId,
+        type: mode === 'check' ? 'check' : 'redeem',
+        _t: Date.now()
+      })
+    });
+    let d = await res.json();
+    if (thisRequestId !== currentAuthRequestId) return;
+
+    if (mode === 'check') {
+      if (d.success) {
+        currentContentData = {
+            bundleLabel: d.bundleLabel || "Unknown Bundle",
+            message: d.message || "Unknown Message",
+            detailedTitle: d.detailedTitle || "Unknown Title",
+            detailedDesc: d.detailedDesc || "",
+            imageUrl: d.imageUrl || "https://static.wixstatic.com/media/2f0694_a82787a4837b40a9be0c361cfe71ff95~mv2.png/v1/fill/w_1200,h_1200,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/Polish_20260125_100959885.png",
+            buttonLabel: d.buttonLabel
+        };
+        
+        els.confirm.innerHTML = `<i data-lucide="check"></i>`;
+        try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+        await new Promise(r => setTimeout(r, 600));
+        if (thisRequestId !== currentAuthRequestId) return;
+        
+        els.previewImage.src = currentContentData.imageUrl;
+        els.previewTitleUnderImg.textContent = currentContentData.message;
+        els.previewTitle.textContent = currentContentData.detailedTitle;
+        
+        if (currentContentData.detailedDesc) {
+            els.previewWarningText.innerHTML = currentContentData.detailedDesc.replace(/\n/g, '<br>');
+            els.previewWarningBox.style.display = 'flex';
+        } else {
+            els.previewWarningText.innerHTML = "";
+            els.previewWarningBox.style.display = 'none';
+        }
+        
+        els.modalCon.classList.add('is-wide');
+        els.phaseInput.style.opacity = '0';
+        setTimeout(() => {
+          if (thisRequestId !== currentAuthRequestId) return;
+          els.phaseInput.style.display = 'none';
+          els.phasePreview.style.display = 'flex';
+          setTimeout(() => els.phasePreview.style.opacity = '1', 50);
+        }, 400);
+        
+        els.btnPreviewRedeem.disabled = false;
+        els.btnPreviewRedeem.innerHTML = t.btn_continue;
+        const newBtn = els.btnPreviewRedeem.cloneNode(true);
+        els.btnPreviewRedeem.parentNode.replaceChild(newBtn, els.btnPreviewRedeem);
+        els.btnPreviewRedeem = newBtn;
+        els.btnPreviewRedeem.addEventListener('click', (e) => { 
+            e.preventDefault();
+            performAuth(safeCode, 'redeem'); 
+        });
+      } else { throw new Error(d.message); }
+    } else if (mode === 'redeem') {
+      if (d.success) { 
+        if (d.isPointMode) {
+            fetchUserHistory();
+            const successTops = els.phaseSuccess.querySelectorAll('.modal-title-top, .mobile-title');
+            successTops.forEach(el => el.textContent = t.success_pt_title || "ポイントチャージ完了");
+            const label = els.phaseSuccess.querySelector('.modal-label');
+            if(label) label.textContent = (t.success_pt_msg || "追加されました。").replace('%s', d.message);
+            
+            els.successImage.src = currentContentData.imageUrl || "https://static.wixstatic.com/media/2f0694_a82787a4837b40a9be0c361cfe71ff95~mv2.png/v1/fill/w_1200,h_1200,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/Polish_20260125_100959885.png";
+            els.successTitleUnderImg.textContent = d.message;
+            els.successBundleName.textContent = currentContentData.message || d.message;
+            els.successMessageText.innerHTML = "";
+            els.successTime.textContent = currentAuthTime;
+
+            els.btnSuccessClose.style.flex = "none";
+            els.btnSuccessClose.style.width = "100%";
+            els.btnSuccessDownload.style.display = "none";
+
+            els.phasePreview.style.opacity = '0';
+            setTimeout(() => {
+                if (thisRequestId !== currentAuthRequestId) return;
+                els.phasePreview.style.display = 'none';
+                els.phaseSuccess.style.display = 'flex';
+                setTimeout(() => els.phaseSuccess.style.opacity = '1', 50);
+            }, 400);
+            return;
+        }
+
+        await saveUnlockedItemLocal(d, safeCode);
+        if(window.innerWidth <= 768) {
+           const item = {
+             title: d.bundleLabel || d.message,
+             message: d.message,
+             imageUrl: d.imageUrl,
+             url: d.actionUrl,
+             releaseDateIso: d.releaseDateIso,
+             buttonLabel: d.buttonLabel,
+             icon: d.btnIcon
+           };
+           showMobileItemDetail(item, true); 
+        } else {
+           els.successImage.src = currentContentData.imageUrl;
+           els.successTitleUnderImg.textContent = currentContentData.message;
+           els.successBundleName.textContent = currentContentData.bundleLabel;
+           els.successMessageText.innerHTML = t.success_msg_box.replace(/\n/g, '<br>');
+           els.successTime.textContent = currentAuthTime;
+           
+           els.phasePreview.style.opacity = '0';
+           setTimeout(() => {
+             if (thisRequestId !== currentAuthRequestId) return;
+             els.phasePreview.style.display = 'none';
+             els.phaseSuccess.style.display = 'flex';
+             setTimeout(() => els.phaseSuccess.style.opacity = '1', 50);
+           }, 400);
+
+           if (currentUser.history.length > 0) {
+              updateHeroView(currentUser.history[0], true); 
+           }
+        }
+      } else {
+        try {
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+            
+            let errorMainText = "";
+            let errorSubText = "";
+            let showInfoBox = true;
+            let specificErrorCode = generateErrorCode(); 
+            
+            const msg = d.message || "";
+            if (d.isAlreadyOwned || msg === "Already owned" || msg.includes("所有") || msg.includes("済") || msg.includes("owned")) {
+                errorMainText = t.error_owned_msg || "既に所有しているようです。";
+                errorSubText = window.innerWidth <= 768 ? (t.msg_already_owned_mobile || "ストアからコンテンツを選択してダウンロードしてください。") : (t.error_owned_sub || "左ライブラリメニューからコンテンツを選択してダウンロードしてください。");
+                specificErrorCode = "1011"; 
+                els.btnErrorClose.style.flex = "none";
+                els.btnErrorClose.style.width = "100%";
+            } else if (msg === "This code has already been used." || msg.includes("使用済") || msg.includes("used")) {
+                errorMainText = t.error_used_msg || t.msg_used;
+                errorSubText = "";
+                specificErrorCode = "1013"; 
+                els.btnErrorClose.style.flex = "none";
+                els.btnErrorClose.style.width = "100%";
+                showInfoBox = false;
+            } else if (msg.toLowerCase().includes("invalid") || msg.toLowerCase().includes("not found")) {
+                errorMainText = t.msg_invalid || "コードが無効です";
+                errorSubText = msg;
+                specificErrorCode = "1012"; 
+                els.btnErrorClose.style.flex = "none";
+                els.btnErrorClose.style.width = "100%";
+            } else {
+                errorMainText = t.msg_error;
+                errorSubText = msg;
+                els.btnErrorClose.style.flex = "none";
+                els.btnErrorClose.style.width = "100%";
+                showInfoBox = errorSubText ? true : false;
+            }
+            
+            els.errorCodeText.textContent = specificErrorCode;
+            els.errorTime.textContent = currentAuthTime;
+            
+            els.errorMessage.textContent = errorMainText;
+            if(showInfoBox && errorSubText) {
+                els.errorSubMessage.innerHTML = errorSubText.replace(/\n/g, '<br>');
+                els.errorInfoBox.style.display = 'flex';
+            } else {
+                els.errorSubMessage.innerHTML = "";
+                els.errorInfoBox.style.display = 'none';
+            }
+        } catch(err) {
+            console.error("UI Update Error", err);
+            els.errorMessage.textContent = t.msg_error;
+        } finally {
+            els.phasePreview.style.opacity = '0';
+            setTimeout(() => {
+              if (thisRequestId !== currentAuthRequestId) return;
+              els.phasePreview.style.display = 'none';
+              els.phaseError.style.display = 'flex';
+              setTimeout(() => els.phaseError.style.opacity = '1', 50);
+            }, 400);
+        }
+      }
+    }
+  } catch (e) {
+    console.error("Auth Error:", e);
+    if (thisRequestId !== currentAuthRequestId) return;
+
+    let serverMessage = e.message || "";
+    
+    if (mode === 'check') {
+       els.code.disabled = false; 
+       els.confirm.disabled = false; 
+       els.confirm.textContent = t.modal_btn_auth;
+       
+       let errorDisplay = t.msg_error; 
+       const lowMsg = serverMessage.toLowerCase();
+       if (lowMsg.includes("used")) {
+           errorDisplay = t.msg_used;
+       } else if (lowMsg.includes("invalid") || lowMsg.includes("not found") || lowMsg.includes("code is required")) {
+           errorDisplay = t.msg_invalid;
+       }
+
+       const errorHtml = `<span style="color:#FF3B30; font-size:14px; font-weight:700;">${errorDisplay}</span>`;
+       if (els.pcInputDesc) els.pcInputDesc.innerHTML = errorHtml;
+       if (els.mobileInputDesc) els.mobileInputDesc.innerHTML = errorHtml;
+       
+    } else {
+       els.btnPreviewRedeem.disabled = false;
+       els.btnPreviewRedeem.innerHTML = t.btn_continue;
+       
+       const lowMsg = serverMessage.toLowerCase();
+       let specificErrorCode = generateErrorCode();
+       if (lowMsg.includes("invalid") || lowMsg.includes("not found")) {
+           specificErrorCode = "1012";
+       } else if (lowMsg.includes("already owned") || lowMsg.includes("owned")) {
+           specificErrorCode = "1011";
+       } else if (lowMsg.includes("used")) {
+           specificErrorCode = "1013";
+       }
+       
+       els.errorCodeText.textContent = specificErrorCode;
+       els.errorTime.textContent = currentAuthTime;
+       
+       els.errorMessage.textContent = t.msg_invalid;
+       els.errorSubMessage.textContent = serverMessage;
+       els.errorInfoBox.style.display = 'block';
+       
+       els.btnErrorClose.style.flex = "none";
+       els.btnErrorClose.style.width = "100%";
+       
+       els.phasePreview.style.opacity = '0';
+       setTimeout(() => {
+         els.phasePreview.style.display = 'none';
+         els.phaseError.style.display = 'flex';
+         setTimeout(() => els.phaseError.style.opacity = '1', 50);
+       }, 400);
+    }
+  }
+}
+  
+async function performAuthAction() {
+  const mode = document.querySelector('.auth-tab.active').dataset.tab; 
+  const email = els.email.value.trim();
+  const pass = els.pass.value.trim();
+  const t = TRANSLATIONS[CURRENT_LANG];
+  if (!email || !pass) { els.authStatus.textContent = "Please enter email and password."; return; }
+  els.btnAuthAction.disabled = true;
+  els.btnAuthAction.innerHTML = `<span class="loading-dots">${mode === 'login' ? t.msg_logging_in : t.msg_signing_up}</span>`;
+  try {
+    const actionType = mode === 'login' ? 'user_login' : 'register';
+    const res = await fetch(GAS_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: actionType, email: email, password: pass })
+    });
+    const data = await res.json();
+    if (data.success) {
+      if (data.isAdmin) {
+        toggleDropdown(false);
+        els.email.value = ""; els.pass.value = "";
+        tempAdminCreds.user = email; tempAdminCreds.pass = pass;
+        els.adminModal.classList.add('active');
+        els.btnAuthAction.disabled = false;
+        els.btnAuthAction.textContent = mode==='login'?TRANSLATIONS[CURRENT_LANG].btn_login_action:TRANSLATIONS[CURRENT_LANG].btn_signup_action;
+        return; 
+      }
+      currentUser = { userId: data.userId, email: email, history: data.history || [], points: data.points || 0 };
+      localStorage.setItem('user_session_identity', JSON.stringify({ userId: data.userId, email: email }));
+      
+      document.body.classList.add('is-logged-in');
+      updateAccountUI(); 
+      fetchUserHistory(); 
+      
+      els.email.value = ""; els.pass.value = "";
+      if (pendingActivationCode) {
+          setTimeout(() => {
+              toggleDropdown(false); 
+              openAuthModal(); 
+              const codeToUse = formatCodeInput(pendingActivationCode);
+              els.code.value = codeToUse;
+              performAuth(codeToUse); 
+              pendingActivationCode = null;
+          }, 500);
+      } else if (pendingAction === 'open_activation') {
+          setTimeout(() => {
+              toggleDropdown(false);
+              openAuthModal();
+              pendingAction = null;
+          }, 500);
+      }
+    } else { els.authStatus.textContent = data.message || "Error occurred."; }
+  } catch (e) { els.authStatus.textContent = "Network Error."; } 
+  finally { 
+    els.btnAuthAction.disabled = false; 
+    els.btnAuthAction.textContent = mode==='login'?TRANSLATIONS[CURRENT_LANG].btn_login_action:TRANSLATIONS[CURRENT_LANG].btn_signup_action;
+  }
+}
+
+function setHeroButtonState(state, forceUnlock = false) {
+    if (window.innerWidth <= 768) return;
+
+    const btn = els.heroActionBtn;
+    const buyBtn = els.heroBuyBtn;
+    const t = TRANSLATIONS[CURRENT_LANG];
+    
+    btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer'; btn.classList.remove('is-download'); 
+
+    if (state === 'owned') {
+        if(buyBtn) buyBtn.style.display = 'none';
+
+        const now = new Date();
+        const releaseDate = selectedHeroItem.releaseDateIso ? new Date(selectedHeroItem.releaseDateIso) : null;
+
+        if (!forceUnlock && releaseDate && releaseDate > now) {
+            startHeroCountdown(releaseDate);
+        } else {
+            let iconName = selectedHeroItem.icon || 'download';
+            const displayLabel = selectedHeroItem.buttonLabel || t.btn_hero_download;
+
+            btn.innerHTML = `<span>${displayLabel}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="${iconName}" aria-hidden="true" size="20" class="lucide lucide-${iconName}"></svg>`;
+            btn.classList.add('is-download');
+            
+            currentHeroContext = 'owned';
+            try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+        }
+    } else {
+        btn.innerHTML = `<span data-translate="btn_redeem_code">${t.btn_redeem_code}</span>`;
+        btn.classList.remove('is-download');
+        currentHeroContext = 'available';
+
+        if(selectedHeroItem && selectedHeroItem.price > 0) {
+            if(buyBtn) {
+                buyBtn.style.display = 'inline-flex';
+                gId('heroBuyBtnText').textContent = `${selectedHeroItem.price}`;
+            }
+        } else {
+            if(buyBtn) buyBtn.style.display = 'none';
+        }
+    }
+}
+
+function startHeroCountdown(targetDate) {
+    const btn = els.heroActionBtn;
+    btn.classList.add('is-download'); btn.style.opacity = '0.7'; btn.style.cursor = 'default';
+    const enMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const ruMonths = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+
+    const update = () => {
+        const now = new Date();
+        const diff = targetDate - now;
+
+        if (diff <= 0) {
+            if(heroTimer) clearInterval(heroTimer);
+            setHeroButtonState('owned', true); 
+            return;
+        }
+
+        const oneDay = 24 * 60 * 60 * 1000;
+        if (diff > oneDay) {
+            const y = targetDate.getFullYear(); const m = targetDate.getMonth(); const d = targetDate.getDate();
+            const mm = String(m + 1).padStart(2, '0'); const dd = String(d).padStart(2, '0');
+            let dateString = "";
+            switch (CURRENT_LANG) {
+                case 'ja': case 'zh': case 'zh-TW': dateString = `${y}年${mm}月${dd}日`; break;
+                case 'ko': dateString = `${y}년 ${mm}월 ${dd}일`; break;
+                case 'ru': dateString = `${dd} ${ruMonths[m]} ${y}`; break;
+                case 'en': default: dateString = `${enMonths[m]} ${dd}, ${y}`; break;
+            }
+            btn.innerHTML = `<span>${dateString}</span>`;
+        } else {
+            const h = Math.floor(diff / (1000 * 60 * 60)); const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)); const s = Math.floor((diff % (1000 * 60)) / 1000);
+            const hh = String(h).padStart(2, '0'); const mm = String(m).padStart(2, '0'); const ss = String(s).padStart(2, '0');
+            btn.innerHTML = `<span>${hh}:${mm}:${ss}</span>`;
+        }
+    };
+    update(); heroTimer = setInterval(update, 1000);
+}
+
+function updateHeroView(item, isOwned) {
+    if (window.innerWidth <= 768) return; 
+    selectedHeroItem = item; 
+    
+    // ★追加: アイテムが選択されたらHeroの中身を表示する
+    document.querySelector('.rgl-hero-content').style.display = 'block';
+    
+    // ★変更: item.title（詳しいタイトル）ではなく item.message（メッセージ）を割り当て
+    els.heroTitle.textContent = item.message || item.title; 
+    
+    if(heroTimer) { clearInterval(heroTimer); heroTimer = null; }
+    els.heroDesc.style.display = 'none';
+    if (item.imageUrl && item.imageUrl.startsWith('http')) els.heroBgImage.style.backgroundImage = `url('${item.imageUrl}')`;
+    setHeroButtonState(isOwned ? 'owned' : 'available');
+}
+
+function updateAccountUI() {
+  const t = TRANSLATIONS[CURRENT_LANG];
+  if (currentUser) {
+    document.body.classList.add('is-logged-in');
+    
+    // ★追加: ログイン中で、何も選択されていない時はHeroの中身を隠す
+    if (!selectedHeroItem) {
+        document.querySelector('.rgl-hero-content').style.display = 'none';
+    }
+    
+    els.loggedOutView.style.display = 'none';
+    els.loggedInView.style.display = 'block';
+    if(els.displayUserEmail) els.displayUserEmail.textContent = currentUser.email || '-';
+    if(gId('ptValue')) gId('ptValue').textContent = currentUser.points || 0;
+    
+    const hasHistory = (currentUser.history && currentUser.history.length > 0);
+    if (hasHistory) {
+      els.secLibrary.style.display = 'block';
+      els.libraryListSidebar.innerHTML = "";
+      currentUser.history.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'sidebar-game-item';
+            div.onclick = () => {
+                document.querySelectorAll('.sidebar-game-item').forEach(el => el.classList.remove('active'));
+                div.classList.add('active');
+                updateHeroView(item, true); 
+            };
+            const imgUrl = (item.imageUrl && item.imageUrl.startsWith('http')) ? item.imageUrl : 'https://via.placeholder.com/32';
+            div.innerHTML = `
+              <div class="sidebar-game-info">
+                <img src="${imgUrl}" class="sidebar-game-thumb" onerror="this.style.background='#555'">
+                <div class="sidebar-game-text">
+                   <div class="sidebar-game-title">${item.message || item.title}</div>
+                </div>
+              </div>
+            `;
+            els.libraryListSidebar.appendChild(div);
+      });
+      
+      const now = Date.now();
+      let hasLockedItems = currentUser.history.some(item => {
+          return item.releaseDateIso && (new Date(item.releaseDateIso).getTime() > now);
+      });
+      if(hasLockedItems) startLibraryTimer();
+
+    } else {
+      els.secLibrary.style.display = 'none';
+      if(libraryTimerId) { clearInterval(libraryTimerId); libraryTimerId = null; }
+    }
+    els.secAvailable.style.display = 'block';
+
+  } else {
+    document.body.classList.remove('is-logged-in');
+    
+    // ★追加: ログアウト時はHeroの中身を表示し、初期状態に戻す
+    document.querySelector('.rgl-hero-content').style.display = 'block';
+    selectedHeroItem = null;
+    if(heroTimer) { clearInterval(heroTimer); heroTimer = null; }
+    els.heroTitle.textContent = t.hero_title || "個人認証センター";
+    els.heroBgImage.style.backgroundImage = 'none';
+    setHeroButtonState('available');
+
+    els.loggedOutView.style.display = 'block';
+    els.loggedInView.style.display = 'none';
+    els.secLibrary.style.display = 'none';
+    els.secAvailable.style.display = 'none';
+  }
+}
+
+function startLibraryTimer() {
+    if (libraryTimerId) clearInterval(libraryTimerId);
+    libraryTimerId = setInterval(() => {
+        const now = Date.now();
+        if (window.innerWidth > 768 && selectedHeroItem && selectedHeroItem.releaseDateIso) {
+             const releaseTime = new Date(selectedHeroItem.releaseDateIso).getTime();
+             if (releaseTime <= now && currentHeroContext === 'owned' && !els.heroActionBtn.classList.contains('is-download')) {
+                  setHeroButtonState('owned', true);
+             }
+        }
+    }, 1000);
+}
+
+async function saveUnlockedItemLocal(data, code) {
+  if (!currentUser) {
+      currentUser = { userId: "GUEST", email: "Guest", history: [], points: 0 };
+  }
+  const newItem = {
+    code: code, 
+    title: data.bundleLabel || data.message || "Unknown Content", 
+    message: data.message,
+    url: data.actionUrl, 
+    date: new Date().toLocaleDateString(), 
+    authTime: currentAuthTime, 
+    icon: data.btnIcon || 'download', 
+    lang: CURRENT_LANG,
+    imageUrl: data.imageUrl, 
+    releaseDateIso: data.releaseDateIso || null,
+    groupId: data.groupId,
+    buttonLabel: data.Button_Label || null 
+  };
+  
+  const idx = currentUser.history.findIndex(h => h.code === code);
+  if (idx > -1) currentUser.history.splice(idx, 1);
+  currentUser.history.unshift(newItem);
+  updateAccountUI();
+  
+  const items = els.availableListSidebar.querySelectorAll('.sidebar-game-item');
+  items.forEach(el => {
+      const c = el.getAttribute('data-code');
+      const g = el.getAttribute('data-group-id');
+      const tAttr = el.getAttribute('data-title');
+      const isCodeMatch = (c === code);
+      const isGroupMatch = (newItem.groupId && g == newItem.groupId);
+      const isTitleMatch = (tAttr && newItem.title && tAttr.trim() === newItem.title.trim());
+
+      if (isCodeMatch || isGroupMatch || isTitleMatch) {
+          el.remove();
+      }
+  });
+  if (els.availableListSidebar.children.length === 0) {
+      const t = TRANSLATIONS[CURRENT_LANG];
+      els.availableListSidebar.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">${t.msg_empty_lib || "No content"}</div>`;
+  }
+  
+  fetchAvailableContent();
+}
+
+function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
+    const mobileList = gId('mobileStoreGrid');
+    if (!mobileList) return;
+
+    // 実際に所有しているか、または「無料（価格未設定）」の場合は表示上「所有済み」として扱う
+    const isActuallyOwned = (item.groupId && ownedGroups.has(item.groupId)) || (!item.groupId && ownedCodes.has(item.code)) || (item.title && ownedTitles.has(item.title));
+    const isFree = (!item.price || item.price <= 0);
+    const treatAsOwned = isActuallyOwned || isFree;
+
+    const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja;
+    
+    const mDiv = document.createElement('div');
+    mDiv.className = 'mobile-store-card';
+    
+    let btnHtml = '';
+    let checkMarkHtml = '';
+    // 「無料」ではなく「所有済み（各言語対応）」のテキストにする
+    let priceText = item.price > 0 ? `${item.price} pt` : (t.status_owned || `所有済み`);
+
+    // 解禁時間かどうかの判定を追加
+    const releaseDate = item.releaseDateIso ? new Date(item.releaseDateIso) : null;
+    const now = new Date();
+    const isLocked = releaseDate && releaseDate > now;
+
+    if (treatAsOwned) {
+        checkMarkHtml = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px; vertical-align:middle; flex-shrink:0;"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+        btnHtml = `<button class="mobile-store-btn is-owned-download"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>${t.btn_download || "ダウンロード"}</button>`;
+    } else {
+        btnHtml = `<button class="mobile-store-btn">${item.price} pt</button>`;
+    }
+    
+    mDiv.innerHTML = `
+        <img src="${item.imageUrl}" class="mobile-store-thumb">
+        <div class="mobile-store-title"><span style="overflow:hidden; text-overflow:ellipsis;">${item.message || item.title}</span>${checkMarkHtml}</div>
+        <div class="mobile-store-price">
+            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+            ${priceText}
+        </div>
+        ${btnHtml}
+    `;
+    
+    if (treatAsOwned) {
+        const dlBtn = mDiv.querySelector('.is-owned-download');
+        if (dlBtn) {
+            if (isLocked) {
+                // まだ解禁されていない場合はクリックを無効化し、カウントダウン化
+                dlBtn.style.pointerEvents = 'none';
+                dlBtn.style.background = 'rgba(128, 128, 128, 0.2)';
+                dlBtn.style.color = 'var(--modal-text-main)';
+                dlBtn.style.border = '1px solid transparent';
+
+                const updateMobileCountdown = () => {
+                    if (!document.body.contains(dlBtn)) return true; // DOMから消えたらタイマー停止
+                    const currentNow = new Date();
+                    const diff = releaseDate - currentNow;
+
+                    if (diff <= 0) {
+                        // 解禁されたら通常スタイルに戻す
+                        dlBtn.style.pointerEvents = 'auto';
+                        dlBtn.style.background = 'rgba(0, 125, 255, 0.1)';
+                        dlBtn.style.color = 'var(--primary)';
+                        dlBtn.style.border = '1px solid rgba(0, 125, 255, 0.3)';
+                        dlBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>${t.btn_download || "ダウンロード"}`;
+                        
+                        dlBtn.onclick = (e) => {
+                            e.stopPropagation();
+                            if (!currentUser) { toggleDropdown(true); return; }
+                            const targetUrl = item.url || item.actionUrl;
+                            if (targetUrl) window.open(targetUrl, '_blank');
+                            else showMobileItemDetail(item, false);
+                        };
+                        return true; 
+                    }
+
+                    // カウントダウン表示の更新
+                    const oneDay = 24 * 60 * 60 * 1000;
+                    if (diff > oneDay) {
+                        const y = releaseDate.getFullYear();
+                        const m = releaseDate.getMonth() + 1;
+                        const d = releaseDate.getDate();
+                        dlBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> <span>${y}/${String(m).padStart(2,'0')}/${String(d).padStart(2,'0')}</span>`;
+                    } else {
+                        const h = Math.floor(diff / (1000 * 60 * 60));
+                        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                        const s = Math.floor((diff % (1000 * 60)) / 1000);
+                        const hh = String(h).padStart(2, '0');
+                        const mm = String(m).padStart(2, '0');
+                        const ss = String(s).padStart(2, '0');
+                        dlBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> <span>${hh}:${mm}:${ss}</span>`;
+                    }
+                    return false;
+                };
+
+                updateMobileCountdown();
+                const timerId = setInterval(() => {
+                    if (updateMobileCountdown()) {
+                        clearInterval(timerId);
+                    }
+                }, 1000);
+
+            } else {
+                // 解禁済みの通常の動作
+                dlBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    if (!currentUser) { toggleDropdown(true); return; }
+                    const targetUrl = item.url || item.actionUrl;
+                    if (targetUrl) window.open(targetUrl, '_blank');
+                    else showMobileItemDetail(item, false);
+                };
+            }
+        }
+    } else {
+        const mBtn = mDiv.querySelector('.mobile-store-btn');
+        if (mBtn) {
+            mBtn.onclick = (e) => {
+                e.stopPropagation();
+                if (!currentUser) { toggleDropdown(true); return; }
+                showPurchasePreview(item, item.price);
+            };
+        }
+    }
+    mobileList.appendChild(mDiv);
+}
+
+async function fetchAvailableContent() {
+    const list = els.availableListSidebar;
+    const t = TRANSLATIONS[CURRENT_LANG];
+    
+    list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">Loading...</div>`;
+    const mobileList = gId('mobileStoreGrid');
+
+    try {
+        // GET通信から、より安全なPOST通信に変更
+        const res = await fetch(GAS_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: 'get_available',
+                lang: CURRENT_LANG,
+                userId: currentUser ? currentUser.userId : "GUEST"
+            })
+        });
+        const d = await res.json();
+        
+        list.innerHTML = '';
+        if (mobileList) mobileList.innerHTML = '';
+        
+        const ownedGroups = new Set(); const ownedCodes = new Set(); const ownedTitles = new Set();
+        let hasMobileItems = false;
+        let hasItems = false; 
+        
+        if (currentUser && currentUser.history) {
+            currentUser.history.forEach(h => {
+                if (h.groupId) ownedGroups.add(h.groupId); 
+                if (h.code) ownedCodes.add(h.code);
+                if (h.title) ownedTitles.add(h.title);         
+                
+                renderMobileStoreItem(h, ownedGroups, ownedCodes, ownedTitles);
+                hasMobileItems = true;
+            });
+        }
+
+        if(d.success && d.items && d.items.length > 0) {
+            d.items.forEach((item, index) => {
+                const isOwned = (item.groupId && ownedGroups.has(item.groupId)) || (!item.groupId && ownedCodes.has(item.code)) || (item.title && ownedTitles.has(item.title));
+                
+                if (!isOwned) {
+                    renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles);
+                    hasMobileItems = true;
+                }
+
+                if (isOwned) return; 
+                
+                hasItems = true;
+                const div = document.createElement('div');
+                div.className = 'sidebar-game-item';
+                div.setAttribute('data-code', item.code);
+                if(item.groupId) div.setAttribute('data-group-id', item.groupId);
+                if(item.title) div.setAttribute('data-title', item.title);
+                
+                div.onclick = () => {
+                    document.querySelectorAll('.sidebar-game-item').forEach(el => el.classList.remove('active'));
+                    div.classList.add('active');
+                    updateHeroView(item, false); 
+                };
+                
+                div.innerHTML = `<div class="sidebar-game-info"><img src="${item.imageUrl}" class="sidebar-game-thumb"><div class="sidebar-game-text"><div class="sidebar-game-title">${item.message || item.title}</div></div></div>`;
+                list.appendChild(div);
+                
+                if (!selectedHeroItem && !document.querySelector('.sidebar-game-item.active') && (!currentUser || !currentUser.history.length)) {
+                    updateHeroView(item, false);
+                    div.classList.add('active');
+                }
+            });
+        } 
+        if (!hasItems) {
+             list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">${t.msg_empty_lib || "No content"}</div>`;
+        }
+        if (!hasMobileItems && mobileList) {
+             mobileList.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px; grid-column: 1 / -1; text-align:center;">${t.msg_empty_lib || "No content"}</div>`;
+        }
+    } catch(e) {
+        console.error("Fetch Error:", e);
+        list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">-</div>`;
+        if (mobileList) mobileList.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px; grid-column: 1 / -1; text-align:center;">-</div>`;
+    }
+}
+
+async function fetchUserHistory() {
+  if (!currentUser) {
+      // 未ログイン状態なら、履歴は無視してストアだけ取得する
+      fetchAvailableContent();
+      return;
+  }
+  els.libraryListSidebar.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">Loading...</div>`;
+  try { 
+    // GET通信から、より安全なPOST通信に変更
+    const res = await fetch(GAS_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            type: 'get_history',
+            userId: currentUser.userId,
+            lang: CURRENT_LANG
+        })
+    });
+    const data = await res.json();
+    
+    if (data.success && Array.isArray(data.history)) {
+      currentUser.history = data.history; 
+      currentUser.points = data.points || 0;
+      updateAccountUI();
+      if (currentUser.history.length > 0) {
+            updateHeroView(currentUser.history[0], true);
+      }
+    } else if (data.message === "User not found" || data.success === false) {
+      console.warn("User session invalid. Logging out...");
+      localStorage.removeItem('user_session_identity');
+      currentUser = null;
+      window.location.reload(); 
+      return;
+    }
+  } catch (e) { 
+      console.error("History Fetch Error:", e);
+      updateAccountUI(); 
+  } finally {
+      fetchAvailableContent();
+  }
+}
+
+async function performAdminSearch() {
+  const target = els.targetUserEmail.value.trim();
+  if(!target) { alert("Please enter target email."); return; }
+  els.btnAdminSearch.disabled = true; els.adminResultArea.innerHTML = `<div style="text-align:center; padding:20px;"><span class="loading-dots">Searching</span></div>`;
+  try {
+    const res = await fetch(GAS_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        type: 'admin_search', 
+        adminUser: tempAdminCreds.user, 
+        adminPass: tempAdminCreds.pass, 
+        targetEmail: target, 
+        _t: Date.now() 
+      })
+    });
+    const d = await res.json();
+    if(d.success) {
+      if(!d.history || d.history.length === 0) {
+        els.adminResultArea.innerHTML = `<p style="text-align:center; opacity:0.6;">No history found.</p>`;
+      } else {
+        let h = `<div style="font-weight:700; font-size:12px;">User ID: ${d.userId}</div><ul style="list-style:none; padding:0;">`;
+        d.history.forEach(i => { h += `<li style="background:rgba(128,128,128,0.05); padding:10px; border-radius:8px; margin-bottom:5px; font-size:13px;"><b>${i.title}</b><br><small>${i.code} / ${i.date}</small></li>`; });
+        els.adminResultArea.innerHTML = h + `</ul>`;
+      }
+    } else { els.adminResultArea.innerHTML = `<p style="color:red; text-align:center;">${d.message}</p>`; }
+  } catch(e) { els.adminResultArea.innerHTML = `<p style="color:red; text-align:center;">Network Error</p>`; }
+  finally { els.btnAdminSearch.disabled = false; els.btnAdminSearch.textContent = "Search"; }
+}
+
+function initThemeAndParticles() {
+  const htmlEl = document.documentElement;
+  const toggleBtns = [gId('themeToggle'), gId('introThemeToggle')];
+  const icons = [gId('themeIcon'), gId('introThemeIcon')];
+  let particleHue = 210;
+  function applyTheme(theme) {
+    htmlEl.setAttribute('data-theme', theme);
+    icons.forEach(ic => { if(ic) ic.setAttribute('data-lucide', theme === 'light' ? 'sun' : 'moon'); });
+    particleHue = theme === 'light' ? 210 : 220; 
+    try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+  }
+  const saved = localStorage.getItem('user_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  applyTheme(saved);
+  toggleBtns.forEach(btn => btn && btn.addEventListener('click', () => {
+    const next = htmlEl.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    applyTheme(next); localStorage.setItem('user_theme', next);
+  }));
+  const canvas = gId('particleCanvas'); const ctx = canvas.getContext('2d'); canvas.width = innerWidth; canvas.height = innerHeight;
+  class Particle {
+    constructor() { this.x=Math.random()*canvas.width; this.y=Math.random()*canvas.height; this.size=Math.random()*150+50; this.speedX=Math.random()*0.2-0.1; this.speedY=Math.random()*0.2-0.1; this.opacity=Math.random()*0.3+0.1; }
+    update() { this.x+=this.speedX; this.y+=this.speedY; if(this.x<0||this.x>canvas.width)this.speedX*=-1; if(this.y<0||this.y>canvas.height)this.speedY*=-1; }
+    draw() { ctx.fillStyle=`hsla(${particleHue}, 100%, 50%, ${this.opacity*0.2})`; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); }
+  }
+  let p = []; for(let i=0;i<8;i++) p.push(new Particle());
+  function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); p.forEach(i=>{i.update();i.draw();}); requestAnimationFrame(animate); }
+  window.addEventListener('resize', () => { canvas.width=innerWidth; canvas.height=innerHeight; }); animate();
+}
+</script>
+</body>
+</html>
