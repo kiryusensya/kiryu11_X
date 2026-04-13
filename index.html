@@ -818,6 +818,38 @@ button, input, textarea { font-family: var(--font-stack); }
   transform: scale(1) translateY(0) !important;
   opacity: 1 !important;
 }
+/* --- ログインモーダル専用の余白・文字サイズ調整 --- */
+.login-modal-sheet {
+  padding: 60px 40px 70px 40px !important;
+}
+.login-desc-text {
+  font-size: 14px !important;
+  margin-bottom: 30px !important;
+}
+.login-input-group {
+  margin-bottom: 24px !important;
+}
+
+/* スマホ用の画面幅のときだけ、さらに小さく・狭くする */
+@media (max-width: 768px) {
+  .login-modal-sheet {
+    padding: 50px 24px 60px 24px !important;
+  }
+  .login-desc-text {
+    font-size: 12px !important;       /* 文字を小さく */
+    line-height: 1.4 !important;      /* 行間を狭く */
+    margin-bottom: 20px !important;   /* 下の入力欄との間を短く */
+  }
+  .login-input-group {
+    margin-bottom: 16px !important;   /* 入力欄同士の隙間を短く */
+  }
+  .login-btn-wrapper {
+    margin-top: 10px !important;      /* パスワードとボタンの隙間を短く */
+  }
+  #loginLangTrigger {
+    font-size: 12px !important;       /* 左下の言語ボタンの文字も少し小さく */
+  }
+}
 
 /* Header inside Dropdown */
 .account-mini-header { 
@@ -1304,39 +1336,42 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 
 </div>
 <div id="loginOverlay" class="modal-overlay" style="background: rgba(0,0,0,0.9); z-index: 10005;">
-  <div class="modal-sheet" style="max-width: 600px; width: 90%; padding: 70px 50px 80px 50px; text-align: center; transform: scale(0.95); opacity: 0; transition: all 0.4s ease; position: relative;">
+  <div class="modal-sheet login-modal-sheet" style="max-width: 600px; width: 90%; text-align: center; transform: scale(0.95); opacity: 0; transition: all 0.4s ease; position: relative;">
     
-    <a href="エンタープライズ版のURLをここに入力" style="position: absolute; top: 24px; left: 24px; color: var(--modal-text-sub); font-size: 13px; text-decoration: none; font-weight: 700; display: flex; align-items: center; gap: 6px; transition: opacity 0.2s;">
+    <a href="エンタープライズ版のURLをここに入力" style="position: absolute; top: 20px; left: 20px; color: var(--modal-text-sub); font-size: 13px; text-decoration: none; font-weight: 700; display: flex; align-items: center; gap: 6px; transition: opacity 0.2s;">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
         Enterprise
     </a>
 
-    <div class="theme-pill" id="loginThemeToggle" style="position: absolute; top: 16px; right: 16px; width: 40px; height: 40px; border: none; background: transparent; box-shadow: none;">
+    <div class="theme-pill" id="loginThemeToggle" style="position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; border: none; background: transparent; box-shadow: none;">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="loginThemeIcon"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path></svg>
     </div>
 
-    <h2 style="font-size:36px; font-weight:800; margin: 0 0 16px 0; color: var(--modal-text-main);" data-translate="tab_login">ログイン</h2>
+    <h2 style="font-size:32px; font-weight:800; margin: 0 0 12px 0; color: var(--modal-text-main);" data-translate="tab_login">ログイン</h2>
     
-    <p style="color:var(--modal-text-sub); margin-bottom: 40px; font-size:14px; line-height: 1.6; font-weight: 500;" data-translate="login_desc">
+    <p class="login-desc-text" style="color:var(--modal-text-sub); font-weight: 500;" data-translate="login_desc">
         利用するにはアカウントが必要です。<br>
         ログインできない場合は<a href="https://kiryu10-standard.vercel.app/support.html" style="color: var(--primary); text-decoration: underline; font-weight: 700;">ここ</a>で問い合わせてください。
     </p>
     
     <div style="text-align:left;">
-      <div class="form-group" style="margin-bottom: 24px;">
-        <label class="form-label" style="font-size: 14px;" data-translate="form_email">ユーザー名</label>
-        <input type="email" id="inputEmail" class="form-input" style="height: 60px; font-size: 18px; border-radius: 12px;">
+      <div class="form-group login-input-group">
+        <label class="form-label" style="font-size: 13px;" data-translate="form_email">ユーザー名</label>
+        <input type="email" id="inputEmail" class="form-input" style="height: 56px; font-size: 16px; border-radius: 12px;">
       </div>
-      <div class="form-group" style="margin-bottom: 32px;">
-        <label class="form-label" style="font-size: 14px;" data-translate="form_pass">パスワード</label>
-        <input type="password" id="inputPass" class="form-input" style="height: 60px; font-size: 18px; border-radius: 12px;">
+      <div class="form-group login-input-group">
+        <label class="form-label" style="font-size: 13px;" data-translate="form_pass">パスワード</label>
+        <input type="password" id="inputPass" class="form-input" style="height: 56px; font-size: 16px; border-radius: 12px;">
       </div>
-      <div id="authStatus" style="color:#FF3B30; font-size:14px; font-weight: 700; margin-bottom:16px; min-height:20px; text-align:center;"></div>
-      <button id="btnAuthAction" class="btn-primary" style="height:64px; font-size: 20px; border-radius: 32px;" data-translate="btn_login_action">ログイン</button>
+      
+      <div class="login-btn-wrapper">
+          <div id="authStatus" style="color:#FF3B30; font-size:13px; font-weight: 700; margin-bottom:12px; min-height:18px; text-align:center;"></div>
+          <button id="btnAuthAction" class="btn-primary" style="height:60px; font-size: 18px; border-radius: 30px; margin-top: 0;" data-translate="btn_login_action">ログイン</button>
+      </div>
     </div>
 
-    <div style="position: absolute; bottom: 20px; left: 20px; text-align: left;">
-        <button class="lang-trigger-sidebar" id="loginLangTrigger" style="width: auto; height: 36px; padding: 0 12px !important; font-size: 13px; border: none; background: transparent; color: var(--modal-text-main);">
+    <div style="position: absolute; bottom: 16px; left: 16px; text-align: left;">
+        <button class="lang-trigger-sidebar" id="loginLangTrigger" style="width: auto; height: 36px; padding: 0 12px !important; border: none; background: transparent; color: var(--modal-text-main);">
             <span style="display:flex;align-items:center;gap:6px;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg> 
                 <span id="loginLangLabel">日本語</span>
