@@ -1317,7 +1317,7 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 
     <h2 style="font-size:36px; font-weight:800; margin: 0 0 16px 0; color: var(--modal-text-main);" data-translate="tab_login">ログイン</h2>
     
-    <p style="color:var(--modal-text-sub); margin-bottom: 40px; font-size:14px; line-height: 1.6; font-weight: 500;">
+    <p style="color:var(--modal-text-sub); margin-bottom: 40px; font-size:14px; line-height: 1.6; font-weight: 500;" data-translate="login_desc">
         利用するにはアカウントが必要です。<br>
         ログインできない場合は<a href="https://kiryu10-standard.vercel.app/support.html" style="color: var(--primary); text-decoration: underline; font-weight: 700;">ここ</a>で問い合わせてください。
     </p>
@@ -1561,6 +1561,7 @@ function generateErrorCode() {
 }
 
 const TRANSLATIONS={
+ const TRANSLATIONS={
  ja:{
   header_brand:"_.k__yu.10", hero_title:"個人認証センター", hero_sub:"アクセス権限とリソースの管理。コードを入力してコンテンツを解除してください。",
   card1_title:"ホーム", tab_store:"ストア", card3_title:"スタンダード",
@@ -1601,7 +1602,8 @@ const TRANSLATIONS={
   label_store_cat: "ストア", label_available: "利用可能",
   btn_redeem_code: "コード引き換え", btn_hero_download: "ダウンロード",
   status_owned: "所有済み", status_locked: "未所有",
-  btn_have_code: "コードをお持ちですか"
+  btn_have_code: "コードをお持ちですか",
+  login_desc: "利用するにはアカウントが必要です。<br>ログインできない場合は<a href='https://kiryu10-standard.vercel.app/support.html' style='color: var(--primary); text-decoration: underline; font-weight: 700;'>ここ</a>で問い合わせてください。"
  },
  en:{
   header_brand:"_.k__yu.10", hero_title:"Personal Activation Center", hero_sub:"Manage your access and resources. Redeem your code to unlock exclusive content.",
@@ -1630,7 +1632,7 @@ const TRANSLATIONS={
   error_points_title: "Insufficient Points",
   error_points_msg: "You do not have enough points.",
   error_points_sub: "Current: %1  / Required: %2 ",
-success_pt_title: "Point Charge Complete",
+  success_pt_title: "Point Charge Complete",
   success_pt_msg: "%s  has been added.",
 
   footer_admin:"Enforcement Administrator",
@@ -1643,7 +1645,8 @@ success_pt_title: "Point Charge Complete",
   label_store_cat: "Store", label_available: "Available",
   btn_redeem_code: "Redeem Code", btn_hero_download: "DOWNLOAD",
   status_owned: "Owned", status_locked: "Not Owned",
-  btn_have_code: "Have a code?"
+  btn_have_code: "Have a code?",
+  login_desc: "An account is required to use this service.<br>If you cannot log in, please contact us <a href='https://kiryu10-standard.vercel.app/support.html' style='color: var(--primary); text-decoration: underline; font-weight: 700;'>here</a>."
  },
  zh:{ 
   header_brand:"_.k__yu.10", hero_title:"个人代码检查中心", hero_sub:"管理您的访问权限和资源。兑換产品代码以解锁独家内容。", 
@@ -1685,7 +1688,8 @@ success_pt_title: "Point Charge Complete",
   label_store_cat: "商店", label_available: "可用",
   btn_redeem_code: "兑換代码", btn_hero_download: "下载",
   status_owned: "已拥有", status_locked: "未拥有",
-  btn_have_code: "有兑换码吗？"
+  btn_have_code: "有兑换码吗？",
+  login_desc: "使用本服务需要账户。<br>如果您无法登录，请在<a href='https://kiryu10-standard.vercel.app/support.html' style='color: var(--primary); text-decoration: underline; font-weight: 700;'>此处</a>查询。"
  },
  "zh-TW":{ 
   header_brand:"_.k__yu.10", hero_title:"個人代碼檢查中心", hero_sub:"管理您的存取權限與資源。兌換產品代碼以解鎖獨家內容。", 
@@ -1727,7 +1731,8 @@ success_pt_title: "Point Charge Complete",
   label_store_cat: "商店", label_available: "可用",
   btn_redeem_code: "兌換代碼", btn_hero_download: "下載",
   status_owned: "已擁有", status_locked: "未擁有",
-  btn_have_code: "有兌換碼嗎？"
+  btn_have_code: "有兌換碼嗎？",
+  login_desc: "使用本服務需要帳戶。<br>如果您無法登入，請在<a href='https://kiryu10-standard.vercel.app/support.html' style='color: var(--primary); text-decoration: underline; font-weight: 700;'>此處</a>查詢。"
  },
  ko:{ 
   header_brand:"_.k__yu.10", hero_title:"개인 코드 검사 센터", hero_sub:"액세스 권한 및 리소스 관리. 제품 코드를 사용하여 콘텐츠 잠금을 해제하세요.", 
@@ -1769,7 +1774,8 @@ success_pt_title: "Point Charge Complete",
   label_store_cat: "상점", label_available: "사용 가능",
   btn_redeem_code: "코드 교환", btn_hero_download: "다운로드",
   status_owned: "소유함", status_locked: "미소유",
-  btn_have_code: "코드가 있으신가요?"
+  btn_have_code: "코드가 있으신가요?",
+  login_desc: "이용하려면 계정이 필요합니다.<br>로그인할 수 없는 경우 <a href='https://kiryu10-standard.vercel.app/support.html' style='color: var(--primary); text-decoration: underline; font-weight: 700;'>여기</a>에서 문의해 주세요."
  },
  ru:{ 
   header_brand:"_.k__yu.10", hero_title:"Центр личной активации", hero_sub:"Управление доступом и ресурсами. Активируйте код продукта для разблокировки.", 
@@ -1811,7 +1817,8 @@ success_pt_title: "Point Charge Complete",
   label_store_cat: "Магазин", label_available: "Доступно",
   btn_redeem_code: "Активировать код", btn_hero_download: "Скачать",
   status_owned: "В наличии", status_locked: "Не в наличии",
-  btn_have_code: "Есть код?"
+  btn_have_code: "Есть код?",
+  login_desc: "Для использования требуется учетная запись.<br>Если вы не можете войти, пожалуйста, обратитесь <a href='https://kiryu10-standard.vercel.app/support.html' style='color: var(--primary); text-decoration: underline; font-weight: 700;'>сюда</a>."
  }
 };
 
