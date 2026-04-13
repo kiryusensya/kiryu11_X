@@ -809,6 +809,16 @@ button, input, textarea { font-family: var(--font-stack); }
 }
 .account-dropdown.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; visibility: visible; }
 
+#loginOverlay.active {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  display: flex !important;
+}
+#loginOverlay.active .modal-sheet {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
 /* Header inside Dropdown */
 .account-mini-header { 
   display: flex; flex-direction: column; align-items: flex-start;
@@ -1264,30 +1274,25 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
                       </div>
                     </div>
 
-                    <div id="loggedOutView" style="display: none;">
-                      <div style="text-align:center; margin-bottom:20px;">
-                        <h2 style="margin:0; font-size:20px; color:var(--modal-text-main);" data-translate="label_welcome">ようこそ</h2>
-                        <p style="color:var(--modal-text-sub); margin:4px 0 0 0; font-size:12px;" data-translate="label_sync_desc">ログインして同期を開始</p>
-                      </div>
-                      <div class="auth-tabs">
-                        <div class="auth-tab active" data-tab="login" data-translate="tab_login">ログイン</div>
-                        <div class="auth-tab" data-tab="register" data-translate="tab_signup">新規登録</div>
-                      </div>
-                      <div style="text-align:left;">
-                        <div class="form-group">
-                          <label class="form-label" data-translate="form_email">ユーザー名</label>
-                          <input type="email" id="inputEmail" class="form-input" placeholder="">
-                        </div>
-                        <div class="form-group">
-                          <label class="form-label" data-translate="form_pass">パスワード</label>
-                          <input type="password" id="inputPass" class="form-input" placeholder="">
-                        </div>
-                        <div id="authStatus" style="color:#FF3B30; font-size:11px; margin-top:10px; min-height:16px; text-align:center;"></div>
-                        <button id="btnAuthAction" class="btn-primary" style="height:44px; margin-top:10px;" data-translate="btn_login_action">ログイン</button>
-                      </div>
-                    </div>
-                </div>
+                    <div id="loginOverlay" class="modal-overlay" style="background: rgba(0,0,0,0.9); z-index: 10005;">
+               <div class="modal-sheet" style="max-width: 500px; width: 90%; padding: 50px 40px; text-align: center; transform: scale(0.95); opacity: 0; transition: all 0.4s ease;">
+            <h2 style="font-size:32px; font-weight:800; margin: 0 0 10px 0; color: var(--modal-text-main);" data-translate="tab_login">ログイン</h2>
+            <p style="color:var(--modal-text-sub); margin-bottom: 40px; font-size:14px;" data-translate="label_sync_desc">ログインして同期を開始</p>
+    
+                   <div style="text-align:left;">
+              <div class="form-group" style="margin-bottom: 24px;">
+             <label class="form-label" style="font-size: 13px;" data-translate="form_email">ユーザー名</label>
+             <input type="email" id="inputEmail" class="form-input" style="height: 56px; font-size: 16px; border-radius: 12px;">
+          </div>
+                  <div class="form-group" style="margin-bottom: 24px;">
+                  <label class="form-label" style="font-size: 13px;" data-translate="form_pass">パスワード</label>
+                 <input type="password" id="inputPass" class="form-input" style="height: 56px; font-size: 16px; border-radius: 12px;">
+                 </div>
+               <div id="authStatus" style="color:#FF3B30; font-size:14px; font-weight: 700; margin-bottom:16px; min-height:20px; text-align:center;"></div>
+              <button id="btnAuthAction" class="btn-primary" style="height:60px; font-size: 18px; border-radius: 30px;" data-translate="btn_login_action">ログイン</button>
+              </div>
             </div>
+          </div>
         </nav>
 
         <div class="rgl-hero">
@@ -1960,18 +1965,6 @@ function setupEventListeners() {
      }
   });
 
-  if (els.tabs) {
-      els.tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-          els.tabs.forEach(t => t.classList.remove('active'));
-          tab.classList.add('active');
-          const mode = tab.dataset.tab;
-          const t = TRANSLATIONS[CURRENT_LANG];
-          els.btnAuthAction.textContent = mode === 'login' ? t.btn_login_action : t.btn_signup_action;
-          els.authStatus.textContent = '';
-        });
-      });
-  }
   setListener(els.btnAuthAction, 'click', performAuthAction);
   
   if (els.mobileMenuBtn) {
@@ -2660,61 +2653,67 @@ async function performAuth(code, mode = 'check') {
   }
 }
   
+// 丸ごと上書きしてください
 async function performAuthAction() {
-  const mode = document.querySelector('.auth-tab.active').dataset.tab; 
   const email = els.email.value.trim();
   const pass = els.pass.value.trim();
   const t = TRANSLATIONS[CURRENT_LANG];
-  if (!email || !pass) { els.authStatus.textContent = "Please enter email and password."; return; }
+  
+  if (!email || !pass) { 
+      els.authStatus.textContent = "Please enter email and password."; 
+      return; 
+  }
+  
   els.btnAuthAction.disabled = true;
-  els.btnAuthAction.innerHTML = `<span class="loading-dots">${mode === 'login' ? t.msg_logging_in : t.msg_signing_up}</span>`;
+  els.btnAuthAction.innerHTML = `<span class="loading-dots">${t.msg_logging_in || "ログイン中"}</span>`;
+  
   try {
-    const actionType = mode === 'login' ? 'user_login' : 'register';
     const res = await fetch(GAS_API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: actionType, email: email, password: pass })
+      body: JSON.stringify({ type: 'user_login', email: email, password: pass })
     });
     const data = await res.json();
+    
     if (data.success) {
       if (data.isAdmin) {
         toggleDropdown(false);
         els.email.value = ""; els.pass.value = "";
         tempAdminCreds.user = email; tempAdminCreds.pass = pass;
+        gId('loginOverlay').classList.remove('active'); // ログイン画面を閉じる
         els.adminModal.classList.add('active');
         els.btnAuthAction.disabled = false;
-        els.btnAuthAction.textContent = mode==='login'?TRANSLATIONS[CURRENT_LANG].btn_login_action:TRANSLATIONS[CURRENT_LANG].btn_signup_action;
+        els.btnAuthAction.textContent = t.btn_login_action;
         return; 
       }
+      
       currentUser = { userId: data.userId, email: email, history: data.history || [], points: data.points || 0 };
       localStorage.setItem('user_session_identity', JSON.stringify({ userId: data.userId, email: email }));
       
       document.body.classList.add('is-logged-in');
+      gId('loginOverlay').classList.remove('active'); // ログイン成功時にモーダルを閉じる
       updateAccountUI(); 
       fetchUserHistory(); 
       
       els.email.value = ""; els.pass.value = "";
+      
       if (pendingActivationCode) {
           setTimeout(() => {
-              toggleDropdown(false); 
               openAuthModal(); 
               const codeToUse = formatCodeInput(pendingActivationCode);
               els.code.value = codeToUse;
               performAuth(codeToUse); 
               pendingActivationCode = null;
           }, 500);
-      } else if (pendingAction === 'open_activation') {
-          setTimeout(() => {
-              toggleDropdown(false);
-              openAuthModal();
-              pendingAction = null;
-          }, 500);
       }
-    } else { els.authStatus.textContent = data.message || "Error occurred."; }
-  } catch (e) { els.authStatus.textContent = "Network Error."; } 
-  finally { 
+    } else { 
+      els.authStatus.textContent = data.message || "Error occurred."; 
+    }
+  } catch (e) { 
+    els.authStatus.textContent = "Network Error."; 
+  } finally { 
     els.btnAuthAction.disabled = false; 
-    els.btnAuthAction.textContent = mode==='login'?TRANSLATIONS[CURRENT_LANG].btn_login_action:TRANSLATIONS[CURRENT_LANG].btn_signup_action;
+    els.btnAuthAction.textContent = t.btn_login_action;
   }
 }
 
@@ -2869,6 +2868,8 @@ function updateAccountUI() {
     document.body.classList.remove('is-logged-in');
     
     // ★追加: ログアウト時はHeroの中身を表示し、初期状態に戻す
+    gId('loginOverlay').classList.add('active');
+    
     document.querySelector('.rgl-hero-content').style.display = 'block';
     selectedHeroItem = null;
     if(heroTimer) { clearInterval(heroTimer); heroTimer = null; }
@@ -2876,13 +2877,13 @@ function updateAccountUI() {
     els.heroBgImage.style.backgroundImage = 'none';
     setHeroButtonState('available');
 
-    els.loggedOutView.style.display = 'block';
-    els.loggedInView.style.display = 'none';
-    els.secLibrary.style.display = 'none';
-    els.secAvailable.style.display = 'none';
+    // 古い loggedOutView 関連は削除したためエラーにならないようコメントアウトまたは削除
+    // els.loggedOutView.style.display = 'block';
+    if (els.loggedInView) els.loggedInView.style.display = 'none';
+    if (els.secLibrary) els.secLibrary.style.display = 'none';
+    if (els.secAvailable) els.secAvailable.style.display = 'none';
   }
 }
-
 function startLibraryTimer() {
     if (libraryTimerId) clearInterval(libraryTimerId);
     libraryTimerId = setInterval(() => {
