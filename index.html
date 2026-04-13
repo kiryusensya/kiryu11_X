@@ -2892,9 +2892,8 @@ function updateAccountUI() {
     if (!selectedHeroItem) {
         document.querySelector('.rgl-hero-content').style.display = 'none';
     }
-    
-    els.loggedOutView.style.display = 'none';
-    els.loggedInView.style.display = 'block';
+    if (els.loggedOutView) els.loggedOutView.style.display = 'none';
+    if (els.loggedInView) els.loggedInView.style.display = 'block';
     if(els.displayUserEmail) els.displayUserEmail.textContent = currentUser.email || '-';
     if(gId('ptValue')) gId('ptValue').textContent = currentUser.points || 0;
     
