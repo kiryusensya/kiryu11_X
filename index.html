@@ -1273,26 +1273,6 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
                          </button>
                       </div>
                     </div>
-
-                    <div id="loginOverlay" class="modal-overlay" style="background: rgba(0,0,0,0.9); z-index: 10005;">
-               <div class="modal-sheet" style="max-width: 500px; width: 90%; padding: 50px 40px; text-align: center; transform: scale(0.95); opacity: 0; transition: all 0.4s ease;">
-            <h2 style="font-size:32px; font-weight:800; margin: 0 0 10px 0; color: var(--modal-text-main);" data-translate="tab_login">ログイン</h2>
-            <p style="color:var(--modal-text-sub); margin-bottom: 40px; font-size:14px;" data-translate="label_sync_desc">ログインして同期を開始</p>
-    
-                   <div style="text-align:left;">
-              <div class="form-group" style="margin-bottom: 24px;">
-             <label class="form-label" style="font-size: 13px;" data-translate="form_email">ユーザー名</label>
-             <input type="email" id="inputEmail" class="form-input" style="height: 56px; font-size: 16px; border-radius: 12px;">
-          </div>
-                  <div class="form-group" style="margin-bottom: 24px;">
-                  <label class="form-label" style="font-size: 13px;" data-translate="form_pass">パスワード</label>
-                 <input type="password" id="inputPass" class="form-input" style="height: 56px; font-size: 16px; border-radius: 12px;">
-                 </div>
-               <div id="authStatus" style="color:#FF3B30; font-size:14px; font-weight: 700; margin-bottom:16px; min-height:20px; text-align:center;"></div>
-              <button id="btnAuthAction" class="btn-primary" style="height:60px; font-size: 18px; border-radius: 30px;" data-translate="btn_login_action">ログイン</button>
-              </div>
-            </div>
-          </div>
         </nav>
 
         <div class="rgl-hero">
@@ -1320,6 +1300,25 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 
     </main>
 
+</div>
+<div id="loginOverlay" class="modal-overlay" style="background: rgba(0,0,0,0.9); z-index: 10005;">
+  <div class="modal-sheet" style="max-width: 600px; width: 90%; padding: 60px 50px; text-align: center; transform: scale(0.95); opacity: 0; transition: all 0.4s ease;">
+    <h2 style="font-size:36px; font-weight:800; margin: 0 0 10px 0; color: var(--modal-text-main);" data-translate="tab_login">ログイン</h2>
+    <p style="color:var(--modal-text-sub); margin-bottom: 40px; font-size:16px;" data-translate="label_sync_desc">ログインして同期を開始</p>
+    
+    <div style="text-align:left;">
+      <div class="form-group" style="margin-bottom: 24px;">
+        <label class="form-label" style="font-size: 14px;" data-translate="form_email">ユーザー名</label>
+        <input type="email" id="inputEmail" class="form-input" style="height: 60px; font-size: 18px; border-radius: 12px;">
+      </div>
+      <div class="form-group" style="margin-bottom: 32px;">
+        <label class="form-label" style="font-size: 14px;" data-translate="form_pass">パスワード</label>
+        <input type="password" id="inputPass" class="form-input" style="height: 60px; font-size: 18px; border-radius: 12px;">
+      </div>
+      <div id="authStatus" style="color:#FF3B30; font-size:14px; font-weight: 700; margin-bottom:16px; min-height:20px; text-align:center;"></div>
+      <button id="btnAuthAction" class="btn-primary" style="height:64px; font-size: 20px; border-radius: 32px;" data-translate="btn_login_action">ログイン</button>
+    </div>
+  </div>
 </div>
 
 <div id="adminModal" class="modal-overlay">
