@@ -1304,9 +1304,23 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 
 </div>
 <div id="loginOverlay" class="modal-overlay" style="background: rgba(0,0,0,0.9); z-index: 10005;">
-  <div class="modal-sheet" style="max-width: 600px; width: 90%; padding: 60px 50px; text-align: center; transform: scale(0.95); opacity: 0; transition: all 0.4s ease;">
-    <h2 style="font-size:36px; font-weight:800; margin: 0 0 10px 0; color: var(--modal-text-main);" data-translate="tab_login">ログイン</h2>
-    <p style="color:var(--modal-text-sub); margin-bottom: 40px; font-size:16px;" data-translate="label_sync_desc">ログインして同期を開始</p>
+  <div class="modal-sheet" style="max-width: 600px; width: 90%; padding: 70px 50px 80px 50px; text-align: center; transform: scale(0.95); opacity: 0; transition: all 0.4s ease; position: relative;">
+    
+    <a href="エンタープライズ版のURLをここに入力" style="position: absolute; top: 24px; left: 24px; color: var(--modal-text-sub); font-size: 13px; text-decoration: none; font-weight: 700; display: flex; align-items: center; gap: 6px; transition: opacity 0.2s;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
+        Enterprise
+    </a>
+
+    <div class="theme-pill" id="loginThemeToggle" style="position: absolute; top: 16px; right: 16px; width: 40px; height: 40px; border: none; background: transparent; box-shadow: none;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="loginThemeIcon"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path></svg>
+    </div>
+
+    <h2 style="font-size:36px; font-weight:800; margin: 0 0 16px 0; color: var(--modal-text-main);" data-translate="tab_login">ログイン</h2>
+    
+    <p style="color:var(--modal-text-sub); margin-bottom: 40px; font-size:14px; line-height: 1.6; font-weight: 500;">
+        利用するにはアカウントが必要です。<br>
+        ログインできない場合は<a href="https://kiryu10-standard.vercel.app/support.html" style="color: var(--primary); text-decoration: underline; font-weight: 700;">ここ</a>で問い合わせてください。
+    </p>
     
     <div style="text-align:left;">
       <div class="form-group" style="margin-bottom: 24px;">
@@ -1320,6 +1334,24 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
       <div id="authStatus" style="color:#FF3B30; font-size:14px; font-weight: 700; margin-bottom:16px; min-height:20px; text-align:center;"></div>
       <button id="btnAuthAction" class="btn-primary" style="height:64px; font-size: 20px; border-radius: 32px;" data-translate="btn_login_action">ログイン</button>
     </div>
+
+    <div style="position: absolute; bottom: 20px; left: 20px; text-align: left;">
+        <button class="lang-trigger-sidebar" id="loginLangTrigger" style="width: auto; height: 36px; padding: 0 12px !important; font-size: 13px; border: none; background: transparent; color: var(--modal-text-main);">
+            <span style="display:flex;align-items:center;gap:6px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg> 
+                <span id="loginLangLabel">日本語</span>
+            </span>
+        </button>
+        <ul class="lang-list" id="loginLangMenu" style="bottom: 40px; left: 0; width: 140px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+            <li class="lang-option" data-value="ja">日本語</li>
+            <li class="lang-option" data-value="en">English</li>
+            <li class="lang-option" data-value="zh">简体中文</li>
+            <li class="lang-option" data-value="zh-TW">繁體中文</li>
+            <li class="lang-option" data-value="ko">한국어</li>
+            <li class="lang-option" data-value="ru">Русский</li>
+        </ul>
+    </div>
+
   </div>
 </div>
 
@@ -1851,7 +1883,11 @@ document.addEventListener('DOMContentLoaded', () => {
     targetUserEmail: gId('targetUserEmail'),
     adminResultArea: gId('adminResultArea'),
     pcInputDesc: gId('pcInputDesc'),         // ★追加
-    mobileInputDesc: gId('mobileInputDesc') // ★追加
+    mobileInputDesc: gId('mobileInputDesc'), // ★追加
+    loginLangTrigger: gId('loginLangTrigger'),
+    loginLangMenu: gId('loginLangMenu'),
+    loginLangLabel: gId('loginLangLabel')
+  };
   };
 
   try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
@@ -2199,6 +2235,12 @@ function showMainContent(){
 }
 
 function initCustomDropdown() {
+  if(els.loginLangTrigger) {
+        els.loginLangTrigger.addEventListener('click', (e) => { 
+            e.stopPropagation(); 
+            els.loginLangMenu.classList.toggle('open'); 
+        });
+    }
     els.langTrigger.addEventListener('click', (e) => { 
         e.stopPropagation(); 
         els.langMenu.classList.toggle('open'); 
@@ -2256,7 +2298,8 @@ function updateLanguage(lang){
   });
   const langMap = { ja: '日本語', en: 'English', zh: '简体中文', 'zh-TW': '繁體中文', ko: '한국어', ru: 'Русский' };
   if(els.currentLangLabel) els.currentLangLabel.textContent = langMap[lang] || 'Language';
-  if(els.mobileCurrentLangLabel) els.mobileCurrentLangLabel.textContent = langMap[lang] || 'Language'; 
+  if(els.mobileCurrentLangLabel) els.mobileCurrentLangLabel.textContent = langMap[lang] || 'Language';
+  if(els.loginLangLabel) els.loginLangLabel.textContent = langMap[lang] || 'Language';
   if(t.modal_placeholder && els.code) els.code.placeholder = t.modal_placeholder;
   updateAccountUI();
 }
@@ -3225,8 +3268,8 @@ async function performAdminSearch() {
 
 function initThemeAndParticles() {
   const htmlEl = document.documentElement;
-  const toggleBtns = [gId('themeToggle'), gId('introThemeToggle')];
-  const icons = [gId('themeIcon'), gId('introThemeIcon')];
+  const toggleBtns = [gId('themeToggle'), gId('introThemeToggle'), gId('loginThemeToggle')];
+  const icons = [gId('themeIcon'), gId('introThemeIcon'), gId('loginThemeIcon')];
   let particleHue = 210;
   function applyTheme(theme) {
     htmlEl.setAttribute('data-theme', theme);
