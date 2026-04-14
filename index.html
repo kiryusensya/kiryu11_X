@@ -1426,7 +1426,7 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
       
       <div class="phase-input-body">
           <div class="phase-input-left">
-              <img src="https://static.wixstatic.com/media/2f0694_4d2ff9ae44cb47edad6e3bb1f8b83ae2~mv2.jpg/v1/fill/w_375,h_234,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/2f0694_4d2ff9ae44cb47edad6e3bb1f8b83ae2~mv2.jpg" alt="Code Background">
+              <img src="https://static.wixstatic.com/media/2f0694_38068f106089439b89c7902ef4fb3d2d~mv2.jpg" alt="Code Background">
           </div>
           <div class="phase-input-right">
               <div class="phase-input-controls">
@@ -2433,7 +2433,7 @@ function showMobileItemDetail(item, isNewRedeem = false) {
     if(item.imageUrl && item.imageUrl.startsWith("http")){ 
         els.successImage.src=item.imageUrl; 
     } else { 
-        els.successImage.src="https://static.wixstatic.com/media/2f0694_359489b1737c4f0e940672c75c559fb1~mv2.jpg/v1/fill/w_1200,h_578,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/IMG_20260103_005543%5B1%5D.jpg"; 
+        els.successImage.src="https://static.wixstatic.com/media/2f0694_38068f106089439b89c7902ef4fb3d2d~mv2.jpg"; 
     }
 
     els.btnSuccessClose.style.flex = "3";
@@ -2529,7 +2529,7 @@ async function performAuth(code, mode = 'check') {
             message: d.message || "Unknown Message",
             detailedTitle: d.detailedTitle || "Unknown Title",
             detailedDesc: d.detailedDesc || "",
-            imageUrl: d.imageUrl || "https://static.wixstatic.com/media/2f0694_a82787a4837b40a9be0c361cfe71ff95~mv2.png/v1/fill/w_1200,h_1200,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/Polish_20260125_100959885.png",
+            imageUrl: d.imageUrl || "https://static.wixstatic.com/media/2f0694_38068f106089439b89c7902ef4fb3d2d~mv2.jpg",
             buttonLabel: d.buttonLabel
         };
         
@@ -2578,7 +2578,7 @@ async function performAuth(code, mode = 'check') {
             const label = els.phaseSuccess.querySelector('.modal-label');
             if(label) label.textContent = (t.success_pt_msg || "追加されました。").replace('%s', d.message);
             
-            els.successImage.src = currentContentData.imageUrl || "https://static.wixstatic.com/media/2f0694_a82787a4837b40a9be0c361cfe71ff95~mv2.png/v1/fill/w_1200,h_1200,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/Polish_20260125_100959885.png";
+            els.successImage.src = currentContentData.imageUrl || "https://static.wixstatic.com/media/2f0694_38068f106089439b89c7902ef4fb3d2d~mv2.jpg";
             els.successTitleUnderImg.textContent = d.message;
             els.successBundleName.textContent = currentContentData.message || d.message;
             els.successMessageText.innerHTML = "";
