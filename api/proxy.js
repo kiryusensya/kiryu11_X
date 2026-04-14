@@ -144,8 +144,8 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, remainingPoints: user.points - price });
     }
 
-    // ==========================================
-    // 6. 探知機付き：コードの確認(check) と 引き換え(redeem)
+        // ==========================================
+    // 6. コードの確認(check) と 引き換え(redeem)
     // ==========================================
     if (type === 'check' || type === 'redeem') {
       const { key, userId, mode } = params;
@@ -153,21 +153,19 @@ export default async function handler(req, res) {
 
       const { data: master, error } = await supabase.from('codes').select('*').eq('アクティベーションコード', safeCode).maybeSingle();
 
-      // 探知機 1: コードが存在しない場合
       if (error || !master) {
-          return res.status(200).json({ success: false, message: "Error 101: データベースにこのコードが見つかりません。" });
+          return res.status(200).json({ success: false, message: "This code is invalid." });
       }
 
-      // 探知機 2: 「有効/無効」がFALSEの場合
+      // 「有効/無効」がFALSEの場合、無効として弾く（大成功したバリア）
       const isActive = master["有効/無効"] === true || String(master["有効/無効"]).trim().toUpperCase() === 'TRUE';
       if (!isActive) {
-        return res.status(200).json({ success: false, message: "Error 102: このコードは現在「無効(FALSE)」に設定されています。" });
+        return res.status(200).json({ success: false, message: "This code is invalid." });
       }
 
-      // 探知機 3: 有効期限切れの場合
       const now = new Date();
       if (master["有効時間"] && now > new Date(master["有効時間"])) {
-        return res.status(200).json({ success: false, message: "Error 103: このコードは有効期限が切れています。" });
+        return res.status(200).json({ success: false, message: "This code is invalid." });
       }
 
       const codeType = (master.Types || "").trim().toUpperCase();
@@ -175,11 +173,9 @@ export default async function handler(req, res) {
       const rawUsed = master["USED?"];
       const isCodeUsed = rawUsed === true || String(rawUsed).trim().toUpperCase() === 'TRUE';
 
-      // 探知機 4: 使用済みの場合
       if ((isOnce || codeType === 'POINT') && isCodeUsed) {
-        return res.status(200).json({ success: false, message: "Error 104: このコードは既に「使用済み(TRUE)」になっています。" });
+        return res.status(200).json({ success: false, message: "This code has already been used." });
       }
-
       const lMap = { ja: 'jp', en: 'en', zh: 'SC', 'zh-TW': 'TC', ko: 'ko', ru: 'ru' };
       const suffix = lMap[lang] || 'jp';
 
