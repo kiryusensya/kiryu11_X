@@ -2053,7 +2053,95 @@ function setupEventListeners() {
         logout();
       });
   }
+　// ★追加：アカウント管理ボタンのクリック処理
+  const btnMenuAccount = document.getElementById('btnMenuAccount');
+  const accountModal = document.getElementById('accountModal');
+  const closeAccountModalBtn = document.getElementById('closeAccountModalBtn');
+  const btnSubmitAccPassChange = document.getElementById('btnSubmitAccPassChange');
 
+  if (btnMenuAccount) {
+      btnMenuAccount.addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleDropdown(false); // メニューを閉じる
+          
+          // モーダルを開く前に初期化
+          if (currentUser) document.getElementById('accountModalUserId').textContent = currentUser.email;
+          document.getElementById('accCurrentPass').value = '';
+          document.getElementById('accNewPass').value = '';
+          document.getElementById('accNewPassConfirm').value = '';
+          document.getElementById('accStatusMessage').textContent = '';
+          
+          accountModal.classList.add('active'); // モーダルを開く
+      });
+  }
+
+  // アカウント管理モーダルを閉じる処理
+  if (closeAccountModalBtn) {
+      closeAccountModalBtn.addEventListener('click', () => accountModal.classList.remove('active'));
+  }
+  if (accountModal) {
+      accountModal.addEventListener('click', (e) => {
+          if (e.target === accountModal) accountModal.classList.remove('active');
+      });
+  }
+
+  // パスワード変更実行処理
+  if (btnSubmitAccPassChange) {
+      btnSubmitAccPassChange.addEventListener('click', async () => {
+          const oldP = document.getElementById('accCurrentPass').value.trim();
+          const newP = document.getElementById('accNewPass').value.trim();
+          const confP = document.getElementById('accNewPassConfirm').value.trim();
+          const status = document.getElementById('accStatusMessage');
+
+          if (!oldP || !newP || !confP) {
+              status.style.color = "#FF3B30"; status.textContent = "すべての項目を入力してください"; return;
+          }
+          if (newP.length < 6) {
+              status.style.color = "#FF3B30"; status.textContent = "パスワードは6文字以上にしてください"; return;
+          }
+          if (newP !== confP) {
+              status.style.color = "#FF3B30"; status.textContent = "新しいパスワードが一致しません"; return;
+          }
+
+          btnSubmitAccPassChange.textContent = "変更中...";
+          btnSubmitAccPassChange.disabled = true;
+
+          try {
+              const res = await fetch(GAS_API_URL, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ 
+                      type: 'change_password', 
+                      userId: currentUser.userId, 
+                      oldPassword: oldP, 
+                      newPassword: newP 
+                  })
+              });
+              const d = await res.json();
+              
+              if (d.success) {
+                  status.style.color = "var(--primary)";
+                  status.textContent = "パスワードを変更しました！";
+                  setTimeout(() => {
+                      accountModal.classList.remove('active');
+                      btnSubmitAccPassChange.textContent = "パスワードを変更";
+                      btnSubmitAccPassChange.disabled = false;
+                  }, 1500);
+              } else {
+                  status.style.color = "#FF3B30";
+                  status.textContent = d.message || "現在のパスワードが間違っています。";
+                  btnSubmitAccPassChange.textContent = "パスワードを変更";
+                  btnSubmitAccPassChange.disabled = false;
+              }
+          } catch(e) {
+              status.style.color = "#FF3B30";
+              status.textContent = "通信エラーが発生しました";
+              btnSubmitAccPassChange.textContent = "パスワードを変更";
+              btnSubmitAccPassChange.disabled = false;
+          }
+      });
+  }
+  
   setListener(els.closeAuth, 'click', closeAuthModal);
   setListener(els.btnPreviewClose, 'click', closeAuthModal);
   setListener(els.btnSuccessClose, 'click', closeAuthModal);
