@@ -1,1 +1,674 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>kiryu10//Support</title>
+<link rel="icon" href="https://static.wixstatic.com/media/2f0694_eb4d3063598a4cc5b6bd6b8e31cba915~mv2.png/v1/crop/x_248,y_0,w_1065,h_950/fill/w_816,h_728,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/1767545356653.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://unpkg.com/lucide@latest"></script>
 
+<style>
+/* --- 共通変数 --- */
+@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff'); font-weight: 400; }
+@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Bold.woff') format('woff'); font-weight: 700; }
+@font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Medium.woff') format('woff'); font-weight: 400; }
+@font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Medium.woff') format('woff'); font-weight: 400; }
+
+:root {
+  --primary: #007DFF;
+  --bg-color: #F1F3F5;
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --modal-text-main: #000000;
+  --modal-text-sub: #666666;
+  --nav-text: #000;
+  --sidebar-text: #000;
+  --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
+  --spring-ease: cubic-bezier(0.33, 1, 0.68, 1);
+  --btn-close-border: #000000;
+}
+
+:root:lang(ja) { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
+:root:lang(en) { --font-stack: 'HarmonyOS Sans', sans-serif; }
+:root:lang(zh) { --font-stack: 'HarmonyOS Sans SC', 'Microsoft YaHei', sans-serif; }
+:root:lang(zh-TW) { --font-stack: 'HarmonyOS Sans TC', 'Microsoft JhengHei', sans-serif; }
+:root:lang(ko) { --font-stack: 'HarmonyOS Sans', 'Noto Sans KR', sans-serif; }
+:root:lang(ru) { --font-stack: 'HarmonyOS Sans', sans-serif; }
+
+[data-theme="dark"] {
+  --bg-color: #000000;
+  --card-bg: #1C1C1E;
+  --modal-text-main: #FFFFFF;
+  --modal-text-sub: #A0A0A0;
+  --nav-text: #fff;
+  --sidebar-text: #fff;
+  --btn-close-border: #FFFFFF;
+}
+
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  margin: 0; padding: 0;
+  background-color: var(--bg-color);
+  color: var(--modal-text-main);
+  font-family: var(--font-stack);
+  min-height: 100vh;
+  overflow: hidden; 
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.5s ease;
+  position: relative;
+}
+
+#particleCanvas {
+  position: fixed; inset: 0; width: 100%; height: 100%;
+  z-index: 0; opacity: 0.4; pointer-events: none;
+  filter: blur(80px);
+}
+
+/* --- ヘッダーレイアウト --- */
+.unified-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100px;
+    z-index: 50;
+    pointer-events: none;
+}
+
+.header-left-group {
+    position: absolute;
+    top: 30px;
+    left: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    pointer-events: auto;
+}
+
+.hamburger-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    color: var(--sidebar-text);
+    cursor: pointer;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+.hamburger-btn:hover { transform: scale(1.1); }
+
+.header-brand {
+    font-size: 20px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--sidebar-text);
+}
+.header-brand i { color: #FFA500; }
+.brand-text-mobile { display: none; }
+
+.header-right {
+    position: absolute;
+    top: 24px;
+    right: 40px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    pointer-events: auto;
+}
+
+.rgl-tabs { display: flex; gap: 30px; }
+.rgl-tab {
+    position: relative;
+    margin: 0 4px !important;
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--nav-text);
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+    z-index: 1;
+    cursor: pointer;
+}
+.rgl-tab:hover, .rgl-tab.active { opacity: 1; }
+.rgl-tab::before {
+    content: ''; position: absolute; top: 50%; left: 50%;
+    width: calc(100% + 37px); height: 38px; border-radius: 50px;
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%) scale(0.9);
+    opacity: 0; z-index: -1; pointer-events: none;
+    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.rgl-tab:hover::before, .rgl-tab.active::before { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+[data-theme="dark"] .rgl-tab::before { background: rgba(0, 0, 0, 0.3); border-color: rgba(255, 255, 255, 0.1); }
+[data-theme="dark"] .rgl-tab { color: #fff; }
+
+.theme-pill {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--card-bg); border: 1px solid rgba(128,128,128,0.2);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: transform 0.3s; backdrop-filter: blur(10px);
+    color: var(--modal-text-main);
+}
+.theme-pill:hover { transform: scale(1.1); }
+[data-theme="dark"] .theme-pill { color: #fff; }
+
+/* --- メインコンテンツエリア --- */
+.support-wrapper {
+    width: 100%;
+    height: 100vh;
+    padding: 100px 40px 40px 40px; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; 
+    z-index: 5;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.page-title-area {
+    text-align: center;
+    margin-bottom: 30px;
+    animation: fadeInUp 0.6s ease forwards;
+    flex-shrink: 0;
+}
+.page-title {
+    font-size: 36px;
+    font-weight: 800; margin: 0 0 8px 0;
+    text-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+.page-sub { opacity: 0.6; font-size: 13px; }
+
+/* BENTO GRID LAYOUT (1:1に分割) */
+.bento-grid {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    max-width: 1200px; /* バランスを考慮した最大幅 */
+    margin: 0 auto;
+    
+    grid-template-columns: 1fr 1fr; /* 画面を真っ二つに分割 */
+    grid-template-rows: 1fr; /* 1行のみ */
+    gap: 30px;
+}
+
+.bento-card {
+    background: var(--card-bg);
+    border: 1px solid rgba(128,128,128,0.1);
+    border-radius: 24px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s var(--spring-ease);
+    backdrop-filter: blur(20px);
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    color: var(--modal-text-main);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+.bento-card:hover {
+    transform: translateY(-4px) scale(1.005);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+    border-color: rgba(128,128,128,0.5);
+    z-index: 10;
+}
+[data-theme="dark"] .bento-card:hover { border-color: #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
+
+/* 左側のカード (エラーコード検索) */
+.card-large-left {
+    background: linear-gradient(135deg, rgba(0,125,255,0.1) 0%, var(--card-bg) 100%);
+}
+/* 右側のカード (問い合わせ) */
+.card-large-right {
+    background: linear-gradient(135deg, rgba(255,165,0,0.1) 0%, var(--card-bg) 100%);
+}
+
+.bento-card .card-icon { font-size: 80px; margin-bottom: 24px; transition: transform 0.3s; }
+.bento-card:hover .card-icon { transform: scale(1.05) rotate(3deg); }
+.bento-card .card-title { font-size: 32px; font-weight: 800; text-align: center; }
+.bento-card .card-desc { font-size: 16px; margin-top: 8px; opacity: 0.6; }
+
+/* --- スマホメニューオーバーレイ --- */
+.nav-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--bg-color);
+    z-index: 10000;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    visibility: hidden;
+}
+.nav-overlay.active {
+    transform: translateX(0);
+    visibility: visible;
+}
+
+.nav-close-btn {
+    align-self: flex-end;
+    background: transparent;
+    border: 1px solid var(--btn-close-border);
+    color: var(--modal-text-main);
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    margin-bottom: 40px;
+}
+
+.nav-content {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    margin-top: 40px;
+}
+
+.nav-item {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--modal-text-main);
+    text-decoration: none;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.nav-overlay.active .nav-item {
+    opacity: 1;
+    transform: translateX(0);
+}
+.nav-overlay.active .nav-item:nth-child(1) { transition-delay: 0.1s; }
+.nav-overlay.active .nav-item:nth-child(2) { transition-delay: 0.2s; }
+
+/* スマホ対応レスポンシブ */
+@media (max-width: 900px) {
+    body { overflow-y: auto; height: auto; }
+    
+    .rgl-tabs { display: none; }
+    .hamburger-btn { display: flex; }
+    
+    .brand-text-pc { display: none; }
+    .brand-text-mobile { display: inline; }
+    
+    .unified-header { height: auto; }
+    .header-left-group { top: 0; left: 0; margin: 24px 0 0 24px; position: relative; }
+    
+    .header-right { 
+        top: 24px; right: 24px; margin: 0; position: absolute;
+    }
+
+    .support-wrapper { 
+        height: auto; 
+        min-height: 100vh;
+        padding: 100px 20px 40px 20px; 
+    }
+    
+    /* スマホ時は縦並びに変更 */
+    .bento-grid {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        gap: 20px;
+    }
+    .bento-card {
+        flex: 1;
+        min-height: 250px; /* スマホ時のカードの高さ */
+    }
+    .bento-card .card-icon { font-size: 60px; margin-bottom: 16px; }
+    .bento-card .card-title { font-size: 26px; }
+}
+
+/* 詳細モーダル (エラーコード検索用) */
+.detail-modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(15px);
+    z-index: 9999;
+    display: flex; justify-content: center; align-items: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+}
+.detail-modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+.detail-modal {
+    background: var(--bg-color);
+    width: 800px; max-width: 90%;
+    border-radius: 32px;
+    border: 1px solid rgba(128,128,128,0.2);
+    box-shadow: 0 50px 100px rgba(0,0,0,0.5);
+    display: flex;
+    overflow: hidden;
+    transform: scale(0.95);
+    transition: transform 0.4s var(--spring-ease);
+}
+.detail-modal-overlay.active .detail-modal { transform: scale(1); }
+[data-theme="dark"] .detail-modal { background: #1a1a1a; }
+
+.detail-visual {
+    flex: 1; background: #000; position: relative; min-height: 350px;
+    display: flex; align-items: center; justify-content: center;
+}
+.detail-visual i { font-size: 100px; color: rgba(255,255,255,0.3); }
+
+.detail-content {
+    flex: 1; padding: 40px; display: flex; flex-direction: column; justify-content: center;
+}
+.detail-title { font-size: 28px; font-weight: 800; margin-bottom: 12px; }
+.detail-text { font-size: 14px; opacity: 0.7; line-height: 1.6; margin-bottom: 30px; white-space: pre-wrap; }
+.btn-inquiry {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    height: 50px; padding: 0 30px; background: var(--modal-text-main); color: var(--bg-color);
+    border-radius: 50px; font-weight: 800; font-size: 15px; cursor: pointer; text-decoration: none;
+    transition: transform 0.2s; width: fit-content;
+}
+.btn-inquiry:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+.close-btn {
+    position: absolute; top: 15px; right: 15px; width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(128,128,128,0.1); display: flex; align-items: center; justify-content: center;
+    cursor: pointer; border: none; color: var(--modal-text-main); font-size: 18px;
+}
+
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+</style>
+</head>
+<body>
+
+<div class="nav-overlay" id="navOverlay">
+    <button class="nav-close-btn" id="navCloseBtn">
+        <i data-lucide="x"></i>
+    </button>
+    <div class="nav-content">
+        <a href="index.html" class="nav-item" data-translate="tab_home">ACTIVATION</a>
+        <a href="support.html" class="nav-item" data-translate="tab_support">SUPPORT</a>
+    </div>
+</div>
+
+<canvas id="particleCanvas"></canvas>
+
+<nav class="unified-header">
+    <div class="header-left-group">
+        <button class="hamburger-btn" id="hamburgerBtn">
+            <i data-lucide="menu" size="24"></i>
+        </button>
+        <div class="header-brand">
+            <i data-lucide="shield-check"></i>
+            <span class="brand-text-pc" data-translate="brand_name">kiryu10 | Support</span>
+            <span class="brand-text-mobile" data-translate="brand_mobile">Support</span>
+        </div>
+    </div>
+
+    <div class="header-right">
+        <div class="rgl-tabs">
+            <a href="index.html" class="rgl-tab" data-translate="tab_home">Home</a>
+            <a href="#" class="rgl-tab active" data-translate="tab_support">SUPPORT</a>
+        </div>
+        <div class="theme-pill" id="themeToggle"><i data-lucide="sun" id="themeIcon"></i></div>
+        <div class="theme-pill" style="width:40px; height:40px; border:none; cursor:default;"><i data-lucide="user-round" size="20"></i></div>
+    </div>
+</nav>
+
+<div class="support-wrapper">
+    <div class="page-title-area">
+        <h1 class="page-title" data-translate="page_title">Support Center</h1>
+        <div class="page-sub" data-translate="page_sub">Select a service to connect</div>
+    </div>
+
+    <div class="bento-grid">
+        
+        <div class="bento-card card-large-left" onclick="openDetail('web')">
+            <i data-lucide="search" class="card-icon" style="color:#007DFF;"></i>
+            <div class="card-title" data-translate="card_web_title">Error Code Search</div>
+            <div class="card-desc">Search details</div>
+        </div>
+
+        <a href="mailto:your-email@example.com?subject=サポートへの問い合わせ" class="bento-card card-large-right">
+            <i data-lucide="mail" class="card-icon" style="color:#FFA500;"></i>
+            <div class="card-title" data-translate="card_contact_title">Contact Us</div>
+            <div class="card-desc">Email support</div>
+        </a>
+
+    </div>
+</div>
+
+<div class="detail-modal-overlay" id="detailOverlay">
+    <div class="detail-modal">
+        <button class="close-btn" onclick="closeDetail()"><i data-lucide="x"></i></button>
+        <div class="detail-visual" id="modalVisual">
+            <i data-lucide="search" id="modalIcon"></i>
+        </div>
+        <div class="detail-content">
+            <div class="detail-title" id="modalTitle">Title</div>
+            <div class="detail-text" id="modalDesc">Desc</div>
+            <a href="#" target="_blank" class="btn-inquiry" id="modalBtn">
+                <span data-translate="btn_inquiry">Search</span>
+                <i data-lucide="arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    lucide.createIcons();
+
+    const navOverlay = document.getElementById('navOverlay');
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const navCloseBtn = document.getElementById('navCloseBtn');
+
+    if(hamburgerBtn) {
+        hamburgerBtn.addEventListener('click', () => {
+            navOverlay.classList.add('active');
+        });
+    }
+    if(navCloseBtn) {
+        navCloseBtn.addEventListener('click', () => {
+            navOverlay.classList.remove('active');
+        });
+    }
+
+    // Support Data (エラーコード検索のみ残す)
+    const supportData = {
+        web: {
+            titleKey: "card_web_title",
+            descKey: "desc_web",
+            iconClass: "lucide-search", // メールアイコンから検索アイコンに変更
+            color: "#007DFF",
+            url: "error.html"
+        }
+    };
+
+    // Translations (多言語対応設定に合わせて更新)
+    const TRANSLATIONS = {
+        ja: { 
+            brand_name: "kiryu10| Support", brand_mobile: "Support",
+            tab_home: "ホーム", tab_news: "ニュース", tab_support: "サポート",
+            page_title: "サポートセンター", page_sub: "接続するサービスを選択してください", 
+            card_web_title: "エラーコード検索", 
+            card_contact_title: "お問い合わせ",
+            btn_inquiry: "検索ページへ",
+            desc_web: "専用ページでエラーの詳細を確認できます。"
+        },
+        en: { 
+            brand_name: "kiryu10 | Support", brand_mobile: "Support",
+            tab_home: "Home", tab_news: "NEWS", tab_support: "Support",
+            page_title: "Support Center", page_sub: "Select a service to connect", 
+            card_web_title: "Error Code Search", 
+            card_contact_title: "Contact Us",
+            btn_inquiry: "Go to Search",
+            desc_web: "Check error details on the dedicated page."
+        },
+        zh: { 
+            brand_name: "kiryu10 | Support", brand_mobile: "Support",
+            tab_home: "首页", tab_news: "新闻", tab_support: "支持",
+            page_title: "服务中心", page_sub: "选择要连接的服务", 
+            card_web_title: "错误代码搜索", 
+            card_contact_title: "联系我们",
+            btn_inquiry: "前往搜索",
+            desc_web: "在专用页面上查看错误详细信息。"
+        },
+        "zh-TW": { 
+            brand_name: "kiryu10 | Support", brand_mobile: "Support",
+            tab_home: "首頁", tab_news: "新聞", tab_support: "支援",
+            page_title: "服務中心", page_sub: "選擇要連接的服務", 
+            card_web_title: "錯誤代碼搜尋", 
+            card_contact_title: "聯絡我們",
+            btn_inquiry: "前往搜尋",
+            desc_web: "在專用頁面上查看錯誤詳細資訊。"
+        },
+        ko: { 
+            brand_name: "kiryu10 | Support", brand_mobile: "Support",
+            tab_home: "메인 페이지", tab_news: "뉴스", tab_support: "지원",
+            page_title: "서비스 센터", page_sub: "연결할 서비스를 선택하세요", 
+            card_web_title: "오류 코드 검색", 
+            card_contact_title: "문의하기",
+            btn_inquiry: "검색 페이지로",
+            desc_web: "전용 페이지에서 오류 세부 정보를 확인하세요."
+        },
+        ru: { 
+            brand_name: "kiryu10 | Support", brand_mobile: "Support",
+            tab_home: "Главная", tab_news: "Новости", tab_support: "Поддержка",
+            page_title: "Центр поддержки", page_sub: "Выберите сервис", 
+            card_web_title: "Поиск кода ошибки", 
+            card_contact_title: "Связаться",
+            btn_inquiry: "Перейти к поиску",
+            desc_web: "Проверьте детали ошибки на специальной странице."
+        }
+    };
+
+    // 言語設定
+    function setLanguage() {
+        const lang = localStorage.getItem('user_lang') || 'ja';
+        const t = TRANSLATIONS[lang] || TRANSLATIONS.ja;
+        document.documentElement.lang = lang;
+        
+        document.querySelectorAll('[data-translate]').forEach(el => {
+            const key = el.getAttribute('data-translate');
+            if(t[key]) el.textContent = t[key];
+        });
+        return t;
+    }
+
+    // モーダル (エラーコード検索用)
+    const overlay = document.getElementById('detailOverlay');
+    const mTitle = document.getElementById('modalTitle');
+    const mDesc = document.getElementById('modalDesc');
+    const mBtn = document.getElementById('modalBtn');
+    const mVisual = document.getElementById('modalVisual');
+
+    window.openDetail = function(key) {
+        const data = supportData[key];
+        const t = setLanguage();
+        if(!data) return;
+
+        mTitle.textContent = data.titleKey ? (t[data.titleKey] || data.title) : data.title;
+        mDesc.innerText = t[data.descKey] || data.descKey;
+        mBtn.href = data.url;
+        
+        mVisual.innerHTML = '';
+        const iconEl = document.createElement('i');
+        if(data.iconClass.includes('lucide')) {
+            iconEl.setAttribute('data-lucide', data.iconClass.replace('lucide-', ''));
+        } else {
+            iconEl.className = data.iconClass;
+        }
+        iconEl.style.fontSize = "100px";
+        iconEl.style.color = "rgba(255,255,255,0.8)";
+        mVisual.appendChild(iconEl);
+        mVisual.style.background = `linear-gradient(135deg, ${data.color} 0%, #000000 100%)`;
+
+        overlay.classList.add('active');
+        lucide.createIcons();
+    }
+
+    window.closeDetail = function() { overlay.classList.remove('active'); }
+    overlay.addEventListener('click', (e) => { if(e.target === overlay) closeDetail(); });
+
+    // テーマ設定
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const htmlEl = document.documentElement;
+
+    function initTheme() {
+        const saved = localStorage.getItem('user_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        applyTheme(saved);
+    }
+    function applyTheme(theme) {
+        htmlEl.setAttribute('data-theme', theme);
+        themeIcon.setAttribute('data-lucide', theme === 'light' ? 'sun' : 'moon');
+        lucide.createIcons();
+        initParticles(theme);
+    }
+    themeToggle.addEventListener('click', () => {
+        const current = htmlEl.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        applyTheme(next);
+        localStorage.setItem('user_theme', next);
+    });
+
+    // パーティクル背景
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let particleHue = 210;
+    function initParticles(theme) {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        particleHue = theme === 'light' ? 210 : 220;
+        particles = [];
+        for(let i=0; i<8; i++) particles.push(new Particle());
+    }
+    class Particle {
+        constructor() { 
+            this.x = Math.random() * canvas.width; 
+            this.y = Math.random() * canvas.height; 
+            this.size = Math.random() * 150 + 50; 
+            this.speedX = Math.random() * 0.2 - 0.1; 
+            this.speedY = Math.random() * 0.2 - 0.1; 
+            this.opacity = Math.random() * 0.3 + 0.1; 
+        }
+        update() { 
+            this.x += this.speedX; this.y += this.speedY; 
+            if(this.x < 0 || this.x > canvas.width) this.speedX *= -1; 
+            if(this.y < 0 || this.y > canvas.height) this.speedY *= -1; 
+        }
+        draw() { 
+            ctx.fillStyle = `hsla(${particleHue}, 100%, 50%, ${this.opacity * 0.2})`; 
+            ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill(); 
+        }
+    }
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => { p.update(); p.draw(); });
+        requestAnimationFrame(animate);
+    }
+    window.addEventListener('resize', () => { initParticles(htmlEl.getAttribute('data-theme')); });
+
+    // 初期化
+    initTheme();
+    animate();
+    setLanguage();
+</script>
+</body>
+</html>
