@@ -1,4 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
+import crypto from 'crypto'; // ★必須：暗号化ツールの読み込み
+
+// ★追加：パスワードを暗号化（ハッシュ化）する関数
+function hashPassword(password) {
+  return crypto.createHash('sha256').update(password).digest('hex');
+}
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY;
@@ -19,25 +25,82 @@ export default async function handler(req, res) {
   const lang = params.lang || 'ja';
 
   try {
+    // 1. ユーザー登録 (オープン登録は残していますが、UIから消していれば使われません)
     if (type === 'register') {
       const { email, password } = params;
       if (!email || !password) return res.status(200).json({ success: false, message: "Missing credentials" });
       const { data: existing } = await supabase.from('users').select('id').eq('email', email).maybeSingle();
       if (existing) return res.status(200).json({ success: false, message: "Exists" });
-      const { data: newUser, error } = await supabase.from('users').insert([{ email, password, points: 0 }]).select().single();
+      const { data: newUser, error } = await supabase.from('users').insert([{ email, password: hashPassword(password), points: 0 }]).select().single();
       if (error) throw error;
       return res.status(200).json({ success: true, userId: newUser.id, message: "OK" });
     }
 
+    // ==========================================
+    // ★追加：管理者用 新規ユーザー強制作成
+    // ==========================================
+    if (type === 'admin_create_user') {
+      const { email, password } = params;
+      if (!email || !password) return res.status(200).json({ success: false, message: "Missing credentials" });
+      
+      const { data: existing } = await supabase.from('users').select('id').eq('email', email).maybeSingle();
+      if (existing) return res.status(200).json({ success: false, message: "そのIDは既に存在します" });
+      
+      // パスワードを暗号化して保存し、初回変更フラグをtrueにする
+      const hashedPass = hashPassword(password);
+      const { data: newUser, error } = await supabase.from('users').insert([{ 
+          email, 
+          password: hashedPass, 
+          points: 0,
+          needs_password_change: true 
+      }]).select().single();
+      
+      if (error) throw error;
+      return res.status(200).json({ success: true, message: "OK" });
+    }
+
+    // ==========================================
+    // 2. ユーザーログイン (暗号化＆初回チェック対応)
+    // ==========================================
     if (type === 'user_login') {
       const { email, password } = params;
       const { data: user } = await supabase.from('users').select('*').eq('email', email).maybeSingle();
-      if (user && user.password === password) {
+      
+      // 入力されたパスワードを暗号化し、DBのハッシュ値と比較する
+      if (user && user.password === hashPassword(password)) {
+        
+        // 初回ログイン（変更が必要）なら専用の合図を返す
+        if (user.needs_password_change) {
+            return res.status(200).json({ success: true, requirePasswordChange: true, userId: user.id });
+        }
+        
         return res.status(200).json({ success: true, userId: user.id, points: user.points, history: [] });
       }
       return res.status(200).json({ success: false, message: "Invalid" });
     }
 
+    // ==========================================
+    // ★追加：パスワード強制変更処理
+    // ==========================================
+    if (type === 'change_password') {
+      const { userId, oldPassword, newPassword } = params;
+      
+      const { data: user } = await supabase.from('users').select('*').eq('id', userId).maybeSingle();
+      
+      // 古いパスワードが合っているか確認
+      if (user && user.password === hashPassword(oldPassword)) {
+          // 新しいパスワードを暗号化して上書きし、フラグを解除(FALSE)にする
+          await supabase.from('users').update({
+              password: hashPassword(newPassword),
+              needs_password_change: false
+          }).eq('id', userId);
+          
+          return res.status(200).json({ success: true });
+      }
+      return res.status(200).json({ success: false, message: "現在のパスワードが間違っています。" });
+    }
+
+    // 3. 利用可能なコンテンツ一覧 (Store)
     if (type === 'get_available') {
       const userId = params.userId;
       const { data: allCodes } = await supabase.from('codes').select('*');
@@ -91,6 +154,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, items });
     }
 
+    // 4. ユーザー履歴の取得
     if (type === 'get_history') {
       const userId = params.userId;
       if (!userId || userId === "GUEST") return res.status(200).json({ success: false, message: "No User ID" });
@@ -122,6 +186,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, points: user.points, history: historyData });
     }
 
+    // 5. ポイントでの購入
     if (type === 'purchase') {
       const { userId, code } = params;
       if (!userId || userId === "GUEST") return res.status(200).json({ success: false, message: "Login required" });
@@ -144,7 +209,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, remainingPoints: user.points - price });
     }
 
-        // ==========================================
+    // ==========================================
     // 6. コードの確認(check) と 引き換え(redeem)
     // ==========================================
     if (type === 'check' || type === 'redeem') {
@@ -157,7 +222,6 @@ export default async function handler(req, res) {
           return res.status(200).json({ success: false, message: "This code is invalid." });
       }
 
-      // 「有効/無効」がFALSEの場合、無効として弾く（大成功したバリア）
       const isActive = master["有効/無効"] === true || String(master["有効/無効"]).trim().toUpperCase() === 'TRUE';
       if (!isActive) {
         return res.status(200).json({ success: false, message: "This code is invalid." });
