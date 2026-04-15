@@ -1404,10 +1404,20 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 
 <div id="adminModal" class="modal-overlay">
   <div class="modal-sheet">
-    <div style="position:absolute; top:24px; right:24px; cursor:pointer; opacity:0.6;" id="adminCloseBtn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" size="24" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></div>
+    <div style="position:absolute; top:24px; right:24px; cursor:pointer; opacity:0.6;" id="adminCloseBtn">...</div>
     <h2 style="font-size:24px; font-weight:800; margin-bottom:20px;">Admin Console</h2>
     <div style="margin-bottom:20px; background:rgba(0,125,255,0.1); padding:10px; border-radius:12px; font-size:12px; font-weight:700;">
       Logged in as Administrator
+    </div>
+      
+    <div style="margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid rgba(128,128,128,0.2);">
+      <label style="font-size:12px; font-weight:700; display:block; margin-bottom:5px;">新規ユーザーの発行</label>
+      <div style="display:flex; gap:10px; margin-bottom:10px;">
+        <input type="text" id="adminNewEmail" class="form-input" placeholder="新しいユーザーID">
+        <input type="text" id="adminNewPass" class="form-input" placeholder="初期パスワード">
+      </div>
+      <button id="btnAdminCreateUser" class="btn-primary" style="height:40px; margin-top:0;">ユーザーを発行</button>
+      <div id="adminCreateResult" style="font-size:12px; margin-top:10px; font-weight:700;"></div>
     </div>
       
     <div style="margin-bottom:20px; padding-top:10px;">
@@ -2049,6 +2059,40 @@ function setupEventListeners() {
                 newPassword: newPass 
             })
         });
+      　const btnAdminCreateUser = document.getElementById('btnAdminCreateUser');
+  if(btnAdminCreateUser) {
+      btnAdminCreateUser.addEventListener('click', async () => {
+          const newId = document.getElementById('adminNewEmail').value.trim();
+          const newPass = document.getElementById('adminNewPass').value.trim();
+          const resultArea = document.getElementById('adminCreateResult');
+          
+          if(!newId || !newPass) { resultArea.textContent = "IDと初期パスワードを入力してください"; resultArea.style.color = "#FF3B30"; return; }
+          
+          resultArea.textContent = "発行中...";
+          resultArea.style.color = "var(--modal-text-main)";
+          
+          try {
+              const res = await fetch(GAS_API_URL, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ type: 'admin_create_user', email: newId, password: newPass })
+              });
+              const d = await res.json();
+              if(d.success) {
+                  resultArea.textContent = `発行成功！ ID: ${newId} / 初期Pass: ${newPass}`;
+                  resultArea.style.color = "var(--primary)";
+                  document.getElementById('adminNewEmail').value = "";
+                  document.getElementById('adminNewPass').value = "";
+              } else {
+                  resultArea.textContent = `エラー: ${d.message}`;
+                  resultArea.style.color = "#FF3B30";
+              }
+          } catch(e) { 
+              resultArea.textContent = "通信エラー"; 
+              resultArea.style.color = "#FF3B30";
+          }
+      });
+  }
         const d = await res.json();
         
         if (d.success) {
