@@ -9,6 +9,8 @@ function hashPassword(password) {
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
+const ADMIN_ID = "admin_kiryu-sensya";
+const ADMIN_PASS = "-GTA5Il-v4.2xs-2";
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
