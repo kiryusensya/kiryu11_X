@@ -2393,7 +2393,7 @@ function showPurchaseError(userPts, price) {
     const t = TRANSLATIONS[CURRENT_LANG];
     const thisRequestId = ++currentAuthRequestId; 
     
-    els.errorCodeText.textContent = generateErrorCode();
+    els.errorCodeText.textContent = "2011";
     els.errorTime.textContent = getFormattedCurrentTime(CURRENT_LANG);
     els.errorMessage.textContent = t.error_points_msg || "ポイントが不足しています。";
     
