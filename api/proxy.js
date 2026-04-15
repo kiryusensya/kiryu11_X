@@ -26,7 +26,7 @@ export default async function handler(req, res) {
   const lang = params.lang || 'ja';
 
   try {
-    // 1. ユーザー登録 (オープン登録は残していますが、UIから消していれば使われません)
+    // 1. ユーザー登録
     if (type === 'register') {
       const { email, password } = params;
       if (!email || !password) return res.status(200).json({ success: false, message: "Missing credentials" });
@@ -38,7 +38,7 @@ export default async function handler(req, res) {
     }
 
     // ==========================================
-    // ★追加：管理者用 新規ユーザー強制作成
+    // ★ 管理者用 新規ユーザー強制作成
     // ==========================================
     if (type === 'admin_create_user') {
       const { email, password } = params;
@@ -61,6 +61,65 @@ export default async function handler(req, res) {
     }
 
     // ==========================================
+    // ★ 管理者用 パスワード強制リセット
+    // ==========================================
+    if (type === 'admin_reset_password') {
+      const { adminUser, adminPass, targetEmail, newPassword } = params;
+      
+      if (adminUser !== ADMIN_ID || adminPass !== ADMIN_PASS) {
+         return res.status(200).json({ success: false, message: "権限がありません" });
+      }
+
+      const { data: targetUser } = await supabase.from('users').select('id').eq('email', targetEmail).maybeSingle();
+      if (!targetUser) {
+          return res.status(200).json({ success: false, message: "指定されたユーザーが見つかりません" });
+      }
+
+      const hashedNewPass = hashPassword(newPassword);
+      const { error: updateError } = await supabase.from('users').update({ 
+          password: hashedNewPass,
+          needs_password_change: true 
+      }).eq('id', targetUser.id);
+
+      if (updateError) {
+          return res.status(200).json({ success: false, message: "データベースの更新に失敗しました" });
+      }
+
+      return res.status(200).json({ success: true, message: "Password reset successful" });
+    }
+
+    // ==========================================
+    // ★ 管理者用 ユーザー履歴検索
+    // ==========================================
+    if (type === 'admin_search') {
+      const { adminUser, adminPass, targetEmail } = params;
+      
+      if (adminUser !== ADMIN_ID || adminPass !== ADMIN_PASS) {
+        return res.status(200).json({ success: false, message: "権限がありません" });
+      }
+      if (!targetEmail) return res.status(200).json({ success: false, message: "対象のメールアドレスを指定してください" });
+
+      const { data: targetUser } = await supabase.from('users').select('id, email').eq('email', targetEmail).maybeSingle();
+      if (!targetUser) return res.status(200).json({ success: false, message: "指定されたユーザーが見つかりません" });
+
+      const { data: histories, error: searchError } = await supabase.from('histories')
+        .select(`created_at, codes (*)`).eq('user_id', targetUser.id).order('created_at', { ascending: false });
+
+      if (searchError) {
+          console.error(searchError);
+          return res.status(200).json({ success: false, message: "履歴の取得に失敗しました" });
+      }
+
+      const historyData = (histories || []).map(h => ({
+        code: h.codes ? h.codes["アクティベーションコード"] : "不明",
+        title: h.codes ? (h.codes["タイトル(jp)"] || "不明なコンテンツ") : "不明なコンテンツ",
+        date: new Date(h.created_at).toLocaleString('ja-JP')
+      }));
+
+      return res.status(200).json({ success: true, userId: targetUser.email, history: historyData });
+    }
+
+    // ==========================================
     // 2. ユーザーログイン (暗号化＆初回チェック対応)
     // ==========================================
     if (type === 'user_login') {
@@ -70,41 +129,34 @@ export default async function handler(req, res) {
       }
       const { data: user } = await supabase.from('users').select('*').eq('email', email).maybeSingle();
       
-      // 入力されたパスワードを暗号化し、DBのハッシュ値と比較する
       if (user && user.password === hashPassword(password)) {
-        
-        // 初回ログイン（変更が必要）なら専用の合図を返す
         if (user.needs_password_change) {
             return res.status(200).json({ success: true, requirePasswordChange: true, userId: user.id });
         }
-        
         return res.status(200).json({ success: true, userId: user.id, points: user.points, history: [] });
       }
       return res.status(200).json({ success: false, message: "Invalid" });
     }
 
     // ==========================================
-    // ★追加：パスワード強制変更処理
+    // ★ パスワード強制変更処理
     // ==========================================
     if (type === 'change_password') {
       const { userId, oldPassword, newPassword } = params;
-      
       const { data: user } = await supabase.from('users').select('*').eq('id', userId).maybeSingle();
       
-      // 古いパスワードが合っているか確認
       if (user && user.password === hashPassword(oldPassword)) {
-          // 新しいパスワードを暗号化して上書きし、フラグを解除(FALSE)にする
           await supabase.from('users').update({
               password: hashPassword(newPassword),
               needs_password_change: false
           }).eq('id', userId);
-          
           return res.status(200).json({ success: true });
       }
       return res.status(200).json({ success: false, message: "現在のパスワードが間違っています。" });
     }
+
     // ==========================================
-    // 追加：セッション復帰時の最新情報取得
+    // セッション復帰時の最新情報取得
     // ==========================================
     if (type === 'get_user_info') {
       const { userId } = params;
@@ -224,36 +276,6 @@ export default async function handler(req, res) {
       await supabase.from('users').update({ points: user.points - price }).eq('id', userId);
       await supabase.from('histories').insert([{ user_id: userId, code_id: master.id }]);
       return res.status(200).json({ success: true, remainingPoints: user.points - price });
-    }
-    // ==========================================
-    // ★追加：管理者によるパスワード強制リセット
-    // ==========================================
-    if (type === 'admin_reset_password') {
-      const { adminUser, adminPass, targetEmail, newPassword } = params;
-      
-      // 管理者チェック
-      if (adminUser !== ADMIN_ID || adminPass !== ADMIN_PASS) {
-         return res.status(200).json({ success: false, message: "権限がありません" });
-      }
-
-      // ユーザーが存在するか確認
-      const { data: targetUser } = await supabase.from('users').select('id').eq('email', targetEmail).maybeSingle();
-      if (!targetUser) {
-          return res.status(200).json({ success: false, message: "指定されたユーザーが見つかりません" });
-      }
-
-      // パスワードを暗号化して上書き ＆ needs_password_change を true（初回変更必須）に戻す
-      const hashedNewPass = hashPassword(newPassword);
-      const { error: updateError } = await supabase.from('users').update({ 
-          password: hashedNewPass,
-          needs_password_change: true 
-      }).eq('id', targetUser.id);
-
-      if (updateError) {
-          return res.status(200).json({ success: false, message: "データベースの更新に失敗しました" });
-      }
-
-      return res.status(200).json({ success: true, message: "Password reset successful" });
     }
 
     // ==========================================
