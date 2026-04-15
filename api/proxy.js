@@ -1,7 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
-import crypto from 'crypto'; // ★必須：暗号化ツールの読み込み
+import crypto from 'crypto'; 
 
-// ★追加：パスワードを暗号化（ハッシュ化）する関数
 function hashPassword(password) {
   return crypto.createHash('sha256').update(password).digest('hex');
 }
