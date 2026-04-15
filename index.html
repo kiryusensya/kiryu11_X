@@ -1369,6 +1369,18 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
           <button id="btnAuthAction" class="btn-primary" style="height:60px; font-size: 18px; border-radius: 30px; margin-top: 0;" data-translate="btn_login_action">ログイン</button>
       </div>
     </div>
+    <div id="forcePasswordChangeView" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:var(--bg); z-index:9999; flex-direction:column; justify-content:center; align-items:center;">
+    <div style="background:var(--sidebar-bg); padding:30px; border-radius:12px; width:90%; max-width:400px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+        <h2 style="margin-bottom:10px; font-size:18px;">パスワードの変更が必要です</h2>
+        <p style="font-size:12px; color:var(--text-muted); margin-bottom:20px;">セキュリティのため、初期パスワードからの変更をお願いします。</p>
+        
+        <input type="password" id="newPassInput" class="form-input" placeholder="新しいパスワード" style="margin-bottom:10px; width:100%; box-sizing:border-box;">
+        <input type="password" id="newPassConfirm" class="form-input" placeholder="新しいパスワード(確認用)" style="margin-bottom:20px; width:100%; box-sizing:border-box;">
+        
+        <button id="btnSubmitNewPass" class="btn-primary" style="width:100%; height:45px;">変更してログイン</button>
+        <div id="newPassError" style="color:#ff4444; font-size:12px; margin-top:10px;"></div>
+    </div>
+</div>
 
     <div style="position: absolute; bottom: 16px; left: 16px; text-align: left;">
         <button class="lang-trigger-sidebar" id="loginLangTrigger" style="width: auto; height: 36px; padding: 0 12px !important; border: none; background: transparent; color: var(--modal-text-main);">
@@ -2015,6 +2027,47 @@ function setupEventListeners() {
       setListener(els.code, 'keydown', (e) => { if(e.key === 'Enter') els.confirm.click(); });
       setListener(els.code, 'input', (e) => { els.code.value = formatCodeInput(els.code.value); });
   }
+  document.getElementById('btnSubmitNewPass').addEventListener('click', async () => {
+    const newPass = document.getElementById('newPassInput').value.trim();
+    const confirmPass = document.getElementById('newPassConfirm').value.trim();
+    const errObj = document.getElementById('newPassError');
+    const btn = document.getElementById('btnSubmitNewPass');
+    
+    if(!newPass || !confirmPass) { errObj.textContent = "入力してください"; return; }
+    if(newPass.length < 6) { errObj.textContent = "パスワードは6文字以上にしてください"; return; }
+    if(newPass !== confirmPass) { errObj.textContent = "パスワードが一致しません"; return; }
+    
+    btn.textContent = "変更中...";
+    try {
+        const res = await fetch(GAS_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                type: 'change_password', 
+                userId: window.tempChangeData.userId, 
+                oldPassword: window.tempChangeData.oldPassword, 
+                newPassword: newPass 
+            })
+        });
+        const d = await res.json();
+        
+        if (d.success) {
+            errObj.style.color = "var(--primary)";
+            errObj.textContent = "変更完了！ログインします...";
+            setTimeout(() => {
+                document.getElementById('forcePasswordChangeView').style.display = 'none';
+                document.getElementById('loginPass').value = newPass; // 新パスワードをセット
+                handleLogin(); // そのまま自動ログイン
+            }, 1000);
+        } else {
+            btn.textContent = "変更してログイン";
+            errObj.textContent = d.message;
+        }
+    } catch(e) {
+        btn.textContent = "変更してログイン";
+        errObj.textContent = "通信エラーが発生しました";
+    }
+});
 
   setListener(els.heroActionBtn, 'click', (e) => {
      e.stopPropagation(); 
@@ -2749,6 +2802,7 @@ async function performAuth(code, mode = 'check') {
 }
   
 // 丸ごと上書きしてください
+// 丸ごと上書きしてください
 async function performAuthAction() {
   const email = els.email.value.trim();
   const pass = els.pass.value.trim();
@@ -2782,6 +2836,15 @@ async function performAuthAction() {
         els.btnAuthAction.textContent = t.btn_login_action;
         return; 
       }
+
+      // =========================================================
+      // ★追加: パスワード変更が必要な場合、画面を切り替えて処理を止める
+      // =========================================================
+      if (data.requirePasswordChange) {
+          window.tempChangeData = { userId: data.userId, oldPassword: pass };
+          document.getElementById('forcePasswordChangeView').style.display = 'flex';
+          return; 
+      }
       
       currentUser = { userId: data.userId, email: email, history: data.history || [], points: data.points || 0 };
       localStorage.setItem('user_session_identity', JSON.stringify({ userId: data.userId, email: email }));
@@ -2807,7 +2870,6 @@ async function performAuthAction() {
       const lowMsg = (data.message || "").toLowerCase();
       let errorMsg = data.message || t.msg_error;
       
-      // GAS側から「invalid」「not found」「incorrect」「無効」などのエラーが返ってきた場合
       if (lowMsg.includes('invalid') || lowMsg.includes('not found') || lowMsg.includes('incorrect') || lowMsg.includes('無効')) {
           errorMsg = t.msg_login_invalid || "無効なユーザー名またはパスワードです。";
       }
@@ -2817,11 +2879,12 @@ async function performAuthAction() {
   } catch (e) { 
     els.authStatus.textContent = t.msg_error || "Network Error."; 
   } finally { 
+    // パスワード変更画面が出ている時はボタンを元に戻す
     els.btnAuthAction.disabled = false; 
     els.btnAuthAction.textContent = t.btn_login_action;
   }
 }
-
+  
 function setHeroButtonState(state, forceUnlock = false) {
     if (window.innerWidth <= 768) return;
 
