@@ -2230,8 +2230,18 @@ function showPurchasePreview(item, price) {
     els.previewTitleUnderImg.textContent = item.title;
     els.previewTitle.textContent = item.title;
     
-    els.previewWarningText.innerHTML = "";
-    els.previewWarningBox.style.display = 'none';
+    // ==========================================
+    // ★ここを修正しました！
+    // データベースの「詳細(extraInfo)」があればボックスを表示する
+    // ==========================================
+    if (item.extraInfo) {
+        els.previewWarningText.innerHTML = item.extraInfo.replace(/\n/g, '<br>');
+        els.previewWarningBox.style.display = 'flex';
+    } else {
+        els.previewWarningText.innerHTML = "";
+        els.previewWarningBox.style.display = 'none';
+    }
+    // ==========================================
     
     els.btnPreviewRedeem.disabled = false;
     els.btnPreviewRedeem.innerHTML = t.btn_buy_confirm || "購入確定";
