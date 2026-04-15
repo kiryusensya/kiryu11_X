@@ -2060,8 +2060,7 @@ function setupEventListeners() {
         logout();
       });
   }
-　// ★追加：アカウント管理ボタンのクリック処理
-  const btnMenuAccount = document.getElementById('btnMenuAccount');
+　const btnMenuAccount = document.getElementById('btnMenuAccount');
   const accountModal = document.getElementById('accountModal');
   const closeAccountModalBtn = document.getElementById('closeAccountModalBtn');
   const btnSubmitAccPassChange = document.getElementById('btnSubmitAccPassChange');
@@ -2069,20 +2068,16 @@ function setupEventListeners() {
   if (btnMenuAccount) {
       btnMenuAccount.addEventListener('click', (e) => {
           e.stopPropagation();
-          toggleDropdown(false); // メニューを閉じる
-          
-          // モーダルを開く前に初期化
+          toggleDropdown(false);
           if (currentUser) document.getElementById('accountModalUserId').textContent = currentUser.email;
           document.getElementById('accCurrentPass').value = '';
           document.getElementById('accNewPass').value = '';
           document.getElementById('accNewPassConfirm').value = '';
           document.getElementById('accStatusMessage').textContent = '';
-          
-          accountModal.classList.add('active'); // モーダルを開く
+          accountModal.classList.add('active');
       });
   }
 
-  // アカウント管理モーダルを閉じる処理
   if (closeAccountModalBtn) {
       closeAccountModalBtn.addEventListener('click', () => accountModal.classList.remove('active'));
   }
@@ -2092,7 +2087,6 @@ function setupEventListeners() {
       });
   }
 
-  // パスワード変更実行処理（多言語対応版）
   if (btnSubmitAccPassChange) {
       btnSubmitAccPassChange.addEventListener('click', async () => {
           const oldP = document.getElementById('accCurrentPass').value.trim();
@@ -2137,7 +2131,7 @@ function setupEventListeners() {
                   }, 1500);
               } else {
                   status.style.color = "#FF3B30";
-                  status.textContent = d.message || "Invalid"; // サーバーからのエラー
+                  status.textContent = d.message || "Invalid";
                   btnSubmitAccPassChange.textContent = t.modal_acc_btn_change || "パスワードを変更";
                   btnSubmitAccPassChange.disabled = false;
               }
@@ -2149,7 +2143,6 @@ function setupEventListeners() {
           }
       });
   }
-  
   setListener(els.closeAuth, 'click', closeAuthModal);
   setListener(els.btnPreviewClose, 'click', closeAuthModal);
   setListener(els.btnSuccessClose, 'click', closeAuthModal);
