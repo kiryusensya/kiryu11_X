@@ -2037,7 +2037,7 @@ function setupEventListeners() {
       setListener(els.code, 'keydown', (e) => { if(e.key === 'Enter') els.confirm.click(); });
       setListener(els.code, 'input', (e) => { els.code.value = formatCodeInput(els.code.value); });
   }
-  document.getElementById('btnSubmitNewPass').addEventListener('click', async () => {
+ document.getElementById('btnSubmitNewPass').addEventListener('click', async () => {
     const newPass = document.getElementById('newPassInput').value.trim();
     const confirmPass = document.getElementById('newPassConfirm').value.trim();
     const errObj = document.getElementById('newPassError');
@@ -2059,14 +2059,41 @@ function setupEventListeners() {
                 newPassword: newPass 
             })
         });
-      　const btnAdminCreateUser = document.getElementById('btnAdminCreateUser');
+        const d = await res.json();
+        
+        if (d.success) {
+            errObj.style.color = "var(--primary)";
+            errObj.textContent = "変更完了！ログインします...";
+            setTimeout(() => {
+                document.getElementById('forcePasswordChangeView').style.display = 'none';
+                document.getElementById('inputPass').value = newPass; // 新パスワードをセット
+                performAuthAction(); // 自動ログイン
+            }, 1000);
+        } else {
+            btn.textContent = "変更してログイン";
+            errObj.textContent = d.message;
+        }
+    } catch(e) {
+        btn.textContent = "変更してログイン";
+        errObj.textContent = "通信エラーが発生しました";
+    }
+  });
+
+  // ==========================================
+  // ② Admin Console：新規ユーザー発行ボタンの処理
+  // ==========================================
+  const btnAdminCreateUser = document.getElementById('btnAdminCreateUser');
   if(btnAdminCreateUser) {
       btnAdminCreateUser.addEventListener('click', async () => {
           const newId = document.getElementById('adminNewEmail').value.trim();
           const newPass = document.getElementById('adminNewPass').value.trim();
           const resultArea = document.getElementById('adminCreateResult');
           
-          if(!newId || !newPass) { resultArea.textContent = "IDと初期パスワードを入力してください"; resultArea.style.color = "#FF3B30"; return; }
+          if(!newId || !newPass) { 
+              resultArea.textContent = "IDと初期パスワードを入力してください"; 
+              resultArea.style.color = "#FF3B30"; 
+              return; 
+          }
           
           resultArea.textContent = "発行中...";
           resultArea.style.color = "var(--modal-text-main)";
@@ -2093,25 +2120,6 @@ function setupEventListeners() {
           }
       });
   }
-        const d = await res.json();
-        
-        if (d.success) {
-            errObj.style.color = "var(--primary)";
-            errObj.textContent = "変更完了！ログインします...";
-            setTimeout(() => {
-                document.getElementById('forcePasswordChangeView').style.display = 'none';
-                document.getElementById('inputPass').value = newPass; // ⭕ 正しい入力欄のID
-                performAuthAction(); // ⭕ 正しいログイン関数の名前
-            }, 1000);
-        } else {
-            btn.textContent = "変更してログイン";
-            errObj.textContent = d.message;
-        }
-    } catch(e) {
-        btn.textContent = "変更してログイン";
-        errObj.textContent = "通信エラーが発生しました";
-    }
-});
 
   setListener(els.heroActionBtn, 'click', (e) => {
      e.stopPropagation(); 
