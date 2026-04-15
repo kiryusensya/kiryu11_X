@@ -2017,16 +2017,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   setInitialLanguage(sLang, true);
+  els.loginOverlay = gId('loginOverlay'); // 追加: ログイン画面を操作しやすくする
 
   const sUser = localStorage.getItem('user_session_identity');
   if (sUser) {
-    try {
-        const identity = JSON.parse(sUser);
-        currentUser = { userId: identity.userId, email: identity.email, history: [], points: 0 };
-        fetchUserHistory(); 
-    } catch(e) { console.error(e); }
+     // 記憶があれば、自動ログインを試みる！
+     resumeSession();
+  } else {
+     // 記憶がなければ、ログイン画面を表示したままにする
+     updateAccountUI();
   }
-  updateAccountUI();
+
   initThemeAndParticles();
   initCustomDropdown();
   setupEventListeners();
@@ -3689,6 +3690,41 @@ function initThemeAndParticles() {
   let p = []; for(let i=0;i<8;i++) p.push(new Particle());
   function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); p.forEach(i=>{i.update();i.draw();}); requestAnimationFrame(animate); }
   window.addEventListener('resize', () => { canvas.width=innerWidth; canvas.height=innerHeight; }); animate();
+}
+async function resumeSession() {
+  const sUser = localStorage.getItem('user_session_identity');
+  if (!sUser) return;
+
+  try {
+      const identity = JSON.parse(sUser);
+      // 一時的に画面上ではログインしているように見せる
+      currentUser = { userId: identity.userId, email: identity.email, history: [], points: 0 };
+      document.body.classList.add('is-logged-in');
+      if (els.loginOverlay) els.loginOverlay.classList.remove('active'); // ログイン画面を消す
+      updateAccountUI();
+
+      // 裏でサーバーに最新の情報を問い合わせる（自動ログイン）
+      const res = await fetch(GAS_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'get_user_info', userId: identity.userId })
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+          currentUser.points = data.points || 0;
+          updateAccountUI();
+          fetchUserHistory(); // 履歴とストアの読み込み
+      } else {
+          // ユーザーが見つからない、またはエラーの場合は強制ログアウト
+          console.warn("Session invalid. Logging out.");
+          logout();
+      }
+  } catch (e) {
+      console.error("Session Resume Error:", e);
+      // オフラインなどの場合は、とりあえず過去の履歴を取得しようとする
+      fetchUserHistory(); 
+  }
 }
 </script>
 </body>
