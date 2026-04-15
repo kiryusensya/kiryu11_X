@@ -202,11 +202,11 @@ body {
     display: grid;
     width: 100%;
     height: 100%;
-    max-width: 1200px; /* バランスを考慮した最大幅 */
+    max-width: 1200px; 
     margin: 0 auto;
     
-    grid-template-columns: 1fr 1fr; /* 画面を真っ二つに分割 */
-    grid-template-rows: 1fr; /* 1行のみ */
+    grid-template-columns: 1fr 1fr; 
+    grid-template-rows: 1fr; 
     gap: 30px;
 }
 
@@ -236,11 +236,9 @@ body {
 }
 [data-theme="dark"] .bento-card:hover { border-color: #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
 
-/* 左側のカード (エラーコード検索) */
 .card-large-left {
     background: linear-gradient(135deg, rgba(0,125,255,0.1) 0%, var(--card-bg) 100%);
 }
-/* 右側のカード (問い合わせ) */
 .card-large-right {
     background: linear-gradient(135deg, rgba(255,165,0,0.1) 0%, var(--card-bg) 100%);
 }
@@ -326,7 +324,6 @@ body {
         padding: 100px 20px 40px 20px; 
     }
     
-    /* スマホ時は縦並びに変更 */
     .bento-grid {
         display: flex;
         flex-direction: column;
@@ -335,13 +332,13 @@ body {
     }
     .bento-card {
         flex: 1;
-        min-height: 250px; /* スマホ時のカードの高さ */
+        min-height: 250px; 
     }
     .bento-card .card-icon { font-size: 60px; margin-bottom: 16px; }
     .bento-card .card-title { font-size: 26px; }
 }
 
-/* 詳細モーダル (エラーコード検索用) */
+/* 詳細モーダル */
 .detail-modal-overlay {
     position: fixed; inset: 0;
     background: rgba(0, 0, 0, 0.4);
@@ -426,7 +423,6 @@ body {
             <a href="#" class="rgl-tab active" data-translate="tab_support">SUPPORT</a>
         </div>
         <div class="theme-pill" id="themeToggle"><i data-lucide="sun" id="themeIcon"></i></div>
-        <div class="theme-pill" style="width:40px; height:40px; border:none; cursor:default;"><i data-lucide="user-round" size="20"></i></div>
     </div>
 </nav>
 
@@ -488,18 +484,16 @@ body {
         });
     }
 
-    // Support Data (エラーコード検索のみ残す)
     const supportData = {
         web: {
             titleKey: "card_web_title",
             descKey: "desc_web",
-            iconClass: "lucide-search", // メールアイコンから検索アイコンに変更
+            iconClass: "lucide-search", 
             color: "#007DFF",
             url: "error.html"
         }
     };
 
-    // Translations (多言語対応設定に合わせて更新)
     const TRANSLATIONS = {
         ja: { 
             brand_name: "kiryu10| Support", brand_mobile: "Support",
@@ -557,7 +551,6 @@ body {
         }
     };
 
-    // 言語設定
     function setLanguage() {
         const lang = localStorage.getItem('user_lang') || 'ja';
         const t = TRANSLATIONS[lang] || TRANSLATIONS.ja;
@@ -570,7 +563,6 @@ body {
         return t;
     }
 
-    // モーダル (エラーコード検索用)
     const overlay = document.getElementById('detailOverlay');
     const mTitle = document.getElementById('modalTitle');
     const mDesc = document.getElementById('modalDesc');
@@ -605,7 +597,6 @@ body {
     window.closeDetail = function() { overlay.classList.remove('active'); }
     overlay.addEventListener('click', (e) => { if(e.target === overlay) closeDetail(); });
 
-    // テーマ設定
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
     const htmlEl = document.documentElement;
@@ -627,7 +618,6 @@ body {
         localStorage.setItem('user_theme', next);
     });
 
-    // パーティクル背景
     const canvas = document.getElementById('particleCanvas');
     const ctx = canvas.getContext('2d');
     let particles = [];
@@ -665,7 +655,6 @@ body {
     }
     window.addEventListener('resize', () => { initParticles(htmlEl.getAttribute('data-theme')); });
 
-    // 初期化
     initTheme();
     animate();
     setLanguage();
