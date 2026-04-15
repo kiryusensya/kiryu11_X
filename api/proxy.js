@@ -103,6 +103,19 @@ export default async function handler(req, res) {
       }
       return res.status(200).json({ success: false, message: "現在のパスワードが間違っています。" });
     }
+    // ==========================================
+    // 追加：セッション復帰時の最新情報取得
+    // ==========================================
+    if (type === 'get_user_info') {
+      const { userId } = params;
+      if (!userId) return res.status(200).json({ success: false, message: "Missing userId" });
+      
+      const { data: user, error } = await supabase.from('users').select('points').eq('id', userId).single();
+      if (error || !user) {
+        return res.status(200).json({ success: false, message: "User not found" });
+      }
+      return res.status(200).json({ success: true, points: user.points });
+    }
 
     // 3. 利用可能なコンテンツ一覧 (Store)
     if (type === 'get_available') {
