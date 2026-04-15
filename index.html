@@ -2232,7 +2232,7 @@ function showPurchasePreview(item, price) {
     
     // ==========================================
     // ★ここを修正しました！
-    // データベースの「詳細(extraInfo)」があればボックスを表示する
+    // データベースの「詳細(extraInfo)」があればグレーのボックスを表示する
     // ==========================================
     if (item.extraInfo) {
         els.previewWarningText.innerHTML = item.extraInfo.replace(/\n/g, '<br>');
@@ -2270,7 +2270,7 @@ function showPurchasePreview(item, price) {
     els.phasePreview.style.display = 'flex';
     setTimeout(() => els.phasePreview.style.opacity = '1', 50);
 }
-
+  
 async function buyItemWithPoints(code, price) {
     const thisRequestId = currentAuthRequestId;
     const t = TRANSLATIONS[CURRENT_LANG];
