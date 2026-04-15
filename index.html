@@ -2056,8 +2056,8 @@ function setupEventListeners() {
             errObj.textContent = "変更完了！ログインします...";
             setTimeout(() => {
                 document.getElementById('forcePasswordChangeView').style.display = 'none';
-                document.getElementById('loginPass').value = newPass; // 新パスワードをセット
-                handleLogin(); // そのまま自動ログイン
+                document.getElementById('inputPass').value = newPass; // ⭕ 正しい入力欄のID
+                performAuthAction(); // ⭕ 正しいログイン関数の名前
             }, 1000);
         } else {
             btn.textContent = "変更してログイン";
