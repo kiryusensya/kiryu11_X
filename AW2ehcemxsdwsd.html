@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enterprise - Admin Console</title>
+<style>
+  body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background-color: #f4f6f9;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+  }
+  .container {
+    width: 100%;
+    max-width: 500px;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    margin-top: 40px;
+  }
+  h1 {
+    text-align: center;
+    font-size: 24px;
+    color: #1a1a1a;
+    margin-bottom: 30px;
+    font-weight: 800;
+  }
+  .form-group { margin-bottom: 16px; }
+  label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 6px; color: #666; }
+  input {
+    width: 100%; padding: 12px; font-size: 14px; border: 1px solid #ddd;
+    border-radius: 6px; box-sizing: border-box; background: #f9f9f9;
+  }
+  input:focus { border-color: #007DFF; background: #fff; outline: none; }
+  button {
+    width: 100%; padding: 14px; font-size: 16px; font-weight: bold;
+    color: #fff; background: #007DFF; border: none; border-radius: 6px;
+    cursor: pointer; transition: 0.2s; margin-top: 10px;
+  }
+  button:hover { background: #005bb5; }
+  .btn-danger { background: #FF3B30; margin-top: 0; width: auto; padding: 8px 16px; font-size: 12px; }
+  .btn-danger:hover { background: #cc2e26; }
+  
+  .panel { display: none; }
+  .panel.active { display: block; animation: fadeIn 0.4s; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  
+  .card {
+    background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 20px;
+  }
+  .card h3 { margin: 0 0 16px 0; font-size: 16px; color: #333; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;}
+  .result-msg { margin-top: 12px; font-size: 13px; font-weight: bold; text-align: center; min-height: 18px;}
+  
+  .history-list { list-style: none; padding: 0; margin: 0; max-height: 250px; overflow-y: auto; }
+  .history-list li { background: #fff; border: 1px solid #eee; padding: 12px; margin-bottom: 8px; border-radius: 6px; font-size: 13px;}
+  .history-title { font-weight: bold; color: #007DFF; margin-bottom: 4px; display: block; }
+  .history-meta { color: #888; font-size: 11px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div id="loginPanel" class="panel active">
+    <h1>Admin Console</h1>
+    <div class="form-group">
+      <label>管理者ID</label>
+      <input type="text" id="adminId" placeholder="Admin ID">
+    </div>
+    <div class="form-group">
+      <label>パスワード</label>
+      <input type="password" id="adminPass" placeholder="Password">
+    </div>
+    <button id="btnLogin">ログイン</button>
+    <div id="loginResult" class="result-msg" style="color:#FF3B30;"></div>
+  </div>
+
+  <div id="dashboardPanel" class="panel">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1 style="margin: 0; font-size: 20px;">Dashboard</h1>
+        <button id="btnLogout" class="btn-danger">ログアウト</button>
+    </div>
+
+    <div class="card">
+        <h3>新規ユーザーの発行</h3>
+        <div class="form-group">
+          <input type="text" id="newUserId" placeholder="新しいユーザーID">
+        </div>
+        <div class="form-group">
+          <input type="text" id="newUserPass" placeholder="初期パスワード">
+        </div>
+        <button id="btnCreate">ユーザーを発行</button>
+        <div id="createResult" class="result-msg"></div>
+    </div>
+
+    <div class="card">
+        <h3>ユーザー履歴検索</h3>
+        <div class="form-group" style="display: flex; gap: 10px;">
+          <input type="email" id="searchUserId" placeholder="対象のユーザーID">
+          <button id="btnSearch" style="margin-top: 0; width: 100px;">検索</button>
+        </div>
+        <div id="searchResult" style="margin-top: 15px; font-size: 13px;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const GAS_API_URL = "api/proxy"; // VercelのAPIに向けたパス
+  let adminCreds = { user: "", pass: "" };
+
+  // 1. ログイン処理
+  document.getElementById('btnLogin').addEventListener('click', async () => {
+      const u = document.getElementById('adminId').value.trim();
+      const p = document.getElementById('adminPass').value.trim();
+      const resEl = document.getElementById('loginResult');
+      if(!u || !p) { resEl.textContent = "IDとパスワードを入力してください"; return; }
+
+      resEl.textContent = "認証中...";
+      resEl.style.color = "#666";
+      
+      try {
+          const res = await fetch(GAS_API_URL, {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ type: 'user_login', email: u, password: p })
+          });
+          const d = await res.json();
+          
+          if(d.success && d.isAdmin) {
+              adminCreds = { user: u, pass: p };
+              document.getElementById('loginPanel').classList.remove('active');
+              document.getElementById('dashboardPanel').classList.add('active');
+              resEl.textContent = "";
+          } else {
+              resEl.textContent = "無効な管理者IDまたはパスワードです";
+              resEl.style.color = "#FF3B30";
+          }
+      } catch(e) { 
+          resEl.textContent = "通信エラーが発生しました"; 
+          resEl.style.color = "#FF3B30";
+      }
+  });
+
+  // 2. ログアウト処理
+  document.getElementById('btnLogout').addEventListener('click', () => {
+      adminCreds = { user: "", pass: "" };
+      document.getElementById('adminId').value = "";
+      document.getElementById('adminPass').value = "";
+      document.getElementById('dashboardPanel').classList.remove('active');
+      document.getElementById('loginPanel').classList.add('active');
+  });
+
+  // 3. ユーザー発行処理
+  document.getElementById('btnCreate').addEventListener('click', async () => {
+      const u = document.getElementById('newUserId').value.trim();
+      const p = document.getElementById('newUserPass').value.trim();
+      const resEl = document.getElementById('createResult');
+      if(!u || !p) { resEl.textContent = "入力してください"; resEl.style.color = "#FF3B30"; return; }
+
+      resEl.textContent = "発行中...";
+      resEl.style.color = "#666";
+      try {
+          const res = await fetch(GAS_API_URL, {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ type: 'admin_create_user', email: u, password: p })
+          });
+          const d = await res.json();
+          if(d.success) {
+              resEl.textContent = `発行成功！ ID: ${u} / 初期Pass: ${p}`;
+              resEl.style.color = "#04CF22";
+              document.getElementById('newUserId').value = "";
+              document.getElementById('newUserPass').value = "";
+          } else {
+              resEl.textContent = `エラー: ${d.message}`;
+              resEl.style.color = "#FF3B30";
+          }
+      } catch(e) { 
+          resEl.textContent = "通信エラー"; resEl.style.color = "#FF3B30"; 
+      }
+  });
+
+  // 4. 履歴検索処理
+  document.getElementById('btnSearch').addEventListener('click', async () => {
+      const u = document.getElementById('searchUserId').value.trim();
+      const resEl = document.getElementById('searchResult');
+      if(!u) return;
+
+      resEl.innerHTML = "<div style='text-align:center; color:#666;'>検索中...</div>";
+      try {
+          const res = await fetch(GAS_API_URL, {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ type: 'admin_search', adminUser: adminCreds.user, adminPass: adminCreds.pass, targetEmail: u })
+          });
+          const d = await res.json();
+          if(d.success) {
+              if(!d.history || d.history.length === 0) {
+                  resEl.innerHTML = "<div style='text-align:center; color:#888;'>履歴がありません</div>";
+              } else {
+                  let html = `<ul class="history-list">`;
+                  d.history.forEach(h => {
+                      html += `<li><span class="history-title">${h.title}</span><span class="history-meta">コード: ${h.code}<br>日時: ${h.date}</span></li>`;
+                  });
+                  html += `</ul>`;
+                  resEl.innerHTML = html;
+              }
+          } else {
+              resEl.innerHTML = `<span style="color:#FF3B30;">エラー: ${d.message}</span>`;
+          }
+      } catch(e) { resEl.innerHTML = `<span style="color:#FF3B30;">通信エラー</span>`; }
+  });
+</script>
+</body>
+</html>
