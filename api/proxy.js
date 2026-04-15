@@ -66,6 +66,9 @@ export default async function handler(req, res) {
     // ==========================================
     if (type === 'user_login') {
       const { email, password } = params;
+      if (email === ADMIN_ID && password === ADMIN_PASS) {
+        return res.status(200).json({ success: true, isAdmin: true });
+      }
       const { data: user } = await supabase.from('users').select('*').eq('email', email).maybeSingle();
       
       // 入力されたパスワードを暗号化し、DBのハッシュ値と比較する
