@@ -591,11 +591,24 @@
 
   </div>
 </div>
-
 <script>
   lucide.createIcons();
   const GAS_API_URL = "api/proxy"; 
-  let adminCreds = { user: "", pass: "" };
+
+  // ★トークン付きで安全に fetch するためのラッパー関数
+  async function safeFetch(bodyObj) {
+    const token = localStorage.getItem('admin_session_token') || "";
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+    const response = await fetch(GAS_API_URL, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(bodyObj)
+    });
+    return await response.json();
+  }
 
   // --- タブ切り替え ---
   function switchTab(tabId) {
@@ -619,6 +632,7 @@
       resEl.textContent = "認証中..."; resEl.style.color = "var(--text-sub)";
       
       try {
+          // 初回のログインだけは直接 fetch する（まだトークンがないため）
           const res = await fetch(GAS_API_URL, {
               method: 'POST', headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ type: 'user_login', email: u, password: p })
@@ -626,7 +640,8 @@
           const d = await res.json();
           
           if(d.success && d.isAdmin) {
-              adminCreds = { user: u, pass: p };
+              // ★平文のパスワードではなく、発行されたJWTトークンを保存する！
+              localStorage.setItem('admin_session_token', d.token);
               document.getElementById('loginScreen').style.display = 'none';
               document.getElementById('dashboardScreen').style.display = 'flex';
               resEl.textContent = "";
@@ -640,7 +655,7 @@
 
   // --- 2. ログアウト ---
   document.getElementById('btnLogout').addEventListener('click', () => {
-      adminCreds = { user: "", pass: "" };
+      localStorage.removeItem('admin_session_token'); // トークンを破棄
       document.getElementById('adminId').value = ""; document.getElementById('adminPass').value = "";
       document.getElementById('dashboardScreen').style.display = 'none';
       document.getElementById('loginScreen').style.display = 'flex';
@@ -655,11 +670,12 @@
 
       resEl.textContent = "発行中..."; resEl.style.color = "var(--text-sub)";
       try {
-          const res = await fetch(GAS_API_URL, {
-              method: 'POST', headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ type: 'admin_create_user', email: u, password: p })
+          // ★パスワードを送るのをやめ、safeFetchを使う
+          const d = await safeFetch({ 
+              type: 'admin_create_user', 
+              email: u, 
+              password: p 
           });
-          const d = await res.json();
           if(d.success) {
               resEl.textContent = `✅ 発行成功！ ID: ${u} / 初期Pass: ${p}`; resEl.style.color = "var(--success)";
               document.getElementById('newUserId').value = ""; document.getElementById('newUserPass').value = "";
@@ -669,7 +685,7 @@
       } catch(e) { resEl.textContent = "通信エラー"; resEl.style.color = "var(--danger)"; }
   });
 
-  // --- 4. パスワードリセット (NEW) ---
+  // --- 4. パスワードリセット ---
   document.getElementById('btnReset').addEventListener('click', async () => {
       const u = document.getElementById('resetUserId').value.trim();
       const p = document.getElementById('resetUserPass').value.trim();
@@ -680,15 +696,12 @@
 
       resEl.textContent = "リセット実行中..."; resEl.style.color = "var(--text-sub)";
       try {
-          const res = await fetch(GAS_API_URL, {
-              method: 'POST', headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ 
-                  type: 'admin_reset_password', 
-                  adminUser: adminCreds.user, adminPass: adminCreds.pass, 
-                  targetEmail: u, newPassword: p 
-              })
+          // ★パスワードを送るのをやめ、safeFetchを使う
+          const d = await safeFetch({ 
+              type: 'admin_reset_password', 
+              targetEmail: u, 
+              newPassword: p 
           });
-          const d = await res.json();
           if(d.success) {
               resEl.textContent = `✅ 完了！ユーザー「${u}」のパスワードを「${p}」に強制リセットしました。`; 
               resEl.style.color = "var(--success)";
@@ -699,9 +712,8 @@
       } catch(e) { resEl.textContent = "通信エラー"; resEl.style.color = "var(--danger)"; }
   });
 
-  // --- 5. 履歴検索 ---
   // --- 5. 履歴検索 (XSS対策版) ---
-document.getElementById('btnSearch').addEventListener('click', async () => {
+  document.getElementById('btnSearch').addEventListener('click', async () => {
     const u = document.getElementById('searchUserId').value.trim();
     const resEl = document.getElementById('searchResult');
     if (!u) return;
@@ -709,14 +721,12 @@ document.getElementById('btnSearch').addEventListener('click', async () => {
     resEl.innerHTML = "<div style='text-align:center; color:var(--text-sub);'>検索中...</div>";
     
     try {
-        const res = await fetch(GAS_API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ type: 'admin_search', adminUser: adminCreds.user, adminPass: adminCreds.pass, targetEmail: u })
+        // ★パスワードを送るのをやめ、safeFetchを使う
+        const d = await safeFetch({ 
+            type: 'admin_search', 
+            targetEmail: u 
         });
-        const d = await res.json();
         
-        // 以前の検索結果をクリア
         resEl.innerHTML = '';
 
         if (d.success) {
@@ -726,34 +736,28 @@ document.getElementById('btnSearch').addEventListener('click', async () => {
                 emptyMsg.textContent = 'このユーザーの履歴はありません。';
                 resEl.appendChild(emptyMsg);
             } else {
-                // ターゲットIDの表示 (安全に作成)
+                // 安全にDOMを生成 (XSS対策済)
                 const targetDiv = document.createElement('div');
                 targetDiv.style.cssText = 'margin-bottom:16px; font-size:14px;';
                 const strongTarget = document.createElement('strong');
                 strongTarget.textContent = 'Target: ';
                 targetDiv.appendChild(strongTarget);
-                // ユーザーIDをテキストとして追加
                 targetDiv.appendChild(document.createTextNode(d.userId));
                 resEl.appendChild(targetDiv);
 
-                // リストのコンテナを作成
                 const ul = document.createElement('ul');
                 ul.className = 'history-list';
 
-                // 履歴アイテムをループで作成 (安全に作成)
                 d.history.forEach(h => {
                     const li = document.createElement('li');
 
                     const titleSpan = document.createElement('span');
                     titleSpan.className = 'history-title';
-                    // textContent を使うことで、HTMLタグがエスケープされ安全になる
                     titleSpan.textContent = h.title; 
                     li.appendChild(titleSpan);
 
                     const metaSpan = document.createElement('span');
                     metaSpan.className = 'history-meta';
-                    
-                    // 改行を含めたいので、テキストノードと <br> を組み合わせて作成
                     metaSpan.appendChild(document.createTextNode(`利用コード: ${h.code}`));
                     metaSpan.appendChild(document.createElement('br'));
                     metaSpan.appendChild(document.createTextNode(`認証日時: ${h.date}`));
@@ -776,7 +780,7 @@ document.getElementById('btnSearch').addEventListener('click', async () => {
         errorSpan.textContent = '通信エラー';
         resEl.appendChild(errorSpan);
     }
-});
+  });
 </script>
 </body>
 </html>
