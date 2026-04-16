@@ -2284,7 +2284,7 @@ function showPurchasePreview(item, price) {
     els.previewTitle.textContent = item.title;
     
     if (item.extraInfo) {
-        els.previewWarningText.innerHTML = item.extraInfo.replace(/\n/g, '<br>');
+    els.previewWarningText.innerHTML = escapeHTML(item.extraInfo).replace(/\n/g, '<br>');
         els.previewWarningBox.style.display = 'flex';
     } else {
         els.previewWarningText.innerHTML = "";
@@ -2705,7 +2705,7 @@ async function performAuth(code, mode = 'check') {
         els.previewTitle.textContent = currentContentData.detailedTitle;
         
         if (currentContentData.detailedDesc) {
-            els.previewWarningText.innerHTML = currentContentData.detailedDesc.replace(/\n/g, '<br>');
+    els.previewWarningText.innerHTML = escapeHTML(currentContentData.detailedDesc).replace(/\n/g, '<br>');
             els.previewWarningBox.style.display = 'flex';
         } else {
             els.previewWarningText.innerHTML = "";
@@ -3239,9 +3239,9 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
     }
     
     mDiv.innerHTML = `
-        <img src="${item.imageUrl}" class="mobile-store-thumb">
-        <div class="mobile-store-title"><span style="overflow:hidden; text-overflow:ellipsis;">${item.message || item.title}</span>${checkMarkHtml}</div>
-        <div class="mobile-store-price">
+    <img src="${escapeHTML(item.imageUrl)}" class="mobile-store-thumb">
+    <div class="mobile-store-title"><span style="overflow:hidden; text-overflow:ellipsis;">${escapeHTML(item.message || item.title)}</span>${checkMarkHtml}</div>
+    <div class="mobile-store-price">
             <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
             ${priceText}
         </div>
