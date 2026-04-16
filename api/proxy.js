@@ -180,7 +180,7 @@ export default async function handler(req, res) {
       const isGuest = (!params.userId || params.userId === "GUEST");
       const targetId = isGuest ? null : authUserId; 
       
-      const { data: allCodes } = await supabase.from('codes').select('*');
+      const { data: allCodes } = await supabase.from('codes').select('*').order('id', { ascending: true });
       let ownedCodeIds = new Set(); let ownedGroupIds = new Set();
 
       if (targetId) {
