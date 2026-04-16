@@ -8,8 +8,12 @@ function hashPassword(password) {
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+// ★Vercelの環境変数から取得（設定されていない場合はフォールバックを使用）
 const JWT_SECRET = process.env.JWT_SECRET || 'your-fallback-secret-key';
 const supabase = createClient(supabaseUrl, supabaseKey);
+
+// ★注意：本来はデータベースで管理すべきですが、今回はハードコードのままにしておきます。
+// ただし、以降の通信ではこのパスワードは送信されません。
 const ADMIN_ID = "admin_kiryu-sensya";
 const ADMIN_PASS = "-GTA6xaxijIl-v4.2xs-2";
 
@@ -17,7 +21,7 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  // ★CORSエラー防止のため、必ずAuthorizationヘッダーを許可する
+  // ★CORSエラーを防ぐために Authorization ヘッダーを許可する
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.setHeader('Pragma', 'no-cache');
@@ -30,22 +34,26 @@ export default async function handler(req, res) {
   const lang = params.lang || 'ja';
 
   // ==========================================
-  // ★トークンから本当のユーザーIDを特定する
+  // ★認証情報の抽出（フロントからの自己申告は無視する）
   // ==========================================
   let authUserId = null;
+  let isAdmin = false;
   const authHeader = req.headers.authorization;
+  
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.split(' ')[1];
     try {
+      // トークンを検証
       const decoded = jwt.verify(token, JWT_SECRET);
       authUserId = decoded.userId;
+      isAdmin = decoded.isAdmin || false;
     } catch (e) {
-      // 不正なトークンの場合は無視
+      // トークンが不正、または有効期限切れの場合は無視
     }
   }
 
   try {
-    // 1. ユーザー登録
+    // 1. ユーザー登録 (既存のまま)
     if (type === 'register') {
       const { email, password } = params;
       if (!email || !password) return res.status(200).json({ success: false, message: "Missing credentials" });
@@ -57,136 +65,113 @@ export default async function handler(req, res) {
     }
 
     // ==========================================
-    // ★ 管理者用 新規ユーザー強制作成
-    // ==========================================
-    if (type === 'admin_create_user') {
-      const { email, password } = params;
-      if (!email || !password) return res.status(200).json({ success: false, message: "Missing credentials" });
-      
-      const { data: existing } = await supabase.from('users').select('id').eq('email', email).maybeSingle();
-      if (existing) return res.status(200).json({ success: false, message: "そのIDは既に存在します" });
-      
-      const hashedPass = hashPassword(password);
-      const { data: newUser, error } = await supabase.from('users').insert([{ 
-          email, 
-          password: hashedPass, 
-          points: 0,
-          needs_password_change: true 
-      }]).select().single();
-      
-      if (error) throw error;
-      return res.status(200).json({ success: true, message: "OK" });
-    }
-
-    // ==========================================
-    // ★ 管理者用 パスワード強制リセット
-    // ==========================================
-    if (type === 'admin_reset_password') {
-      const { adminUser, adminPass, targetEmail, newPassword } = params;
-      
-      if (adminUser !== ADMIN_ID || adminPass !== ADMIN_PASS) {
-         return res.status(200).json({ success: false, message: "権限がありません" });
-      }
-
-      const { data: targetUser } = await supabase.from('users').select('id').eq('email', targetEmail).maybeSingle();
-      if (!targetUser) {
-          return res.status(200).json({ success: false, message: "指定されたユーザーが見つかりません" });
-      }
-
-      const hashedNewPass = hashPassword(newPassword);
-      const { error: updateError } = await supabase.from('users').update({ 
-          password: hashedNewPass,
-          needs_password_change: true 
-      }).eq('id', targetUser.id);
-
-      if (updateError) {
-          return res.status(200).json({ success: false, message: "データベースの更新に失敗しました" });
-      }
-      return res.status(200).json({ success: true, message: "Password reset successful" });
-    }
-
-    // ==========================================
-    // ★ 管理者用 ユーザー履歴検索
-    // ==========================================
-    if (type === 'admin_search') {
-      const { adminUser, adminPass, targetEmail } = params;
-      
-      if (adminUser !== ADMIN_ID || adminPass !== ADMIN_PASS) {
-        return res.status(200).json({ success: false, message: "権限がありません" });
-      }
-      if (!targetEmail) return res.status(200).json({ success: false, message: "対象のメールアドレスを指定してください" });
-
-      const { data: targetUser } = await supabase.from('users').select('id, email').eq('email', targetEmail).maybeSingle();
-      if (!targetUser) return res.status(200).json({ success: false, message: "指定されたユーザーが見つかりません" });
-
-      const { data: histories, error: searchError } = await supabase.from('histories')
-        .select(`created_at, codes (*)`).eq('user_id', targetUser.id).order('created_at', { ascending: false });
-
-      if (searchError) {
-          console.error(searchError);
-          return res.status(200).json({ success: false, message: "履歴の取得に失敗しました" });
-      }
-
-      const historyData = (histories || []).map(h => ({
-        code: h.codes ? h.codes["アクティベーションコード"] : "不明",
-        title: h.codes ? (h.codes["タイトル(jp)"] || "不明なコンテンツ") : "不明なコンテンツ",
-        date: new Date(h.created_at).toLocaleString('ja-JP')
-      }));
-
-      return res.status(200).json({ success: true, userId: targetUser.email, history: historyData });
-    }
-
-    // ==========================================
-    // 2. ユーザーログイン (★JWTトークン発行)
+    // 2. ユーザー・管理者ログイン (★JWTトークン発行)
     // ==========================================
     if (type === 'user_login') {
       const { email, password } = params;
-      if (email === ADMIN_ID && password === ADMIN_PASS) {
-        return res.status(200).json({ success: true, isAdmin: true });
-      }
-      const { data: user } = await supabase.from('users').select('*').eq('email', email).maybeSingle();
       
+      // 管理者ログイン判定
+      if (email === ADMIN_ID && password === ADMIN_PASS) {
+        // 管理者用のトークンを発行
+        const token = jwt.sign({ userId: email, isAdmin: true }, JWT_SECRET, { expiresIn: '24h' });
+        return res.status(200).json({ success: true, isAdmin: true, token: token });
+      }
+      
+      // 一般ユーザーログイン判定
+      const { data: user } = await supabase.from('users').select('*').eq('email', email).maybeSingle();
       if (user && user.password === hashPassword(password)) {
         if (user.needs_password_change) {
             return res.status(200).json({ success: true, requirePasswordChange: true, userId: user.id });
         }
-        
-        // ★パスワードが合っていればトークンを発行
-        const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '24h' });
+        // 一般ユーザー用のトークンを発行
+        const token = jwt.sign({ userId: user.id, isAdmin: false }, JWT_SECRET, { expiresIn: '24h' });
         return res.status(200).json({ success: true, token: token, userId: user.id, points: user.points, history: [] });
       }
       return res.status(200).json({ success: false, message: "Invalid" });
     }
 
     // ==========================================
-    // ★ パスワード強制変更・通常変更処理
+    // ★ 管理者用機能 (トークンで権限チェック)
     // ==========================================
+    if (type.startsWith('admin_')) {
+        // 送られてきたパスワードではなく、トークンの isAdmin フラグを確認する
+        if (!isAdmin) {
+            return res.status(401).json({ success: false, message: "管理者権限がありません" });
+        }
+
+        // 新規ユーザー強制作成
+        if (type === 'admin_create_user') {
+            const { email, password } = params;
+            if (!email || !password) return res.status(200).json({ success: false, message: "Missing credentials" });
+            const { data: existing } = await supabase.from('users').select('id').eq('email', email).maybeSingle();
+            if (existing) return res.status(200).json({ success: false, message: "そのIDは既に存在します" });
+            
+            const hashedPass = hashPassword(password);
+            const { error } = await supabase.from('users').insert([{ 
+                email, password: hashedPass, points: 0, needs_password_change: true 
+            }]);
+            if (error) throw error;
+            return res.status(200).json({ success: true, message: "OK" });
+        }
+
+        // パスワード強制リセット
+        if (type === 'admin_reset_password') {
+            const { targetEmail, newPassword } = params; // adminUserとadminPassは不要になった
+            const { data: targetUser } = await supabase.from('users').select('id').eq('email', targetEmail).maybeSingle();
+            if (!targetUser) return res.status(200).json({ success: false, message: "指定されたユーザーが見つかりません" });
+
+            const hashedNewPass = hashPassword(newPassword);
+            const { error: updateError } = await supabase.from('users').update({ 
+                password: hashedNewPass, needs_password_change: true 
+            }).eq('id', targetUser.id);
+
+            if (updateError) return res.status(200).json({ success: false, message: "データベースの更新に失敗しました" });
+            return res.status(200).json({ success: true, message: "Password reset successful" });
+        }
+
+        // ユーザー履歴検索
+        if (type === 'admin_search') {
+            const { targetEmail } = params; // adminUserとadminPassは不要になった
+            if (!targetEmail) return res.status(200).json({ success: false, message: "対象のメールアドレスを指定してください" });
+
+            const { data: targetUser } = await supabase.from('users').select('id, email').eq('email', targetEmail).maybeSingle();
+            if (!targetUser) return res.status(200).json({ success: false, message: "指定されたユーザーが見つかりません" });
+
+            const { data: histories, error: searchError } = await supabase.from('histories')
+              .select(`created_at, codes (*)`).eq('user_id', targetUser.id).order('created_at', { ascending: false });
+
+            if (searchError) return res.status(200).json({ success: false, message: "履歴の取得に失敗しました" });
+
+            const historyData = (histories || []).map(h => ({
+              code: h.codes ? h.codes["アクティベーションコード"] : "不明",
+              title: h.codes ? (h.codes["タイトル(jp)"] || "不明なコンテンツ") : "不明なコンテンツ",
+              date: new Date(h.created_at).toLocaleString('ja-JP')
+            }));
+            return res.status(200).json({ success: true, userId: targetUser.email, history: historyData });
+        }
+    }
+
+    // ==========================================
+    // ★ 一般ユーザー用機能 (トークンでユーザー特定)
+    // ==========================================
+    
+    // パスワード強制変更処理
     if (type === 'change_password') {
       const { userId, oldPassword, newPassword } = params;
       const targetId = authUserId || userId; 
-      
       const { data: user } = await supabase.from('users').select('*').eq('id', targetId).maybeSingle();
-      
       if (user && user.password === hashPassword(oldPassword)) {
-          await supabase.from('users').update({
-              password: hashPassword(newPassword),
-              needs_password_change: false
-          }).eq('id', targetId);
+          await supabase.from('users').update({ password: hashPassword(newPassword), needs_password_change: false }).eq('id', targetId);
           return res.status(200).json({ success: true });
       }
       return res.status(200).json({ success: false, message: "現在のパスワードが間違っています。" });
     }
 
-    // ==========================================
-    // セッション復帰時の最新情報取得
-    // ==========================================
+    // セッション復帰
     if (type === 'get_user_info') {
       if (!authUserId) return res.status(401).json({ success: false, message: "Unauthorized" });
-      
       const { data: user, error } = await supabase.from('users').select('points').eq('id', authUserId).single();
-      if (error || !user) {
-        return res.status(200).json({ success: false, message: "User not found" });
-      }
+      if (error || !user) return res.status(200).json({ success: false, message: "User not found" });
       return res.status(200).json({ success: true, points: user.points });
     }
 
@@ -196,9 +181,7 @@ export default async function handler(req, res) {
       const targetId = isGuest ? null : authUserId; 
       
       const { data: allCodes } = await supabase.from('codes').select('*');
-      
-      let ownedCodeIds = new Set();
-      let ownedGroupIds = new Set();
+      let ownedCodeIds = new Set(); let ownedGroupIds = new Set();
 
       if (targetId) {
         const { data: history } = await supabase.from('histories').select('code_id').eq('user_id', targetId);
@@ -229,18 +212,10 @@ export default async function handler(req, res) {
       const items = filteredCodes.map(code => {
         const isOwned = ownedCodeIds.has(code.id) || (code["重複"] && ownedGroupIds.has(code["重複"]));
         return {
-          code: code["アクティベーションコード"],
-          title: code[`タイトル(${suffix})`] || code["タイトル(jp)"],
-          message: code[`メッセージ(${suffix})`] || code["メッセージ(jp)"],
-          extraInfo: code[`詳細(${suffix})`] || code["詳細(jp)"],
-          imageUrl: code.Imag_Url,
-          url: code.Action_url,
-          releaseDateIso: code["解禁時間"],
-          icon: code.アイコン || 'download',
-          groupId: code["重複"],
-          buttonLabel: code[`ボタン(${suffix})`] || code["ボタン(jp)"],
-          price: code["価格"] || 0,
-          isOwned: isOwned
+          code: code["アクティベーションコード"], title: code[`タイトル(${suffix})`] || code["タイトル(jp)"],
+          message: code[`メッセージ(${suffix})`] || code["メッセージ(jp)"], extraInfo: code[`詳細(${suffix})`] || code["詳細(jp)"],
+          imageUrl: code.Imag_Url, url: code.Action_url, releaseDateIso: code["解禁時間"], icon: code.アイコン || 'download',
+          groupId: code["重複"], buttonLabel: code[`ボタン(${suffix})`] || code["ボタン(jp)"], price: code["価格"] || 0, isOwned: isOwned
         };
       });
       return res.status(200).json({ success: true, items });
@@ -249,7 +224,6 @@ export default async function handler(req, res) {
     // 4. ユーザー履歴の取得
     if (type === 'get_history') {
       if (!authUserId) return res.status(401).json({ success: false, message: "Unauthorized" });
-      
       const { data: user, error: userErr } = await supabase.from('users').select('points').eq('id', authUserId).maybeSingle();
       if (userErr || !user) return res.status(200).json({ success: false, message: "User not found" });
 
@@ -262,17 +236,10 @@ export default async function handler(req, res) {
         const c = h.codes;
         if(!c) return null;
         return {
-          code: c["アクティベーションコード"],
-          date: h.created_at,
-          title: c[`タイトル(${suffix})`] || c["タイトル(jp)"],
-          message: c[`メッセージ(${suffix})`] || c["メッセージ(jp)"],
-          url: c.Action_url,
-          imageUrl: c.Imag_Url,
-          icon: c.アイコン || 'download',
-          releaseDateIso: c["解禁時間"],
-          extraInfo: c[`詳細(${suffix})`] || c["詳細(jp)"],
-          groupId: c["重複"],
-          buttonLabel: c[`ボタン(${suffix})`] || c["ボタン(jp)"]
+          code: c["アクティベーションコード"], date: h.created_at, title: c[`タイトル(${suffix})`] || c["タイトル(jp)"],
+          message: c[`メッセージ(${suffix})`] || c["メッセージ(jp)"], url: c.Action_url, imageUrl: c.Imag_Url,
+          icon: c.アイコン || 'download', releaseDateIso: c["解禁時間"], extraInfo: c[`詳細(${suffix})`] || c["詳細(jp)"],
+          groupId: c["重複"], buttonLabel: c[`ボタン(${suffix})`] || c["ボタン(jp)"]
         };
       }).filter(Boolean);
       return res.status(200).json({ success: true, points: user.points, history: historyData });
@@ -304,9 +271,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, remainingPoints: user.points - price });
     }
 
-    // ==========================================
     // 6. コードの確認(check) と 引き換え(redeem)
-    // ==========================================
     if (type === 'check' || type === 'redeem') {
       const { key, mode } = params;
       const targetId = authUserId; // 未ログインならnull
@@ -314,14 +279,10 @@ export default async function handler(req, res) {
       const safeCode = (key || "").replace(/[^A-Z0-9\-]/gi, "").toUpperCase();
       const { data: master, error } = await supabase.from('codes').select('*').eq('アクティベーションコード', safeCode).maybeSingle();
 
-      if (error || !master) {
-          return res.status(200).json({ success: false, message: "This code is invalid." });
-      }
+      if (error || !master) return res.status(200).json({ success: false, message: "This code is invalid." });
 
       const isActive = master["有効/無効"] === true || String(master["有効/無効"]).trim().toUpperCase() === 'TRUE';
-      if (!isActive) {
-        return res.status(200).json({ success: false, message: "This code is invalid." });
-      }
+      if (!isActive) return res.status(200).json({ success: false, message: "This code is invalid." });
 
       const now = new Date();
       if (master["有効時間"] && now > new Date(master["有効時間"])) {
@@ -341,24 +302,15 @@ export default async function handler(req, res) {
       const suffix = lMap[lang] || 'jp';
 
       const txt = {
-        btnLabel: master[`ボタン(${suffix})`] || master["ボタン(jp)"],
-        bundle:   master[`バンドル(${suffix})`] || master["バンドル(jp)"],
-        message:  master[`メッセージ(${suffix})`] || master["メッセージ(jp)"],
-        title:    master[`タイトル(${suffix})`] || master["タイトル(jp)"],
-        desc:     master[`詳細(${suffix})`] || master["詳細(jp)"]
+        btnLabel: master[`ボタン(${suffix})`] || master["ボタン(jp)"], bundle: master[`バンドル(${suffix})`] || master["バンドル(jp)"],
+        message: master[`メッセージ(${suffix})`] || master["メッセージ(jp)"], title: master[`タイトル(${suffix})`] || master["タイトル(jp)"],
+        desc: master[`詳細(${suffix})`] || master["詳細(jp)"]
       };
 
       if (mode === 'check') {
         return res.status(200).json({
-          success: true,
-          bundleLabel: txt.bundle,
-          message: txt.message,
-          detailedTitle: txt.title,
-          detailedDesc: txt.desc,
-          buttonLabel: txt.btnLabel,
-          imageUrl: master.Imag_Url,
-          icon: master.アイコン || 'download',
-          groupId: master["重複"]
+          success: true, bundleLabel: txt.bundle, message: txt.message, detailedTitle: txt.title, detailedDesc: txt.desc,
+          buttonLabel: txt.btnLabel, imageUrl: master.Imag_Url, icon: master.アイコン || 'download', groupId: master["重複"]
         });
       }
 
