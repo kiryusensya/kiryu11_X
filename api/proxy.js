@@ -6,7 +6,7 @@ function hashPassword(password) {
 }
 
 const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY; // ←ここを変更！
 const supabase = createClient(supabaseUrl, supabaseKey);
 const ADMIN_ID = "admin_kiryu-sensya";
 const ADMIN_PASS = "-GTA6xaxijIl-v4.2xs-2";
