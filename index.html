@@ -1565,6 +1565,22 @@ const escapeHTML = (str) => {
     }[match];
   });
 };
+
+// ★追加：トークン付きで安全に fetch するためのラッパー関数
+async function safeFetch(bodyObj) {
+  const token = localStorage.getItem('user_session_token') || "";
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+  }
+  const response = await fetch(GAS_API_URL, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(bodyObj)
+  });
+  return await response.json();
+}
+
 const formatDisplayCode = (code) => {
   if (!code) return "";
   const clean = code.toUpperCase().replace(/[^A-Z0-9]/g, '');
@@ -2035,7 +2051,6 @@ function setupEventListeners() {
       });
   }
 
-  // ★アカウント管理の処理
   const btnMenuAccount = document.getElementById('btnMenuAccount');
   const accountModal = document.getElementById('accountModal');
   const closeAccountModalBtn = document.getElementById('closeAccountModalBtn');
@@ -2085,17 +2100,13 @@ function setupEventListeners() {
           btnSubmitAccPassChange.disabled = true;
 
           try {
-              const res = await fetch(GAS_API_URL, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ 
-                      type: 'change_password', 
-                      userId: currentUser.userId, 
-                      oldPassword: oldP, 
-                      newPassword: newP 
-                  })
+              // ★変更：safeFetch を使用
+              const d = await safeFetch({ 
+                  type: 'change_password', 
+                  userId: currentUser.userId, 
+                  oldPassword: oldP, 
+                  newPassword: newP 
               });
-              const d = await res.json();
               
               if (d.success) {
                   status.style.color = "var(--primary)";
@@ -2145,17 +2156,13 @@ function setupEventListeners() {
     
     btn.textContent = "変更中...";
     try {
-        const res = await fetch(GAS_API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                type: 'change_password', 
-                userId: window.tempChangeData.userId, 
-                oldPassword: window.tempChangeData.oldPassword, 
-                newPassword: newPass 
-            })
+        // ★変更：safeFetch を使用
+        const d = await safeFetch({ 
+            type: 'change_password', 
+            userId: window.tempChangeData.userId, 
+            oldPassword: window.tempChangeData.oldPassword, 
+            newPassword: newPass 
         });
-        const d = await res.json();
         
         if (d.success) {
             errObj.style.color = "var(--primary)";
@@ -2241,7 +2248,8 @@ function showPurchaseError(userPts, price) {
     els.errorMessage.textContent = t.error_points_msg || "ポイントが不足しています。";
     
     const subStr = t.error_points_sub || `現在: ${userPts} pt / 必要: ${price} pt`;
-    els.errorSubMessage.innerHTML = subStr.replace('%1', userPts).replace('%2', price);
+    // ★変更：エスケープ処理
+    els.errorSubMessage.innerHTML = escapeHTML(subStr.replace('%1', userPts).replace('%2', price));
     els.errorInfoBox.style.display = 'flex';
     
     els.btnErrorClose.style.flex = "none";
@@ -2256,6 +2264,65 @@ function showPurchaseError(userPts, price) {
     }, 400);
     
     try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+}
+
+function showPurchasePreview(item, price) {
+    const t = TRANSLATIONS[CURRENT_LANG];
+    currentAuthRequestId++;
+    currentContentData = { ...item }; 
+    currentAuthTime = getFormattedCurrentTime(CURRENT_LANG);
+    
+    els.authModal.classList.add('active');
+    els.modalCon.classList.add('is-wide');
+    
+    els.phaseInput.style.display = 'none';
+    els.phaseSuccess.style.display = 'none';
+    els.phaseError.style.display = 'none';
+    
+    const ptDesc = (t.preview_buy_desc || "以下のコンテンツを %s pt で購入します:").replace('%s', price);
+    
+    const titleTops = els.phasePreview.querySelectorAll('.modal-title-top, .mobile-title');
+    titleTops.forEach(el => el.textContent = t.preview_buy_title || "購入確認");
+    
+    const label = els.phasePreview.querySelector('.modal-label');
+    if(label) label.textContent = ptDesc;
+    
+    // ★変更：エスケープ処理
+    els.previewImage.src = escapeHTML(item.imageUrl) || "https://via.placeholder.com/300";
+    els.previewTitleUnderImg.textContent = item.title;
+    els.previewTitle.textContent = item.title;
+    
+    // ★変更：エスケープ処理
+    if (item.extraInfo) {
+        els.previewWarningText.innerHTML = escapeHTML(item.extraInfo).replace(/\n/g, '<br>');
+        els.previewWarningBox.style.display = 'flex';
+    } else {
+        els.previewWarningText.innerHTML = "";
+        els.previewWarningBox.style.display = 'none';
+    }
+    
+    els.btnPreviewRedeem.disabled = false;
+    els.btnPreviewRedeem.innerHTML = t.btn_buy_confirm || "購入確定";
+    
+    const newBtn = els.btnPreviewRedeem.cloneNode(true);
+    els.btnPreviewRedeem.parentNode.replaceChild(newBtn, els.btnPreviewRedeem);
+    els.btnPreviewRedeem = newBtn;
+    
+    els.btnPreviewRedeem.addEventListener('click', (e) => { 
+        e.preventDefault();
+        
+        const userPts = parseInt(String(currentUser.points).replace(/[^0-9]/g, ''), 10) || 0;
+        const itemPrice = parseInt(String(price).replace(/[^0-9]/g, ''), 10) || 0;
+        
+        if (userPts < itemPrice) {
+            showPurchaseError(userPts, itemPrice);
+        } else {
+            buyItemWithPoints(item.code, itemPrice);
+        }
+    });
+    
+    els.phasePreview.style.display = 'flex';
+    setTimeout(() => els.phasePreview.style.opacity = '1', 50);
 }
 
 function showPurchasePreview(item, price) {
@@ -2493,6 +2560,7 @@ function initCustomDropdown() {
 
 function logout() {
   localStorage.removeItem('user_session_identity');
+  localStorage.removeItem('user_session_token'); // ★追加
   currentUser = null;
   window.location.reload(); 
 }
@@ -2652,7 +2720,6 @@ function showMobileItemDetail(item, isNewRedeem = false) {
 async function performAuth(code, mode = 'check') {
   const t = TRANSLATIONS[CURRENT_LANG];
   const thisRequestId = currentAuthRequestId;
-  const uId = currentUser ? currentUser.userId : "GUEST";
   
   const safeCode = formatCodeInput(code);
   const spinnerHtml = `<span class="loading-spinner" style="border-top-color:currentColor; width:18px; height:18px; border-width:2px; margin:0;"></span>`;
@@ -2669,19 +2736,15 @@ async function performAuth(code, mode = 'check') {
   }
 
   try {
-    const res = await fetch(GAS_API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    // ★変更：safeFetch を使用し、userId は送らない
+    const d = await safeFetch({
         key: safeCode,
         lang: CURRENT_LANG,
         mode: mode,
-        userId: uId,
         type: mode === 'check' ? 'check' : 'redeem',
         _t: Date.now()
-      })
     });
-    let d = await res.json();
+
     if (thisRequestId !== currentAuthRequestId) return;
 
     if (mode === 'check') {
@@ -2700,12 +2763,13 @@ async function performAuth(code, mode = 'check') {
         await new Promise(r => setTimeout(r, 600));
         if (thisRequestId !== currentAuthRequestId) return;
         
-        els.previewImage.src = currentContentData.imageUrl;
+        els.previewImage.src = escapeHTML(currentContentData.imageUrl);
         els.previewTitleUnderImg.textContent = currentContentData.message;
         els.previewTitle.textContent = currentContentData.detailedTitle;
         
         if (currentContentData.detailedDesc) {
-    els.previewWarningText.innerHTML = escapeHTML(currentContentData.detailedDesc).replace(/\n/g, '<br>');
+            // ★変更：エスケープ処理
+            els.previewWarningText.innerHTML = escapeHTML(currentContentData.detailedDesc).replace(/\n/g, '<br>');
             els.previewWarningBox.style.display = 'flex';
         } else {
             els.previewWarningText.innerHTML = "";
@@ -2740,7 +2804,7 @@ async function performAuth(code, mode = 'check') {
             const label = els.phaseSuccess.querySelector('.modal-label');
             if(label) label.textContent = (t.success_pt_msg || "追加されました。").replace('%s', d.message);
             
-            els.successImage.src = currentContentData.imageUrl || "https://static.wixstatic.com/media/2f0694_38068f106089439b89c7902ef4fb3d2d~mv2.jpg";
+            els.successImage.src = escapeHTML(currentContentData.imageUrl) || "https://static.wixstatic.com/media/2f0694_38068f106089439b89c7902ef4fb3d2d~mv2.jpg";
             els.successTitleUnderImg.textContent = d.message;
             els.successBundleName.textContent = currentContentData.message || d.message;
             els.successMessageText.innerHTML = "";
@@ -2773,7 +2837,7 @@ async function performAuth(code, mode = 'check') {
            };
            showMobileItemDetail(item, true); 
         } else {
-           els.successImage.src = currentContentData.imageUrl;
+           els.successImage.src = escapeHTML(currentContentData.imageUrl);
            els.successTitleUnderImg.textContent = currentContentData.message;
            els.successBundleName.textContent = currentContentData.bundleLabel;
            els.successMessageText.innerHTML = t.success_msg_box.replace(/\n/g, '<br>');
@@ -2833,7 +2897,8 @@ async function performAuth(code, mode = 'check') {
             
             els.errorMessage.textContent = errorMainText;
             if(showInfoBox && errorSubText) {
-                els.errorSubMessage.innerHTML = errorSubText.replace(/\n/g, '<br>');
+                // ★変更：エスケープ処理
+                els.errorSubMessage.innerHTML = escapeHTML(errorSubText).replace(/\n/g, '<br>');
                 els.errorInfoBox.style.display = 'flex';
             } else {
                 els.errorSubMessage.innerHTML = "";
@@ -2909,15 +2974,11 @@ async function performAuth(code, mode = 'check') {
     }
   }
 }
-  
-// 丸ごと上書きしてください
-// 丸ごと上書きしてください
 async function performAuthAction() {
   const email = els.email.value.trim();
   const pass = els.pass.value.trim();
   const t = TRANSLATIONS[CURRENT_LANG];
   
-  // ① 未入力時のメッセージを多言語対応
   if (!email || !pass) { 
       els.authStatus.textContent = t.msg_login_empty || "ユーザー名とパスワードを入力してください。"; 
       return; 
@@ -2927,6 +2988,7 @@ async function performAuthAction() {
   els.btnAuthAction.innerHTML = `<span class="loading-dots">${t.msg_logging_in || "ログイン中"}</span>`;
   
   try {
+    // ★ログイン時のみ通常の fetch を使う（まだトークンがないため）
     const res = await fetch(GAS_API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -2935,9 +2997,6 @@ async function performAuthAction() {
     const data = await res.json();
     
     if (data.success) {
-      // =========================================================
-      // ★追加: パスワード変更が必要な場合、画面を切り替えて処理を止める
-      // =========================================================
       if (data.requirePasswordChange) {
           window.tempChangeData = { userId: data.userId, oldPassword: pass };
           document.getElementById('forcePasswordChangeView').style.display = 'flex';
@@ -2947,8 +3006,13 @@ async function performAuthAction() {
       currentUser = { userId: data.userId, email: email, history: data.history || [], points: data.points || 0 };
       localStorage.setItem('user_session_identity', JSON.stringify({ userId: data.userId, email: email }));
       
+      // ★追加：JWTトークンを保存する
+      if (data.token) {
+          localStorage.setItem('user_session_token', data.token);
+      }
+      
       document.body.classList.add('is-logged-in');
-      if (els.loginOverlay) els.loginOverlay.classList.remove('active'); // ログイン成功時にモーダルを閉じる
+      if (els.loginOverlay) els.loginOverlay.classList.remove('active'); 
       updateAccountUI(); 
       fetchUserHistory(); 
       
@@ -2964,20 +3028,17 @@ async function performAuthAction() {
           }, 500);
       }
     } else { 
-      // ② 無効・エラー時のメッセージを多言語対応
       const lowMsg = (data.message || "").toLowerCase();
       let errorMsg = data.message || t.msg_error;
       
       if (lowMsg.includes('invalid') || lowMsg.includes('not found') || lowMsg.includes('incorrect') || lowMsg.includes('無効')) {
           errorMsg = t.msg_login_invalid || "無効なユーザー名またはパスワードです。";
       }
-      
       els.authStatus.textContent = errorMsg; 
     }
   } catch (e) { 
     els.authStatus.textContent = t.msg_error || "Network Error."; 
   } finally { 
-    // パスワード変更画面が出ている時はボタンを元に戻す
     els.btnAuthAction.disabled = false; 
     els.btnAuthAction.textContent = t.btn_login_action;
   }
@@ -3339,17 +3400,11 @@ async function fetchAvailableContent() {
     const mobileList = gId('mobileStoreGrid');
 
     try {
-        // GET通信から、より安全なPOST通信に変更
-        const res = await fetch(GAS_API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                type: 'get_available',
-                lang: CURRENT_LANG,
-                userId: currentUser ? currentUser.userId : "GUEST"
-            })
+        // ★変更：safeFetch を使用し、userId は送らない
+        const d = await safeFetch({
+            type: 'get_available',
+            lang: CURRENT_LANG
         });
-        const d = await res.json();
         
         list.innerHTML = '';
         if (mobileList) mobileList.innerHTML = '';
@@ -3393,6 +3448,7 @@ async function fetchAvailableContent() {
                     updateHeroView(item, false); 
                 };
                 
+                // ★変更：エスケープ処理
                 div.innerHTML = `<div class="sidebar-game-info"><img src="${escapeHTML(item.imageUrl)}" class="sidebar-game-thumb"><div class="sidebar-game-text"><div class="sidebar-game-title">${escapeHTML(item.message || item.title)}</div></div></div>`;
                 list.appendChild(div);
                 
@@ -3417,23 +3473,16 @@ async function fetchAvailableContent() {
 
 async function fetchUserHistory() {
   if (!currentUser) {
-      // 未ログイン状態なら、履歴は無視してストアだけ取得する
       fetchAvailableContent();
       return;
   }
   els.libraryListSidebar.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">Loading...</div>`;
   try { 
-    // GET通信から、より安全なPOST通信に変更
-    const res = await fetch(GAS_API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            type: 'get_history',
-            userId: currentUser.userId,
-            lang: CURRENT_LANG
-        })
+    // ★変更：safeFetch を使用し、userId は送らない
+    const data = await safeFetch({
+        type: 'get_history',
+        lang: CURRENT_LANG
     });
-    const data = await res.json();
     
     if (data.success && Array.isArray(data.history)) {
       currentUser.history = data.history; 
@@ -3442,11 +3491,9 @@ async function fetchUserHistory() {
       if (currentUser.history.length > 0) {
             updateHeroView(currentUser.history[0], true);
       }
-    } else if (data.message === "User not found" || data.success === false) {
+    } else if (data.message === "User not found" || data.message === "Unauthorized" || data.success === false) {
       console.warn("User session invalid. Logging out...");
-      localStorage.removeItem('user_session_identity');
-      currentUser = null;
-      window.location.reload(); 
+      logout(); // ★変更：logout() 関数を呼び出してトークンも消去
       return;
     }
   } catch (e) { 
@@ -3486,36 +3533,34 @@ function initThemeAndParticles() {
 }
 async function resumeSession() {
   const sUser = localStorage.getItem('user_session_identity');
-  if (!sUser) return;
+  const token = localStorage.getItem('user_session_token');
+  // トークンがない場合は復帰しない
+  if (!sUser || !token) {
+      logout();
+      return;
+  }
 
   try {
       const identity = JSON.parse(sUser);
       // 一時的に画面上ではログインしているように見せる
       currentUser = { userId: identity.userId, email: identity.email, history: [], points: 0 };
       document.body.classList.add('is-logged-in');
-      if (els.loginOverlay) els.loginOverlay.classList.remove('active'); // ログイン画面を消す
+      if (els.loginOverlay) els.loginOverlay.classList.remove('active'); 
       updateAccountUI();
 
-      // 裏でサーバーに最新の情報を問い合わせる（自動ログイン）
-      const res = await fetch(GAS_API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'get_user_info', userId: identity.userId })
-      });
-      const data = await res.json();
+      // ★変更：safeFetch を使用し、userId は送らない
+      const data = await safeFetch({ type: 'get_user_info' });
       
       if (data.success) {
           currentUser.points = data.points || 0;
           updateAccountUI();
-          fetchUserHistory(); // 履歴とストアの読み込み
+          fetchUserHistory(); 
       } else {
-          // ユーザーが見つからない、またはエラーの場合は強制ログアウト
           console.warn("Session invalid. Logging out.");
           logout();
       }
   } catch (e) {
       console.error("Session Resume Error:", e);
-      // オフラインなどの場合は、とりあえず過去の履歴を取得しようとする
       fetchUserHistory(); 
   }
 }
