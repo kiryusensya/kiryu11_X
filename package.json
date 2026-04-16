@@ -9,6 +9,7 @@
     "react-dom": "latest",
     "@upstash/ratelimit": "latest",
     "@upstash/redis": "latest",
-    "@supabase/supabase-js": "^2.42.0"
+    "@supabase/supabase-js": "^2.42.0",
+    "jsonwebtoken": "^9.0.2"
   }
 }
