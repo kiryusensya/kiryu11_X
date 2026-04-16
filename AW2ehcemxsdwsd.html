@@ -202,6 +202,399 @@
 <script>
   lucide.createIcons();
   const GAS_API_URL = "api/proxy"; 
+
+  // ★トークン付きで安全に fetch するためのラッパー関数
+  async function safeFetch(bodyObj) {
+    const token = localStorage.getItem('admin_session_token') || "";
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+    const response = await fetch(GAS_API_URL, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(bodyObj)
+    });
+    return await response.json();
+  }
+
+  // --- タブ切り替え ---
+  function switchTab(tabId) {
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      
+      document.getElementById('panel-' + tabId).classList.add('active');
+      event.currentTarget.classList.add('active');
+      
+      const titles = { 'create': 'ユーザー発行', 'reset': 'パスワードリセット', 'search': '履歴検索' };
+      document.getElementById('pageTitle').textContent = titles[tabId];
+  }
+
+  // --- 1. ログイン ---
+  document.getElementById('btnLogin').addEventListener('click', async () => {
+      const u = document.getElementById('adminId').value.trim();
+      const p = document.getElementById('adminPass').value.trim();
+      const resEl = document.getElementById('loginResult');
+      if(!u || !p) { resEl.textContent = "IDとパスワードを入力してください"; return; }
+
+      resEl.textContent = "認証中..."; resEl.style.color = "var(--text-sub)";
+      
+      try {
+          // 初回のログインだけは直接 fetch する（まだトークンがないため）
+          const res = await fetch(GAS_API_URL, {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ type: 'user_login', email: u, password: p })
+          });
+          const d = await res.json();
+          
+          if(d.success && d.isAdmin) {
+              // ★平文のパスワードではなく、発行されたJWTトークンを保存する！
+              localStorage.setItem('admin_session_token', d.token);
+              document.getElementById('loginScreen').style.display = 'none';
+              document.getElementById('dashboardScreen').style.display = 'flex';
+              resEl.textContent = "";
+          } else {
+              resEl.textContent = "無効な管理者IDまたはパスワードです"; resEl.style.color = "var(--danger)";
+          }
+      } catch(e) { 
+          resEl.textContent = "通信エラーが発生しました"; resEl.style.color = "var(--danger)";
+      }
+  });
+
+  // --- 2. ログアウト ---
+  document.getElementById('btnLogout').addEventListener('click', () => {
+      localStorage.removeItem('admin_session_token'); // トークンを破棄
+      document.getElementById('adminId').value = ""; document.getElementById('adminPass').value = "";
+      document.getElementById('dashboardScreen').style.display = 'none';
+      document.getElementById('loginScreen').style.display = 'flex';
+  });
+
+  // --- 3. ユーザー発行 ---
+  document.getElementById('btnCreate').addEventListener('click', async () => {
+      const u = document.getElementById('newUserId').value.trim();
+      const p = document.getElementById('newUserPass').value.trim();
+      const resEl = document.getElementById('createResult');
+      if(!u || !p) { resEl.textContent = "すべての項目を入力してください"; resEl.style.color = "var(--danger)"; return; }
+
+      resEl.textContent = "発行中..."; resEl.style.color = "var(--text-sub)";
+      try {
+          // ★パスワードを送るのをやめ、safeFetchを使う
+          const d = await safeFetch({ 
+              type: 'admin_create_user', 
+              email: u, 
+              password: p 
+          });
+          if(d.success) {
+              resEl.textContent = `✅ 発行成功！ ID: ${u} / 初期Pass: ${p}`; resEl.style.color = "var(--success)";
+              document.getElementById('newUserId').value = ""; document.getElementById('newUserPass').value = "";
+          } else {
+              resEl.textContent = `エラー: ${d.message}`; resEl.style.color = "var(--danger)";
+          }
+      } catch(e) { resEl.textContent = "通信エラー"; resEl.style.color = "var(--danger)"; }
+  });
+
+  // --- 4. パスワードリセット ---
+  document.getElementById('btnReset').addEventListener('click', async () => {
+      const u = document.getElementById('resetUserId').value.trim();
+      const p = document.getElementById('resetUserPass').value.trim();
+      const resEl = document.getElementById('resetResult');
+      if(!u || !p) { resEl.textContent = "すべての項目を入力してください"; resEl.style.color = "var(--danger)"; return; }
+
+      if(!confirm(`ユーザー「${u}」のパスワードを強制リセットします。よろしいですか？`)) return;
+
+      resEl.textContent = "リセット実行中..."; resEl.style.color = "var(--text-sub)";
+      try {
+          // ★パスワードを送るのをやめ、safeFetchを使う
+          const d = await safeFetch({ 
+              type: 'admin_reset_password', 
+              targetEmail: u, 
+              newPassword: p 
+          });
+          if(d.success) {
+              resEl.textContent = `✅ 完了！ユーザー「${u}」のパスワードを「${p}」に強制リセットしました。`; 
+              resEl.style.color = "var(--success)";
+              document.getElementById('resetUserId').value = ""; document.getElementById('resetUserPass').value = "";
+          } else {
+              resEl.textContent = `エラー: ${d.message}`; resEl.style.color = "var(--danger)";
+          }
+      } catch(e) { resEl.textContent = "通信エラー"; resEl.style.color = "var(--danger)"; }
+  });
+
+  // --- 5. 履歴検索 (XSS対策版) ---
+  document.getElementById('btnSearch').addEventListener('click', async () => {
+    const u = document.getElementById('searchUserId').value.trim();
+    const resEl = document.getElementById('searchResult');
+    if (!u) return;
+
+    resEl.innerHTML = "<div style='text-align:center; color:var(--text-sub);'>検索中...</div>";
+    
+    try {
+        // ★パスワードを送るのをやめ、safeFetchを使う
+        const d = await safeFetch({ 
+            type: 'admin_search', 
+            targetEmail: u 
+        });
+        
+        resEl.innerHTML = '';
+
+        if (d.success) {
+            if (!d.history || d.history.length === 0) {
+                const emptyMsg = document.createElement('div');
+                emptyMsg.style.cssText = 'text-align:center; color:var(--text-sub); padding:20px;';
+                emptyMsg.textContent = 'このユーザーの履歴はありません。';
+                resEl.appendChild(emptyMsg);
+            } else {
+                // 安全にDOMを生成 (XSS対策済)
+                const targetDiv = document.createElement('div');
+                targetDiv.style.cssText = 'margin-bottom:16px; font-size:14px;';
+                const strongTarget = document.createElement('strong');
+                strongTarget.textContent = 'Target: ';
+                targetDiv.appendChild(strongTarget);
+                targetDiv.appendChild(document.createTextNode(d.userId));
+                resEl.appendChild(targetDiv);
+
+                const ul = document.createElement('ul');
+                ul.className = 'history-list';
+
+                d.history.forEach(h => {
+                    const li = document.createElement('li');
+
+                    const titleSpan = document.createElement('span');
+                    titleSpan.className = 'history-title';
+                    titleSpan.textContent = h.title; 
+                    li.appendChild(titleSpan);
+
+                    const metaSpan = document.createElement('span');
+                    metaSpan.className = 'history-meta';
+                    metaSpan.appendChild(document.createTextNode(`利用コード: ${h.code}`));
+                    metaSpan.appendChild(document.createElement('br'));
+                    metaSpan.appendChild(document.createTextNode(`認証日時: ${h.date}`));
+                    li.appendChild(metaSpan);
+
+                    ul.appendChild(li);
+                });
+
+                resEl.appendChild(ul);
+            }
+        } else {
+            const errorSpan = document.createElement('span');
+            errorSpan.style.color = 'var(--danger)';
+            errorSpan.textContent = `エラー: ${d.message}`;
+            resEl.appendChild(errorSpan);
+        }
+    } catch (e) {
+        const errorSpan = document.createElement('span');
+        errorSpan.style.color = 'var(--danger)';
+        errorSpan.textContent = '通信エラー';
+        resEl.appendChild(errorSpan);
+    }
+  });
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  :root {
+    --primary: #007DFF;
+    --bg-color: #121212;
+    --card-bg: rgba(40, 40, 40, 0.6);
+    --card-border: rgba(255, 255, 255, 0.1);
+    --text-main: #FFFFFF;
+    --text-sub: #A0A0A0;
+    --danger: #FF3B30;
+    --success: #04CF22;
+  }
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    overflow-x: hidden;
+  }
+  * { box-sizing: border-box; }
+  
+  /* --- Login Screen --- */
+  #loginScreen {
+    position: fixed; inset: 0; display: flex; justify-content: center; align-items: center;
+    background: var(--bg-color); z-index: 1000;
+  }
+  .login-card {
+    background: rgba(30, 30, 30, 0.8); backdrop-filter: blur(20px); border: 1px solid var(--card-border);
+    border-radius: 24px; padding: 40px; width: 90%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    text-align: center;
+  }
+  
+  /* --- Dashboard Layout --- */
+  #dashboardScreen { display: none; width: 100%; height: 100vh; }
+  
+  .sidebar {
+    width: 280px; background: #000; border-right: 1px solid var(--card-border);
+    display: flex; flex-direction: column; padding: 24px;
+  }
+  .brand { font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 10px; margin-bottom: 40px; }
+  
+  .nav-item {
+    display: flex; align-items: center; gap: 12px; padding: 16px; border-radius: 12px;
+    color: var(--text-sub); font-weight: 700; cursor: pointer; transition: 0.2s; margin-bottom: 8px;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text-main); }
+  .nav-item.active { background: rgba(0, 125, 255, 0.15); color: var(--primary); border: 1px solid rgba(0, 125, 255, 0.3); }
+  
+  .main-content { flex: 1; padding: 40px; overflow-y: auto; background: var(--bg-color); }
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+  .header h1 { margin: 0; font-size: 28px; font-weight: 800; }
+  
+  .panel { display: none; animation: fadeIn 0.4s; }
+  .panel.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  
+  /* --- UI Elements --- */
+  .card {
+    background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 30px;
+    max-width: 600px; margin-bottom: 20px; backdrop-filter: blur(10px);
+  }
+  .card h2 { margin: 0 0 20px 0; font-size: 18px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px;}
+  
+  .form-group { margin-bottom: 20px; text-align: left; }
+  label { display: block; font-size: 13px; font-weight: 700; color: var(--text-sub); margin-bottom: 8px; }
+  input {
+    width: 100%; height: 50px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 12px; color: var(--text-main); padding: 0 16px; font-size: 15px; font-family: inherit; outline: none;
+  }
+  input:focus { border-color: var(--primary); background: rgba(0, 125, 255, 0.05); }
+  
+  button {
+    height: 50px; border-radius: 25px; font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.2s;
+    border: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;
+  }
+  .btn-primary { background: var(--primary); color: #fff; width: 100%; }
+  .btn-primary:hover { opacity: 0.8; }
+  .btn-danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); width: auto; padding: 0 20px; height: 40px; border-radius: 20px; font-size: 14px;}
+  .btn-danger:hover { background: rgba(255, 59, 48, 0.1); }
+  
+  .msg { margin-top: 15px; font-size: 14px; font-weight: 700; min-height: 20px; text-align: center; }
+  
+  .history-list { list-style: none; padding: 0; margin: 0; max-height: 400px; overflow-y: auto; }
+  .history-list li { background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); padding: 16px; margin-bottom: 10px; border-radius: 12px; }
+  .history-title { font-weight: 800; font-size: 16px; margin-bottom: 6px; display: block; }
+  .history-meta { color: var(--text-sub); font-size: 12px; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-card">
+    <div style="display:flex; justify-content:center; margin-bottom:20px; opacity:0.8;">
+        <i data-lucide="shield-check" style="width:48px; height:48px; color:var(--primary);"></i>
+    </div>
+    <h1 style="margin: 0 0 30px 0; font-size: 24px;">Admin Console</h1>
+    <div class="form-group">
+      <input type="text" id="adminId" placeholder="管理者ID">
+    </div>
+    <div class="form-group">
+      <input type="password" id="adminPass" placeholder="パスワード">
+    </div>
+    <button id="btnLogin" class="btn-primary">ログイン</button>
+    <div id="loginResult" class="msg" style="color: var(--danger);"></div>
+  </div>
+</div>
+
+<div id="dashboardScreen">
+  <div class="sidebar">
+    <div class="brand">
+        <i data-lucide="server"></i> Enterprise
+    </div>
+    
+    <div class="nav-item active" onclick="switchTab('create')">
+        <i data-lucide="user-plus"></i> ユーザー発行
+    </div>
+    <div class="nav-item" onclick="switchTab('reset')">
+        <i data-lucide="key-round"></i> パスワードリセット
+    </div>
+    <div class="nav-item" onclick="switchTab('search')">
+        <i data-lucide="search"></i> 履歴検索
+    </div>
+    
+    <div style="margin-top: auto;">
+        <button id="btnLogout" class="btn-danger" style="width:100%; border:none; text-align:left; justify-content:flex-start;">
+            <i data-lucide="log-out"></i> ログアウト
+        </button>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="header">
+        <h1 id="pageTitle">ユーザー発行</h1>
+        <div style="font-size:12px; color:var(--text-sub); background:rgba(255,255,255,0.05); padding:8px 16px; border-radius:20px;">
+            権限: Administrator
+        </div>
+    </div>
+
+    <div id="panel-create" class="panel active">
+        <div class="card">
+            <h2>新規アカウントの作成</h2>
+            <div class="form-group">
+              <label>新しいユーザーID</label>
+              <input type="text" id="newUserId" placeholder="例: user_001">
+            </div>
+            <div class="form-group">
+              <label>初期パスワード</label>
+              <input type="text" id="newUserPass" placeholder="初期パスワードを入力">
+            </div>
+            <button id="btnCreate" class="btn-primary">アカウントを発行</button>
+            <div id="createResult" class="msg"></div>
+        </div>
+    </div>
+
+    <div id="panel-reset" class="panel">
+        <div class="card">
+            <h2>パスワードの強制リセット</h2>
+            <p style="font-size:13px; color:var(--text-sub); margin-bottom:20px;">
+                指定したユーザーのパスワードを上書きします。次回のログイン時に「パスワードの変更が必要です」という画面が強制的に表示されます。
+            </p>
+            <div class="form-group">
+              <label>対象のユーザーID</label>
+              <input type="text" id="resetUserId" placeholder="例: user_001">
+            </div>
+            <div class="form-group">
+              <label>新しい仮パスワード</label>
+              <input type="text" id="resetUserPass" placeholder="新しい仮パスワードを入力">
+            </div>
+            <button id="btnReset" class="btn-primary" style="background:#FF9500; color:#000;">強制リセットを実行</button>
+            <div id="resetResult" class="msg"></div>
+        </div>
+    </div>
+
+    <div id="panel-search" class="panel">
+        <div class="card" style="max-width: 100%;">
+            <h2>ユーザー履歴・ステータス検索</h2>
+            <div style="display: flex; gap: 16px; align-items: flex-end;">
+              <div class="form-group" style="flex:1; margin-bottom:0;">
+                <label>対象のユーザーID</label>
+                <input type="text" id="searchUserId" placeholder="検索したいユーザーID">
+              </div>
+              <button id="btnSearch" class="btn-primary" style="width: 120px;">検索</button>
+            </div>
+            <div id="searchResult" style="margin-top: 30px;">
+                </div>
+        </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  lucide.createIcons();
+  const GAS_API_URL = "api/proxy"; 
   let adminCreds = { user: "", pass: "" };
 
   // --- タブ切り替え ---
