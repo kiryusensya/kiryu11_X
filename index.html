@@ -1552,6 +1552,19 @@ let currentAuthTime = "";
 const gId = (i) => document.getElementById(i);
 const setListener = (el, ev, fn) => { if(el) el.addEventListener(ev, fn); };
 
+// ★追加：XSS対策用のHTMLエスケープ関数
+const escapeHTML = (str) => {
+  if (!str) return "";
+  return String(str).replace(/[&<>"']/g, (match) => {
+    return {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[match];
+  });
+};
 const formatDisplayCode = (code) => {
   if (!code) return "";
   const clean = code.toUpperCase().replace(/[^A-Z0-9]/g, '');
@@ -3094,13 +3107,13 @@ function updateAccountUI() {
             };
             const imgUrl = (item.imageUrl && item.imageUrl.startsWith('http')) ? item.imageUrl : 'https://via.placeholder.com/32';
             div.innerHTML = `
-              <div class="sidebar-game-info">
-                <img src="${imgUrl}" class="sidebar-game-thumb" onerror="this.style.background='#555'">
-                <div class="sidebar-game-text">
-                   <div class="sidebar-game-title">${item.message || item.title}</div>
-                </div>
-              </div>
-            `;
+  <div class="sidebar-game-info">
+    <img src="${escapeHTML(imgUrl)}" class="sidebar-game-thumb" onerror="this.style.background='#555'">
+    <div class="sidebar-game-text">
+       <div class="sidebar-game-title">${escapeHTML(item.message || item.title)}</div>
+    </div>
+  </div>
+`;
             els.libraryListSidebar.appendChild(div);
       });
       
@@ -3380,7 +3393,7 @@ async function fetchAvailableContent() {
                     updateHeroView(item, false); 
                 };
                 
-                div.innerHTML = `<div class="sidebar-game-info"><img src="${item.imageUrl}" class="sidebar-game-thumb"><div class="sidebar-game-text"><div class="sidebar-game-title">${item.message || item.title}</div></div></div>`;
+                div.innerHTML = `<div class="sidebar-game-info"><img src="${escapeHTML(item.imageUrl)}" class="sidebar-game-thumb"><div class="sidebar-game-text"><div class="sidebar-game-title">${escapeHTML(item.message || item.title)}</div></div></div>`;
                 list.appendChild(div);
                 
                 if (!selectedHeroItem && !document.querySelector('.sidebar-game-item.active') && (!currentUser || !currentUser.history.length)) {
