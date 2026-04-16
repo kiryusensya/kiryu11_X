@@ -14,8 +14,8 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 // ★注意：本来はデータベースで管理すべきですが、今回はハードコードのままにしておきます。
 // ただし、以降の通信ではこのパスワードは送信されません。
-const ADMIN_ID = "admin_kiryu-sensya";
-const ADMIN_PASS = "-GTA6xaxijIl-v4.2xs-2";
+const ADMIN_ID = "Enforcement-kiryu-sensya";
+const ADMIN_PASS = "Rockstar 0FFER-PPP-RDR_SPEC1ALl_EDITON";
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
