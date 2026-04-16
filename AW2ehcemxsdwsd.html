@@ -307,34 +307,83 @@
   });
 
   // --- 5. 履歴検索 ---
-  document.getElementById('btnSearch').addEventListener('click', async () => {
-      const u = document.getElementById('searchUserId').value.trim();
-      const resEl = document.getElementById('searchResult');
-      if(!u) return;
+  // --- 5. 履歴検索 (XSS対策版) ---
+document.getElementById('btnSearch').addEventListener('click', async () => {
+    const u = document.getElementById('searchUserId').value.trim();
+    const resEl = document.getElementById('searchResult');
+    if (!u) return;
 
-      resEl.innerHTML = "<div style='text-align:center; color:var(--text-sub);'>検索中...</div>";
-      try {
-          const res = await fetch(GAS_API_URL, {
-              method: 'POST', headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ type: 'admin_search', adminUser: adminCreds.user, adminPass: adminCreds.pass, targetEmail: u })
-          });
-          const d = await res.json();
-          if(d.success) {
-              if(!d.history || d.history.length === 0) {
-                  resEl.innerHTML = "<div style='text-align:center; color:var(--text-sub); padding:20px;'>このユーザーの履歴はありません。</div>";
-              } else {
-                  let html = `<div style="margin-bottom:16px; font-size:14px;"><strong>Target:</strong> ${d.userId}</div><ul class="history-list">`;
-                  d.history.forEach(h => {
-                      html += `<li><span class="history-title">${h.title}</span><span class="history-meta">利用コード: ${h.code}<br>認証日時: ${h.date}</span></li>`;
-                  });
-                  html += `</ul>`;
-                  resEl.innerHTML = html;
-              }
-          } else {
-              resEl.innerHTML = `<span style="color:var(--danger);">エラー: ${d.message}</span>`;
-          }
-      } catch(e) { resEl.innerHTML = `<span style="color:var(--danger);">通信エラー</span>`; }
-  });
+    resEl.innerHTML = "<div style='text-align:center; color:var(--text-sub);'>検索中...</div>";
+    
+    try {
+        const res = await fetch(GAS_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'admin_search', adminUser: adminCreds.user, adminPass: adminCreds.pass, targetEmail: u })
+        });
+        const d = await res.json();
+        
+        // 以前の検索結果をクリア
+        resEl.innerHTML = '';
+
+        if (d.success) {
+            if (!d.history || d.history.length === 0) {
+                const emptyMsg = document.createElement('div');
+                emptyMsg.style.cssText = 'text-align:center; color:var(--text-sub); padding:20px;';
+                emptyMsg.textContent = 'このユーザーの履歴はありません。';
+                resEl.appendChild(emptyMsg);
+            } else {
+                // ターゲットIDの表示 (安全に作成)
+                const targetDiv = document.createElement('div');
+                targetDiv.style.cssText = 'margin-bottom:16px; font-size:14px;';
+                const strongTarget = document.createElement('strong');
+                strongTarget.textContent = 'Target: ';
+                targetDiv.appendChild(strongTarget);
+                // ユーザーIDをテキストとして追加
+                targetDiv.appendChild(document.createTextNode(d.userId));
+                resEl.appendChild(targetDiv);
+
+                // リストのコンテナを作成
+                const ul = document.createElement('ul');
+                ul.className = 'history-list';
+
+                // 履歴アイテムをループで作成 (安全に作成)
+                d.history.forEach(h => {
+                    const li = document.createElement('li');
+
+                    const titleSpan = document.createElement('span');
+                    titleSpan.className = 'history-title';
+                    // textContent を使うことで、HTMLタグがエスケープされ安全になる
+                    titleSpan.textContent = h.title; 
+                    li.appendChild(titleSpan);
+
+                    const metaSpan = document.createElement('span');
+                    metaSpan.className = 'history-meta';
+                    
+                    // 改行を含めたいので、テキストノードと <br> を組み合わせて作成
+                    metaSpan.appendChild(document.createTextNode(`利用コード: ${h.code}`));
+                    metaSpan.appendChild(document.createElement('br'));
+                    metaSpan.appendChild(document.createTextNode(`認証日時: ${h.date}`));
+                    li.appendChild(metaSpan);
+
+                    ul.appendChild(li);
+                });
+
+                resEl.appendChild(ul);
+            }
+        } else {
+            const errorSpan = document.createElement('span');
+            errorSpan.style.color = 'var(--danger)';
+            errorSpan.textContent = `エラー: ${d.message}`;
+            resEl.appendChild(errorSpan);
+        }
+    } catch (e) {
+        const errorSpan = document.createElement('span');
+        errorSpan.style.color = 'var(--danger)';
+        errorSpan.textContent = '通信エラー';
+        resEl.appendChild(errorSpan);
+    }
+});
 </script>
 </body>
 </html>
