@@ -169,6 +169,33 @@ export default async function handler(req, res) {
             }));
             return res.status(200).json({ success: true, userId: targetUser.email, history: historyData });
         }
+      // ==========================================
+        // コンテンツ所有の無効化（履歴の削除）
+        // ==========================================
+        if (type === 'admin_revoke_content') {
+            const { targetEmail, code } = params;
+            if (!targetEmail || !code) return res.status(200).json({ success: false, message: "パラメーターが不足しています" });
+
+            // 1. 対象ユーザーのIDを取得
+            const { data: targetUser } = await supabase.from('users').select('id').eq('email', targetEmail).maybeSingle();
+            if (!targetUser) return res.status(200).json({ success: false, message: "対象のユーザーが見つかりません" });
+
+            // 2. 該当コードのIDを取得
+            const { data: targetCode } = await supabase.from('codes').select('id').eq('アクティベーションコード', code).maybeSingle();
+            if (!targetCode) return res.status(200).json({ success: false, message: "対象のコードが見つかりません" });
+
+            // 3. histories テーブルから該当レコードを削除する
+            const { error: deleteError } = await supabase.from('histories')
+                .delete()
+                .match({ user_id: targetUser.id, code_id: targetCode.id });
+
+            if (deleteError) {
+                console.error("Revoke Error:", deleteError);
+                return res.status(200).json({ success: false, message: "データベースの削除に失敗しました" });
+            }
+
+            return res.status(200).json({ success: true, message: "Revoked successfully" });
+        }
     }
 
     // ==========================================
