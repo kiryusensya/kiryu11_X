@@ -1215,74 +1215,35 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 }
 
 /* =========================================
-   Micro-Interactions (追加分)
+   Micro-Interactions & UI Updates
    ========================================= */
+/* サイドバーメインナビ用のホバー設定 */
+.sidebar-main-nav .rgl-tab { transition: opacity 0.2s ease; }
+.sidebar-main-nav .rgl-tab:hover, .sidebar-main-nav .rgl-tab.active { opacity: 1 !important; }
 
-/* 1. ネオン・パス効果（入力欄） */
-.code-field, .form-input {
-    transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
-}
-.neon-pulse {
-    /* 入力時に青い光が走るようなエフェクト */
+/* 1. ネオン・パス効果（認証結果用） */
+.code-field { transition: box-shadow 0.3s ease, border-color 0.3s ease; }
+.neon-pulse-success {
     box-shadow: 0 0 20px rgba(0, 125, 255, 0.6), inset 0 0 8px rgba(0, 125, 255, 0.4) !important;
     border-color: var(--primary) !important;
-    transform: scale(1.01);
+}
+.neon-pulse-error {
+    box-shadow: 0 0 20px rgba(255, 59, 48, 0.6), inset 0 0 8px rgba(255, 59, 48, 0.4) !important;
+    border-color: #FF3B30 !important;
 }
 
-/* 2. スポットライト・ホバー効果 */
-.spotlight-hover {
-    position: relative;
-    overflow: hidden;
-}
+/* 2. スポットライト・ホバー効果（マウス追従） */
+.spotlight-hover { position: relative; overflow: hidden; }
 .spotlight-hover::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    /* マウス座標(--x, --y)を中心にグラデーションを描画 */
+    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
     background: radial-gradient(300px circle at var(--x, 50%) var(--y, 50%), rgba(255,255,255,0.08), transparent 40%);
-    z-index: 0;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    z-index: 0; pointer-events: none; opacity: 0; transition: opacity 0.3s ease;
 }
 [data-theme="light"] .spotlight-hover::before {
     background: radial-gradient(300px circle at var(--x, 50%) var(--y, 50%), rgba(0,0,0,0.05), transparent 40%);
 }
-.spotlight-hover:hover::before {
-    opacity: 1;
-}
-/* 中のテキストやアイコンがスポットライトの下に隠れないようにする */
-.spotlight-hover > * {
-    position: relative;
-    z-index: 1;
-}
-
-/* 3. サイドバーの「マグネティック」と「滑らかなアクティブ移動」 */
-.rgl-sidebar-list {
-    position: relative; /* アクティブリッジの基準点 */
-}
-/* 滑らかに動く背景（インジケーター） */
-.sidebar-active-indicator {
-    position: absolute;
-    left: 0;
-    width: 100%;
-    border-radius: 50px;
-    background: var(--sidebar-item-hover);
-    border: 1px solid rgba(128,128,128,0.1);
-    /* ここでヌルッと動くアニメーションを設定 */
-    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), height 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.3s ease;
-    z-index: 0;
-    pointer-events: none;
-    opacity: 0; /* 初期状態は非表示 */
-}
-.sidebar-game-item {
-    background: transparent !important; /* 元の背景色を無効化 */
-    border-color: transparent !important;
-}
-.sidebar-game-info {
-    /* マグネティック効果のためにtransitionを設定 */
-    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-}
+.spotlight-hover:hover::before { opacity: 1; }
+.spotlight-hover > * { position: relative; z-index: 1; }
 </style>
 </head>
 <body>
@@ -1374,10 +1335,10 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
         <div class="rgl-bg-image" id="heroBgImage"></div>
         
         <nav class="rgl-header">
-            <div class="rgl-tabs">
-                <a href="index.html" class="rgl-tab active" data-translate="card1_title">Home</a>
-                <a href="https://kiryu10-standard.vercel.app/" class="rgl-tab" data-translate="card3_title">Standard</a>
-            </div>
+            <div class="sidebar-main-nav" style="padding: 0 24px 20px 24px; display: flex; gap: 20px; border-bottom: 1px solid rgba(128,128,128,0.1); margin-bottom: 20px;">
+            <a href="index.html" class="rgl-tab active" data-translate="card1_title" style="font-size: 14px; font-weight: 800; color: var(--sidebar-text); text-decoration: none; opacity: 0.5;">Home</a>
+            <a href="https://kiryu10-standard.vercel.app/" class="rgl-tab" data-translate="card3_title" style="font-size: 14px; font-weight: 800; color: var(--sidebar-text); text-decoration: none; opacity: 0.5;">Standard</a>
+        </div>
             
             <div class="theme-pill" id="themeToggle">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="moon" aria-hidden="true" id="themeIcon" class="lucide lucide-moon lucide-sun"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path></svg>
@@ -2246,7 +2207,11 @@ function setupEventListeners() {
   setListener(els.confirm, 'click', () => performAuth(els.code.value));
   if(els.code) {
       setListener(els.code, 'keydown', (e) => { if(e.key === 'Enter') els.confirm.click(); });
-      setListener(els.code, 'input', (e) => { els.code.value = formatCodeInput(els.code.value); });
+      setListener(els.code, 'input', (e) => { 
+          els.code.value = formatCodeInput(els.code.value); 
+          // ▼ 入力し直したらネオン（赤・青）を消す
+          els.code.classList.remove('neon-pulse-success', 'neon-pulse-error');
+      });
   }
   
   document.getElementById('btnSubmitNewPass').addEventListener('click', async () => {
@@ -2790,7 +2755,6 @@ async function performAuth(code, mode = 'check') {
   }
 
   try {
-    // 修正：code と userId を正しくバックエンドに送信します
     const d = await safeFetch({
         type: mode === 'check' ? 'check' : 'redeem',
         userId: currentUser ? currentUser.userId : null,
@@ -2803,6 +2767,10 @@ async function performAuth(code, mode = 'check') {
 
     if (mode === 'check') {
       if (d.success) {
+        // ▼ 成功時：青く光らせる
+        els.code.classList.remove('neon-pulse-error');
+        els.code.classList.add('neon-pulse-success');
+
         currentContentData = {
             bundleLabel: d.bundleLabel || "Unknown Bundle",
             message: d.message || "Unknown Message",
@@ -2847,7 +2815,71 @@ async function performAuth(code, mode = 'check') {
             e.preventDefault();
             performAuth(safeCode, 'redeem'); 
         });
-      } else { throw new Error(d.message); }
+      } else {
+        // ▼ 失敗時（無効・使用済み等）：赤く光らせる
+        els.code.classList.remove('neon-pulse-success');
+        els.code.classList.add('neon-pulse-error');
+
+        try {
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+            
+            let errorMainText = "";
+            let errorSubText = "";
+            let showInfoBox = true;
+            let specificErrorCode = generateErrorCode(); 
+            
+            const msg = d.message || "";
+            if (msg === "This code has already been used." || msg.includes("使用済") || msg.includes("used")) {
+                errorMainText = t.error_used_msg || t.msg_used;
+                errorSubText = "";
+                specificErrorCode = "1013"; 
+                els.btnErrorClose.style.flex = "none";
+                els.btnErrorClose.style.width = "100%";
+                showInfoBox = false;
+            } else if (d.isAlreadyOwned || msg === "Already owned" || msg.includes("所有") || msg.includes("owned")) {
+                errorMainText = t.error_owned_msg || "既に所有しているようです。";
+                errorSubText = window.innerWidth <= 768 ? (t.msg_already_owned_mobile || "ストアからコンテンツを選択してダウンロードしてください。") : (t.error_owned_sub || "左ライブラリメニューからコンテンツを選択してダウンロードしてください。");
+                specificErrorCode = "1011"; 
+                els.btnErrorClose.style.flex = "none";
+                els.btnErrorClose.style.width = "100%";
+            } else if (msg.toLowerCase().includes("invalid") || msg.toLowerCase().includes("not found")) {
+                errorMainText = t.msg_invalid || "コードが無効です";
+                errorSubText = msg;
+                specificErrorCode = "1012"; 
+                els.btnErrorClose.style.flex = "none";
+                els.btnErrorClose.style.width = "100%";
+            } else {
+                errorMainText = t.msg_error;
+                errorSubText = msg;
+                els.btnErrorClose.style.flex = "none";
+                els.btnErrorClose.style.width = "100%";
+                showInfoBox = errorSubText ? true : false;
+            }
+            
+            els.errorCodeText.textContent = specificErrorCode;
+            els.errorTime.textContent = currentAuthTime;
+            
+            els.errorMessage.textContent = errorMainText;
+            if(showInfoBox && errorSubText) {
+                els.errorSubMessage.innerHTML = escapeHTML(errorSubText).replace(/\n/g, '<br>');
+                els.errorInfoBox.style.display = 'flex';
+            } else {
+                els.errorSubMessage.innerHTML = "";
+                els.errorInfoBox.style.display = 'none';
+            }
+        } catch(err) {
+            console.error("UI Update Error", err);
+            els.errorMessage.textContent = t.msg_error;
+        } finally {
+            els.phasePreview.style.opacity = '0';
+            setTimeout(() => {
+              if (thisRequestId !== currentAuthRequestId) return;
+              els.phasePreview.style.display = 'none';
+              els.phaseError.style.display = 'flex';
+              setTimeout(() => els.phaseError.style.opacity = '1', 50);
+            }, 400);
+        }
+      }
     } else if (mode === 'redeem') {
       if (d.success) { 
         if (d.isPointMode) {
@@ -2918,7 +2950,6 @@ async function performAuth(code, mode = 'check') {
             let specificErrorCode = generateErrorCode(); 
             
             const msg = d.message || "";
-            // 修正：使用済み判定を所有判定より先に持ってきて正しく振り分ける
             if (msg === "This code has already been used." || msg.includes("使用済") || msg.includes("used")) {
                 errorMainText = t.error_used_msg || t.msg_used;
                 errorSubText = "";
@@ -2981,6 +3012,10 @@ async function performAuth(code, mode = 'check') {
        els.code.disabled = false; 
        els.confirm.disabled = false; 
        els.confirm.textContent = t.modal_btn_auth;
+       
+       // ▼ 通信エラー時も赤く光らせる
+       els.code.classList.remove('neon-pulse-success');
+       els.code.classList.add('neon-pulse-error');
        
        let errorDisplay = t.msg_error; 
        const lowMsg = serverMessage.toLowerCase();
@@ -3586,127 +3621,32 @@ async function resumeSession() {
   }
 }
 /* =========================================
-   Micro-Interactions Logic (追加分)
+   Micro-Interactions Logic
    ========================================= */
 document.addEventListener('DOMContentLoaded', () => {
-    
-    // 1. ネオン・パス効果（文字入力時に光る）
-    const setupNeonInputs = () => {
-        document.querySelectorAll('input[type="text"], input[type="password"], input[type="email"]').forEach(input => {
-            if (input.dataset.neonSetup) return;
-            input.dataset.neonSetup = "true";
-            let typingTimer;
-            input.addEventListener('input', () => {
-                input.classList.add('neon-pulse');
-                clearTimeout(typingTimer);
-                typingTimer = setTimeout(() => {
-                    input.classList.remove('neon-pulse');
-                }, 150); // 150ms後に光が消える
-            });
-        });
-    };
-    setupNeonInputs();
-
-    // 2 & 3. スポットライト ＆ マグネティック効果
     const setupHoverEffects = () => {
-        // サイドバーのアイテムに適用
         document.querySelectorAll('.sidebar-game-item').forEach(el => {
             if (el.dataset.hoverSetup) return;
             el.dataset.hoverSetup = "true";
             el.classList.add('spotlight-hover');
-
-            const infoNode = el.querySelector('.sidebar-game-info');
-
             el.addEventListener('mousemove', (e) => {
                 const rect = el.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                
-                // スポットライトの座標更新
-                el.style.setProperty('--x', `${x}px`);
-                el.style.setProperty('--y', `${y}px`);
-
-                // マグネティック効果（中心からの距離を計算して少しだけ要素を動かす）
-                if (infoNode) {
-                    const centerX = rect.width / 2;
-                    const centerY = rect.height / 2;
-                    const moveX = (x - centerX) * 0.08; // 動かす強さ（8%）
-                    const moveY = (y - centerY) * 0.15; // 動かす強さ（15%）
-                    infoNode.style.transition = 'none'; // 動かしている間はアニメーションを切る
-                    infoNode.style.transform = `translate(${moveX}px, ${moveY}px)`;
-                }
-            });
-
-            el.addEventListener('mouseleave', () => {
-                if (infoNode) {
-                    // マウスが離れたら元の位置にアニメーションで戻す
-                    infoNode.style.transition = 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)';
-                    infoNode.style.transform = `translate(0px, 0px)`;
-                }
+                el.style.setProperty('--x', `${e.clientX - rect.left}px`);
+                el.style.setProperty('--y', `${e.clientY - rect.top}px`);
             });
         });
     };
 
-    // 4. 滑らかに移動するアクティブタブ（インジケーター）
-    const setupActiveIndicators = () => {
-        ['sidebarAvailableList', 'sidebarLibraryList'].forEach(listId => {
-            const list = document.getElementById(listId);
-            if (!list || list.dataset.indicatorSetup) return;
-            
-            // 背景用の要素を作成してリストに追加
-            const indicator = document.createElement('div');
-            indicator.className = 'sidebar-active-indicator';
-            list.insertBefore(indicator, list.firstChild);
-            list.dataset.indicatorSetup = "true";
-
-            // アクティブな要素の位置に合わせてインジケーターを動かす関数
-            const updateIndicator = () => {
-                const activeItem = list.querySelector('.sidebar-game-item.active');
-                if (activeItem) {
-                    indicator.style.opacity = '1';
-                    indicator.style.height = `${activeItem.offsetHeight}px`;
-                    indicator.style.transform = `translateY(${activeItem.offsetTop}px)`;
-                } else {
-                    indicator.style.opacity = '0';
-                }
-            };
-
-            // クリック時にインジケーターを動かす
-            list.addEventListener('click', (e) => {
-                const item = e.target.closest('.sidebar-game-item');
-                if (item) {
-                    // 少し遅らせて.activeクラスが付与された後に計算させる
-                    setTimeout(updateIndicator, 10); 
-                }
-            });
-
-            // 初回表示用
-            setTimeout(updateIndicator, 100);
-        });
-    };
-
-    // DOMの変更を監視して、新しく追加されたアイテム（フェッチされたデータなど）にも効果を自動適用する
     const observer = new MutationObserver((mutations) => {
         let shouldUpdate = false;
-        mutations.forEach(mutation => {
-            if (mutation.addedNodes.length > 0) shouldUpdate = true;
-        });
-        if (shouldUpdate) {
-            setupHoverEffects();
-            setupActiveIndicators();
-            setupNeonInputs();
-        }
+        mutations.forEach(mutation => { if (mutation.addedNodes.length > 0) shouldUpdate = true; });
+        if (shouldUpdate) setupHoverEffects();
     });
 
-    // サイドバーのリストとモーダル内を監視
-    const config = { childList: true, subtree: true };
-    if (els.availableListSidebar) observer.observe(els.availableListSidebar, config);
-    if (els.libraryListSidebar) observer.observe(els.libraryListSidebar, config);
-    if (els.modalCon) observer.observe(els.modalCon, config);
+    if (els.availableListSidebar) observer.observe(els.availableListSidebar, { childList: true, subtree: true });
+    if (els.libraryListSidebar) observer.observe(els.libraryListSidebar, { childList: true, subtree: true });
 
-    // 初回実行
     setupHoverEffects();
-    setupActiveIndicators();
 });
 </script>
 </body>
