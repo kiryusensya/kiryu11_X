@@ -2401,17 +2401,12 @@ async function buyItemWithPoints(code, price) {
     els.btnPreviewRedeem.innerHTML = spinnerHtml;
     
     try {
-        const res = await fetch(GAS_API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                type: 'purchase',
-                userId: currentUser.userId,
-                code: code,
-                _t: Date.now()
-            })
+        const data = await safeFetch({
+            type: 'purchase',
+            userId: currentUser.userId,
+            code: code,
+            _t: Date.now()
         });
-        const data = await res.json();
         if (thisRequestId !== currentAuthRequestId) return;
         
         if (data.success) {
