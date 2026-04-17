@@ -76,7 +76,7 @@ body {
   transition: background-color 0.5s ease;
 }
 
-button, input, textarea { font-family: var(--font-stack); }
+button, input, textarea, a { font-family: var(--font-stack); }
 
 #particleCanvas {
   position: fixed; inset: 0; width: 100%; height: 100%;
@@ -120,7 +120,7 @@ button, input, textarea { font-family: var(--font-stack); }
   gap: 12px;
   color: var(--sidebar-text);
 }
-.rgl-brand i { color: #FFA500; }
+.rgl-brand svg { color: #FFA500; }
 
 .capsule-menu {
     display: flex;
@@ -210,7 +210,6 @@ button, input, textarea { font-family: var(--font-stack); }
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 20px;
 }
 
 .theme-pill {
@@ -224,17 +223,16 @@ button, input, textarea { font-family: var(--font-stack); }
 
 /* SUPPORT CONTENT */
 .support-content {
-    padding: 20px 60px 60px 60px;
+    padding: 40px 60px 80px 60px;
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
 }
 
 .page-title-area {
     text-align: center;
     margin-bottom: 40px;
+    margin-top: auto; /* 余白があれば下へ押し出す */
     animation: fadeInUp 0.6s ease forwards;
     flex-shrink: 0;
 }
@@ -249,6 +247,7 @@ button, input, textarea { font-family: var(--font-stack); }
     display: grid;
     width: 100%;
     max-width: 1000px; 
+    margin: 0 auto auto auto; /* 中央揃え ＆ 上へ押し出す */
     grid-template-columns: 1fr 1fr; 
     gap: 30px;
 }
@@ -288,7 +287,6 @@ button, input, textarea { font-family: var(--font-stack); }
 .bento-card .card-title { font-size: 28px; font-weight: 800; text-align: center; }
 .bento-card .card-desc { font-size: 15px; margin-top: 12px; opacity: 0.6; font-weight: 500; text-align: center; }
 
-
 /* 詳細モーダル */
 .detail-modal-overlay {
     position: fixed; inset: 0;
@@ -318,7 +316,7 @@ button, input, textarea { font-family: var(--font-stack); }
     flex: 1; background: #000; position: relative; min-height: 400px;
     display: flex; align-items: center; justify-content: center;
 }
-.detail-visual svg { color: rgba(255,255,255,0.3); }
+.detail-visual svg { color: rgba(255,255,255,0.3); width: 120px; height: 120px; }
 
 .detail-content {
     flex: 1.2; padding: 50px 40px; display: flex; flex-direction: column; justify-content: center; position: relative;
@@ -340,7 +338,6 @@ button, input, textarea { font-family: var(--font-stack); }
     cursor: pointer; border: none; color: var(--modal-text-main); transition: 0.2s;
 }
 .close-btn:hover { background: rgba(128,128,128,0.2); }
-
 
 /* スマホ用レイアウト上書き */
 .mobile-menu-trigger { display: none; }
@@ -378,8 +375,8 @@ button, input, textarea { font-family: var(--font-stack); }
     }
     .rgl-header > * { pointer-events: auto; }
     
-    .support-content { padding: 30px 20px; }
-    .bento-grid { grid-template-columns: 1fr; gap: 20px; }
+    .support-content { padding: 30px 20px; display: block; }
+    .bento-grid { grid-template-columns: 1fr; gap: 20px; margin-top: 20px; }
     .bento-card { min-height: 200px; padding: 30px 20px; }
     
     .detail-modal { flex-direction: column; border-radius: 24px; max-height: 90vh; overflow-y: auto; }
@@ -412,7 +409,7 @@ button, input, textarea { font-family: var(--font-stack); }
 
 <div class="mobile-nav-overlay" id="mobileNav">
     <button class="mobile-menu-close" id="mobileMenuCloseBtn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+        <i data-lucide="x"></i>
     </button>
     <div class="mobile-nav-content">
         <a href="index.html" class="mobile-nav-item" data-translate="tab_home">Home</a>
@@ -420,8 +417,11 @@ button, input, textarea { font-family: var(--font-stack); }
     </div>
     <div class="mobile-menu-footer">
          <div class="lang-trigger-sidebar" id="mobileLangTrigger">
-             <span style="display:flex;align-items:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="globe" aria-hidden="true" size="16" class="lucide lucide-globe"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg> <span id="mobileCurrentLangLabel">日本語</span></span>
-             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-up" aria-hidden="true" size="14" style="opacity:0.5;" class="lucide lucide-chevron-up"><path d="m18 15-6-6-6 6"></path></svg>
+             <span style="display:flex;align-items:center;gap:8px;">
+                 <i data-lucide="globe" style="width: 16px; height: 16px;"></i> 
+                 <span id="mobileCurrentLangLabel">日本語</span>
+             </span>
+             <i data-lucide="chevron-up" style="width: 14px; height: 14px; opacity:0.5;"></i>
          </div>
          <ul class="lang-list" id="mobileLangMenu">
             <li class="lang-option" data-value="ja">日本語</li>
@@ -439,10 +439,10 @@ button, input, textarea { font-family: var(--font-stack); }
    <aside class="rgl-sidebar">
         <div class="rgl-brand-area">
             <button class="mobile-menu-trigger" id="mobileMenuBtn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="menu" aria-hidden="true" class="lucide lucide-menu"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg>
+                <i data-lucide="menu"></i>
             </button>
             <div class="rgl-brand">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shield-check" aria-hidden="true" class="lucide lucide-shield-check"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
+                <i data-lucide="shield-check"></i>
                 <span data-translate="brand_name">kiryu10 | Support</span>
             </div>
         </div>
@@ -458,8 +458,11 @@ button, input, textarea { font-family: var(--font-stack); }
         <div class="rgl-bottom-controls">
             <div style="position:relative;">
                  <button class="lang-trigger-sidebar" id="langTrigger">
-                     <span style="display:flex;align-items:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="globe" aria-hidden="true" size="16" class="lucide lucide-globe"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg> <span id="currentLangLabel">日本語</span></span>
-                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-up" aria-hidden="true" size="14" style="opacity:0.5;" class="lucide lucide-chevron-up"><path d="m18 15-6-6-6 6"></path></svg>
+                     <span style="display:flex;align-items:center;gap:8px;">
+                         <i data-lucide="globe" style="width: 16px; height: 16px;"></i>
+                         <span id="currentLangLabel">日本語</span>
+                     </span>
+                     <i data-lucide="chevron-up" style="width: 14px; height: 14px; opacity:0.5;"></i>
                  </button>
                  <ul class="lang-list" id="langMenu">
                     <li class="lang-option" data-value="ja">日本語</li>
@@ -479,7 +482,7 @@ button, input, textarea { font-family: var(--font-stack); }
     <main class="rgl-main">
         <nav class="rgl-header">
             <div class="theme-pill" id="themeToggle">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="moon" aria-hidden="true" id="themeIcon" class="lucide lucide-moon lucide-sun"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path></svg>
+                <i data-lucide="moon"></i>
             </div>
         </nav>
 
@@ -491,13 +494,13 @@ button, input, textarea { font-family: var(--font-stack); }
 
             <div class="bento-grid">
                 <div class="bento-card card-large-left spotlight-hover" onclick="openDetail('web')">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#007DFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="card-icon lucide lucide-search"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+                    <i data-lucide="search" class="card-icon" style="color:#007DFF; width:60px; height:60px;"></i>
                     <div class="card-title" data-translate="card_web_title">Error Code Search</div>
                     <div class="card-desc" data-translate="desc_web_short">Search details</div>
                 </div>
 
                 <a href="mailto:your-email@example.com?subject=サポートへの問い合わせ" class="bento-card card-large-right spotlight-hover" style="text-decoration: none;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#FFA500" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="card-icon lucide lucide-mail"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
+                    <i data-lucide="mail" class="card-icon" style="color:#FFA500; width:60px; height:60px;"></i>
                     <div class="card-title" data-translate="card_contact_title">Contact Us</div>
                     <div class="card-desc" data-translate="desc_contact_short">Email support</div>
                 </a>
@@ -510,7 +513,7 @@ button, input, textarea { font-family: var(--font-stack); }
 <div class="detail-modal-overlay" id="detailOverlay">
     <div class="detail-modal">
         <button class="close-btn" onclick="closeDetail()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+            <i data-lucide="x"></i>
         </button>
         <div class="detail-visual" id="modalVisual">
             </div>
@@ -519,7 +522,7 @@ button, input, textarea { font-family: var(--font-stack); }
             <div class="detail-text" id="modalDesc">Desc</div>
             <a href="#" target="_blank" class="btn-inquiry" id="modalBtn">
                 <span data-translate="btn_inquiry">Search</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                <i data-lucide="arrow-right"></i>
             </a>
         </div>
     </div>
@@ -542,7 +545,7 @@ button, input, textarea { font-family: var(--font-stack); }
         web: {
             titleKey: "card_web_title",
             descKey: "desc_web",
-            iconSvg: `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>`, 
+            iconHtml: `<i data-lucide="search"></i>`, 
             color: "#007DFF",
             url: "https://kiryu10-standard.vercel.app/error.html"
         }
@@ -631,22 +634,22 @@ button, input, textarea { font-family: var(--font-stack); }
         let sLang = localStorage.getItem('user_lang') || 'ja';
         setLanguage(sLang);
 
-        // スマホメニュー
+        // スマホメニュー処理
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const mobileNav = document.getElementById('mobileNav');
         const mobileMenuCloseBtn = document.getElementById('mobileMenuCloseBtn');
         
-        if (mobileMenuBtn) {
+        if (mobileMenuBtn && mobileNav) {
             mobileMenuBtn.addEventListener('click', () => mobileNav.classList.add('active'));
         }
-        if (mobileMenuCloseBtn) {
+        if (mobileMenuCloseBtn && mobileNav) {
             mobileMenuCloseBtn.addEventListener('click', () => mobileNav.classList.remove('active'));
         }
 
-        // 言語切り替えメニュー
+        // 言語切り替えメニュー処理
         const langTrigger = document.getElementById('langTrigger');
         const langMenu = document.getElementById('langMenu');
-        if(langTrigger) {
+        if(langTrigger && langMenu) {
             langTrigger.addEventListener('click', (e) => { 
                 e.stopPropagation(); 
                 langMenu.classList.toggle('open'); 
@@ -655,7 +658,7 @@ button, input, textarea { font-family: var(--font-stack); }
         
         const mobileLangTrigger = document.getElementById('mobileLangTrigger');
         const mobileLangMenu = document.getElementById('mobileLangMenu');
-        if(mobileLangTrigger) {
+        if(mobileLangTrigger && mobileLangMenu) {
             mobileLangTrigger.addEventListener('click', (e) => { 
                 e.stopPropagation(); 
                 mobileLangMenu.classList.toggle('open'); 
@@ -667,40 +670,46 @@ button, input, textarea { font-family: var(--font-stack); }
                 const val = opt.getAttribute('data-value');
                 localStorage.setItem('user_lang', val);
                 setLanguage(val);
-                langMenu.classList.remove('open');
+                if(langMenu) langMenu.classList.remove('open');
                 if(mobileLangMenu) mobileLangMenu.classList.remove('open');
             });
         });
 
         document.addEventListener('click', (e) => { 
-            if (langTrigger && !langTrigger.contains(e.target)) langMenu.classList.remove('open'); 
-            if (mobileLangTrigger && !mobileLangTrigger.contains(e.target) && mobileLangMenu) mobileLangMenu.classList.remove('open');
+            if (langTrigger && langMenu && !langTrigger.contains(e.target)) langMenu.classList.remove('open'); 
+            if (mobileLangTrigger && mobileLangMenu && !mobileLangTrigger.contains(e.target)) mobileLangMenu.classList.remove('open');
         });
 
-        // テーマとパーティクル
+        // テーマ切り替え処理
         const htmlEl = document.documentElement;
         const themeToggle = document.getElementById('themeToggle');
-        const themeIcon = document.getElementById('themeIcon');
-        const canvas = document.getElementById('particleCanvas');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-        let particleHue = 210;
-
+        
         function applyTheme(theme) {
             htmlEl.setAttribute('data-theme', theme);
-            themeIcon.setAttribute('data-lucide', theme === 'light' ? 'sun' : 'moon');
-            try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+            if (themeToggle) {
+                // DOMを直接書き換えてアイコンを再生成させる（バグ回避）
+                themeToggle.innerHTML = theme === 'light' ? '<i data-lucide="sun"></i>' : '<i data-lucide="moon"></i>';
+                try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+            }
             initParticles(theme);
         }
 
         const savedTheme = localStorage.getItem('user_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
         applyTheme(savedTheme);
 
-        themeToggle.addEventListener('click', () => {
-            const next = htmlEl.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-            applyTheme(next);
-            localStorage.setItem('user_theme', next);
-        });
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const next = htmlEl.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+                applyTheme(next);
+                localStorage.setItem('user_theme', next);
+            });
+        }
+
+        // 背景パーティクル処理
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let particleHue = 210;
 
         function initParticles(theme) {
             canvas.width = window.innerWidth;
@@ -739,7 +748,7 @@ button, input, textarea { font-family: var(--font-stack); }
         animate();
     });
 
-    // モーダル処理
+    // モーダルオープン・クローズ処理
     const overlay = document.getElementById('detailOverlay');
     const mTitle = document.getElementById('modalTitle');
     const mDesc = document.getElementById('modalDesc');
@@ -757,14 +766,18 @@ button, input, textarea { font-family: var(--font-stack); }
         mDesc.innerText = t[data.descKey] || data.descKey;
         mBtn.href = data.url;
         
-        mVisual.innerHTML = data.iconSvg;
+        // モーダル内のアイコンを挿入・再生成
+        mVisual.innerHTML = data.iconHtml;
         mVisual.style.background = `linear-gradient(135deg, ${data.color} 0%, #000000 100%)`;
 
         overlay.classList.add('active');
+        try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
     }
 
     window.closeDetail = function() { overlay.classList.remove('active'); }
-    overlay.addEventListener('click', (e) => { if(e.target === overlay) closeDetail(); });
+    if (overlay) {
+        overlay.addEventListener('click', (e) => { if(e.target === overlay) closeDetail(); });
+    }
 </script>
 </body>
 </html>
