@@ -308,26 +308,16 @@
     resEl.innerHTML = "<div style='text-align:center; color:var(--text-sub);'>検索中...</div>";
     
     try {
-        const d = await safeFetch({ 
-            type: 'admin_search', 
-            targetEmail: u 
-        });
-        
+        const d = await safeFetch({ type: 'admin_search', targetEmail: u });
         resEl.innerHTML = '';
 
         if (d.success) {
             if (!d.history || d.history.length === 0) {
-                const emptyMsg = document.createElement('div');
-                emptyMsg.style.cssText = 'text-align:center; color:var(--text-sub); padding:20px;';
-                emptyMsg.textContent = 'このユーザーの履歴はありません。';
-                resEl.appendChild(emptyMsg);
+                resEl.innerHTML = "<div style='text-align:center; color:var(--text-sub); padding:20px;'>このユーザーの履歴はありません。</div>";
             } else {
                 const targetDiv = document.createElement('div');
                 targetDiv.style.cssText = 'margin-bottom:16px; font-size:14px;';
-                const strongTarget = document.createElement('strong');
-                strongTarget.textContent = 'Target: ';
-                targetDiv.appendChild(strongTarget);
-                targetDiv.appendChild(document.createTextNode(d.userId || u));
+                targetDiv.innerHTML = `<strong>Target: </strong>${d.userId || u}`;
                 resEl.appendChild(targetDiv);
 
                 const ul = document.createElement('ul');
@@ -335,36 +325,22 @@
 
                 d.history.forEach(h => {
                     const li = document.createElement('li');
-                    // スタイル調整：ボタンを右側に配置するためのフレックスボックス
                     li.style.display = 'flex';
                     li.style.justifyContent = 'space-between';
                     li.style.alignItems = 'center';
 
-                    // 左側のテキスト情報
                     const infoDiv = document.createElement('div');
-                    const titleSpan = document.createElement('span');
-                    titleSpan.className = 'history-title';
-                    titleSpan.textContent = h.title; 
-                    infoDiv.appendChild(titleSpan);
-
-                    const metaSpan = document.createElement('span');
-                    metaSpan.className = 'history-meta';
-                    metaSpan.appendChild(document.createTextNode(`利用コード: ${h.code}`));
-                    metaSpan.appendChild(document.createElement('br'));
-                    metaSpan.appendChild(document.createTextNode(`認証日時: ${h.date}`));
-                    infoDiv.appendChild(metaSpan);
-                    
+                    infoDiv.innerHTML = `<span class="history-title">${h.title}</span><span class="history-meta">利用コード: ${h.code}<br>認証日時: ${h.date}</span>`;
                     li.appendChild(infoDiv);
 
-                    // 右側の「無効化」ボタン
+                    // ★管理者の無効化ボタン
                     const revokeBtn = document.createElement('button');
                     revokeBtn.className = 'btn-danger';
                     revokeBtn.style.cssText = 'height: 32px; padding: 0 16px; font-size: 12px; border-radius: 16px;';
                     revokeBtn.innerHTML = '<i data-lucide="trash-2" style="width:14px; height:14px; margin-right:4px;"></i> 無効化';
                     
-                    // クリックイベント
                     revokeBtn.addEventListener('click', async () => {
-                        if (!confirm(`【警告】\n「${h.title}」の所有権を無効化（削除）しますか？\nこの操作は取り消せません。`)) return;
+                        if (!confirm(`【警告】\n「${h.title}」の所有権を無効化（削除）しますか？`)) return;
                         
                         revokeBtn.textContent = '処理中...';
                         revokeBtn.disabled = true;
@@ -377,7 +353,6 @@
                             });
 
                             if (revokeRes.success) {
-                                // ボタンを「完了」表示にして、検索結果からフワッと消す
                                 revokeBtn.textContent = '完了';
                                 revokeBtn.style.background = 'var(--success)';
                                 revokeBtn.style.color = '#fff';
@@ -387,41 +362,29 @@
                                     li.style.transition = 'all 0.4s ease';
                                     li.style.opacity = '0';
                                     li.style.transform = 'translateX(20px)';
-                                    setTimeout(() => li.remove(), 400); // アニメーション後にDOMから完全削除
+                                    setTimeout(() => li.remove(), 400);
                                 }, 500);
-
                             } else {
                                 alert(`エラー: ${revokeRes.message}`);
-                                revokeBtn.innerHTML = '<i data-lucide="trash-2" style="width:14px; height:14px; margin-right:4px;"></i> 無効化';
                                 revokeBtn.disabled = false;
-                                lucide.createIcons();
                             }
                         } catch(e) {
                             alert('通信エラーが発生しました。');
-                            revokeBtn.innerHTML = '<i data-lucide="trash-2" style="width:14px; height:14px; margin-right:4px;"></i> 無効化';
                             revokeBtn.disabled = false;
-                            lucide.createIcons();
                         }
                     });
-
                     li.appendChild(revokeBtn);
                     ul.appendChild(li);
                 });
                 resEl.appendChild(ul);
-                lucide.createIcons(); // アイコンを再描画
+                lucide.createIcons();
             }
         } else {
-            const errorSpan = document.createElement('span');
-            errorSpan.style.color = 'var(--danger)';
-            errorSpan.textContent = `エラー: ${d.message}`;
-            resEl.appendChild(errorSpan);
+            resEl.innerHTML = `<span style='color:var(--danger);'>エラー: ${d.message}</span>`;
         }
     } catch (e) {
         if(e.message !== "認証セッションが切れました") {
-            const errorSpan = document.createElement('span');
-            errorSpan.style.color = 'var(--danger)';
-            errorSpan.textContent = '通信エラー';
-            resEl.appendChild(errorSpan);
+            resEl.innerHTML = "<span style='color:var(--danger);'>通信エラー</span>";
         }
     }
   });
