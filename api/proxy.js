@@ -298,7 +298,9 @@ export default async function handler(req, res) {
 
     // コードの確認(check) と 引き換え(redeem)
     if (type === 'check' || type === 'redeem') {
-      const { key, mode } = params;
+      // ★修正：フロントエンドのデータ名（code）を受け取れるようにし、modeもtypeから判別する
+      const key = params.code || params.key; 
+      const mode = params.mode || type;
       const targetId = authUserId; // 未ログインならnull
 
       // ハイフンは除去せずにフォーマットを維持
