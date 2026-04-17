@@ -330,6 +330,20 @@
                     li.style.alignItems = 'center';
 
                     const infoDiv = document.createElement('div');
+
+// navigator.languageでブラウザの言語設定を取得し、
+// タイムゾーンはブラウザのローカル環境に自動で委ねる
+const localDate = new Date(h.date).toLocaleString(navigator.language, { 
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+});
+
+infoDiv.innerHTML = `<span class="history-title">${h.title}</span><span class="history-meta">利用コード: ${h.code}<br>認証日時: ${localDate}</span>`;
+li.appendChild(infoDiv);
                     infoDiv.innerHTML = `<span class="history-title">${h.title}</span><span class="history-meta">利用コード: ${h.code}<br>認証日時: ${h.date}</span>`;
                     li.appendChild(infoDiv);
 
