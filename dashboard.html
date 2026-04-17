@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard</title>
+<script>
+  // 【最重要】画面を描画する前に、トークンがないユーザーはログイン画面へ強制送還する
+  const token = localStorage.getItem('admin_session_token');
+  if (!token) {
+      window.location.replace('login.html');
+  }
+</script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  /* ダッシュボード用のCSSだけをここに記載 */
+  /* ... sidebar, main-content, panel, card などのスタイル ... */
+</style>
+</head>
+<body>
+
+<div id="dashboardScreen" style="display:flex; width: 100%; height: 100vh;">
+  </div>
+
+<script>
+  lucide.createIcons();
+  const GAS_API_URL = "api/proxy"; 
+
+  async function safeFetch(bodyObj) {
+      const currentToken = localStorage.getItem('admin_session_token');
+      const response = await fetch(GAS_API_URL, {
+          method: 'POST',
+          headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${currentToken}`
+          },
+          body: JSON.stringify(bodyObj)
+      });
+      
+      const data = await response.json();
+      
+      // サーバー側で「トークンが無効/期限切れ」と判断された場合の強制ログアウト処理
+      if (data.error === "invalid_token" || data.error === "unauthorized") {
+          localStorage.removeItem('admin_session_token');
+          window.location.replace('login.html');
+          return null;
+      }
+      return data;
+  }
+
+  // --- ログアウト処理 ---
+  document.getElementById('btnLogout').addEventListener('click', () => {
+      localStorage.removeItem('admin_session_token'); 
+      window.location.href = 'login.html'; // ログイン画面へ戻す
+  });
+
+  // --- 各種機能 (ユーザー発行、リセット、検索など) は前回と同じ ---
+  // document.getElementById('btnCreate').addEventListener('click', async () => { ... });
+</script>
+</body>
+</html>
