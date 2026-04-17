@@ -299,7 +299,7 @@
       }
   });
 
-  // --- 3. 履歴検索 & 無効化機能 (XSS対策済み) ---
+ // --- 3. 履歴検索 & 無効化機能 (XSS対策済み) ---
   document.getElementById('btnSearch').addEventListener('click', async () => {
     const u = document.getElementById('searchUserId').value.trim();
     const resEl = document.getElementById('searchResult');
@@ -362,6 +362,7 @@
                     revokeBtn.style.cssText = 'height: 32px; padding: 0 16px; font-size: 12px; border-radius: 16px;';
                     revokeBtn.innerHTML = '<i data-lucide="trash-2" style="width:14px; height:14px; margin-right:4px;"></i> 無効化';
                     
+                    // クリックイベント
                     revokeBtn.addEventListener('click', async () => {
                         if (!confirm(`【警告】\n「${h.title}」の所有権を無効化（削除）しますか？\nこの操作は取り消せません。`)) return;
                         
@@ -376,9 +377,19 @@
                             });
 
                             if (revokeRes.success) {
-                                alert(`「${h.title}」の所有権を無効化しました。`);
-                                // 成功したら検索ボタンを自動で押してリストを更新
-                                document.getElementById('btnSearch').click();
+                                // ボタンを「完了」表示にして、検索結果からフワッと消す
+                                revokeBtn.textContent = '完了';
+                                revokeBtn.style.background = 'var(--success)';
+                                revokeBtn.style.color = '#fff';
+                                revokeBtn.style.borderColor = 'var(--success)';
+                                
+                                setTimeout(() => {
+                                    li.style.transition = 'all 0.4s ease';
+                                    li.style.opacity = '0';
+                                    li.style.transform = 'translateX(20px)';
+                                    setTimeout(() => li.remove(), 400); // アニメーション後にDOMから完全削除
+                                }, 500);
+
                             } else {
                                 alert(`エラー: ${revokeRes.message}`);
                                 revokeBtn.innerHTML = '<i data-lucide="trash-2" style="width:14px; height:14px; margin-right:4px;"></i> 無効化';
