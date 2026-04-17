@@ -2261,8 +2261,9 @@ function setupEventListeners() {
       setListener(els.code, 'keydown', (e) => { if(e.key === 'Enter') els.confirm.click(); });
       setListener(els.code, 'input', (e) => { 
           els.code.value = formatCodeInput(els.code.value); 
-          // ▼ 入力し直したらネオン（赤・青）を消す
           els.code.classList.remove('neon-pulse-success', 'neon-pulse-error');
+          const inputRow = document.getElementById('unifiedInputRow');
+          if(inputRow) inputRow.classList.remove('is-error');
       });
   }
   
@@ -2364,13 +2365,20 @@ function showPurchaseError(userPts, price) {
     const t = TRANSLATIONS[CURRENT_LANG];
     const thisRequestId = ++currentAuthRequestId; 
     
+    const inputRow = document.getElementById('unifiedInputRow');
+    const unifiedTitle = document.getElementById('unifiedModalTitle');
+    const unifiedMobileTitle = document.getElementById('unifiedMobileTitle');
+    
+    if(inputRow) inputRow.style.display = 'none';
+    if(unifiedTitle) unifiedTitle.textContent = "エラー";
+    if(unifiedMobileTitle) unifiedMobileTitle.textContent = "エラー";
+    
     els.errorCodeText.textContent = "2011";
     els.errorTime.textContent = getFormattedCurrentTime(CURRENT_LANG);
     els.errorMessage.textContent = t.error_points_msg || "ポイントが不足しています。";
     
     const subStr = t.error_points_sub || `現在: ${userPts} pt / 必要: ${price} pt`;
     els.errorSubMessage.innerHTML = escapeHTML(subStr.replace('%1', userPts).replace('%2', price));
-    els.errorInfoBox.style.display = 'flex';
     
     els.btnErrorClose.style.flex = "none";
     els.btnErrorClose.style.width = "100%";
@@ -2399,24 +2407,26 @@ function showPurchasePreview(item, price) {
     els.phaseSuccess.style.display = 'none';
     els.phaseError.style.display = 'none';
     
+    const inputRow = document.getElementById('unifiedInputRow');
+    const unifiedImage = document.getElementById('unifiedModalImage');
+    const unifiedTitle = document.getElementById('unifiedModalTitle');
+    const unifiedMobileTitle = document.getElementById('unifiedMobileTitle');
+    
+    if(inputRow) inputRow.style.display = 'none';
+    if(unifiedTitle) unifiedTitle.textContent = t.preview_buy_title || "購入確認";
+    if(unifiedMobileTitle) unifiedMobileTitle.textContent = t.preview_buy_title || "購入確認";
+    if(unifiedImage) unifiedImage.src = escapeHTML(item.imageUrl) || "https://via.placeholder.com/300";
+    
     const ptDesc = (t.preview_buy_desc || "以下のコンテンツを %s pt で購入します:").replace('%s', price);
-    
-    const titleTops = els.phasePreview.querySelectorAll('.modal-title-top, .mobile-title');
-    titleTops.forEach(el => el.textContent = t.preview_buy_title || "購入確認");
-    
     const label = els.phasePreview.querySelector('.modal-label');
     if(label) label.textContent = ptDesc;
     
-    els.previewImage.src = escapeHTML(item.imageUrl) || "https://via.placeholder.com/300";
-    els.previewTitleUnderImg.textContent = item.title;
     els.previewTitle.textContent = item.title;
     
     if (item.extraInfo) {
         els.previewWarningText.innerHTML = escapeHTML(item.extraInfo).replace(/\n/g, '<br>');
-        els.previewWarningBox.style.display = 'flex';
     } else {
         els.previewWarningText.innerHTML = "";
-        els.previewWarningBox.style.display = 'none';
     }
     
     els.btnPreviewRedeem.disabled = false;
@@ -2428,10 +2438,8 @@ function showPurchasePreview(item, price) {
     
     els.btnPreviewRedeem.addEventListener('click', (e) => { 
         e.preventDefault();
-        
         const userPts = parseInt(String(currentUser.points).replace(/[^0-9]/g, ''), 10) || 0;
         const itemPrice = parseInt(String(price).replace(/[^0-9]/g, ''), 10) || 0;
-        
         if (userPts < itemPrice) {
             showPurchaseError(userPts, itemPrice);
         } else {
@@ -2442,7 +2450,7 @@ function showPurchasePreview(item, price) {
     els.phasePreview.style.display = 'flex';
     setTimeout(() => els.phasePreview.style.opacity = '1', 50);
 }
-  
+
 async function buyItemWithPoints(code, price) {
     const thisRequestId = currentAuthRequestId;
     const t = TRANSLATIONS[CURRENT_LANG];
@@ -2451,6 +2459,11 @@ async function buyItemWithPoints(code, price) {
     els.btnPreviewRedeem.disabled = true;
     els.btnPreviewRedeem.innerHTML = spinnerHtml;
     
+    const inputRow = document.getElementById('unifiedInputRow');
+    const unifiedImage = document.getElementById('unifiedModalImage');
+    const unifiedTitle = document.getElementById('unifiedModalTitle');
+    const unifiedMobileTitle = document.getElementById('unifiedMobileTitle');
+
     try {
         const data = await safeFetch({
             type: 'purchase',
@@ -2471,22 +2484,21 @@ async function buyItemWithPoints(code, price) {
             document.body.appendChild(flash);
             setTimeout(() => flash.remove(), 1000);
 
-            const oldStamp = els.successImage.parentElement.querySelector('.stamp-owned');
-            if (oldStamp) oldStamp.remove();
-
-            const stamp = document.createElement('div');
-            stamp.className = 'stamp-owned animate-stamp';
-            stamp.textContent = 'OWNED';
-            els.successImage.parentElement.appendChild(stamp);
+            if (unifiedImage) {
+                const oldStamp = unifiedImage.parentElement.querySelector('.stamp-owned');
+                if (oldStamp) oldStamp.remove();
+                const stamp = document.createElement('div');
+                stamp.className = 'stamp-owned animate-stamp';
+                stamp.textContent = 'OWNED';
+                unifiedImage.parentElement.appendChild(stamp);
+            }
             // -----------------------------
 
-            const successTops = els.phaseSuccess.querySelectorAll('.modal-title-top, .mobile-title');
-            successTops.forEach(el => el.textContent = t.success_buy_title || "購入完了");
-            const label = els.phaseSuccess.querySelector('.modal-label');
-            if(label) label.textContent = t.success_buy_desc || "以下のコンテンツが正常に処理されました。";
+            if(inputRow) inputRow.style.display = 'none';
+            if(unifiedTitle) unifiedTitle.textContent = t.success_buy_title || "購入完了";
+            if(unifiedMobileTitle) unifiedMobileTitle.textContent = t.success_buy_title || "購入完了";
+            if(unifiedImage) unifiedImage.src = currentContentData.imageUrl || "https://via.placeholder.com/300";
             
-            els.successImage.src = currentContentData.imageUrl || "https://via.placeholder.com/300";
-            els.successTitleUnderImg.textContent = currentContentData.title;
             els.successBundleName.textContent = currentContentData.title;
             els.successMessageText.innerHTML = t.success_msg_box.replace(/\n/g, '<br>');
             els.successTime.textContent = currentAuthTime;
@@ -2504,16 +2516,17 @@ async function buyItemWithPoints(code, price) {
             }, 400);
             try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
         } else {
+            if(inputRow) inputRow.style.display = 'none';
+            if(unifiedTitle) unifiedTitle.textContent = t.error_title_prefix || "エラー";
+            if(unifiedMobileTitle) unifiedMobileTitle.textContent = t.error_title_prefix || "エラー";
+
             let specificErrorCode = generateErrorCode();
             if (data.message === "Already owned") specificErrorCode = "1011";
             els.errorCodeText.textContent = specificErrorCode;
             els.errorTime.textContent = currentAuthTime;
-            const titlePrefix = els.phaseError.querySelector('[data-translate="error_title_prefix"]');
-            if (titlePrefix) titlePrefix.textContent = t.error_title_prefix || "エラー";
-
+            
             let errorMainText = "";
             let errorSubText = data.message;
-            let showInfoBox = true;
             
             if (data.message === "Already owned") {
                 errorMainText = t.error_owned_msg || "既に所有しているようです。";
@@ -2523,13 +2536,7 @@ async function buyItemWithPoints(code, price) {
             els.btnErrorClose.style.width = "100%";
             
             els.errorMessage.textContent = errorMainText;
-            if(showInfoBox && errorSubText) {
-                els.errorSubMessage.innerHTML = escapeHTML(errorSubText).replace(/\n/g, '<br>');
-                els.errorInfoBox.style.display = 'flex';
-            } else {
-                els.errorSubMessage.innerHTML = "";
-                els.errorInfoBox.style.display = 'none';
-            }
+            els.errorSubMessage.innerHTML = escapeHTML(errorSubText).replace(/\n/g, '<br>');
             
             els.phasePreview.style.opacity = '0';
             setTimeout(() => {
@@ -2691,6 +2698,7 @@ function resetAuthModal() {
     }
     els.code.value = ""; els.code.disabled = false; els.confirm.disabled = false;
     els.confirm.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>`;
+    els.code.classList.remove('neon-pulse-success', 'neon-pulse-error');
     
     if (unifiedImage) unifiedImage.src = "https://static.wixstatic.com/media/2f0694_38068f106089439b89c7902ef4fb3d2d~mv2.jpg";
     if (unifiedTitle) unifiedTitle.textContent = "認証の確認";
@@ -2701,6 +2709,96 @@ function resetAuthModal() {
     els.btnSuccessDownload.style.display = "none";
     els.btnErrorClose.style.flex = "none";
     els.btnErrorClose.style.width = "100%";
+}
+
+function showMobileItemDetail(item, isNewRedeem = false) {
+    if(modalDownloadTimer) clearInterval(modalDownloadTimer); 
+    
+    els.authModal.classList.add('active');
+    currentAuthRequestId++;
+    els.phaseInput.style.display='none'; 
+    els.phasePreview.style.display='none';
+    els.phaseError.style.display='none';
+    
+    els.phaseSuccess.style.display='flex'; 
+    setTimeout(() => els.phaseSuccess.style.opacity='1', 50);
+    els.modalCon.classList.add('is-wide');
+    
+    const t = TRANSLATIONS[CURRENT_LANG];
+    const inputRow = document.getElementById('unifiedInputRow');
+    const unifiedImage = document.getElementById('unifiedModalImage');
+    const unifiedTitle = document.getElementById('unifiedModalTitle');
+    const unifiedMobileTitle = document.getElementById('unifiedMobileTitle');
+    
+    if(inputRow) inputRow.style.display = 'none'; // 詳細表示時は入力欄を隠す
+    if(unifiedTitle) unifiedTitle.textContent = item.title || "コンテンツ詳細";
+    if(unifiedMobileTitle) unifiedMobileTitle.textContent = item.title || "コンテンツ詳細";
+    
+    if(item.imageUrl && item.imageUrl.startsWith("http")){ 
+        if(unifiedImage) unifiedImage.src = item.imageUrl; 
+    } else { 
+        if(unifiedImage) unifiedImage.src = "https://static.wixstatic.com/media/2f0694_38068f106089439b89c7902ef4fb3d2d~mv2.jpg"; 
+    }
+
+    els.successBundleName.textContent = item.bundleLabel || item.title;
+    els.successMessageText.innerHTML = escapeHTML(item.message || "").replace(/\n/g, '<br>');
+    
+    if (isNewRedeem) {
+        els.successTime.textContent = currentAuthTime;
+    } else {
+        let savedTime = item.authTime || item.date || "";
+        els.successTime.textContent = formatSavedTime(savedTime, CURRENT_LANG);
+    }
+
+    els.btnSuccessClose.style.flex = "3";
+    els.btnSuccessClose.style.width = "auto";
+    els.btnSuccessDownload.style.display = "flex";
+    
+    const startModalTimer = () => {
+        const now = new Date();
+        const releaseDate = item.releaseDateIso ? new Date(item.releaseDateIso) : null;
+        
+        if (releaseDate && releaseDate > now) {
+            const diff = releaseDate - now;
+            const oneDay = 24 * 60 * 60 * 1000;
+            
+            els.btnSuccessDownload.style.pointerEvents = 'none';
+            els.btnSuccessDownload.style.opacity = '0.6';
+            els.btnSuccessDownload.removeAttribute('href'); 
+            els.btnSuccessDownload.onclick = (e) => { e.preventDefault(); };
+
+            if (diff > oneDay) {
+               const y = releaseDate.getFullYear();
+               const m = releaseDate.getMonth() + 1;
+               const d = releaseDate.getDate();
+               els.btnSuccessDownload.innerHTML = `<span>${y}/${String(m).padStart(2,'0')}/${String(d).padStart(2,'0')}</span>`;
+            } else {
+               const h = Math.floor(diff / (1000 * 60 * 60));
+               const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+               const s = Math.floor((diff % (1000 * 60)) / 1000);
+               const hh = String(h).padStart(2, '0');
+               const mm = String(m).padStart(2, '0');
+               const ss = String(s).padStart(2, '0');
+               els.btnSuccessDownload.innerHTML = `<span>${hh}:${mm}:${ss}</span>`;
+            }
+        } else {
+            if(modalDownloadTimer) clearInterval(modalDownloadTimer);
+            els.btnSuccessDownload.style.pointerEvents = 'auto';
+            els.btnSuccessDownload.style.opacity = '1';
+            els.btnSuccessDownload.href = item.url;
+            els.btnSuccessDownload.onclick = null; 
+            els.btnSuccessDownload.target = "_blank";
+            const btnLabel = item.buttonLabel || t.btn_download || "ダウンロード";
+            const btnIcon = item.icon || "download";
+            els.btnSuccessDownload.innerHTML = `<span>${btnLabel}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="${btnIcon}" aria-hidden="true" size="18" class="lucide lucide-${btnIcon}"></svg>`;
+            try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+        }
+    };
+
+    startModalTimer();
+    modalDownloadTimer = setInterval(startModalTimer, 1000);
+    
+    try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
 }
 
 async function performAuth(code, mode = 'check') {
@@ -2738,8 +2836,10 @@ async function performAuth(code, mode = 'check') {
 
         if (mode === 'check') {
             if (d.success) {
-                // ▼ 成功時（プレビュー）: 青いチェックマーク
+                // ▼ 成功時（プレビュー）: 青いチェックマーク & ネオン
                 inputRow.classList.remove('is-error');
+                els.code.classList.remove('neon-pulse-error');
+                els.code.classList.add('neon-pulse-success');
                 els.confirm.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>`;
                 
                 unifiedTitle.textContent = t.preview_title || "引き換えの確認";
@@ -2777,8 +2877,10 @@ async function performAuth(code, mode = 'check') {
                     performAuth(safeCode, 'redeem'); 
                 });
             } else {
-                // ▼ 失敗時: 赤いビックリマーク
+                // ▼ 失敗時: 赤いビックリマーク & ネオン
                 inputRow.classList.add('is-error');
+                els.code.classList.remove('neon-pulse-success');
+                els.code.classList.add('neon-pulse-error');
                 els.confirm.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg>`;
                 els.code.disabled = false; els.confirm.disabled = false;
 
@@ -2860,6 +2962,8 @@ async function performAuth(code, mode = 'check') {
         if (thisRequestId !== currentAuthRequestId) return;
         
         inputRow.classList.add('is-error');
+        els.code.classList.remove('neon-pulse-success');
+        els.code.classList.add('neon-pulse-error');
         els.confirm.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg>`;
         els.code.disabled = false; els.confirm.disabled = false;
         
@@ -2875,6 +2979,74 @@ async function performAuth(code, mode = 'check') {
             setTimeout(() => els.phaseError.style.opacity = '1', 50);
         }, 400);
     }
+}
+
+async function performAuthAction() {
+  const email = els.email.value.trim();
+  const pass = els.pass.value.trim();
+  const t = TRANSLATIONS[CURRENT_LANG];
+  
+  if (!email || !pass) { 
+      els.authStatus.textContent = t.msg_login_empty || "ユーザー名とパスワードを入力してください。"; 
+      return; 
+  }
+  
+  els.btnAuthAction.disabled = true;
+  els.btnAuthAction.innerHTML = `<span class="loading-dots">${t.msg_logging_in || "ログイン中"}</span>`;
+  
+  try {
+    const res = await fetch(GAS_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'user_login', email: email, password: pass })
+    });
+    const data = await res.json();
+    
+    if (data.success) {
+      if (data.requirePasswordChange) {
+          window.tempChangeData = { userId: data.userId, oldPassword: pass };
+          document.getElementById('forcePasswordChangeView').style.display = 'flex';
+          return; 
+      }
+      
+      currentUser = { userId: data.userId, email: email, history: data.history || [], points: data.points || 0 };
+      localStorage.setItem('user_session_identity', JSON.stringify({ userId: data.userId, email: email }));
+      
+      if (data.token) {
+          localStorage.setItem('user_session_token', data.token);
+      }
+      
+      document.body.classList.add('is-logged-in');
+      if (els.loginOverlay) els.loginOverlay.classList.remove('active'); 
+      updateAccountUI(); 
+      fetchUserHistory(); 
+      
+      els.email.value = ""; els.pass.value = "";
+      
+      if (pendingActivationCode) {
+          setTimeout(() => {
+              openAuthModal(); 
+              const codeToUse = formatCodeInput(pendingActivationCode);
+              els.code.value = codeToUse;
+              performAuth(codeToUse); 
+              pendingActivationCode = null;
+          }, 500);
+      }
+    } else { 
+      const lowMsg = (data.message || "").toLowerCase();
+      let errorMsg = data.message || t.msg_error;
+      
+      if (lowMsg.includes('invalid') || lowMsg.includes('not found') || lowMsg.includes('incorrect') || lowMsg.includes('無効')) {
+          errorMsg = t.msg_login_invalid || "無効なユーザー名またはパスワードです。";
+      }
+      els.authStatus.textContent = errorMsg; 
+    }
+  } catch (e) { 
+    els.authStatus.textContent = t.msg_error || "Network Error."; 
+  } finally { 
+    els.btnAuthAction.disabled = false; 
+    els.btnAuthAction.textContent = t.btn_login_action;
+  }
 }
   
 function setHeroButtonState(state, forceUnlock = false) {
@@ -2989,7 +3161,7 @@ function updateAccountUI() {
       els.libraryListSidebar.innerHTML = "";
       currentUser.history.forEach((item, index) => {
             const div = document.createElement('div');
-            div.className = 'sidebar-game-item';
+            div.className = 'sidebar-game-item spotlight-hover';
             div.onclick = () => {
                 document.querySelectorAll('.sidebar-game-item').forEach(el => el.classList.remove('active'));
                 div.classList.add('active');
@@ -3110,9 +3282,9 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
 
     if (treatAsOwned) {
         checkMarkHtml = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px; vertical-align:middle; flex-shrink:0;"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-        btnHtml = `<button class="mobile-store-btn is-owned-download"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>${t.btn_download || "ダウンロード"}</button>`;
+        btnHtml = `<button class="mobile-store-btn is-owned-download spotlight-hover"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>${t.btn_download || "ダウンロード"}</button>`;
     } else {
-        btnHtml = `<button class="mobile-store-btn">${item.price} pt</button>`;
+        btnHtml = `<button class="mobile-store-btn spotlight-hover">${item.price} pt</button>`;
     }
     
     mDiv.innerHTML = `
@@ -3248,7 +3420,7 @@ async function fetchAvailableContent() {
                 
                 hasItems = true;
                 const div = document.createElement('div');
-                div.className = 'sidebar-game-item';
+                div.className = 'sidebar-game-item spotlight-hover';
                 div.setAttribute('data-code', item.code);
                 if(item.groupId) div.setAttribute('data-group-id', item.groupId);
                 if(item.title) div.setAttribute('data-title', item.title);
@@ -3366,13 +3538,13 @@ async function resumeSession() {
       fetchUserHistory(); 
   }
 }
+
 /* =========================================
    Micro-Interactions Logic
    ========================================= */
 document.addEventListener('DOMContentLoaded', () => {
     const setupHoverEffects = () => {
-        // 全てのタブ、ボタン、サイドバーアイテムにスポットライトを適用
-        const targets = document.querySelectorAll('.sidebar-game-item, .rgl-tab, .btn-primary, .btn-outline, .btn-solid, .rgl-cta-btn, .menu-btn, .auth-btn');
+        const targets = document.querySelectorAll('.sidebar-game-item, .rgl-tab, .btn-primary, .btn-outline, .btn-solid, .rgl-cta-btn, .menu-btn, .auth-btn, .mobile-store-btn');
         targets.forEach(el => {
             if (el.dataset.hoverSetup) return;
             el.dataset.hoverSetup = "true";
@@ -3394,6 +3566,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (els.availableListSidebar) observer.observe(els.availableListSidebar, { childList: true, subtree: true });
     if (els.libraryListSidebar) observer.observe(els.libraryListSidebar, { childList: true, subtree: true });
+    const modalGrid = document.getElementById('mobileStoreGrid');
+    if (modalGrid) observer.observe(modalGrid, { childList: true, subtree: true });
 
     setupHoverEffects();
 });
