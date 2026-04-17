@@ -1583,7 +1583,7 @@ let heroTimer = null;
 let selectedHeroItem = null;
 let currentHeroContext = 'default';
 let modalDownloadTimer = null; 
-let sessionMonitorTimer = null; // ★BAN監視用タイマー
+let sessionMonitorTimer = null; 
 
 let els = {};
 let currentAuthRequestId = 0;
@@ -1608,46 +1608,84 @@ const escapeHTML = (str) => {
   });
 };
 
-// トークン付きで安全に fetch するためのラッパー関数
+// ★重要：すべての通信の根元でBAN/データ削除を監視する
 async function safeFetch(bodyObj) {
   const token = localStorage.getItem('user_session_token') || "";
   const headers = { 'Content-Type': 'application/json' };
   if (token) {
       headers['Authorization'] = `Bearer ${token}`;
   }
-  const response = await fetch(GAS_API_URL, {
-      method: 'POST',
-      headers: headers,
-      body: JSON.stringify(bodyObj)
-  });
-  return await response.json();
+  
+  try {
+      const response = await fetch(GAS_API_URL, {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify(bodyObj)
+      });
+      
+      // 401や403エラーが返ってきたら強制的にBAN画面を表示
+      if (token && (response.status === 401 || response.status === 403)) {
+          let errMsg = "";
+          try {
+              const errData = await response.json();
+              errMsg = errData.message || errData.error || errData.banMessage || "";
+          } catch(e) {}
+          showBanScreen(errMsg);
+          return { success: false, message: 'Unauthorized' };
+      }
+      
+      const data = await response.json();
+      
+      // 200 OK でも、認証エラーや削除を意味するメッセージなら強制BAN
+      if (token && data && data.success === false) {
+          const msg = data.message || data.error || "";
+          const authErrors = ['Unauthorized', 'USER_DELETED', 'User not found', 'BANNED', 'Invalid token'];
+          if (authErrors.some(e => msg.includes(e))) {
+              showBanScreen(data.banMessage || msg);
+          }
+      }
+      
+      return data;
+  } catch(e) {
+      return { success: false, message: 'Network error' };
+  }
 }
 
-// ★BAN監視・データ削除検知機能
+// ★BAN監視・データ削除検知機能 (ポーリング)
 function startSessionMonitor() {
     if (sessionMonitorTimer) clearInterval(sessionMonitorTimer);
     sessionMonitorTimer = setInterval(async () => {
         if (!currentUser) return;
         try {
-            const res = await safeFetch({ type: 'check_session' }); 
-            if (!res.success && (res.error === 'USER_DELETED' || res.message === 'Unauthorized' || res.error === 'BANNED')) {
-                showBanScreen(res.banMessage);
-            }
+            // safeFetch内部で自動的にエラーがフックされ警告画面が出ます
+            await safeFetch({ type: 'check_session' }); 
         } catch (e) {}
     }, 5000);
 }
 
+// ★BAN警告画面の表示処理
 function showBanScreen(customMessage) {
     if (sessionMonitorTimer) clearInterval(sessionMonitorTimer);
     const overlay = document.getElementById('banOverlay');
-    if (customMessage) {
+    
+    // 既に表示中なら処理しない
+    if (overlay.style.display === 'flex') return;
+
+    if (customMessage && customMessage !== 'Unauthorized' && customMessage !== 'User not found' && customMessage !== 'USER_DELETED') {
         document.getElementById('banMessageText').innerHTML = escapeHTML(customMessage).replace(/\n/g, '<br>');
     }
+    
+    // オーバーレイを最前面に表示し、裏側の操作を無効化
     overlay.style.display = 'flex';
     document.body.style.overflow = 'hidden';
     document.body.style.pointerEvents = 'none';
     overlay.style.pointerEvents = 'auto'; 
     
+    // モーダルが開いていれば強制的に閉じる
+    if(document.getElementById('authModal')) document.getElementById('authModal').classList.remove('active');
+    if(document.getElementById('accountDropdown')) document.getElementById('accountDropdown').classList.remove('open');
+    
+    // トークンを破棄 (次回リロード時はログイン画面になる)
     localStorage.removeItem('user_session_identity');
     localStorage.removeItem('user_session_token');
     currentUser = null;
@@ -2414,7 +2452,7 @@ async function buyItemWithPoints(code, price) {
             updateAccountUI();
             await fetchUserHistory(); 
             
-            // --- ★アニメーション処理追加 ---
+            // --- アニメーション処理追加 ---
             const flash = document.createElement('div');
             flash.className = 'screen-flash';
             document.body.appendChild(flash);
@@ -3006,6 +3044,7 @@ async function performAuthAction() {
   els.btnAuthAction.innerHTML = `<span class="loading-dots">${t.msg_logging_in || "ログイン中"}</span>`;
   
   try {
+    // ログイン用の通信はまだトークンが無いので通常の fetch を使用
     const res = await fetch(GAS_API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -3472,6 +3511,7 @@ async function fetchUserHistory() {
   }
   els.libraryListSidebar.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">Loading...</div>`;
   try { 
+    // safeFetch内でエラー（BAN・削除）があれば、リロードせずに強制警告画面になります
     const data = await safeFetch({
         type: 'get_history',
         lang: CURRENT_LANG
@@ -3484,11 +3524,7 @@ async function fetchUserHistory() {
       if (currentUser.history.length > 0) {
             updateHeroView(currentUser.history[0], true);
       }
-    } else if (data.message === "User not found" || data.message === "Unauthorized" || data.success === false) {
-      console.warn("User session invalid. Logging out...");
-      logout(); 
-      return;
-    }
+    } 
   } catch (e) { 
       console.error("History Fetch Error:", e);
       updateAccountUI(); 
@@ -3540,16 +3576,14 @@ async function resumeSession() {
       if (els.loginOverlay) els.loginOverlay.classList.remove('active'); 
       updateAccountUI();
 
+      // safeFetchで無効なトークンと判定された場合、リロードせずにBAN画面になります
       const data = await safeFetch({ type: 'get_user_info' });
       
       if (data.success) {
           currentUser.points = data.points || 0;
           updateAccountUI();
           fetchUserHistory(); 
-          startSessionMonitor(); // ★監視スタート
-      } else {
-          console.warn("Session invalid. Logging out.");
-          logout();
+          startSessionMonitor(); 
       }
   } catch (e) {
       console.error("Session Resume Error:", e);
