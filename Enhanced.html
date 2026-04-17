@@ -1215,32 +1215,92 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 }
 
 /* =========================================
-   Micro-Interactions & UI Updates
+   Micro-Interactions & Unified Modal UI
    ========================================= */
-/* サイドバーメインナビ用のホバー設定 */
-.sidebar-main-nav .rgl-tab { transition: opacity 0.2s ease; }
-.sidebar-main-nav .rgl-tab:hover, .sidebar-main-nav .rgl-tab.active { opacity: 1 !important; }
-
-/* 1. ネオン・パス効果（認証結果用） */
-.code-field { transition: box-shadow 0.3s ease, border-color 0.3s ease; }
-.neon-pulse-success {
-    box-shadow: 0 0 20px rgba(0, 125, 255, 0.6), inset 0 0 8px rgba(0, 125, 255, 0.4) !important;
-    border-color: var(--primary) !important;
+/* 1. カプセル型メニュー */
+.capsule-menu {
+    display: flex;
+    background: rgba(128, 128, 128, 0.1);
+    border-radius: 50px;
+    padding: 6px !important;
+    margin: 0 24px 20px 24px;
+    gap: 4px;
+    border: none !important;
 }
-.neon-pulse-error {
-    box-shadow: 0 0 20px rgba(255, 59, 48, 0.6), inset 0 0 8px rgba(255, 59, 48, 0.4) !important;
-    border-color: #FF3B30 !important;
+.capsule-menu .rgl-tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px 0;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--sidebar-text);
+    opacity: 0.6;
+    transition: all 0.3s ease;
+}
+.capsule-menu .rgl-tab.active {
+    opacity: 1;
+    background: var(--card-bg);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+[data-theme="dark"] .capsule-menu .rgl-tab.active {
+    background: rgba(255,255,255,0.15);
 }
 
-/* 2. スポットライト・ホバー効果（マウス追従） */
+/* 2. 入力欄＋ボタンの1行デザイン (画像77, 78対応) */
+.auth-input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+.auth-input-row .code-field {
+    flex: 1;
+    height: 48px;
+    margin: 0;
+    border-radius: 50px;
+    text-align: left;
+    padding: 0 20px;
+    background: rgba(128, 128, 128, 0.2);
+    border: 1px solid rgba(128, 128, 128, 0.1);
+    transition: all 0.3s ease;
+}
+.auth-input-row .auth-btn {
+    width: 64px;
+    height: 48px;
+    border-radius: 50px !important;
+    background: var(--primary);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.3s, transform 0.2s;
+}
+.auth-input-row .auth-btn:active { transform: scale(0.95); }
+
+/* エラー時の赤色レイアウト */
+.auth-input-row.is-error .code-field {
+    border-color: rgba(255, 59, 48, 0.5);
+    background: rgba(255, 59, 48, 0.05);
+    color: #FF3B30;
+}
+.auth-input-row.is-error .auth-btn {
+    background: #FF3B30;
+}
+
+/* 3. スポットライト・ホバー効果（全ボタン対応） */
 .spotlight-hover { position: relative; overflow: hidden; }
 .spotlight-hover::before {
     content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-    background: radial-gradient(300px circle at var(--x, 50%) var(--y, 50%), rgba(255,255,255,0.08), transparent 40%);
+    background: radial-gradient(150px circle at var(--x, 50%) var(--y, 50%), rgba(255,255,255,0.15), transparent 40%);
     z-index: 0; pointer-events: none; opacity: 0; transition: opacity 0.3s ease;
 }
 [data-theme="light"] .spotlight-hover::before {
-    background: radial-gradient(300px circle at var(--x, 50%) var(--y, 50%), rgba(0,0,0,0.05), transparent 40%);
+    background: radial-gradient(150px circle at var(--x, 50%) var(--y, 50%), rgba(0,0,0,0.08), transparent 40%);
 }
 .spotlight-hover:hover::before { opacity: 1; }
 .spotlight-hover > * { position: relative; z-index: 1; }
@@ -1297,9 +1357,9 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
             <div class="rgl-brand"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="graduation-cap" aria-hidden="true" class="lucide lucide-graduation-cap"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"></path><path d="M22 10v6"></path><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"></path></svg> <span data-translate="header_brand">_.k__yu.10</span></div>
         </div>
         
-        <div class="sidebar-main-nav" style="padding: 0 24px 20px 24px; display: flex; gap: 20px; border-bottom: 1px solid rgba(128,128,128,0.1);">
-            <a href="index.html" class="rgl-tab active" data-translate="card1_title" style="font-size: 14px; font-weight: 800; color: var(--sidebar-text); text-decoration: none; opacity: 0.5;">Home</a>
-            <a href="https://kiryu10-standard.vercel.app/" class="rgl-tab" data-translate="card3_title" style="font-size: 14px; font-weight: 800; color: var(--sidebar-text); text-decoration: none; opacity: 0.5;">Standard</a>
+        <div class="sidebar-main-nav capsule-menu">
+            <a href="index.html" class="rgl-tab active spotlight-hover" data-translate="card1_title">Home</a>
+            <a href="https://kiryu10-standard.vercel.app/" class="rgl-tab spotlight-hover" data-translate="card3_title">Standard</a>
         </div>
 
         <div class="rgl-scroll-content" style="padding-top: 10px;">
@@ -1506,88 +1566,79 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 </div>
 
 <div id="authModal" class="modal-overlay">
-  <div class="modal-sheet" id="modalContainer">
-    <div style="position:absolute; top:20px; right:20px; cursor:pointer; z-index:10;" id="modalCloseBtn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" size="24" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></div>
+  <div class="modal-sheet is-wide" id="modalContainer" style="max-width: 900px; padding: 40px;">
+    <div style="position:absolute; top:20px; right:20px; cursor:pointer; z-index:10;" id="modalCloseBtn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+    </div>
     
-    <div id="phase-input" style="display: flex; opacity: 1;">
-      <h2 class="modal-title phase-input-title" data-translate="modal_title">アクティベーション</h2>
-      <!-- ★ id="mobileInputDesc" を追加 -->
-      <p class="modal-sub phase-input-sub-mobile" id="mobileInputDesc" data-translate="modal_sub">アクティベーションコードを使用すると、コンテンツにアクセスできます。アクティベーションコードを利用するには、以下の入力欄に入力してください。</p>
-      
-      <div class="phase-input-body">
-          <div class="phase-input-left">
-              <img src="https://static.wixstatic.com/media/2f0694_38068f106089439b89c7902ef4fb3d2d~mv2.jpg" alt="Code Background">
-          </div>
-          <div class="phase-input-right">
-              <div class="phase-input-controls">
-                  <input type="text" id="activationCode" class="code-field" placeholder="アクティベーションコード" autocomplete="off">
-                  <button id="btnConfirm" class="btn-primary" data-translate="modal_btn_auth">確認</button>
-              </div>
-              <div class="modal-grey-box phase-input-desc-pc">
-                  <!-- ★ id="pcInputDesc" を追加 -->
-                  <p class="modal-box-text" id="pcInputDesc" data-translate="modal_sub">アクティベーションコードを使用すると、コンテンツにアクセスできます。<br>アクティベーションコードを利用するには、以下の入力欄に入力してください。</p>
-              </div>
-          </div>
-      </div>
-      <!-- ★ 不要になった statusContainer は非表示にしておくか削除します -->
-      <div id="statusContainer" style="display: none;"></div>
-    </div>
-
-    <div id="phase-preview" style="display: none; opacity: 0;" class="new-modal-layout">
-        <h2 class="modal-title-top" data-translate="preview_title">コンテンツ確認</h2>
+    <div class="new-modal-layout">
+        <h2 class="modal-title-top" id="unifiedModalTitle">認証の確認</h2>
+        
         <div class="modal-body-flex">
             <div class="modal-left-col">
-                <img id="previewImage" src="" alt="Thumbnail">
-                <div id="previewTitleUnderImg" class="modal-thumb-title"></div>
+                <img id="unifiedModalImage" src="https://static.wixstatic.com/media/2f0694_38068f106089439b89c7902ef4fb3d2d~mv2.jpg" alt="Thumbnail" style="height: 100%; min-height: 280px; object-fit: cover;">
             </div>
             <div class="modal-right-col">
-                <h2 class="mobile-title" data-translate="preview_title">コンテンツ確認</h2>
-                <p class="modal-label" data-translate="preview_desc">続行すると以下のコンテンツを受け取ります:</p>
-                <h3 id="previewTitle" class="modal-main-title"></h3>
-                <div class="modal-grey-box" id="previewWarningBox">
-                    <p class="modal-box-text is-warning" id="previewWarningText"></p>
+                <h2 class="mobile-title" id="unifiedMobileTitle">認証の確認</h2>
+                
+                <div class="auth-input-row" id="unifiedInputRow">
+                    <input type="text" id="activationCode" class="code-field" placeholder="引き換えコード" autocomplete="off">
+                    <button id="btnConfirm" class="auth-btn spotlight-hover">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                    </button>
                 </div>
-                <div class="modal-btn-row">
-                    <button class="btn-outline" id="btnPreviewClose" style="flex: 3;" data-translate="btn_close">閉じる</button>
-                    <button class="btn-solid" id="btnPreviewRedeem" style="flex: 7;" data-translate="btn_continue">認証する</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <div id="phase-success" style="display: none; opacity: 0;" class="new-modal-layout">
-        <h2 class="modal-title-top" data-translate="success_title_final">認証成功!!</h2>
-        <div class="modal-body-flex">
-            <div class="modal-left-col">
-                <img id="successImage2" src="" alt="Thumbnail">
-                <div id="successTitleUnderImg" class="modal-thumb-title"></div>
-            </div>
-            <div class="modal-right-col">
-                <h2 class="mobile-title" data-translate="success_title_final">認証成功!!</h2>
-                <p class="modal-label" data-translate="success_desc">このコードで以下のコンテンツが認証されました:</p>
-                <h3 id="successBundleName" class="modal-main-title"></h3>
-                <div class="modal-grey-box">
-                    <p class="modal-box-text" id="successMessageText"></p>
-                    <p class="modal-box-time" id="successTime"></p>
+                <div id="phase-input" style="display: flex; flex-direction: column; flex: 1;">
+                    <div class="modal-grey-box" style="flex:1; justify-content: flex-start;">
+                        <p class="modal-box-text" id="pcInputDesc" data-translate="modal_sub">アクティベーションコードを使用すると、コンテンツにアクセスできます。<br>アクティベーションコードを利用するには、上の入力欄に入力してください。</p>
+                    </div>
                 </div>
-                <div class="modal-btn-row" id="successBtnRow">
-                    <button class="btn-outline" style="width: 100%; flex: none;" id="btnSuccessClose" data-translate="btn_close">閉じる</button>
-                    <a class="btn-solid" style="flex: 7; display: none; align-items:center; justify-content:center; text-decoration:none;" id="btnSuccessDownload" target="_blank"></a>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <div id="phase-error" style="display: none; opacity: 0;" class="new-modal-layout error-layout">
-        <h2 class="modal-title-top error-title-color">⚠ <span data-translate="error_title_prefix">エラー</span> <span id="errorCodeText"></span></h2>
-        <div class="modal-body-error">
-            <h3 id="errorMessage" class="modal-error-main-msg"></h3>
-            <div class="modal-grey-box" id="errorInfoBox" style="margin-bottom: 24px;">
-                <p class="modal-box-text" id="errorSubMessage"></p>
-                <p class="modal-box-time" id="errorTime"></p>
-            </div>
-            <div class="modal-btn-row" id="errorBtnRow">
-                <button class="btn-outline" style="width: 100%; flex: none;" id="btnErrorClose" data-translate="btn_close">閉じる</button>
+                <div id="phase-preview" style="display: none; flex-direction: column; flex: 1;">
+                    <div class="modal-grey-box" style="margin-bottom: 12px; padding: 16px;">
+                        <p class="modal-label" style="font-size:12px; opacity:0.7;">タイトル名</p>
+                        <h3 id="previewTitle" style="margin:0; font-size:20px;"></h3>
+                    </div>
+                    <div class="modal-grey-box" style="flex:1; padding: 16px; justify-content: flex-start;">
+                        <p class="modal-label" style="font-size:12px; opacity:0.7;">メッセージ名</p>
+                        <p class="modal-box-text" id="previewWarningText" style="margin-top:4px;"></p>
+                    </div>
+                    <div class="modal-btn-row" style="margin-top: 12px;">
+                        <button class="btn-outline spotlight-hover" id="btnPreviewClose" style="flex: 3;" data-translate="btn_close">閉じる</button>
+                        <button class="btn-solid spotlight-hover" id="btnPreviewRedeem" style="flex: 7;" data-translate="btn_continue">認証する</button>
+                    </div>
+                </div>
+
+                <div id="phase-success" style="display: none; flex-direction: column; flex: 1;">
+                    <div class="modal-grey-box" style="margin-bottom: 12px; padding: 16px;">
+                        <p class="modal-label" style="font-size:12px; opacity:0.7;">タイトル名</p>
+                        <h3 id="successBundleName" style="margin:0; font-size:20px;"></h3>
+                    </div>
+                    <div class="modal-grey-box" style="flex:1; padding: 16px; justify-content: flex-start;">
+                        <p class="modal-label" style="font-size:12px; opacity:0.7;">詳細</p>
+                        <p class="modal-box-text" id="successMessageText" style="margin-top:4px;"></p>
+                        <p class="modal-box-time" id="successTime" style="margin-top:10px; font-size: 12px; opacity: 0.5;"></p>
+                    </div>
+                    <div class="modal-btn-row" style="margin-top: 12px;">
+                        <button class="btn-outline spotlight-hover" id="btnSuccessClose" style="flex: 3;" data-translate="btn_close">閉じる</button>
+                        <a class="btn-solid spotlight-hover" id="btnSuccessDownload" style="flex: 7; text-decoration:none;" target="_blank"></a>
+                    </div>
+                </div>
+
+                <div id="phase-error" style="display: none; flex-direction: column; flex: 1;">
+                    <div class="modal-grey-box" style="border: 1px solid rgba(255, 59, 48, 0.3); background: rgba(255, 59, 48, 0.05); flex:1; padding: 16px; justify-content: flex-start;">
+                        <h3 style="color: #FF3B30; margin: 0 0 8px 0; display:flex; align-items:center; gap:6px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg> エラー
+                        </h3>
+                        <h3 id="errorMessage" style="margin:0 0 12px 0; font-size: 16px;"></h3>
+                        <p class="modal-box-text" id="errorSubMessage" style="opacity:0.8;"></p>
+                        <p class="modal-box-time" id="errorTime" style="margin-top:12px; font-size: 12px; opacity: 0.5;"></p>
+                        <p style="margin-top: 16px; font-size: 12px; opacity: 0.7;">問題が発生しましたか？<a href="#" style="color: var(--primary);">こちら</a>から問い合わせる。</p>
+                    </div>
+                    <div class="modal-btn-row" style="margin-top: 12px;">
+                        <button class="btn-outline spotlight-hover" style="width: 100%; flex: none;" id="btnErrorClose" data-translate="btn_close">閉じる</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -2620,516 +2671,210 @@ function closeAuthModal(){
   }, 500); 
 }
 
-function resetAuthModal(){
-  currentAuthRequestId++; 
-  els.phaseInput.style.display = 'flex'; els.phaseInput.style.opacity = '1';
-  els.phasePreview.style.display = 'none'; els.phasePreview.style.opacity = '0';
-  els.phaseSuccess.style.display = 'none'; els.phaseSuccess.style.opacity = '0';
-  els.phaseError.style.display = 'none'; els.phaseError.style.opacity = '0';
-  els.modalCon.classList.remove('is-wide');
+function resetAuthModal() {
+    currentAuthRequestId++; 
+    els.phaseInput.style.display = 'flex'; els.phaseInput.style.opacity = '1';
+    els.phasePreview.style.display = 'none'; els.phasePreview.style.opacity = '0';
+    els.phaseSuccess.style.display = 'none'; els.phaseSuccess.style.opacity = '0';
+    els.phaseError.style.display = 'none'; els.phaseError.style.opacity = '0';
+    els.modalCon.classList.remove('is-wide');
 
-  els.code.value=""; els.code.disabled=false; els.confirm.disabled=false;
-  els.confirm.textContent=TRANSLATIONS[CURRENT_LANG].modal_btn_auth;
-  els.status.innerHTML=""; 
-  
-  els.btnSuccessClose.style.flex = "none";
-  els.btnSuccessClose.style.width = "100%";
-  els.btnSuccessDownload.style.display = "none";
-  
-  els.btnErrorClose.style.flex = "none";
-  els.btnErrorClose.style.width = "100%";
-
-  const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja;
-  if (els.pcInputDesc) els.pcInputDesc.innerHTML = t.modal_sub;
-  if (els.mobileInputDesc) els.mobileInputDesc.innerHTML = t.modal_sub;
-  const titleTops = els.phasePreview.querySelectorAll('.modal-title-top, .mobile-title');
-  titleTops.forEach(el => el.textContent = t.preview_title);
-  const label = els.phasePreview.querySelector('.modal-label');
-  if(label) label.textContent = t.preview_desc;
-  
-  const successTops = els.phaseSuccess.querySelectorAll('.modal-title-top, .mobile-title');
-  successTops.forEach(el => el.textContent = t.success_title_final);
-  const successLabel = els.phaseSuccess.querySelector('.modal-label');
-  if(successLabel) successLabel.textContent = t.success_desc;
-  
-  try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
-}
-
-function showMobileItemDetail(item, isNewRedeem = false) {
-    if(modalDownloadTimer) clearInterval(modalDownloadTimer); 
+    // UIリセット
+    const inputRow = document.getElementById('unifiedInputRow');
+    const unifiedImage = document.getElementById('unifiedModalImage');
+    const unifiedTitle = document.getElementById('unifiedModalTitle');
+    const unifiedMobileTitle = document.getElementById('unifiedMobileTitle');
     
-    els.authModal.classList.add('active');
-    currentAuthRequestId++;
-    els.phaseInput.style.display='none'; 
-    els.phasePreview.style.display='none';
-    els.phaseError.style.display='none';
-    
-    els.phaseSuccess.style.display='flex'; 
-    setTimeout(() => els.phaseSuccess.style.opacity='1', 50);
-    els.modalCon.classList.add('is-wide');
-    
-    const t = TRANSLATIONS[CURRENT_LANG];
-    
-    els.successBundleName.textContent = item.bundleLabel || item.title;
-    els.successTitleUnderImg.textContent = item.message || item.title;
-    
-    if (isNewRedeem) {
-        els.successTime.textContent = currentAuthTime;
-    } else {
-        let savedTime = item.authTime || item.date || "";
-        els.successTime.textContent = formatSavedTime(savedTime, CURRENT_LANG);
+    if(inputRow) {
+        inputRow.classList.remove('is-error');
+        inputRow.style.display = 'flex'; // 入力欄を再表示
     }
-
-    if(item.imageUrl && item.imageUrl.startsWith("http")){ 
-        els.successImage.src=item.imageUrl; 
-    } else { 
-        els.successImage.src="https://static.wixstatic.com/media/2f0694_38068f106089439b89c7902ef4fb3d2d~mv2.jpg"; 
-    }
-
-    els.btnSuccessClose.style.flex = "3";
-    els.btnSuccessClose.style.width = "auto";
-    els.btnSuccessDownload.style.display = "flex";
+    els.code.value = ""; els.code.disabled = false; els.confirm.disabled = false;
+    els.confirm.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>`;
     
-    const startModalTimer = () => {
-        const now = new Date();
-        const releaseDate = item.releaseDateIso ? new Date(item.releaseDateIso) : null;
-        
-        if (releaseDate && releaseDate > now) {
-            const diff = releaseDate - now;
-            const oneDay = 24 * 60 * 60 * 1000;
-            
-            els.btnSuccessDownload.style.pointerEvents = 'none';
-            els.btnSuccessDownload.style.opacity = '0.6';
-            els.btnSuccessDownload.removeAttribute('href'); 
-            els.btnSuccessDownload.onclick = (e) => { e.preventDefault(); };
+    if (unifiedImage) unifiedImage.src = "https://static.wixstatic.com/media/2f0694_38068f106089439b89c7902ef4fb3d2d~mv2.jpg";
+    if (unifiedTitle) unifiedTitle.textContent = "認証の確認";
+    if (unifiedMobileTitle) unifiedMobileTitle.textContent = "認証の確認";
 
-            if (diff > oneDay) {
-               const y = releaseDate.getFullYear();
-               const m = releaseDate.getMonth() + 1;
-               const d = releaseDate.getDate();
-               els.btnSuccessDownload.innerHTML = `<span>${y}/${String(m).padStart(2,'0')}/${String(d).padStart(2,'0')}</span>`;
-            } else {
-               const h = Math.floor(diff / (1000 * 60 * 60));
-               const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-               const s = Math.floor((diff % (1000 * 60)) / 1000);
-               const hh = String(h).padStart(2, '0');
-               const mm = String(m).padStart(2, '0');
-               const ss = String(s).padStart(2, '0');
-               els.btnSuccessDownload.innerHTML = `<span>${hh}:${mm}:${ss}</span>`;
-            }
-        } else {
-            if(modalDownloadTimer) clearInterval(modalDownloadTimer);
-            els.btnSuccessDownload.style.pointerEvents = 'auto';
-            els.btnSuccessDownload.style.opacity = '1';
-            els.btnSuccessDownload.href = item.url;
-            els.btnSuccessDownload.onclick = null; 
-            els.btnSuccessDownload.target = "_blank";
-            const btnLabel = item.buttonLabel || t.btn_download || "ダウンロード";
-            const btnIcon = item.icon || "download";
-            els.btnSuccessDownload.innerHTML = `<span>${btnLabel}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="${btnIcon}" aria-hidden="true" size="18" class="lucide lucide-${btnIcon}"></svg>`;
-            try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
-        }
-    };
-
-    startModalTimer();
-    modalDownloadTimer = setInterval(startModalTimer, 1000);
-    
-    try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+    els.btnSuccessClose.style.flex = "none";
+    els.btnSuccessClose.style.width = "100%";
+    els.btnSuccessDownload.style.display = "none";
+    els.btnErrorClose.style.flex = "none";
+    els.btnErrorClose.style.width = "100%";
 }
 
 async function performAuth(code, mode = 'check') {
-  const t = TRANSLATIONS[CURRENT_LANG];
-  const thisRequestId = currentAuthRequestId;
-  
-  const safeCode = formatCodeInput(code);
-  const spinnerHtml = `<span class="loading-spinner" style="border-top-color:currentColor; width:18px; height:18px; border-width:2px; margin:0;"></span>`;
-
-  if (mode === 'check') {
-    if(!safeCode) return;
-    els.code.disabled = true; els.confirm.disabled = true;
-    els.confirm.innerHTML = spinnerHtml;
-    els.status.innerHTML = "";
-  } else if (mode === 'redeem') {
-    els.btnPreviewRedeem.disabled = true;
-    els.btnPreviewRedeem.innerHTML = `${spinnerHtml}`;
-    currentAuthTime = getFormattedCurrentTime(CURRENT_LANG);
-  }
-
-  try {
-    const d = await safeFetch({
-        type: mode === 'check' ? 'check' : 'redeem',
-        userId: currentUser ? currentUser.userId : null,
-        code: safeCode, 
-        lang: CURRENT_LANG,
-        _t: Date.now()
-    });
-
-    if (thisRequestId !== currentAuthRequestId) return;
+    const t = TRANSLATIONS[CURRENT_LANG];
+    const thisRequestId = currentAuthRequestId;
+    
+    const safeCode = formatCodeInput(code);
+    const spinnerHtml = `<span class="loading-spinner" style="border-top-color:currentColor; width:18px; height:18px; border-width:2px; margin:0;"></span>`;
+    const inputRow = document.getElementById('unifiedInputRow');
+    const unifiedImage = document.getElementById('unifiedModalImage');
+    const unifiedTitle = document.getElementById('unifiedModalTitle');
+    const unifiedMobileTitle = document.getElementById('unifiedMobileTitle');
 
     if (mode === 'check') {
-      if (d.success) {
-        // ▼ 成功時：青く光らせる
-        els.code.classList.remove('neon-pulse-error');
-        els.code.classList.add('neon-pulse-success');
+        if(!safeCode) return;
+        els.code.disabled = true; els.confirm.disabled = true;
+        inputRow.classList.remove('is-error');
+        els.confirm.innerHTML = spinnerHtml;
+    } else if (mode === 'redeem') {
+        els.btnPreviewRedeem.disabled = true;
+        els.btnPreviewRedeem.innerHTML = spinnerHtml;
+        currentAuthTime = getFormattedCurrentTime(CURRENT_LANG);
+    }
 
-        currentContentData = {
-            bundleLabel: d.bundleLabel || "Unknown Bundle",
-            message: d.message || "Unknown Message",
-            detailedTitle: d.detailedTitle || "Unknown Title",
-            detailedDesc: d.detailedDesc || "",
-            imageUrl: d.imageUrl || "https://static.wixstatic.com/media/2f0694_38068f106089439b89c7902ef4fb3d2d~mv2.jpg",
-            buttonLabel: d.buttonLabel
-        };
-        
-        els.confirm.innerHTML = `<i data-lucide="check"></i>`;
-        try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
-        await new Promise(r => setTimeout(r, 600));
+    try {
+        const d = await safeFetch({
+            type: mode === 'check' ? 'check' : 'redeem',
+            userId: currentUser ? currentUser.userId : null,
+            code: safeCode, 
+            lang: CURRENT_LANG,
+            _t: Date.now()
+        });
+
+        if (thisRequestId !== currentAuthRequestId) return;
+
+        if (mode === 'check') {
+            if (d.success) {
+                // ▼ 成功時（プレビュー）: 青いチェックマーク
+                inputRow.classList.remove('is-error');
+                els.confirm.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>`;
+                
+                unifiedTitle.textContent = t.preview_title || "引き換えの確認";
+                unifiedMobileTitle.textContent = t.preview_title || "引き換えの確認";
+
+                currentContentData = {
+                    bundleLabel: d.bundleLabel || "Unknown Bundle",
+                    message: d.message || "Unknown Message",
+                    detailedTitle: d.detailedTitle || "Unknown Title",
+                    detailedDesc: d.detailedDesc || "",
+                    imageUrl: d.imageUrl || "https://static.wixstatic.com/media/2f0694_38068f106089439b89c7902ef4fb3d2d~mv2.jpg",
+                    buttonLabel: d.buttonLabel
+                };
+                
+                unifiedImage.src = escapeHTML(currentContentData.imageUrl);
+                els.previewTitle.textContent = currentContentData.detailedTitle;
+                els.previewWarningText.innerHTML = escapeHTML(currentContentData.message).replace(/\n/g, '<br>');
+                
+                els.modalCon.classList.add('is-wide');
+                els.phaseInput.style.opacity = '0';
+                setTimeout(() => {
+                    if (thisRequestId !== currentAuthRequestId) return;
+                    els.phaseInput.style.display = 'none';
+                    els.phasePreview.style.display = 'flex';
+                    setTimeout(() => els.phasePreview.style.opacity = '1', 50);
+                }, 400);
+                
+                els.btnPreviewRedeem.disabled = false;
+                els.btnPreviewRedeem.innerHTML = t.btn_continue;
+                const newBtn = els.btnPreviewRedeem.cloneNode(true);
+                els.btnPreviewRedeem.parentNode.replaceChild(newBtn, els.btnPreviewRedeem);
+                els.btnPreviewRedeem = newBtn;
+                els.btnPreviewRedeem.addEventListener('click', (e) => { 
+                    e.preventDefault();
+                    performAuth(safeCode, 'redeem'); 
+                });
+            } else {
+                // ▼ 失敗時: 赤いビックリマーク
+                inputRow.classList.add('is-error');
+                els.confirm.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg>`;
+                els.code.disabled = false; els.confirm.disabled = false;
+
+                unifiedTitle.textContent = "認証の確認";
+                unifiedMobileTitle.textContent = "認証の確認";
+
+                let specificErrorCode = generateErrorCode(); 
+                const msg = d.message || "";
+                
+                if (msg === "This code has already been used." || msg.includes("使用済") || msg.includes("used")) {
+                    els.errorMessage.textContent = t.error_used_msg || t.msg_used;
+                    els.errorSubMessage.textContent = "";
+                    specificErrorCode = "1013"; 
+                } else if (d.isAlreadyOwned || msg === "Already owned" || msg.includes("所有") || msg.includes("owned")) {
+                    els.errorMessage.textContent = t.error_owned_msg || "既に所有しているようです。";
+                    els.errorSubMessage.innerHTML = window.innerWidth <= 768 ? (t.msg_already_owned_mobile || "ストアからコンテンツを選択してダウンロードしてください。") : (t.error_owned_sub || "左ライブラリメニューからコンテンツを選択してダウンロードしてください。");
+                    specificErrorCode = "1011"; 
+                } else {
+                    els.errorMessage.textContent = t.msg_invalid || "この引き換えコードは無効です。";
+                    els.errorSubMessage.textContent = msg;
+                    specificErrorCode = "1012"; 
+                }
+                
+                els.errorCodeText.textContent = specificErrorCode;
+                els.errorTime.textContent = currentAuthTime;
+
+                els.phaseInput.style.opacity = '0';
+                els.phasePreview.style.opacity = '0';
+                setTimeout(() => {
+                    if (thisRequestId !== currentAuthRequestId) return;
+                    els.phaseInput.style.display = 'none';
+                    els.phasePreview.style.display = 'none';
+                    els.phaseError.style.display = 'flex';
+                    setTimeout(() => els.phaseError.style.opacity = '1', 50);
+                }, 400);
+            }
+        } else if (mode === 'redeem') {
+            if (d.success) {
+                // ▼ 最終成功処理
+                inputRow.style.display = 'none'; // 成功時は入力を消す
+                unifiedTitle.textContent = t.success_title_final || "認証成功!!";
+                unifiedMobileTitle.textContent = t.success_title_final || "認証成功!!";
+
+                await saveUnlockedItemLocal(d, safeCode);
+                
+                els.successBundleName.textContent = currentContentData.bundleLabel;
+                els.successMessageText.innerHTML = t.success_msg_box.replace(/\n/g, '<br>');
+                els.successTime.textContent = currentAuthTime;
+                
+                els.phasePreview.style.opacity = '0';
+                setTimeout(() => {
+                    if (thisRequestId !== currentAuthRequestId) return;
+                    els.phasePreview.style.display = 'none';
+                    els.phaseSuccess.style.display = 'flex';
+                    setTimeout(() => els.phaseSuccess.style.opacity = '1', 50);
+                }, 400);
+
+                if (currentUser.history.length > 0) updateHeroView(currentUser.history[0], true); 
+            } else {
+                // Redeem時エラー
+                inputRow.classList.add('is-error');
+                els.confirm.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg>`;
+                els.btnPreviewRedeem.disabled = false;
+                els.btnPreviewRedeem.innerHTML = t.btn_continue;
+                
+                els.errorMessage.textContent = t.msg_invalid;
+                els.errorSubMessage.textContent = d.message;
+                
+                els.phasePreview.style.opacity = '0';
+                setTimeout(() => {
+                    els.phasePreview.style.display = 'none';
+                    els.phaseError.style.display = 'flex';
+                    setTimeout(() => els.phaseError.style.opacity = '1', 50);
+                }, 400);
+            }
+        }
+    } catch (e) {
+        console.error("Auth Error:", e);
         if (thisRequestId !== currentAuthRequestId) return;
         
-        els.previewImage.src = escapeHTML(currentContentData.imageUrl);
-        els.previewTitleUnderImg.textContent = currentContentData.message;
-        els.previewTitle.textContent = currentContentData.detailedTitle;
+        inputRow.classList.add('is-error');
+        els.confirm.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg>`;
+        els.code.disabled = false; els.confirm.disabled = false;
         
-        if (currentContentData.detailedDesc) {
-            els.previewWarningText.innerHTML = escapeHTML(currentContentData.detailedDesc).replace(/\n/g, '<br>');
-            els.previewWarningBox.style.display = 'flex';
-        } else {
-            els.previewWarningText.innerHTML = "";
-            els.previewWarningBox.style.display = 'none';
-        }
+        els.errorMessage.textContent = t.msg_error;
+        els.errorSubMessage.textContent = e.message || "Network Error";
         
-        els.modalCon.classList.add('is-wide');
         els.phaseInput.style.opacity = '0';
+        els.phasePreview.style.opacity = '0';
         setTimeout(() => {
-          if (thisRequestId !== currentAuthRequestId) return;
-          els.phaseInput.style.display = 'none';
-          els.phasePreview.style.display = 'flex';
-          setTimeout(() => els.phasePreview.style.opacity = '1', 50);
+            els.phaseInput.style.display = 'none';
+            els.phasePreview.style.display = 'none';
+            els.phaseError.style.display = 'flex';
+            setTimeout(() => els.phaseError.style.opacity = '1', 50);
         }, 400);
-        
-        els.btnPreviewRedeem.disabled = false;
-        els.btnPreviewRedeem.innerHTML = t.btn_continue;
-        const newBtn = els.btnPreviewRedeem.cloneNode(true);
-        els.btnPreviewRedeem.parentNode.replaceChild(newBtn, els.btnPreviewRedeem);
-        els.btnPreviewRedeem = newBtn;
-        els.btnPreviewRedeem.addEventListener('click', (e) => { 
-            e.preventDefault();
-            performAuth(safeCode, 'redeem'); 
-        });
-      } else {
-        // ▼ 失敗時（無効・使用済み等）：赤く光らせる
-        els.code.classList.remove('neon-pulse-success');
-        els.code.classList.add('neon-pulse-error');
-
-        try {
-            if(typeof lucide !== 'undefined') lucide.createIcons();
-            
-            let errorMainText = "";
-            let errorSubText = "";
-            let showInfoBox = true;
-            let specificErrorCode = generateErrorCode(); 
-            
-            const msg = d.message || "";
-            if (msg === "This code has already been used." || msg.includes("使用済") || msg.includes("used")) {
-                errorMainText = t.error_used_msg || t.msg_used;
-                errorSubText = "";
-                specificErrorCode = "1013"; 
-                els.btnErrorClose.style.flex = "none";
-                els.btnErrorClose.style.width = "100%";
-                showInfoBox = false;
-            } else if (d.isAlreadyOwned || msg === "Already owned" || msg.includes("所有") || msg.includes("owned")) {
-                errorMainText = t.error_owned_msg || "既に所有しているようです。";
-                errorSubText = window.innerWidth <= 768 ? (t.msg_already_owned_mobile || "ストアからコンテンツを選択してダウンロードしてください。") : (t.error_owned_sub || "左ライブラリメニューからコンテンツを選択してダウンロードしてください。");
-                specificErrorCode = "1011"; 
-                els.btnErrorClose.style.flex = "none";
-                els.btnErrorClose.style.width = "100%";
-            } else if (msg.toLowerCase().includes("invalid") || msg.toLowerCase().includes("not found")) {
-                errorMainText = t.msg_invalid || "コードが無効です";
-                errorSubText = msg;
-                specificErrorCode = "1012"; 
-                els.btnErrorClose.style.flex = "none";
-                els.btnErrorClose.style.width = "100%";
-            } else {
-                errorMainText = t.msg_error;
-                errorSubText = msg;
-                els.btnErrorClose.style.flex = "none";
-                els.btnErrorClose.style.width = "100%";
-                showInfoBox = errorSubText ? true : false;
-            }
-            
-            els.errorCodeText.textContent = specificErrorCode;
-            els.errorTime.textContent = currentAuthTime;
-            
-            els.errorMessage.textContent = errorMainText;
-            if(showInfoBox && errorSubText) {
-                els.errorSubMessage.innerHTML = escapeHTML(errorSubText).replace(/\n/g, '<br>');
-                els.errorInfoBox.style.display = 'flex';
-            } else {
-                els.errorSubMessage.innerHTML = "";
-                els.errorInfoBox.style.display = 'none';
-            }
-        } catch(err) {
-            console.error("UI Update Error", err);
-            els.errorMessage.textContent = t.msg_error;
-        } finally {
-            els.phasePreview.style.opacity = '0';
-            setTimeout(() => {
-              if (thisRequestId !== currentAuthRequestId) return;
-              els.phasePreview.style.display = 'none';
-              els.phaseError.style.display = 'flex';
-              setTimeout(() => els.phaseError.style.opacity = '1', 50);
-            }, 400);
-        }
-      }
-    } else if (mode === 'redeem') {
-      if (d.success) { 
-        if (d.isPointMode) {
-            fetchUserHistory();
-            const successTops = els.phaseSuccess.querySelectorAll('.modal-title-top, .mobile-title');
-            successTops.forEach(el => el.textContent = t.success_pt_title || "ポイントチャージ完了");
-            const label = els.phaseSuccess.querySelector('.modal-label');
-            if(label) label.textContent = (t.success_pt_msg || "追加されました。").replace('%s', d.message);
-            
-            els.successImage.src = escapeHTML(currentContentData.imageUrl) || "https://static.wixstatic.com/media/2f0694_38068f106089439b89c7902ef4fb3d2d~mv2.jpg";
-            els.successTitleUnderImg.textContent = d.message;
-            els.successBundleName.textContent = currentContentData.message || d.message;
-            els.successMessageText.innerHTML = "";
-            els.successTime.textContent = currentAuthTime;
-
-            els.btnSuccessClose.style.flex = "none";
-            els.btnSuccessClose.style.width = "100%";
-            els.btnSuccessDownload.style.display = "none";
-
-            els.phasePreview.style.opacity = '0';
-            setTimeout(() => {
-                if (thisRequestId !== currentAuthRequestId) return;
-                els.phasePreview.style.display = 'none';
-                els.phaseSuccess.style.display = 'flex';
-                setTimeout(() => els.phaseSuccess.style.opacity = '1', 50);
-            }, 400);
-            return;
-        }
-
-        await saveUnlockedItemLocal(d, safeCode);
-        if(window.innerWidth <= 768) {
-           const item = {
-             title: d.bundleLabel || d.message,
-             message: d.message,
-             imageUrl: d.imageUrl,
-             url: d.actionUrl,
-             releaseDateIso: d.releaseDateIso,
-             buttonLabel: d.buttonLabel,
-             icon: d.btnIcon
-           };
-           showMobileItemDetail(item, true); 
-        } else {
-           els.successImage.src = escapeHTML(currentContentData.imageUrl);
-           els.successTitleUnderImg.textContent = currentContentData.message;
-           els.successBundleName.textContent = currentContentData.bundleLabel;
-           els.successMessageText.innerHTML = t.success_msg_box.replace(/\n/g, '<br>');
-           els.successTime.textContent = currentAuthTime;
-           
-           els.phasePreview.style.opacity = '0';
-           setTimeout(() => {
-             if (thisRequestId !== currentAuthRequestId) return;
-             els.phasePreview.style.display = 'none';
-             els.phaseSuccess.style.display = 'flex';
-             setTimeout(() => els.phaseSuccess.style.opacity = '1', 50);
-           }, 400);
-
-           if (currentUser.history.length > 0) {
-              updateHeroView(currentUser.history[0], true); 
-           }
-        }
-      } else {
-        try {
-            if(typeof lucide !== 'undefined') lucide.createIcons();
-            
-            let errorMainText = "";
-            let errorSubText = "";
-            let showInfoBox = true;
-            let specificErrorCode = generateErrorCode(); 
-            
-            const msg = d.message || "";
-            if (msg === "This code has already been used." || msg.includes("使用済") || msg.includes("used")) {
-                errorMainText = t.error_used_msg || t.msg_used;
-                errorSubText = "";
-                specificErrorCode = "1013"; 
-                els.btnErrorClose.style.flex = "none";
-                els.btnErrorClose.style.width = "100%";
-                showInfoBox = false;
-            } else if (d.isAlreadyOwned || msg === "Already owned" || msg.includes("所有") || msg.includes("owned")) {
-                errorMainText = t.error_owned_msg || "既に所有しているようです。";
-                errorSubText = window.innerWidth <= 768 ? (t.msg_already_owned_mobile || "ストアからコンテンツを選択してダウンロードしてください。") : (t.error_owned_sub || "左ライブラリメニューからコンテンツを選択してダウンロードしてください。");
-                specificErrorCode = "1011"; 
-                els.btnErrorClose.style.flex = "none";
-                els.btnErrorClose.style.width = "100%";
-            } else if (msg.toLowerCase().includes("invalid") || msg.toLowerCase().includes("not found")) {
-                errorMainText = t.msg_invalid || "コードが無効です";
-                errorSubText = msg;
-                specificErrorCode = "1012"; 
-                els.btnErrorClose.style.flex = "none";
-                els.btnErrorClose.style.width = "100%";
-            } else {
-                errorMainText = t.msg_error;
-                errorSubText = msg;
-                els.btnErrorClose.style.flex = "none";
-                els.btnErrorClose.style.width = "100%";
-                showInfoBox = errorSubText ? true : false;
-            }
-            
-            els.errorCodeText.textContent = specificErrorCode;
-            els.errorTime.textContent = currentAuthTime;
-            
-            els.errorMessage.textContent = errorMainText;
-            if(showInfoBox && errorSubText) {
-                els.errorSubMessage.innerHTML = escapeHTML(errorSubText).replace(/\n/g, '<br>');
-                els.errorInfoBox.style.display = 'flex';
-            } else {
-                els.errorSubMessage.innerHTML = "";
-                els.errorInfoBox.style.display = 'none';
-            }
-        } catch(err) {
-            console.error("UI Update Error", err);
-            els.errorMessage.textContent = t.msg_error;
-        } finally {
-            els.phasePreview.style.opacity = '0';
-            setTimeout(() => {
-              if (thisRequestId !== currentAuthRequestId) return;
-              els.phasePreview.style.display = 'none';
-              els.phaseError.style.display = 'flex';
-              setTimeout(() => els.phaseError.style.opacity = '1', 50);
-            }, 400);
-        }
-      }
     }
-  } catch (e) {
-    console.error("Auth Error:", e);
-    if (thisRequestId !== currentAuthRequestId) return;
-
-    let serverMessage = e.message || "";
-    
-    if (mode === 'check') {
-       els.code.disabled = false; 
-       els.confirm.disabled = false; 
-       els.confirm.textContent = t.modal_btn_auth;
-       
-       // ▼ 通信エラー時も赤く光らせる
-       els.code.classList.remove('neon-pulse-success');
-       els.code.classList.add('neon-pulse-error');
-       
-       let errorDisplay = t.msg_error; 
-       const lowMsg = serverMessage.toLowerCase();
-       if (lowMsg.includes("used")) {
-           errorDisplay = t.msg_used;
-       } else if (lowMsg.includes("invalid") || lowMsg.includes("not found") || lowMsg.includes("code is required")) {
-           errorDisplay = t.msg_invalid;
-       }
-
-       const errorHtml = `<span style="color:#FF3B30; font-size:14px; font-weight:700;">${errorDisplay}</span>`;
-       if (els.pcInputDesc) els.pcInputDesc.innerHTML = errorHtml;
-       if (els.mobileInputDesc) els.mobileInputDesc.innerHTML = errorHtml;
-       
-    } else {
-       els.btnPreviewRedeem.disabled = false;
-       els.btnPreviewRedeem.innerHTML = t.btn_continue;
-       
-       const lowMsg = serverMessage.toLowerCase();
-       let specificErrorCode = generateErrorCode();
-       if (lowMsg.includes("invalid") || lowMsg.includes("not found")) {
-           specificErrorCode = "1012";
-       } else if (lowMsg.includes("already owned") || lowMsg.includes("owned")) {
-           specificErrorCode = "1011";
-       } else if (lowMsg.includes("used")) {
-           specificErrorCode = "1013";
-       }
-       
-       els.errorCodeText.textContent = specificErrorCode;
-       els.errorTime.textContent = currentAuthTime;
-       
-       els.errorMessage.textContent = t.msg_invalid;
-       els.errorSubMessage.textContent = serverMessage;
-       els.errorInfoBox.style.display = 'block';
-       
-       els.btnErrorClose.style.flex = "none";
-       els.btnErrorClose.style.width = "100%";
-       
-       els.phasePreview.style.opacity = '0';
-       setTimeout(() => {
-         els.phasePreview.style.display = 'none';
-         els.phaseError.style.display = 'flex';
-         setTimeout(() => els.phaseError.style.opacity = '1', 50);
-       }, 400);
-    }
-  }
-}
-
-async function performAuthAction() {
-  const email = els.email.value.trim();
-  const pass = els.pass.value.trim();
-  const t = TRANSLATIONS[CURRENT_LANG];
-  
-  if (!email || !pass) { 
-      els.authStatus.textContent = t.msg_login_empty || "ユーザー名とパスワードを入力してください。"; 
-      return; 
-  }
-  
-  els.btnAuthAction.disabled = true;
-  els.btnAuthAction.innerHTML = `<span class="loading-dots">${t.msg_logging_in || "ログイン中"}</span>`;
-  
-  try {
-    const res = await fetch(GAS_API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: 'user_login', email: email, password: pass })
-    });
-    const data = await res.json();
-    
-    if (data.success) {
-      if (data.requirePasswordChange) {
-          window.tempChangeData = { userId: data.userId, oldPassword: pass };
-          document.getElementById('forcePasswordChangeView').style.display = 'flex';
-          return; 
-      }
-      
-      currentUser = { userId: data.userId, email: email, history: data.history || [], points: data.points || 0 };
-      localStorage.setItem('user_session_identity', JSON.stringify({ userId: data.userId, email: email }));
-      
-      if (data.token) {
-          localStorage.setItem('user_session_token', data.token);
-      }
-      
-      document.body.classList.add('is-logged-in');
-      if (els.loginOverlay) els.loginOverlay.classList.remove('active'); 
-      updateAccountUI(); 
-      fetchUserHistory(); 
-      
-      els.email.value = ""; els.pass.value = "";
-      
-      if (pendingActivationCode) {
-          setTimeout(() => {
-              openAuthModal(); 
-              const codeToUse = formatCodeInput(pendingActivationCode);
-              els.code.value = codeToUse;
-              performAuth(codeToUse); 
-              pendingActivationCode = null;
-          }, 500);
-      }
-    } else { 
-      const lowMsg = (data.message || "").toLowerCase();
-      let errorMsg = data.message || t.msg_error;
-      
-      if (lowMsg.includes('invalid') || lowMsg.includes('not found') || lowMsg.includes('incorrect') || lowMsg.includes('無効')) {
-          errorMsg = t.msg_login_invalid || "無効なユーザー名またはパスワードです。";
-      }
-      els.authStatus.textContent = errorMsg; 
-    }
-  } catch (e) { 
-    els.authStatus.textContent = t.msg_error || "Network Error."; 
-  } finally { 
-    els.btnAuthAction.disabled = false; 
-    els.btnAuthAction.textContent = t.btn_login_action;
-  }
 }
   
 function setHeroButtonState(state, forceUnlock = false) {
@@ -3626,10 +3371,13 @@ async function resumeSession() {
    ========================================= */
 document.addEventListener('DOMContentLoaded', () => {
     const setupHoverEffects = () => {
-        document.querySelectorAll('.sidebar-game-item').forEach(el => {
+        // 全てのタブ、ボタン、サイドバーアイテムにスポットライトを適用
+        const targets = document.querySelectorAll('.sidebar-game-item, .rgl-tab, .btn-primary, .btn-outline, .btn-solid, .rgl-cta-btn, .menu-btn, .auth-btn');
+        targets.forEach(el => {
             if (el.dataset.hoverSetup) return;
             el.dataset.hoverSetup = "true";
-            el.classList.add('spotlight-hover');
+            if (!el.classList.contains('spotlight-hover')) el.classList.add('spotlight-hover');
+            
             el.addEventListener('mousemove', (e) => {
                 const rect = el.getBoundingClientRect();
                 el.style.setProperty('--x', `${e.clientX - rect.left}px`);
