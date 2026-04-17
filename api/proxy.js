@@ -307,26 +307,36 @@ export default async function handler(req, res) {
       const safeCode = (key || "").replace(/[^A-Z0-9\-]/gi, "").toUpperCase();
       const { data: master, error } = await supabase.from('codes').select('*').eq('アクティベーションコード', safeCode).maybeSingle();
 
-      // 攻撃者に理由を推測させないための統一エラーメッセージ
-      const unifiedErrMsg = "The code is invalid or has already been used.";
-
-      if (error || !master) return res.status(200).json({ success: false, message: unifiedErrMsg });
-
-      const isActive = master["有効/無効"] === true || String(master["有効/無効"]).trim().toUpperCase() === 'TRUE';
-      if (!isActive) return res.status(200).json({ success: false, message: unifiedErrMsg });
-
-      const now = new Date();
-      if (master["有効時間"] && now > new Date(master["有効時間"])) {
-        return res.status(200).json({ success: false, message: unifiedErrMsg });
+      // ========================================================
+      // ★ここから修正：エラー理由ごとに明確なメッセージを返す
+      // ========================================================
+      
+      // 1. コードがDBに存在しない場合
+      if (error || !master) {
+          return res.status(200).json({ success: false, message: "Invalid code" });
       }
 
+      // 2. コードが無効化されている場合
+      const isActive = master["有効/無効"] === true || String(master["有効/無効"]).trim().toUpperCase() === 'TRUE';
+      if (!isActive) {
+          return res.status(200).json({ success: false, message: "Invalid code" });
+      }
+
+      // 3. 有効期限切れの場合
+      const now = new Date();
+      if (master["有効時間"] && now > new Date(master["有効時間"])) {
+        return res.status(200).json({ success: false, message: "Invalid code" });
+      }
+
+      // 4. 使用済みかどうかチェック
       const codeType = (master.Types || "").trim().toUpperCase();
       const isOnce = (codeType === 'ONCE' || codeType === '');
       const rawUsed = master["USED?"];
       const isCodeUsed = rawUsed === true || String(rawUsed).trim().toUpperCase() === 'TRUE';
 
+      // 1回使い切り または ポイントコードで、既に使用済みの場合は「使用済み」と返す
       if ((isOnce || codeType === 'POINT') && isCodeUsed) {
-        return res.status(200).json({ success: false, message: unifiedErrMsg });
+        return res.status(200).json({ success: false, message: "This code has already been used." });
       }
       
       const lMap = { ja: 'jp', en: 'en', zh: 'SC', 'zh-TW': 'TC', ko: 'ko', ru: 'ru' };
