@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -12,23 +12,27 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
-/* --- 共通変数 --- */
-@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff'); font-weight: 400; }
-@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Bold.woff') format('woff'); font-weight: 700; }
-@font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Medium.woff') format('woff'); font-weight: 400; }
-@font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Medium.woff') format('woff'); font-weight: 400; }
+/* --- FONT FACE DEFINITIONS --- */
+@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Medium.woff') format('woff'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Medium.woff') format('woff'); font-weight: 400; font-style: normal; }
 
+/* --- THEME VARIABLES --- */
 :root {
   --primary: #007DFF;
   --bg-color: #F1F3F5;
   --card-bg: rgba(255, 255, 255, 0.8);
   --modal-text-main: #000000;
   --modal-text-sub: #666666;
-  --nav-text: #000;
-  --sidebar-text: #000;
-  --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
-  --spring-ease: cubic-bezier(0.33, 1, 0.68, 1);
   --btn-close-border: #000000;
+  --nav-text: #000;
+  --sidebar-bg: #E0E0E0;
+  --sidebar-text: #000;
+  --sidebar-width: 340px;
+  --sidebar-item-hover: rgba(0,0,0,0.05);
+  --spring-ease: cubic-bezier(0.33, 1, 0.68, 1);
+  --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
 }
 
 :root:lang(ja) { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
@@ -39,14 +43,24 @@
 :root:lang(ru) { --font-stack: 'HarmonyOS Sans', sans-serif; }
 
 [data-theme="dark"] {
-  --bg-color: #000000;
+  --bg-color: #121212;
   --card-bg: #1C1C1E;
   --modal-text-main: #FFFFFF;
   --modal-text-sub: #A0A0A0;
-  --nav-text: #fff;
-  --sidebar-text: #fff;
   --btn-close-border: #FFFFFF;
+  --nav-text: #fff;
+  --sidebar-bg: #000000;
+  --sidebar-text: #fff;
+  --sidebar-item-hover: rgba(255,255,255,0.1);
 }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(128, 128, 128, 0.2); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(128, 128, 128, 0.4); }
+[data-theme="dark"] ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); }
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
 
 *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
@@ -55,13 +69,14 @@ body {
   background-color: var(--bg-color);
   color: var(--modal-text-main);
   font-family: var(--font-stack);
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
   overflow: hidden; 
-  display: flex;
-  flex-direction: column;
+  display: flex; 
   transition: background-color 0.5s ease;
-  position: relative;
 }
+
+button, input, textarea { font-family: var(--font-stack); }
 
 #particleCanvas {
   position: fixed; inset: 0; width: 100%; height: 100%;
@@ -69,124 +84,157 @@ body {
   filter: blur(80px);
 }
 
-/* --- ヘッダーレイアウト --- */
-.unified-header {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100px;
-    z-index: 50;
-    pointer-events: none;
+/* --- RGL LAYOUT STRUCTURE --- */
+.rgl-wrapper {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  position: relative;
 }
 
-.header-left-group {
-    position: absolute;
-    top: 30px;
-    left: 24px;
+/* SIDEBAR */
+.rgl-sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--sidebar-bg);
+  display: flex;
+  flex-direction: column; 
+  padding: 0; 
+  flex-shrink: 0;
+  border-right: 1px solid rgba(128,128,128,0.1);
+  color: var(--sidebar-text);
+  z-index: 100;
+  overflow: hidden; 
+}
+
+.rgl-brand-area {
+  padding: 30px 24px 20px 24px;
+  flex-shrink: 0;
+}
+.rgl-brand {
+  font-family: var(--font-stack);
+  font-weight: 800;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--sidebar-text);
+}
+.rgl-brand i { color: #FFA500; }
+
+.capsule-menu {
     display: flex;
-    align-items: center;
-    gap: 16px;
-    pointer-events: auto;
-}
-
-.hamburger-btn {
-    display: none;
-    background: transparent;
-    border: none;
-    color: var(--sidebar-text);
-    cursor: pointer;
-    padding: 0;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.2s;
-}
-.hamburger-btn:hover { transform: scale(1.1); }
-
-.header-brand {
-    font-size: 20px;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    color: var(--sidebar-text);
-}
-.header-brand i { color: #FFA500; }
-.brand-text-mobile { display: none; }
-
-.header-right {
-    position: absolute;
-    top: 24px;
-    right: 40px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    pointer-events: auto;
-}
-
-.rgl-tabs { display: flex; gap: 30px; }
-.rgl-tab {
-    position: relative;
-    margin: 0 4px !important;
-    padding: 0 !important;
+    background: rgba(128, 128, 128, 0.1);
+    border-radius: 50px;
+    padding: 6px !important;
+    margin: 0 24px 20px 24px;
+    gap: 4px;
     border: none !important;
-    background: transparent !important;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    font-weight: 700;
-    font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--nav-text);
+}
+.capsule-menu .rgl-tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px 0;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--sidebar-text);
     opacity: 0.6;
-    transition: opacity 0.2s ease;
-    z-index: 1;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+.capsule-menu .rgl-tab.active {
+    opacity: 1;
+    background: var(--card-bg);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+[data-theme="dark"] .capsule-menu .rgl-tab.active {
+    background: rgba(255,255,255,0.15);
+}
+
+.rgl-scroll-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 24px;
+}
+
+/* Sidebar Bottom Controls */
+.rgl-bottom-controls {
+  margin-top: auto;
+  padding: 20px 24px 30px 24px;
+  flex-shrink: 0;
+  border-top: 1px solid rgba(128,128,128,0.1);
+}
+
+.lang-trigger-sidebar {
+    width: 100%;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px !important;
     cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--sidebar-text);
+    border-radius: 50px !important;
+    background: transparent;
+    transition: all 0.2s ease;
+    font-family: var(--font-stack);
+    border: 1px solid transparent;
 }
-.rgl-tab:hover, .rgl-tab.active { opacity: 1; }
-.rgl-tab::before {
-    content: ''; position: absolute; top: 50%; left: 50%;
-    width: calc(100% + 37px); height: 38px; border-radius: 50px;
-    background: rgba(255, 255, 255, 0.4);
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    transform: translate(-50%, -50%) scale(0.9);
-    opacity: 0; z-index: -1; pointer-events: none;
-    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+.lang-trigger-sidebar:hover { background: rgba(128, 128, 128, 0.15); }
+[data-theme="dark"] .lang-trigger-sidebar { border: 1px solid rgba(255, 255, 255, 0.6) !important; background: rgba(255, 255, 255, 0.05); }
+[data-theme="dark"] .lang-trigger-sidebar:hover { border-color: #fff !important; background: rgba(255, 255, 255, 0.15); }
+.lang-list { position: absolute; bottom: 80px; left: 24px; width: 200px; background: var(--card-bg); backdrop-filter: blur(20px); padding: 5px; border-radius: 12px; list-style: none; display: none; box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 200; border: 1px solid rgba(128,128,128,0.1); margin: 0; }
+.lang-list.open { display: block; animation: popIn 0.3s; }
+.lang-list li { padding: 10px 15px; cursor: pointer; border-radius: 8px; color: var(--modal-text-main); font-size: 13px; font-family: var(--font-stack); }
+.lang-list li:hover { background: rgba(128,128,128,0.1); }
+[data-theme="dark"] .lang-list li { color: #fff; }
+
+/* MAIN CONTENT AREA */
+.rgl-main {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background-color: var(--bg-color);
 }
-.rgl-tab:hover::before, .rgl-tab.active::before { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-[data-theme="dark"] .rgl-tab::before { background: rgba(0, 0, 0, 0.3); border-color: rgba(255, 255, 255, 0.1); }
-[data-theme="dark"] .rgl-tab { color: #fff; }
+
+.rgl-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: 24px 40px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 20px;
+}
 
 .theme-pill {
-    width: 44px; height: 44px; border-radius: 50%;
-    background: var(--card-bg); border: 1px solid rgba(128,128,128,0.2);
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: transform 0.3s; backdrop-filter: blur(10px);
-    color: var(--modal-text-main);
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--card-bg); border: 1px solid rgba(128,128,128,0.2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: transform 0.3s; backdrop-filter: blur(10px); color: var(--modal-text-main);
 }
 .theme-pill:hover { transform: scale(1.1); }
 [data-theme="dark"] .theme-pill { color: #fff; }
 
-/* --- メインコンテンツエリア --- */
-.support-wrapper {
-    width: 100%;
-    height: 100vh;
-    padding: 100px 40px 40px 40px; 
+/* SUPPORT CONTENT */
+.support-content {
+    padding: 20px 60px 60px 60px;
+    flex: 1;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
-    justify-content: center; 
-    z-index: 5;
-    position: relative;
-    box-sizing: border-box;
 }
 
 .page-title-area {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 40px;
     animation: fadeInUp 0.6s ease forwards;
     flex-shrink: 0;
 }
@@ -195,18 +243,13 @@ body {
     font-weight: 800; margin: 0 0 8px 0;
     text-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
-.page-sub { opacity: 0.6; font-size: 13px; }
+.page-sub { opacity: 0.6; font-size: 14px; font-weight: 500; }
 
-/* BENTO GRID LAYOUT (1:1に分割) */
 .bento-grid {
     display: grid;
     width: 100%;
-    height: 100%;
-    max-width: 1200px; 
-    margin: 0 auto;
-    
+    max-width: 1000px; 
     grid-template-columns: 1fr 1fr; 
-    grid-template-rows: 1fr; 
     gap: 30px;
 }
 
@@ -214,7 +257,7 @@ body {
     background: var(--card-bg);
     border: 1px solid rgba(128,128,128,0.1);
     border-radius: 24px;
-    padding: 24px;
+    padding: 40px 24px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -227,122 +270,30 @@ body {
     text-decoration: none;
     color: var(--modal-text-main);
     box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    min-height: 300px;
 }
 .bento-card:hover {
-    transform: translateY(-4px) scale(1.005);
-    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-    border-color: rgba(128,128,128,0.5);
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    border-color: rgba(128,128,128,0.3);
     z-index: 10;
 }
-[data-theme="dark"] .bento-card:hover { border-color: #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
+[data-theme="dark"] .bento-card:hover { border-color: #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
 
-.card-large-left {
-    background: linear-gradient(135deg, rgba(0,125,255,0.1) 0%, var(--card-bg) 100%);
-}
-.card-large-right {
-    background: linear-gradient(135deg, rgba(255,165,0,0.1) 0%, var(--card-bg) 100%);
-}
+.card-large-left { background: linear-gradient(135deg, rgba(0,125,255,0.05) 0%, var(--card-bg) 100%); }
+.card-large-right { background: linear-gradient(135deg, rgba(255,165,0,0.05) 0%, var(--card-bg) 100%); }
 
-.bento-card .card-icon { font-size: 80px; margin-bottom: 24px; transition: transform 0.3s; }
-.bento-card:hover .card-icon { transform: scale(1.05) rotate(3deg); }
-.bento-card .card-title { font-size: 32px; font-weight: 800; text-align: center; }
-.bento-card .card-desc { font-size: 16px; margin-top: 8px; opacity: 0.6; }
+.bento-card .card-icon { color: var(--modal-text-main); margin-bottom: 24px; transition: transform 0.3s; }
+.bento-card:hover .card-icon { transform: scale(1.1) rotate(3deg); }
+.bento-card .card-title { font-size: 28px; font-weight: 800; text-align: center; }
+.bento-card .card-desc { font-size: 15px; margin-top: 12px; opacity: 0.6; font-weight: 500; text-align: center; }
 
-/* --- スマホメニューオーバーレイ --- */
-.nav-overlay {
-    position: fixed;
-    inset: 0;
-    background: var(--bg-color);
-    z-index: 10000;
-    padding: 40px;
-    display: flex;
-    flex-direction: column;
-    transform: translateX(-100%);
-    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    visibility: hidden;
-}
-.nav-overlay.active {
-    transform: translateX(0);
-    visibility: visible;
-}
-
-.nav-close-btn {
-    align-self: flex-end;
-    background: transparent;
-    border: 1px solid var(--btn-close-border);
-    color: var(--modal-text-main);
-    width: 44px; height: 44px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    margin-bottom: 40px;
-}
-
-.nav-content {
-    display: flex;
-    flex-direction: column;
-    gap: 40px;
-    margin-top: 40px;
-}
-
-.nav-item {
-    font-size: 32px;
-    font-weight: 800;
-    color: var(--modal-text-main);
-    text-decoration: none;
-    opacity: 0;
-    transform: translateX(-20px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-}
-.nav-overlay.active .nav-item {
-    opacity: 1;
-    transform: translateX(0);
-}
-.nav-overlay.active .nav-item:nth-child(1) { transition-delay: 0.1s; }
-.nav-overlay.active .nav-item:nth-child(2) { transition-delay: 0.2s; }
-
-/* スマホ対応レスポンシブ */
-@media (max-width: 900px) {
-    body { overflow-y: auto; height: auto; }
-    
-    .rgl-tabs { display: none; }
-    .hamburger-btn { display: flex; }
-    
-    .brand-text-pc { display: none; }
-    .brand-text-mobile { display: inline; }
-    
-    .unified-header { height: auto; }
-    .header-left-group { top: 0; left: 0; margin: 24px 0 0 24px; position: relative; }
-    
-    .header-right { 
-        top: 24px; right: 24px; margin: 0; position: absolute;
-    }
-
-    .support-wrapper { 
-        height: auto; 
-        min-height: 100vh;
-        padding: 100px 20px 40px 20px; 
-    }
-    
-    .bento-grid {
-        display: flex;
-        flex-direction: column;
-        height: auto;
-        gap: 20px;
-    }
-    .bento-card {
-        flex: 1;
-        min-height: 250px; 
-    }
-    .bento-card .card-icon { font-size: 60px; margin-bottom: 16px; }
-    .bento-card .card-title { font-size: 26px; }
-}
 
 /* 詳細モーダル */
 .detail-modal-overlay {
     position: fixed; inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(15px);
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
     z-index: 9999;
     display: flex; justify-content: center; align-items: center;
     opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
@@ -351,144 +302,247 @@ body {
 
 .detail-modal {
     background: var(--bg-color);
-    width: 800px; max-width: 90%;
+    width: 850px; max-width: 90%;
     border-radius: 32px;
     border: 1px solid rgba(128,128,128,0.2);
-    box-shadow: 0 50px 100px rgba(0,0,0,0.5);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.3);
     display: flex;
     overflow: hidden;
-    transform: scale(0.95);
-    transition: transform 0.4s var(--spring-ease);
+    transform: scale(0.95) translateY(20px);
+    transition: transform 0.5s var(--spring-ease);
 }
-.detail-modal-overlay.active .detail-modal { transform: scale(1); }
-[data-theme="dark"] .detail-modal { background: #1a1a1a; }
+.detail-modal-overlay.active .detail-modal { transform: scale(1) translateY(0); }
+[data-theme="dark"] .detail-modal { background: #1a1a1a; box-shadow: 0 30px 80px rgba(0,0,0,0.6); }
 
 .detail-visual {
-    flex: 1; background: #000; position: relative; min-height: 350px;
+    flex: 1; background: #000; position: relative; min-height: 400px;
     display: flex; align-items: center; justify-content: center;
 }
-.detail-visual i { font-size: 100px; color: rgba(255,255,255,0.3); }
+.detail-visual svg { color: rgba(255,255,255,0.3); }
 
 .detail-content {
-    flex: 1; padding: 40px; display: flex; flex-direction: column; justify-content: center;
+    flex: 1.2; padding: 50px 40px; display: flex; flex-direction: column; justify-content: center; position: relative;
 }
-.detail-title { font-size: 28px; font-weight: 800; margin-bottom: 12px; }
-.detail-text { font-size: 14px; opacity: 0.7; line-height: 1.6; margin-bottom: 30px; white-space: pre-wrap; }
+.detail-title { font-size: 28px; font-weight: 800; margin-bottom: 16px; color: var(--modal-text-main); }
+.detail-text { font-size: 15px; opacity: 0.7; line-height: 1.6; margin-bottom: 40px; color: var(--modal-text-main); white-space: pre-wrap; font-weight: 500; }
 .btn-inquiry {
     display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-    height: 50px; padding: 0 30px; background: var(--modal-text-main); color: var(--bg-color);
-    border-radius: 50px; font-weight: 800; font-size: 15px; cursor: pointer; text-decoration: none;
-    transition: transform 0.2s; width: fit-content;
+    height: 54px; padding: 0 40px; background: var(--modal-text-main); color: var(--bg-color);
+    border-radius: 50px; font-weight: 800; font-size: 16px; cursor: pointer; text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s; width: fit-content;
 }
-.btn-inquiry:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+.btn-inquiry:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
+[data-theme="dark"] .btn-inquiry { background: #fff; color: #000; }
+
 .close-btn {
-    position: absolute; top: 15px; right: 15px; width: 36px; height: 36px; border-radius: 50%;
+    position: absolute; top: 20px; right: 20px; width: 44px; height: 44px; border-radius: 50%;
     background: rgba(128,128,128,0.1); display: flex; align-items: center; justify-content: center;
-    cursor: pointer; border: none; color: var(--modal-text-main); font-size: 18px;
+    cursor: pointer; border: none; color: var(--modal-text-main); transition: 0.2s;
+}
+.close-btn:hover { background: rgba(128,128,128,0.2); }
+
+
+/* スマホ用レイアウト上書き */
+.mobile-menu-trigger { display: none; }
+.mobile-nav-overlay { display: none; }
+
+@media (max-width: 768px) {
+    .mobile-menu-trigger { display: flex; align-items: center; justify-content: center; background: transparent; border: none; color: var(--sidebar-text); cursor: pointer; padding: 8px; margin-right: 4px; }
+    .rgl-brand { order: 2; }
+    .mobile-menu-trigger { order: 1; }
+    
+    .mobile-nav-overlay { display: flex; flex-direction: column; position: fixed; inset: 0; background: var(--bg-color); z-index: 10001; padding: 40px; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); visibility: hidden; }
+    .mobile-nav-overlay.active { transform: translateX(0); visibility: visible; }
+    .mobile-menu-close { align-self: flex-end; background: transparent; border: 1px solid var(--btn-close-border); color: var(--modal-text-main); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 40px; }
+    .mobile-nav-content { display: flex; flex-direction: column; gap: 40px; flex: 1; }
+    .mobile-nav-item { font-family: var(--font-stack); font-size: 32px; font-weight: 800; color: var(--modal-text-main); text-decoration: none; text-align: left; opacity: 0; transform: translateX(-20px); transition: opacity 0.3s ease, transform 0.3s ease; }
+    .mobile-nav-overlay.active .mobile-nav-item { opacity: 1; transform: translateX(0); }
+    .mobile-nav-overlay.active .mobile-nav-item:nth-child(1) { transition-delay: 0.1s; }
+    .mobile-nav-overlay.active .mobile-nav-item:nth-child(2) { transition-delay: 0.2s; }
+    .mobile-menu-footer { margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(128,128,128,0.1); position: relative; }
+    
+    .rgl-wrapper { flex-direction: column; }
+    .rgl-sidebar { width: 100%; height: auto; padding: 0; border-right: none; border-bottom: 1px solid rgba(128,128,128,0.1); overflow: visible; position: relative; z-index: 100; background-color: var(--sidebar-bg); }
+    .rgl-brand-area { padding: 16px 12px; display: flex; align-items: center; justify-content: flex-start; gap: 8px; width: 100%; padding-right: 120px; }
+    
+    .rgl-scroll-content, .rgl-bottom-controls, .capsule-menu { display: none !important; } 
+    .rgl-main { position: static !important; }
+
+    .rgl-header { 
+        position: absolute !important; 
+        top: 0; right: 0; width: auto; height: 70px; 
+        background: transparent !important; padding: 0 16px; 
+        z-index: 200; display: flex !important; 
+        align-items: center; justify-content: flex-end; 
+        pointer-events: none; 
+    }
+    .rgl-header > * { pointer-events: auto; }
+    
+    .support-content { padding: 30px 20px; }
+    .bento-grid { grid-template-columns: 1fr; gap: 20px; }
+    .bento-card { min-height: 200px; padding: 30px 20px; }
+    
+    .detail-modal { flex-direction: column; border-radius: 24px; max-height: 90vh; overflow-y: auto; }
+    .detail-visual { min-height: 200px; flex: none; }
+    .detail-content { padding: 30px 24px; flex: none; }
+    .detail-title { font-size: 24px; }
+    .btn-inquiry { width: 100%; }
 }
 
-@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes popIn { 0% { opacity: 0; transform: scale(0.95) translateY(10px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+@keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 
+/* Spotlight effect */
+.spotlight-hover { position: relative; overflow: hidden; }
+.spotlight-hover::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(150px circle at var(--x, 50%) var(--y, 50%), rgba(255,255,255,0.15), transparent 40%);
+    z-index: 0; pointer-events: none; opacity: 0; transition: opacity 0.3s ease;
+}
+[data-theme="light"] .spotlight-hover::before {
+    background: radial-gradient(150px circle at var(--x, 50%) var(--y, 50%), rgba(0,0,0,0.08), transparent 40%);
+}
+.spotlight-hover:hover::before { opacity: 1; }
+.spotlight-hover > * { position: relative; z-index: 1; }
 </style>
 </head>
 <body>
 
-<div class="nav-overlay" id="navOverlay">
-    <button class="nav-close-btn" id="navCloseBtn">
-        <i data-lucide="x"></i>
+<canvas id="particleCanvas" width="1125" height="605"></canvas>
+
+<div class="mobile-nav-overlay" id="mobileNav">
+    <button class="mobile-menu-close" id="mobileMenuCloseBtn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
     </button>
-    <div class="nav-content">
-        <a href="index.html" class="nav-item" data-translate="tab_home">ACTIVATION</a>
-        <a href="support.html" class="nav-item" data-translate="tab_support">SUPPORT</a>
+    <div class="mobile-nav-content">
+        <a href="index.html" class="mobile-nav-item" data-translate="tab_home">Home</a>
+        <a href="support.html" class="mobile-nav-item" data-translate="tab_support">Support</a>
+    </div>
+    <div class="mobile-menu-footer">
+         <div class="lang-trigger-sidebar" id="mobileLangTrigger">
+             <span style="display:flex;align-items:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="globe" aria-hidden="true" size="16" class="lucide lucide-globe"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg> <span id="mobileCurrentLangLabel">日本語</span></span>
+             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-up" aria-hidden="true" size="14" style="opacity:0.5;" class="lucide lucide-chevron-up"><path d="m18 15-6-6-6 6"></path></svg>
+         </div>
+         <ul class="lang-list" id="mobileLangMenu">
+            <li class="lang-option" data-value="ja">日本語</li>
+            <li class="lang-option" data-value="en">English</li>
+            <li class="lang-option" data-value="zh">简体中文</li>
+            <li class="lang-option" data-value="zh-TW">繁體中文</li>
+            <li class="lang-option" data-value="ko">한국어</li>
+            <li class="lang-option" data-value="ru">Русский</li>
+         </ul>
     </div>
 </div>
 
-<canvas id="particleCanvas"></canvas>
-
-<nav class="unified-header">
-    <div class="header-left-group">
-        <button class="hamburger-btn" id="hamburgerBtn">
-            <i data-lucide="menu" size="24"></i>
-        </button>
-        <div class="header-brand">
-            <i data-lucide="shield-check"></i>
-            <span class="brand-text-pc" data-translate="brand_name">kiryu10 | Support</span>
-            <span class="brand-text-mobile" data-translate="brand_mobile">Support</span>
+<div class="rgl-wrapper" id="mainContainer">
+    
+   <aside class="rgl-sidebar">
+        <div class="rgl-brand-area">
+            <button class="mobile-menu-trigger" id="mobileMenuBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="menu" aria-hidden="true" class="lucide lucide-menu"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg>
+            </button>
+            <div class="rgl-brand">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shield-check" aria-hidden="true" class="lucide lucide-shield-check"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
+                <span data-translate="brand_name">kiryu10 | Support</span>
+            </div>
         </div>
-    </div>
-
-    <div class="header-right">
-        <div class="rgl-tabs">
-            <a href="index.html" class="rgl-tab" data-translate="tab_home">Home</a>
-            <a href="#" class="rgl-tab active" data-translate="tab_support">SUPPORT</a>
-        </div>
-        <div class="theme-pill" id="themeToggle"><i data-lucide="sun" id="themeIcon"></i></div>
-    </div>
-</nav>
-
-<div class="support-wrapper">
-    <div class="page-title-area">
-        <h1 class="page-title" data-translate="page_title">Support Center</h1>
-        <div class="page-sub" data-translate="page_sub">Select a service to connect</div>
-    </div>
-
-    <div class="bento-grid">
         
-        <div class="bento-card card-large-left" onclick="openDetail('web')">
-            <i data-lucide="search" class="card-icon" style="color:#007DFF;"></i>
-            <div class="card-title" data-translate="card_web_title">Error Code Search</div>
-            <div class="card-desc">Search details</div>
+        <div class="sidebar-main-nav capsule-menu">
+            <a href="index.html" class="rgl-tab spotlight-hover" data-translate="tab_home">Home</a>
+            <a href="support.html" class="rgl-tab active spotlight-hover" data-translate="tab_support">Support</a>
         </div>
 
-        <a href="mailto:your-email@example.com?subject=サポートへの問い合わせ" class="bento-card card-large-right">
-            <i data-lucide="mail" class="card-icon" style="color:#FFA500;"></i>
-            <div class="card-title" data-translate="card_contact_title">Contact Us</div>
-            <div class="card-desc">Email support</div>
-        </a>
+        <div class="rgl-scroll-content">
+            </div>
 
-    </div>
+        <div class="rgl-bottom-controls">
+            <div style="position:relative;">
+                 <button class="lang-trigger-sidebar" id="langTrigger">
+                     <span style="display:flex;align-items:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="globe" aria-hidden="true" size="16" class="lucide lucide-globe"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg> <span id="currentLangLabel">日本語</span></span>
+                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-up" aria-hidden="true" size="14" style="opacity:0.5;" class="lucide lucide-chevron-up"><path d="m18 15-6-6-6 6"></path></svg>
+                 </button>
+                 <ul class="lang-list" id="langMenu">
+                    <li class="lang-option" data-value="ja">日本語</li>
+                    <li class="lang-option" data-value="en">English</li>
+                    <li class="lang-option" data-value="zh">简体中文</li>
+                    <li class="lang-option" data-value="zh-TW">繁體中文</li>
+                    <li class="lang-option" data-value="ko">한국어</li>
+                    <li class="lang-option" data-value="ru">Русский</li>
+                 </ul>
+            </div>
+            <div style="margin-top:20px; font-size:10px; opacity:0.3; text-align:center;">
+                © 2026 kiryu-sensya
+           </div>
+        </div>
+    </aside>
+
+    <main class="rgl-main">
+        <nav class="rgl-header">
+            <div class="theme-pill" id="themeToggle">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="moon" aria-hidden="true" id="themeIcon" class="lucide lucide-moon lucide-sun"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path></svg>
+            </div>
+        </nav>
+
+        <div class="support-content">
+            <div class="page-title-area">
+                <h1 class="page-title" data-translate="page_title">Support Center</h1>
+                <div class="page-sub" data-translate="page_sub">Select a service to connect</div>
+            </div>
+
+            <div class="bento-grid">
+                <div class="bento-card card-large-left spotlight-hover" onclick="openDetail('web')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#007DFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="card-icon lucide lucide-search"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+                    <div class="card-title" data-translate="card_web_title">Error Code Search</div>
+                    <div class="card-desc" data-translate="desc_web_short">Search details</div>
+                </div>
+
+                <a href="mailto:your-email@example.com?subject=サポートへの問い合わせ" class="bento-card card-large-right spotlight-hover" style="text-decoration: none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#FFA500" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="card-icon lucide lucide-mail"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
+                    <div class="card-title" data-translate="card_contact_title">Contact Us</div>
+                    <div class="card-desc" data-translate="desc_contact_short">Email support</div>
+                </a>
+            </div>
+        </div>
+    </main>
+
 </div>
 
 <div class="detail-modal-overlay" id="detailOverlay">
     <div class="detail-modal">
-        <button class="close-btn" onclick="closeDetail()"><i data-lucide="x"></i></button>
+        <button class="close-btn" onclick="closeDetail()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+        </button>
         <div class="detail-visual" id="modalVisual">
-            <i data-lucide="search" id="modalIcon"></i>
-        </div>
+            </div>
         <div class="detail-content">
             <div class="detail-title" id="modalTitle">Title</div>
             <div class="detail-text" id="modalDesc">Desc</div>
             <a href="#" target="_blank" class="btn-inquiry" id="modalBtn">
                 <span data-translate="btn_inquiry">Search</span>
-                <i data-lucide="arrow-right"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
             </a>
         </div>
     </div>
 </div>
 
 <script>
-    lucide.createIcons();
-
-    const navOverlay = document.getElementById('navOverlay');
-    const hamburgerBtn = document.getElementById('hamburgerBtn');
-    const navCloseBtn = document.getElementById('navCloseBtn');
-
-    if(hamburgerBtn) {
-        hamburgerBtn.addEventListener('click', () => {
-            navOverlay.classList.add('active');
+    // Spotlight Effect Setup
+    const setupHoverEffects = () => {
+        const targets = document.querySelectorAll('.spotlight-hover');
+        targets.forEach(el => {
+            el.addEventListener('mousemove', (e) => {
+                const rect = el.getBoundingClientRect();
+                el.style.setProperty('--x', `${e.clientX - rect.left}px`);
+                el.style.setProperty('--y', `${e.clientY - rect.top}px`);
+            });
         });
-    }
-    if(navCloseBtn) {
-        navCloseBtn.addEventListener('click', () => {
-            navOverlay.classList.remove('active');
-        });
-    }
+    };
 
     const supportData = {
         web: {
             titleKey: "card_web_title",
             descKey: "desc_web",
-            iconClass: "lucide-search", 
+            iconSvg: `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>`, 
             color: "#007DFF",
             url: "https://kiryu10-standard.vercel.app/error.html"
         }
@@ -496,63 +550,62 @@ body {
 
     const TRANSLATIONS = {
         ja: { 
-            brand_name: "kiryu10| Support", brand_mobile: "Support",
-            tab_home: "ホーム", tab_news: "ニュース", tab_support: "サポート",
+            brand_name: "kiryu10 | Support",
+            tab_home: "ホーム", tab_support: "サポート",
             page_title: "サポートセンター", page_sub: "接続するサービスを選択してください", 
-            card_web_title: "エラーコード検索", 
-            card_contact_title: "お問い合わせ",
+            card_web_title: "エラーコード検索", desc_web_short: "詳細を検索する",
+            card_contact_title: "お問い合わせ", desc_contact_short: "メールで問い合わせ",
             btn_inquiry: "検索ページへ",
             desc_web: "専用ページでエラーの詳細を確認できます。"
         },
         en: { 
-            brand_name: "kiryu10 | Support", brand_mobile: "Support",
-            tab_home: "Home", tab_news: "NEWS", tab_support: "Support",
+            brand_name: "kiryu10 | Support",
+            tab_home: "Home", tab_support: "Support",
             page_title: "Support Center", page_sub: "Select a service to connect", 
-            card_web_title: "Error Code Search", 
-            card_contact_title: "Contact Us",
+            card_web_title: "Error Code Search", desc_web_short: "Search details",
+            card_contact_title: "Contact Us", desc_contact_short: "Email support",
             btn_inquiry: "Go to Search",
             desc_web: "Check error details on the dedicated page."
         },
         zh: { 
-            brand_name: "kiryu10 | Support", brand_mobile: "Support",
-            tab_home: "首页", tab_news: "新闻", tab_support: "支持",
+            brand_name: "kiryu10 | Support",
+            tab_home: "首页", tab_support: "支持",
             page_title: "服务中心", page_sub: "选择要连接的服务", 
-            card_web_title: "错误代码搜索", 
-            card_contact_title: "联系我们",
+            card_web_title: "错误代码搜索", desc_web_short: "查看详情",
+            card_contact_title: "联系我们", desc_contact_short: "邮件联系",
             btn_inquiry: "前往搜索",
             desc_web: "在专用页面上查看错误详细信息。"
         },
         "zh-TW": { 
-            brand_name: "kiryu10 | Support", brand_mobile: "Support",
-            tab_home: "首頁", tab_news: "新聞", tab_support: "支援",
+            brand_name: "kiryu10 | Support",
+            tab_home: "首頁", tab_support: "支援",
             page_title: "服務中心", page_sub: "選擇要連接的服務", 
-            card_web_title: "錯誤代碼搜尋", 
-            card_contact_title: "聯絡我們",
+            card_web_title: "錯誤代碼搜尋", desc_web_short: "查看詳情",
+            card_contact_title: "聯絡我們", desc_contact_short: "郵件聯繫",
             btn_inquiry: "前往搜尋",
             desc_web: "在專用頁面上查看錯誤詳細資訊。"
         },
         ko: { 
-            brand_name: "kiryu10 | Support", brand_mobile: "Support",
-            tab_home: "메인 페이지", tab_news: "뉴스", tab_support: "지원",
+            brand_name: "kiryu10 | Support",
+            tab_home: "메인 페이지", tab_support: "지원",
             page_title: "서비스 센터", page_sub: "연결할 서비스를 선택하세요", 
-            card_web_title: "오류 코드 검색", 
-            card_contact_title: "문의하기",
+            card_web_title: "오류 코드 검색", desc_web_short: "세부 정보 검색",
+            card_contact_title: "문의하기", desc_contact_short: "이메일 지원",
             btn_inquiry: "검색 페이지로",
             desc_web: "전용 페이지에서 오류 세부 정보를 확인하세요."
         },
         ru: { 
-            brand_name: "kiryu10 | Support", brand_mobile: "Support",
-            tab_home: "Главная", tab_news: "Новости", tab_support: "Поддержка",
+            brand_name: "kiryu10 | Support",
+            tab_home: "Главная", tab_support: "Поддержка",
             page_title: "Центр поддержки", page_sub: "Выберите сервис", 
-            card_web_title: "Поиск кода ошибки", 
-            card_contact_title: "Связаться",
+            card_web_title: "Поиск кода ошибки", desc_web_short: "Детали поиска",
+            card_contact_title: "Связаться", desc_contact_short: "Поддержка по почте",
             btn_inquiry: "Перейти к поиску",
             desc_web: "Проверьте детали ошибки на специальной странице."
         }
     };
 
-    function setLanguage() {
-        const lang = localStorage.getItem('user_lang') || 'ja';
+    function setLanguage(lang) {
         const t = TRANSLATIONS[lang] || TRANSLATIONS.ja;
         document.documentElement.lang = lang;
         
@@ -560,9 +613,133 @@ body {
             const key = el.getAttribute('data-translate');
             if(t[key]) el.textContent = t[key];
         });
+        
+        const langMap = { ja: '日本語', en: 'English', zh: '简体中文', 'zh-TW': '繁體中文', ko: '한국어', ru: 'Русский' };
+        const lbl = document.getElementById('currentLangLabel');
+        const mlbl = document.getElementById('mobileCurrentLangLabel');
+        if(lbl) lbl.textContent = langMap[lang] || 'Language';
+        if(mlbl) mlbl.textContent = langMap[lang] || 'Language';
+        
         return t;
     }
 
+    document.addEventListener('DOMContentLoaded', () => {
+        try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+        setupHoverEffects();
+
+        // 言語設定の初期化
+        let sLang = localStorage.getItem('user_lang') || 'ja';
+        setLanguage(sLang);
+
+        // スマホメニュー
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileNav = document.getElementById('mobileNav');
+        const mobileMenuCloseBtn = document.getElementById('mobileMenuCloseBtn');
+        
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', () => mobileNav.classList.add('active'));
+        }
+        if (mobileMenuCloseBtn) {
+            mobileMenuCloseBtn.addEventListener('click', () => mobileNav.classList.remove('active'));
+        }
+
+        // 言語切り替えメニュー
+        const langTrigger = document.getElementById('langTrigger');
+        const langMenu = document.getElementById('langMenu');
+        if(langTrigger) {
+            langTrigger.addEventListener('click', (e) => { 
+                e.stopPropagation(); 
+                langMenu.classList.toggle('open'); 
+            });
+        }
+        
+        const mobileLangTrigger = document.getElementById('mobileLangTrigger');
+        const mobileLangMenu = document.getElementById('mobileLangMenu');
+        if(mobileLangTrigger) {
+            mobileLangTrigger.addEventListener('click', (e) => { 
+                e.stopPropagation(); 
+                mobileLangMenu.classList.toggle('open'); 
+            });
+        }
+
+        document.querySelectorAll('.lang-option').forEach(opt => {
+            opt.addEventListener('click', () => {
+                const val = opt.getAttribute('data-value');
+                localStorage.setItem('user_lang', val);
+                setLanguage(val);
+                langMenu.classList.remove('open');
+                if(mobileLangMenu) mobileLangMenu.classList.remove('open');
+            });
+        });
+
+        document.addEventListener('click', (e) => { 
+            if (langTrigger && !langTrigger.contains(e.target)) langMenu.classList.remove('open'); 
+            if (mobileLangTrigger && !mobileLangTrigger.contains(e.target) && mobileLangMenu) mobileLangMenu.classList.remove('open');
+        });
+
+        // テーマとパーティクル
+        const htmlEl = document.documentElement;
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let particleHue = 210;
+
+        function applyTheme(theme) {
+            htmlEl.setAttribute('data-theme', theme);
+            themeIcon.setAttribute('data-lucide', theme === 'light' ? 'sun' : 'moon');
+            try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+            initParticles(theme);
+        }
+
+        const savedTheme = localStorage.getItem('user_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        applyTheme(savedTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const next = htmlEl.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            applyTheme(next);
+            localStorage.setItem('user_theme', next);
+        });
+
+        function initParticles(theme) {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            particleHue = theme === 'light' ? 210 : 220;
+            particles = [];
+            for(let i=0; i<8; i++) particles.push(new Particle());
+        }
+
+        class Particle {
+            constructor() { 
+                this.x = Math.random() * canvas.width; 
+                this.y = Math.random() * canvas.height; 
+                this.size = Math.random() * 150 + 50; 
+                this.speedX = Math.random() * 0.2 - 0.1; 
+                this.speedY = Math.random() * 0.2 - 0.1; 
+                this.opacity = Math.random() * 0.3 + 0.1; 
+            }
+            update() { 
+                this.x += this.speedX; this.y += this.speedY; 
+                if(this.x < 0 || this.x > canvas.width) this.speedX *= -1; 
+                if(this.y < 0 || this.y > canvas.height) this.speedY *= -1; 
+            }
+            draw() { 
+                ctx.fillStyle = `hsla(${particleHue}, 100%, 50%, ${this.opacity * 0.2})`; 
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill(); 
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
+        window.addEventListener('resize', () => { initParticles(htmlEl.getAttribute('data-theme')); });
+        animate();
+    });
+
+    // モーダル処理
     const overlay = document.getElementById('detailOverlay');
     const mTitle = document.getElementById('modalTitle');
     const mDesc = document.getElementById('modalDesc');
@@ -571,93 +748,23 @@ body {
 
     window.openDetail = function(key) {
         const data = supportData[key];
-        const t = setLanguage();
+        const lang = localStorage.getItem('user_lang') || 'ja';
+        const t = TRANSLATIONS[lang] || TRANSLATIONS.ja;
+        
         if(!data) return;
 
-        mTitle.textContent = data.titleKey ? (t[data.titleKey] || data.title) : data.title;
+        mTitle.textContent = t[data.titleKey] || data.titleKey;
         mDesc.innerText = t[data.descKey] || data.descKey;
         mBtn.href = data.url;
         
-        mVisual.innerHTML = '';
-        const iconEl = document.createElement('i');
-        if(data.iconClass.includes('lucide')) {
-            iconEl.setAttribute('data-lucide', data.iconClass.replace('lucide-', ''));
-        } else {
-            iconEl.className = data.iconClass;
-        }
-        iconEl.style.fontSize = "100px";
-        iconEl.style.color = "rgba(255,255,255,0.8)";
-        mVisual.appendChild(iconEl);
+        mVisual.innerHTML = data.iconSvg;
         mVisual.style.background = `linear-gradient(135deg, ${data.color} 0%, #000000 100%)`;
 
         overlay.classList.add('active');
-        lucide.createIcons();
     }
 
     window.closeDetail = function() { overlay.classList.remove('active'); }
     overlay.addEventListener('click', (e) => { if(e.target === overlay) closeDetail(); });
-
-    const themeToggle = document.getElementById('themeToggle');
-    const themeIcon = document.getElementById('themeIcon');
-    const htmlEl = document.documentElement;
-
-    function initTheme() {
-        const saved = localStorage.getItem('user_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        applyTheme(saved);
-    }
-    function applyTheme(theme) {
-        htmlEl.setAttribute('data-theme', theme);
-        themeIcon.setAttribute('data-lucide', theme === 'light' ? 'sun' : 'moon');
-        lucide.createIcons();
-        initParticles(theme);
-    }
-    themeToggle.addEventListener('click', () => {
-        const current = htmlEl.getAttribute('data-theme');
-        const next = current === 'dark' ? 'light' : 'dark';
-        applyTheme(next);
-        localStorage.setItem('user_theme', next);
-    });
-
-    const canvas = document.getElementById('particleCanvas');
-    const ctx = canvas.getContext('2d');
-    let particles = [];
-    let particleHue = 210;
-    function initParticles(theme) {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        particleHue = theme === 'light' ? 210 : 220;
-        particles = [];
-        for(let i=0; i<8; i++) particles.push(new Particle());
-    }
-    class Particle {
-        constructor() { 
-            this.x = Math.random() * canvas.width; 
-            this.y = Math.random() * canvas.height; 
-            this.size = Math.random() * 150 + 50; 
-            this.speedX = Math.random() * 0.2 - 0.1; 
-            this.speedY = Math.random() * 0.2 - 0.1; 
-            this.opacity = Math.random() * 0.3 + 0.1; 
-        }
-        update() { 
-            this.x += this.speedX; this.y += this.speedY; 
-            if(this.x < 0 || this.x > canvas.width) this.speedX *= -1; 
-            if(this.y < 0 || this.y > canvas.height) this.speedY *= -1; 
-        }
-        draw() { 
-            ctx.fillStyle = `hsla(${particleHue}, 100%, 50%, ${this.opacity * 0.2})`; 
-            ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill(); 
-        }
-    }
-    function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        particles.forEach(p => { p.update(); p.draw(); });
-        requestAnimationFrame(animate);
-    }
-    window.addEventListener('resize', () => { initParticles(htmlEl.getAttribute('data-theme')); });
-
-    initTheme();
-    animate();
-    setLanguage();
 </script>
 </body>
 </html>
