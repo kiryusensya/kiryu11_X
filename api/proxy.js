@@ -202,7 +202,27 @@ export default async function handler(req, res) {
     // 一般ユーザー用機能 (パスワード変更・ストア機能など)
     // ==========================================
     
-    // パスワード強制変更処理
+    // ★追加: コンテンツ所有の無効化（自分の履歴から削除してストアに戻す）
+    if (type === 'revoke_content') {
+      const { code } = params;
+      if (!authUserId) return res.status(401).json({ success: false, message: "Unauthorized" });
+
+      // 消したいコードのIDを探す
+      const { data: targetCode } = await supabase.from('codes').select('id').eq('アクティベーションコード', code).maybeSingle();
+      if (!targetCode) return res.status(200).json({ success: false, message: "対象のコードが見つかりません" });
+
+      // histories テーブルから「自分(authUserId)」と「対象コード」の結びつきを削除
+      const { error: deleteError } = await supabase.from('histories')
+          .delete()
+          .match({ user_id: authUserId, code_id: targetCode.id });
+
+      if (deleteError) {
+          console.error("Revoke Error:", deleteError);
+          return res.status(200).json({ success: false, message: "データベースの削除に失敗しました" });
+      }
+
+      return res.status(200).json({ success: true, message: "Revoked successfully" });
+    }
     if (type === 'change_password') {
       const { userId, oldPassword, newPassword } = params;
       const targetId = authUserId || userId; 
