@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Enforcement Administrator</title>
+<title>Access Login</title>
 <script src="https://unpkg.com/lucide@latest"></script>
 <style>
   :root { --primary: #007DFF; --bg-color: #121212; --text-main: #FFFFFF; --text-sub: #A0A0A0; --danger: #FF3B30; }
@@ -34,7 +34,7 @@
     <div style="display:flex; justify-content:center; margin-bottom:20px;">
         <i data-lucide="shield-check" style="width:48px; height:48px; color:var(--primary);"></i>
     </div>
-    <h1 style="margin: 0 0 30px 0; font-size: 24px;">Enforcement Administrator</h1>
+    <h1 style="margin: 0 0 30px 0; font-size: 24px;">访问登录</h1>
     <div class="form-group"><input type="text" id="adminId" placeholder="个人识别号码"></div>
     <div class="form-group"><input type="password" id="adminPass" placeholder="激活码"></div>
     <button id="btnLogin" class="btn-primary">登录</button>
@@ -85,11 +85,11 @@
               // ダッシュボードへ遷移
               window.location.href = 'dashboard.html'; 
           } else {
-              resEl.textContent = "無効な管理者IDまたはパスワードです";
+              resEl.textContent = "⚠无效的“个人识别码”或“激活码”不正确。";
               resEl.style.color = "var(--danger)";
           }
       } catch(e) { 
-          resEl.textContent = "通信エラーが発生しました";
+          resEl.textContent = "⚠通信エラーが発生しました";
           resEl.style.color = "var(--danger)";
       }
   });
