@@ -1213,7 +1213,96 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 .modal-left-col {
     position: relative; overflow: hidden; /* スタンプのはみ出しを防ぐ */
 }
+/* =========================================
+   Micro-Interactions & Unified Modal UI
+   ========================================= */
+/* 1. カプセル型メニュー */
+.capsule-menu {
+    display: flex;
+    background: rgba(128, 128, 128, 0.1);
+    border-radius: 50px;
+    padding: 6px !important;
+    margin: 0 24px 20px 24px;
+    gap: 4px;
+    border: none !important;
+}
+.capsule-menu .rgl-tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px 0;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--sidebar-text);
+    opacity: 0.6;
+    transition: all 0.3s ease;
+}
+.capsule-menu .rgl-tab.active {
+    opacity: 1;
+    background: var(--card-bg);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+[data-theme="dark"] .capsule-menu .rgl-tab.active {
+    background: rgba(255,255,255,0.15);
+}
 
+/* 2. 入力欄＋ボタンの1行デザイン (画像77, 78対応) */
+.auth-input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+.auth-input-row .code-field {
+    flex: 1;
+    height: 48px;
+    margin: 0;
+    border-radius: 50px;
+    text-align: left;
+    padding: 0 20px;
+    background: rgba(128, 128, 128, 0.2);
+    border: 1px solid rgba(128, 128, 128, 0.1);
+    transition: all 0.3s ease;
+}
+.auth-input-row .auth-btn {
+    width: 64px;
+    height: 48px;
+    border-radius: 50px !important;
+    background: var(--primary);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.3s, transform 0.2s;
+}
+.auth-input-row .auth-btn:active { transform: scale(0.95); }
+
+/* エラー時の赤色レイアウト */
+.auth-input-row.is-error .code-field {
+    border-color: rgba(255, 59, 48, 0.5);
+    background: rgba(255, 59, 48, 0.05);
+    color: #FF3B30;
+}
+.auth-input-row.is-error .auth-btn {
+    background: #FF3B30;
+}
+
+/* 3. スポットライト・ホバー効果（全ボタン対応） */
+.spotlight-hover { position: relative; overflow: hidden; }
+.spotlight-hover::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(150px circle at var(--x, 50%) var(--y, 50%), rgba(255,255,255,0.15), transparent 40%);
+    z-index: 0; pointer-events: none; opacity: 0; transition: opacity 0.3s ease;
+}
+[data-theme="light"] .spotlight-hover::before {
+    background: radial-gradient(150px circle at var(--x, 50%) var(--y, 50%), rgba(0,0,0,0.08), transparent 40%);
+}
+.spotlight-hover:hover::before { opacity: 1; }
+.spotlight-hover > * { position: relative; z-index: 1; }
 </style>
 </head>
 <body>
@@ -1267,7 +1356,12 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
             <div class="rgl-brand"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="graduation-cap" aria-hidden="true" class="lucide lucide-graduation-cap"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"></path><path d="M22 10v6"></path><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"></path></svg> <span data-translate="header_brand">_.k__yu.10</span></div>
         </div>
         
-        <div class="rgl-scroll-content">
+        <div class="sidebar-main-nav capsule-menu">
+            <a href="index.html" class="rgl-tab active spotlight-hover" data-translate="card1_title">Home</a>
+            <a href="https://kiryu10-standard.vercel.app/" class="rgl-tab spotlight-hover" data-translate="card3_title">Standard</a>
+        </div>
+
+        <div class="rgl-scroll-content" style="padding-top: 10px;">
             <div class="rgl-menu-section" id="secAvailable" style="display: block;">
                 <div class="rgl-menu-title" data-translate="label_available">利用可能</div>
                 <div id="sidebarAvailableList" class="rgl-sidebar-list"><div style="padding:10px; opacity:0.5; font-size:12px;">-</div></div>
@@ -3516,6 +3610,38 @@ async function resumeSession() {
       fetchUserHistory(); 
   }
 }
+/* =========================================
+   Micro-Interactions Logic
+   ========================================= */
+document.addEventListener('DOMContentLoaded', () => {
+    const setupHoverEffects = () => {
+        const targets = document.querySelectorAll('.sidebar-game-item, .rgl-tab, .btn-primary, .btn-outline, .btn-solid, .rgl-cta-btn, .menu-btn, .auth-btn, .mobile-store-btn');
+        targets.forEach(el => {
+            if (el.dataset.hoverSetup) return;
+            el.dataset.hoverSetup = "true";
+            if (!el.classList.contains('spotlight-hover')) el.classList.add('spotlight-hover');
+            
+            el.addEventListener('mousemove', (e) => {
+                const rect = el.getBoundingClientRect();
+                el.style.setProperty('--x', `${e.clientX - rect.left}px`);
+                el.style.setProperty('--y', `${e.clientY - rect.top}px`);
+            });
+        });
+    };
+
+    const observer = new MutationObserver((mutations) => {
+        let shouldUpdate = false;
+        mutations.forEach(mutation => { if (mutation.addedNodes.length > 0) shouldUpdate = true; });
+        if (shouldUpdate) setupHoverEffects();
+    });
+
+    if (els.availableListSidebar) observer.observe(els.availableListSidebar, { childList: true, subtree: true });
+    if (els.libraryListSidebar) observer.observe(els.libraryListSidebar, { childList: true, subtree: true });
+    const modalGrid = document.getElementById('mobileStoreGrid');
+    if (modalGrid) observer.observe(modalGrid, { childList: true, subtree: true });
+
+    setupHoverEffects();
+});
 </script>
 </body>
 </html>
