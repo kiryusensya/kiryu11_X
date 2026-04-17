@@ -849,6 +849,7 @@ button, input, textarea { font-family: var(--font-stack); }
   #loginLangTrigger {
     font-size: 12px !important;
   }
+  .capsule-menu { display: none !important; }
 }
 
 /* Header inside Dropdown */
@@ -994,7 +995,7 @@ button, input, textarea { font-family: var(--font-stack); }
     }
 
     /* スマホメニューなど元々のスマホ用CSS */
-    .mobile-menu-trigger { display: none !important; }
+    .mobile-menu-trigger { display: flex; align-items: center; justify-content: center; background: transparent; border: none; color: var(--sidebar-text); cursor: pointer; padding: 8px; margin-right: 4px; }
     .rgl-brand { order: 2; }
     .mobile-menu-trigger { order: 1; }
     .mobile-nav-overlay { display: flex; flex-direction: column; position: fixed; inset: 0; background: var(--bg-color); z-index: 10001; padding: 40px; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); visibility: hidden; }
