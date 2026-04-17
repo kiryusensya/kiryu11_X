@@ -1562,7 +1562,15 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
     </div>
   </div>
 </div>
-
+<div id="banOverlay" style="display:none; position:fixed; inset:0; background-color:#000; z-index:999999; flex-direction:column; justify-content:center; align-items:center; color:#fff; font-family:sans-serif; text-align:center; padding: 20px;">
+    <h1 style="color:#F1C40F; font-size:48px; font-weight:bold; margin:0 0 20px 0; letter-spacing:4px;">注意</h1>
+    <div style="width: 100%; max-width: 700px; height: 2px; background-color: #fff; margin-bottom: 20px;"></div>
+    <p id="banMessageText" style="font-size:18px; line-height:1.8; font-weight:bold; margin:0;">
+        あなたのアカウントへのアクセスは無効化されています。<br>
+      <br>ログイン画面に戻ります。
+    </p>
+    <div style="width: 100%; max-width: 700px; height: 2px; background-color: #fff; margin-top: 20px;"></div>
+</div>
 <script>
 const GAS_API_URL="api/proxy"; 
 
@@ -1575,6 +1583,7 @@ let heroTimer = null;
 let selectedHeroItem = null;
 let currentHeroContext = 'default';
 let modalDownloadTimer = null; 
+let sessionMonitorTimer = null; // ★BAN監視用タイマー
 
 let els = {};
 let currentAuthRequestId = 0;
@@ -1585,7 +1594,7 @@ let currentAuthTime = "";
 const gId = (i) => document.getElementById(i);
 const setListener = (el, ev, fn) => { if(el) el.addEventListener(ev, fn); };
 
-// ★追加：XSS対策用のHTMLエスケープ関数
+// XSS対策用のHTMLエスケープ関数
 const escapeHTML = (str) => {
   if (!str) return "";
   return String(str).replace(/[&<>"']/g, (match) => {
@@ -1599,7 +1608,7 @@ const escapeHTML = (str) => {
   });
 };
 
-// ★追加：トークン付きで安全に fetch するためのラッパー関数
+// トークン付きで安全に fetch するためのラッパー関数
 async function safeFetch(bodyObj) {
   const token = localStorage.getItem('user_session_token') || "";
   const headers = { 'Content-Type': 'application/json' };
@@ -1612,6 +1621,36 @@ async function safeFetch(bodyObj) {
       body: JSON.stringify(bodyObj)
   });
   return await response.json();
+}
+
+// ★BAN監視・データ削除検知機能
+function startSessionMonitor() {
+    if (sessionMonitorTimer) clearInterval(sessionMonitorTimer);
+    sessionMonitorTimer = setInterval(async () => {
+        if (!currentUser) return;
+        try {
+            const res = await safeFetch({ type: 'check_session' }); 
+            if (!res.success && (res.error === 'USER_DELETED' || res.message === 'Unauthorized' || res.error === 'BANNED')) {
+                showBanScreen(res.banMessage);
+            }
+        } catch (e) {}
+    }, 5000);
+}
+
+function showBanScreen(customMessage) {
+    if (sessionMonitorTimer) clearInterval(sessionMonitorTimer);
+    const overlay = document.getElementById('banOverlay');
+    if (customMessage) {
+        document.getElementById('banMessageText').innerHTML = escapeHTML(customMessage).replace(/\n/g, '<br>');
+    }
+    overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    document.body.style.pointerEvents = 'none';
+    overlay.style.pointerEvents = 'auto'; 
+    
+    localStorage.removeItem('user_session_identity');
+    localStorage.removeItem('user_session_token');
+    currentUser = null;
 }
 
 const formatDisplayCode = (code) => {
@@ -2133,7 +2172,6 @@ function setupEventListeners() {
           btnSubmitAccPassChange.disabled = true;
 
           try {
-              // ★変更：safeFetch を使用
               const d = await safeFetch({ 
                   type: 'change_password', 
                   userId: currentUser.userId, 
@@ -2189,7 +2227,6 @@ function setupEventListeners() {
     
     btn.textContent = "変更中...";
     try {
-        // ★変更：safeFetch を使用
         const d = await safeFetch({ 
             type: 'change_password', 
             userId: window.tempChangeData.userId, 
@@ -2281,7 +2318,6 @@ function showPurchaseError(userPts, price) {
     els.errorMessage.textContent = t.error_points_msg || "ポイントが不足しています。";
     
     const subStr = t.error_points_sub || `現在: ${userPts} pt / 必要: ${price} pt`;
-    // ★変更：エスケープ処理
     els.errorSubMessage.innerHTML = escapeHTML(subStr.replace('%1', userPts).replace('%2', price));
     els.errorInfoBox.style.display = 'flex';
     
@@ -2320,71 +2356,12 @@ function showPurchasePreview(item, price) {
     const label = els.phasePreview.querySelector('.modal-label');
     if(label) label.textContent = ptDesc;
     
-    // ★変更：エスケープ処理
     els.previewImage.src = escapeHTML(item.imageUrl) || "https://via.placeholder.com/300";
     els.previewTitleUnderImg.textContent = item.title;
     els.previewTitle.textContent = item.title;
     
-    // ★変更：エスケープ処理
     if (item.extraInfo) {
         els.previewWarningText.innerHTML = escapeHTML(item.extraInfo).replace(/\n/g, '<br>');
-        els.previewWarningBox.style.display = 'flex';
-    } else {
-        els.previewWarningText.innerHTML = "";
-        els.previewWarningBox.style.display = 'none';
-    }
-    
-    els.btnPreviewRedeem.disabled = false;
-    els.btnPreviewRedeem.innerHTML = t.btn_buy_confirm || "購入確定";
-    
-    const newBtn = els.btnPreviewRedeem.cloneNode(true);
-    els.btnPreviewRedeem.parentNode.replaceChild(newBtn, els.btnPreviewRedeem);
-    els.btnPreviewRedeem = newBtn;
-    
-    els.btnPreviewRedeem.addEventListener('click', (e) => { 
-        e.preventDefault();
-        
-        const userPts = parseInt(String(currentUser.points).replace(/[^0-9]/g, ''), 10) || 0;
-        const itemPrice = parseInt(String(price).replace(/[^0-9]/g, ''), 10) || 0;
-        
-        if (userPts < itemPrice) {
-            showPurchaseError(userPts, itemPrice);
-        } else {
-            buyItemWithPoints(item.code, itemPrice);
-        }
-    });
-    
-    els.phasePreview.style.display = 'flex';
-    setTimeout(() => els.phasePreview.style.opacity = '1', 50);
-}
-
-function showPurchasePreview(item, price) {
-    const t = TRANSLATIONS[CURRENT_LANG];
-    currentAuthRequestId++;
-    currentContentData = { ...item }; 
-    currentAuthTime = getFormattedCurrentTime(CURRENT_LANG);
-    
-    els.authModal.classList.add('active');
-    els.modalCon.classList.add('is-wide');
-    
-    els.phaseInput.style.display = 'none';
-    els.phaseSuccess.style.display = 'none';
-    els.phaseError.style.display = 'none';
-    
-    const ptDesc = (t.preview_buy_desc || "以下のコンテンツを %s pt で購入します:").replace('%s', price);
-    
-    const titleTops = els.phasePreview.querySelectorAll('.modal-title-top, .mobile-title');
-    titleTops.forEach(el => el.textContent = t.preview_buy_title || "購入確認");
-    
-    const label = els.phasePreview.querySelector('.modal-label');
-    if(label) label.textContent = ptDesc;
-    
-    els.previewImage.src = item.imageUrl || "https://via.placeholder.com/300";
-    els.previewTitleUnderImg.textContent = item.title;
-    els.previewTitle.textContent = item.title;
-    
-    if (item.extraInfo) {
-    els.previewWarningText.innerHTML = escapeHTML(item.extraInfo).replace(/\n/g, '<br>');
         els.previewWarningBox.style.display = 'flex';
     } else {
         els.previewWarningText.innerHTML = "";
@@ -2442,22 +2419,20 @@ async function buyItemWithPoints(code, price) {
             updateAccountUI();
             await fetchUserHistory(); 
             
-            // --- ここからアニメーション処理を追加 ---
+            // --- ★アニメーション処理追加 ---
             const flash = document.createElement('div');
             flash.className = 'screen-flash';
             document.body.appendChild(flash);
             setTimeout(() => flash.remove(), 1000);
 
-            // 既存のスタンプがあれば削除
             const oldStamp = els.successImage.parentElement.querySelector('.stamp-owned');
             if (oldStamp) oldStamp.remove();
 
-            // 新しいスタンプを生成
             const stamp = document.createElement('div');
             stamp.className = 'stamp-owned animate-stamp';
             stamp.textContent = 'OWNED';
             els.successImage.parentElement.appendChild(stamp);
-            // --- ここまで ---
+            // -----------------------------
 
             const successTops = els.phaseSuccess.querySelectorAll('.modal-title-top, .mobile-title');
             successTops.forEach(el => el.textContent = t.success_buy_title || "購入完了");
@@ -2503,7 +2478,7 @@ async function buyItemWithPoints(code, price) {
             
             els.errorMessage.textContent = errorMainText;
             if(showInfoBox && errorSubText) {
-                els.errorSubMessage.innerHTML = errorSubText.replace(/\n/g, '<br>');
+                els.errorSubMessage.innerHTML = escapeHTML(errorSubText).replace(/\n/g, '<br>');
                 els.errorInfoBox.style.display = 'flex';
             } else {
                 els.errorSubMessage.innerHTML = "";
@@ -2610,7 +2585,7 @@ function initCustomDropdown() {
 
 function logout() {
   localStorage.removeItem('user_session_identity');
-  localStorage.removeItem('user_session_token'); // ★追加
+  localStorage.removeItem('user_session_token'); 
   currentUser = null;
   window.location.reload(); 
 }
@@ -2786,7 +2761,6 @@ async function performAuth(code, mode = 'check') {
   }
 
   try {
-    // ★変更：safeFetch を使用し、userId は送らない
     const d = await safeFetch({
         key: safeCode,
         lang: CURRENT_LANG,
@@ -2818,7 +2792,6 @@ async function performAuth(code, mode = 'check') {
         els.previewTitle.textContent = currentContentData.detailedTitle;
         
         if (currentContentData.detailedDesc) {
-            // ★変更：エスケープ処理
             els.previewWarningText.innerHTML = escapeHTML(currentContentData.detailedDesc).replace(/\n/g, '<br>');
             els.previewWarningBox.style.display = 'flex';
         } else {
@@ -2947,7 +2920,6 @@ async function performAuth(code, mode = 'check') {
             
             els.errorMessage.textContent = errorMainText;
             if(showInfoBox && errorSubText) {
-                // ★変更：エスケープ処理
                 els.errorSubMessage.innerHTML = escapeHTML(errorSubText).replace(/\n/g, '<br>');
                 els.errorInfoBox.style.display = 'flex';
             } else {
@@ -3024,6 +2996,7 @@ async function performAuth(code, mode = 'check') {
     }
   }
 }
+
 async function performAuthAction() {
   const email = els.email.value.trim();
   const pass = els.pass.value.trim();
@@ -3038,7 +3011,6 @@ async function performAuthAction() {
   els.btnAuthAction.innerHTML = `<span class="loading-dots">${t.msg_logging_in || "ログイン中"}</span>`;
   
   try {
-    // ★ログイン時のみ通常の fetch を使う（まだトークンがないため）
     const res = await fetch(GAS_API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -3056,7 +3028,6 @@ async function performAuthAction() {
       currentUser = { userId: data.userId, email: email, history: data.history || [], points: data.points || 0 };
       localStorage.setItem('user_session_identity', JSON.stringify({ userId: data.userId, email: email }));
       
-      // ★追加：JWTトークンを保存する
       if (data.token) {
           localStorage.setItem('user_session_token', data.token);
       }
@@ -3065,6 +3036,7 @@ async function performAuthAction() {
       if (els.loginOverlay) els.loginOverlay.classList.remove('active'); 
       updateAccountUI(); 
       fetchUserHistory(); 
+      startSessionMonitor(); // ★監視スタート
       
       els.email.value = ""; els.pass.value = "";
       
@@ -3178,10 +3150,7 @@ function updateHeroView(item, isOwned) {
     if (window.innerWidth <= 768) return; 
     selectedHeroItem = item; 
     
-    // ★追加: アイテムが選択されたらHeroの中身を表示する
     document.querySelector('.rgl-hero-content').style.display = 'block';
-    
-    // ★変更: item.title（詳しいタイトル）ではなく item.message（メッセージ）を割り当て
     els.heroTitle.textContent = item.message || item.title; 
     
     if(heroTimer) { clearInterval(heroTimer); heroTimer = null; }
@@ -3195,7 +3164,6 @@ function updateAccountUI() {
   if (currentUser) {
     document.body.classList.add('is-logged-in');
     
-    // ★追加: ログイン中で、何も選択されていない時はHeroの中身を隠す
     if (!selectedHeroItem) {
         document.querySelector('.rgl-hero-content').style.display = 'none';
     }
@@ -3217,14 +3185,7 @@ function updateAccountUI() {
                 updateHeroView(item, true); 
             };
             const imgUrl = (item.imageUrl && item.imageUrl.startsWith('http')) ? item.imageUrl : 'https://via.placeholder.com/32';
-            div.innerHTML = `
-  <div class="sidebar-game-info">
-    <img src="${escapeHTML(imgUrl)}" class="sidebar-game-thumb" onerror="this.style.background='#555'">
-    <div class="sidebar-game-text">
-       <div class="sidebar-game-title">${escapeHTML(item.message || item.title)}</div>
-    </div>
-  </div>
-`;
+            div.innerHTML = `<div class="sidebar-game-info"><img src="${escapeHTML(imgUrl)}" class="sidebar-game-thumb" onerror="this.style.background='#555'"><div class="sidebar-game-text"><div class="sidebar-game-title">${escapeHTML(item.message || item.title)}</div></div></div>`;
             els.libraryListSidebar.appendChild(div);
       });
       
@@ -3242,8 +3203,6 @@ function updateAccountUI() {
 
   } else {
     document.body.classList.remove('is-logged-in');
-    
-    // ★追加: ログアウト時はHeroの中身を表示し、初期状態に戻す
     if (els.loginOverlay) els.loginOverlay.classList.add('active');
     
     document.querySelector('.rgl-hero-content').style.display = 'block';
@@ -3253,13 +3212,12 @@ function updateAccountUI() {
     els.heroBgImage.style.backgroundImage = 'none';
     setHeroButtonState('available');
 
-    // 古い loggedOutView 関連は削除したためエラーにならないようコメントアウトまたは削除
-    // els.loggedOutView.style.display = 'block';
     if (els.loggedInView) els.loggedInView.style.display = 'none';
     if (els.secLibrary) els.secLibrary.style.display = 'none';
     if (els.secAvailable) els.secAvailable.style.display = 'none';
   }
 }
+
 function startLibraryTimer() {
     if (libraryTimerId) clearInterval(libraryTimerId);
     libraryTimerId = setInterval(() => {
@@ -3322,7 +3280,6 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
     const mobileList = gId('mobileStoreGrid');
     if (!mobileList) return;
 
-    // 実際に所有しているか、または「無料（価格未設定）」の場合は表示上「所有済み」として扱う
     const isActuallyOwned = (item.groupId && ownedGroups.has(item.groupId)) || (!item.groupId && ownedCodes.has(item.code)) || (item.title && ownedTitles.has(item.title));
     const isFree = (!item.price || item.price <= 0);
     const treatAsOwned = isActuallyOwned || isFree;
@@ -3334,10 +3291,8 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
     
     let btnHtml = '';
     let checkMarkHtml = '';
-    // 「無料」ではなく「所有済み（各言語対応）」のテキストにする
     let priceText = item.price > 0 ? `${item.price} pt` : (t.status_owned || `所有済み`);
 
-    // 解禁時間かどうかの判定を追加
     const releaseDate = item.releaseDateIso ? new Date(item.releaseDateIso) : null;
     const now = new Date();
     const isLocked = releaseDate && releaseDate > now;
@@ -3363,19 +3318,17 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
         const dlBtn = mDiv.querySelector('.is-owned-download');
         if (dlBtn) {
             if (isLocked) {
-                // まだ解禁されていない場合はクリックを無効化し、カウントダウン化
                 dlBtn.style.pointerEvents = 'none';
                 dlBtn.style.background = 'rgba(128, 128, 128, 0.2)';
                 dlBtn.style.color = 'var(--modal-text-main)';
                 dlBtn.style.border = '1px solid transparent';
 
                 const updateMobileCountdown = () => {
-                    if (!document.body.contains(dlBtn)) return true; // DOMから消えたらタイマー停止
+                    if (!document.body.contains(dlBtn)) return true;
                     const currentNow = new Date();
                     const diff = releaseDate - currentNow;
 
                     if (diff <= 0) {
-                        // 解禁されたら通常スタイルに戻す
                         dlBtn.style.pointerEvents = 'auto';
                         dlBtn.style.background = 'rgba(0, 125, 255, 0.1)';
                         dlBtn.style.color = 'var(--primary)';
@@ -3392,7 +3345,6 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                         return true; 
                     }
 
-                    // カウントダウン表示の更新
                     const oneDay = 24 * 60 * 60 * 1000;
                     if (diff > oneDay) {
                         const y = releaseDate.getFullYear();
@@ -3419,7 +3371,6 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                 }, 1000);
 
             } else {
-                // 解禁済みの通常の動作
                 dlBtn.onclick = (e) => {
                     e.stopPropagation();
                     if (!currentUser) { toggleDropdown(true); return; }
@@ -3450,7 +3401,6 @@ async function fetchAvailableContent() {
     const mobileList = gId('mobileStoreGrid');
 
     try {
-        // ★変更：safeFetch を使用し、userId は送らない
         const d = await safeFetch({
             type: 'get_available',
             lang: CURRENT_LANG
@@ -3498,7 +3448,6 @@ async function fetchAvailableContent() {
                     updateHeroView(item, false); 
                 };
                 
-                // ★変更：エスケープ処理
                 div.innerHTML = `<div class="sidebar-game-info"><img src="${escapeHTML(item.imageUrl)}" class="sidebar-game-thumb"><div class="sidebar-game-text"><div class="sidebar-game-title">${escapeHTML(item.message || item.title)}</div></div></div>`;
                 list.appendChild(div);
                 
@@ -3528,7 +3477,6 @@ async function fetchUserHistory() {
   }
   els.libraryListSidebar.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">Loading...</div>`;
   try { 
-    // ★変更：safeFetch を使用し、userId は送らない
     const data = await safeFetch({
         type: 'get_history',
         lang: CURRENT_LANG
@@ -3543,7 +3491,7 @@ async function fetchUserHistory() {
       }
     } else if (data.message === "User not found" || data.message === "Unauthorized" || data.success === false) {
       console.warn("User session invalid. Logging out...");
-      logout(); // ★変更：logout() 関数を呼び出してトークンも消去
+      logout(); 
       return;
     }
   } catch (e) { 
@@ -3581,10 +3529,10 @@ function initThemeAndParticles() {
   function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); p.forEach(i=>{i.update();i.draw();}); requestAnimationFrame(animate); }
   window.addEventListener('resize', () => { canvas.width=innerWidth; canvas.height=innerHeight; }); animate();
 }
+
 async function resumeSession() {
   const sUser = localStorage.getItem('user_session_identity');
   const token = localStorage.getItem('user_session_token');
-  // トークンがない場合は復帰しない
   if (!sUser || !token) {
       logout();
       return;
@@ -3592,19 +3540,18 @@ async function resumeSession() {
 
   try {
       const identity = JSON.parse(sUser);
-      // 一時的に画面上ではログインしているように見せる
       currentUser = { userId: identity.userId, email: identity.email, history: [], points: 0 };
       document.body.classList.add('is-logged-in');
       if (els.loginOverlay) els.loginOverlay.classList.remove('active'); 
       updateAccountUI();
 
-      // ★変更：safeFetch を使用し、userId は送らない
       const data = await safeFetch({ type: 'get_user_info' });
       
       if (data.success) {
           currentUser.points = data.points || 0;
           updateAccountUI();
           fetchUserHistory(); 
+          startSessionMonitor(); // ★監視スタート
       } else {
           console.warn("Session invalid. Logging out.");
           logout();
