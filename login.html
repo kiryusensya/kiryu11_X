@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Login</title>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  /* 前回のCSSからログイン画面に関連するものだけを残す */
+  :root { --primary: #007DFF; --bg-color: #121212; --text-main: #FFFFFF; --text-sub: #A0A0A0; --danger: #FF3B30; }
+  body { font-family: 'Noto Sans JP', sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+  .login-card { background: rgba(30, 30, 30, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 40px; width: 90%; max-width: 400px; text-align: center; }
+  /* ... input, button などのスタイル ... */
+</style>
+</head>
+<body>
+
+  <div class="login-card">
+    <div style="display:flex; justify-content:center; margin-bottom:20px;">
+        <i data-lucide="shield-check" style="width:48px; height:48px; color:var(--primary);"></i>
+    </div>
+    <h1 style="margin: 0 0 30px 0; font-size: 24px;">Admin Console</h1>
+    <div class="form-group"><input type="text" id="adminId" placeholder="管理者ID"></div>
+    <div class="form-group"><input type="password" id="adminPass" placeholder="パスワード"></div>
+    <button id="btnLogin" class="btn-primary">ログイン</button>
+    <div id="loginResult" class="msg" style="color: var(--danger);"></div>
+  </div>
+
+<script>
+  lucide.createIcons();
+  const GAS_API_URL = "api/proxy"; 
+
+  // すでにログイン済み（トークンあり）なら、ダッシュボードへ飛ばす
+  if (localStorage.getItem('admin_session_token')) {
+      window.location.replace('dashboard.html');
+  }
+
+  document.getElementById('btnLogin').addEventListener('click', async () => {
+      const u = document.getElementById('adminId').value.trim();
+      const p = document.getElementById('adminPass').value.trim();
+      const resEl = document.getElementById('loginResult');
+      
+      if(!u || !p) { resEl.textContent = "入力してください"; return; }
+      resEl.textContent = "認証中..."; 
+
+      try {
+          const res = await fetch(GAS_API_URL, {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ type: 'user_login', email: u, password: p })
+          });
+          const d = await res.json();
+          
+          // login.html の該当箇所を修正
+      if(d.success && d.isAdmin) {
+    // ❌ localStorage.setItem('admin_session_token', d.token);
+    
+    // ✅ Cookieに保存 (有効期限1日、セキュア属性付き)
+    document.cookie = `admin_token=${d.token}; path=/; max-age=86400; Secure; SameSite=Strict`;
+    
+    window.location.href = 'dashboard.html'; 
+} else {
+              resEl.textContent = "無効な管理者IDまたはパスワードです";
+          }
+      } catch(e) { 
+          resEl.textContent = "通信エラーが発生しました";
+      }
+  });
+</script>
+</body>
+</html>
