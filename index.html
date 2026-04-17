@@ -1562,15 +1562,6 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
     </div>
   </div>
 </div>
-<div id="banOverlay" style="display:none; position:fixed; inset:0; background-color:#000; z-index:999999; flex-direction:column; justify-content:center; align-items:center; color:#fff; font-family:sans-serif; text-align:center; padding: 20px;">
-    <h1 style="color:#F1C40F; font-size:48px; font-weight:bold; margin:0 0 20px 0; letter-spacing:4px;">注意</h1>
-    <div style="width: 100%; max-width: 700px; height: 2px; background-color: #fff; margin-bottom: 20px;"></div>
-    <p id="banMessageText" style="font-size:18px; line-height:1.8; font-weight:bold; margin:0;">
-        あなたのアカウントへのアクセスは無効化されています。<br>
-      <br>ログイン画面に戻ります。
-    </p>
-    <div style="width: 100%; max-width: 700px; height: 2px; background-color: #fff; margin-top: 20px;"></div>
-</div>
 <script>
 const GAS_API_URL="api/proxy"; 
 
@@ -1583,7 +1574,6 @@ let heroTimer = null;
 let selectedHeroItem = null;
 let currentHeroContext = 'default';
 let modalDownloadTimer = null; 
-let sessionMonitorTimer = null; 
 
 let els = {};
 let currentAuthRequestId = 0;
@@ -1608,7 +1598,7 @@ const escapeHTML = (str) => {
   });
 };
 
-// ★重要：すべての通信の根元でBAN/データ削除を監視する
+// トークン付きで安全に fetch するためのラッパー関数
 async function safeFetch(bodyObj) {
   const token = localStorage.getItem('user_session_token') || "";
   const headers = { 'Content-Type': 'application/json' };
@@ -1622,73 +1612,10 @@ async function safeFetch(bodyObj) {
           headers: headers,
           body: JSON.stringify(bodyObj)
       });
-      
-      // 401や403エラーが返ってきたら強制的にBAN画面を表示
-      if (token && (response.status === 401 || response.status === 403)) {
-          let errMsg = "";
-          try {
-              const errData = await response.json();
-              errMsg = errData.message || errData.error || errData.banMessage || "";
-          } catch(e) {}
-          showBanScreen(errMsg);
-          return { success: false, message: 'Unauthorized' };
-      }
-      
-      const data = await response.json();
-      
-      // 200 OK でも、認証エラーや削除を意味するメッセージなら強制BAN
-      if (token && data && data.success === false) {
-          const msg = data.message || data.error || "";
-          const authErrors = ['Unauthorized', 'USER_DELETED', 'User not found', 'BANNED', 'Invalid token'];
-          if (authErrors.some(e => msg.includes(e))) {
-              showBanScreen(data.banMessage || msg);
-          }
-      }
-      
-      return data;
+      return await response.json();
   } catch(e) {
       return { success: false, message: 'Network error' };
   }
-}
-
-// ★BAN監視・データ削除検知機能 (ポーリング)
-function startSessionMonitor() {
-    if (sessionMonitorTimer) clearInterval(sessionMonitorTimer);
-    sessionMonitorTimer = setInterval(async () => {
-        if (!currentUser) return;
-        try {
-            // safeFetch内部で自動的にエラーがフックされ警告画面が出ます
-            await safeFetch({ type: 'check_session' }); 
-        } catch (e) {}
-    }, 5000);
-}
-
-// ★BAN警告画面の表示処理
-function showBanScreen(customMessage) {
-    if (sessionMonitorTimer) clearInterval(sessionMonitorTimer);
-    const overlay = document.getElementById('banOverlay');
-    
-    // 既に表示中なら処理しない
-    if (overlay.style.display === 'flex') return;
-
-    if (customMessage && customMessage !== 'Unauthorized' && customMessage !== 'User not found' && customMessage !== 'USER_DELETED') {
-        document.getElementById('banMessageText').innerHTML = escapeHTML(customMessage).replace(/\n/g, '<br>');
-    }
-    
-    // オーバーレイを最前面に表示し、裏側の操作を無効化
-    overlay.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-    document.body.style.pointerEvents = 'none';
-    overlay.style.pointerEvents = 'auto'; 
-    
-    // モーダルが開いていれば強制的に閉じる
-    if(document.getElementById('authModal')) document.getElementById('authModal').classList.remove('active');
-    if(document.getElementById('accountDropdown')) document.getElementById('accountDropdown').classList.remove('open');
-    
-    // トークンを破棄 (次回リロード時はログイン画面になる)
-    localStorage.removeItem('user_session_identity');
-    localStorage.removeItem('user_session_token');
-    currentUser = null;
 }
 
 const formatDisplayCode = (code) => {
@@ -2794,11 +2721,12 @@ async function performAuth(code, mode = 'check') {
   }
 
   try {
+    // 修正：code と userId を正しくバックエンドに送信します
     const d = await safeFetch({
-        key: safeCode,
-        lang: CURRENT_LANG,
-        mode: mode,
         type: mode === 'check' ? 'check' : 'redeem',
+        userId: currentUser ? currentUser.userId : null,
+        code: safeCode, 
+        lang: CURRENT_LANG,
         _t: Date.now()
     });
 
@@ -2921,19 +2849,20 @@ async function performAuth(code, mode = 'check') {
             let specificErrorCode = generateErrorCode(); 
             
             const msg = d.message || "";
-            if (d.isAlreadyOwned || msg === "Already owned" || msg.includes("所有") || msg.includes("済") || msg.includes("owned")) {
-                errorMainText = t.error_owned_msg || "既に所有しているようです。";
-                errorSubText = window.innerWidth <= 768 ? (t.msg_already_owned_mobile || "ストアからコンテンツを選択してダウンロードしてください。") : (t.error_owned_sub || "左ライブラリメニューからコンテンツを選択してダウンロードしてください。");
-                specificErrorCode = "1011"; 
-                els.btnErrorClose.style.flex = "none";
-                els.btnErrorClose.style.width = "100%";
-            } else if (msg === "This code has already been used." || msg.includes("使用済") || msg.includes("used")) {
+            // 修正：使用済み判定を所有判定より先に持ってきて正しく振り分ける
+            if (msg === "This code has already been used." || msg.includes("使用済") || msg.includes("used")) {
                 errorMainText = t.error_used_msg || t.msg_used;
                 errorSubText = "";
                 specificErrorCode = "1013"; 
                 els.btnErrorClose.style.flex = "none";
                 els.btnErrorClose.style.width = "100%";
                 showInfoBox = false;
+            } else if (d.isAlreadyOwned || msg === "Already owned" || msg.includes("所有") || msg.includes("owned")) {
+                errorMainText = t.error_owned_msg || "既に所有しているようです。";
+                errorSubText = window.innerWidth <= 768 ? (t.msg_already_owned_mobile || "ストアからコンテンツを選択してダウンロードしてください。") : (t.error_owned_sub || "左ライブラリメニューからコンテンツを選択してダウンロードしてください。");
+                specificErrorCode = "1011"; 
+                els.btnErrorClose.style.flex = "none";
+                els.btnErrorClose.style.width = "100%";
             } else if (msg.toLowerCase().includes("invalid") || msg.toLowerCase().includes("not found")) {
                 errorMainText = t.msg_invalid || "コードが無効です";
                 errorSubText = msg;
@@ -3044,7 +2973,6 @@ async function performAuthAction() {
   els.btnAuthAction.innerHTML = `<span class="loading-dots">${t.msg_logging_in || "ログイン中"}</span>`;
   
   try {
-    // ログイン用の通信はまだトークンが無いので通常の fetch を使用
     const res = await fetch(GAS_API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -3070,7 +2998,6 @@ async function performAuthAction() {
       if (els.loginOverlay) els.loginOverlay.classList.remove('active'); 
       updateAccountUI(); 
       fetchUserHistory(); 
-      startSessionMonitor(); // ★監視スタート
       
       els.email.value = ""; els.pass.value = "";
       
@@ -3511,7 +3438,6 @@ async function fetchUserHistory() {
   }
   els.libraryListSidebar.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">Loading...</div>`;
   try { 
-    // safeFetch内でエラー（BAN・削除）があれば、リロードせずに強制警告画面になります
     const data = await safeFetch({
         type: 'get_history',
         lang: CURRENT_LANG
@@ -3576,14 +3502,14 @@ async function resumeSession() {
       if (els.loginOverlay) els.loginOverlay.classList.remove('active'); 
       updateAccountUI();
 
-      // safeFetchで無効なトークンと判定された場合、リロードせずにBAN画面になります
       const data = await safeFetch({ type: 'get_user_info' });
       
       if (data.success) {
           currentUser.points = data.points || 0;
           updateAccountUI();
           fetchUserHistory(); 
-          startSessionMonitor(); 
+      } else {
+          logout();
       }
   } catch (e) {
       console.error("Session Resume Error:", e);
