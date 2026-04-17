@@ -3228,90 +3228,16 @@ function updateAccountUI() {
     if (hasHistory) {
       els.secLibrary.style.display = 'block';
       els.libraryListSidebar.innerHTML = "";
-      
       currentUser.history.forEach((item, index) => {
             const div = document.createElement('div');
             div.className = 'sidebar-game-item';
-            div.style.position = 'relative'; // ★追加: ゴミ箱ボタンの位置調整用
-
-            div.onclick = (e) => {
-                // ★追加: ゴミ箱ボタンを押した時はHero画面を切り替えない
-                if (e.target.closest('.delete-history-btn')) return;
-                
+            div.onclick = () => {
                 document.querySelectorAll('.sidebar-game-item').forEach(el => el.classList.remove('active'));
                 div.classList.add('active');
                 updateHeroView(item, true); 
             };
-
             const imgUrl = (item.imageUrl && item.imageUrl.startsWith('http')) ? item.imageUrl : 'https://via.placeholder.com/32';
-            
-            // ★追加: ゴミ箱ボタンを含むHTMLをセット
-            div.innerHTML = `
-                <div class="sidebar-game-info" style="width: calc(100% - 30px);">
-                    <img src="${escapeHTML(imgUrl)}" class="sidebar-game-thumb" onerror="this.style.background='#555'">
-                    <div class="sidebar-game-text">
-                        <div class="sidebar-game-title">${escapeHTML(item.message || item.title)}</div>
-                    </div>
-                </div>
-                <button class="delete-history-btn" style="
-                    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
-                    background: transparent; border: none; color: var(--modal-text-sub);
-                    cursor: pointer; padding: 4px; display: flex; align-items: center;
-                    border-radius: 4px; transition: 0.2s; z-index: 2;
-                ">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>
-                </button>
-            `;
-
-            // ★追加: ゴミ箱ボタンを押したときの処理
-            const deleteBtn = div.querySelector('.delete-history-btn');
-            deleteBtn.onmouseover = () => { deleteBtn.style.color = '#FF3B30'; deleteBtn.style.background = 'rgba(255, 59, 48, 0.1)'; };
-            deleteBtn.onmouseout = () => { deleteBtn.style.color = 'var(--modal-text-sub)'; deleteBtn.style.background = 'transparent'; };
-
-            deleteBtn.addEventListener('click', async (e) => {
-                e.stopPropagation(); // 親のdivのクリックイベントを発動させない
-                
-                if (!confirm(`「${item.title || item.message}」を無効化（削除）しますか？\n（ストアに戻ります）`)) return;
-
-                deleteBtn.style.pointerEvents = 'none';
-                deleteBtn.innerHTML = '<span class="loading-spinner" style="width:12px; height:12px; border-width:2px; margin:0;"></span>';
-
-                try {
-                    const revokeRes = await safeFetch({
-                        type: 'admin_revoke_content',
-                        targetEmail: currentUser.email,
-                        code: item.code
-                    });
-
-                    if (revokeRes.success) {
-                        // アニメーションでフワッと消す
-                        div.style.transition = 'all 0.4s ease';
-                        div.style.opacity = '0';
-                        div.style.transform = 'translateX(-20px)';
-
-                        setTimeout(() => {
-                            // 内部データから消す
-                            currentUser.history = currentUser.history.filter(h => h.code !== item.code);
-                            // もしHeroで表示中だったらHeroをリセット
-                            if (selectedHeroItem && selectedHeroItem.code === item.code) {
-                                selectedHeroItem = null;
-                            }
-                            // 画面を再描画（これでストアに復活する）
-                            updateAccountUI();
-                            fetchAvailableContent();
-                        }, 400);
-                    } else {
-                        alert(revokeRes.message || "エラーが発生しました");
-                        deleteBtn.style.pointerEvents = 'auto';
-                        deleteBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>';
-                    }
-                } catch (err) {
-                    alert('通信エラーが発生しました。');
-                    deleteBtn.style.pointerEvents = 'auto';
-                    deleteBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>';
-                }
-            });
-
+            div.innerHTML = `<div class="sidebar-game-info"><img src="${escapeHTML(imgUrl)}" class="sidebar-game-thumb" onerror="this.style.background='#555'"><div class="sidebar-game-text"><div class="sidebar-game-title">${escapeHTML(item.message || item.title)}</div></div></div>`;
             els.libraryListSidebar.appendChild(div);
       });
       
@@ -3712,6 +3638,49 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modalGrid) observer.observe(modalGrid, { childList: true, subtree: true });
 
     setupHoverEffects();
+});
+    // ログインしている場合のみ、5秒に1回、バックエンドに最新の履歴をコッソリ確認しにいく
+    setInterval(async () => {
+        if (!currentUser) return; // ログインしていなければ何もしない
+
+        try {
+            // 安全な通信ラッパーを使って、現在の履歴だけを軽く取得する
+            const data = await safeFetch({
+                type: 'get_history',
+                lang: CURRENT_LANG,
+                _t: Date.now() // キャッシュ防止
+            });
+
+            if (data.success && Array.isArray(data.history)) {
+                // サーバーから返ってきた最新の履歴の「数」と、今画面に表示している「数」が違うか？
+                // （＝管理者がdashboard.htmlで無効化して、アイテムが減ったか？）
+                if (data.history.length !== currentUser.history.length) {
+                    
+                    // 内部データを最新に書き換える
+                    currentUser.history = data.history;
+                    currentUser.points = data.points || 0;
+
+                    // 今Heroで表示しているアイテムが消されていたら、Heroをリセットする
+                    if (selectedHeroItem) {
+                        const stillExists = currentUser.history.some(h => h.code === selectedHeroItem.code);
+                        if (!stillExists && currentHeroContext === 'owned') {
+                            selectedHeroItem = null;
+                        }
+                    }
+
+                    // 画面（ライブラリとストア）を再描画して最新状態にする
+                    // これにより、リロードしなくても消されたアイテムがフワッと消えてストアに戻る
+                    updateAccountUI();
+                    fetchAvailableContent();
+                }
+            } else if (data.message === "Unauthorized" || data.success === false) {
+                // 万が一管理者にアカウントごと消された場合は強制ログアウト
+                logout();
+            }
+        } catch (e) {
+            // エラー時は何もしない（次の5秒後に再トライ）
+        }
+    }, 5000); // 5000ミリ秒 ＝ 5秒ごとにチェック
 });
 </script>
 </body>
