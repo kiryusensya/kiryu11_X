@@ -4,9 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Login // Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
 <style>
-  /* --- FONT FACE DEFINITIONS (index.htmlと統一) --- */
+  /* --- FONT FACE DEFINITIONS --- */
   @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
   @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Medium.woff') format('woff'); font-weight: 500; font-style: normal; }
   @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
@@ -18,16 +19,14 @@
   /* --- THEME VARIABLES --- */
   :root { 
     --primary: #007DFF; 
-    --bg-color: #121212; 
-    --modal-text-main: #FFFFFF; 
-    --modal-text-sub: #A0A0A0; 
+    --bg-color: #0f0f11; 
+    --text-main: #FFFFFF; 
+    --text-sub: #A0A0A0; 
     --danger: #FF3B30;
     --success: #04CF22;
-    --card-bg: rgba(40, 40, 40, 0.5);
-    --card-border: rgba(255, 255, 255, 0.1);
-    --input-bg: rgba(255, 255, 255, 0.1);
-    
-    /* 言語ごとのフォント設定 */
+    --card-bg: rgba(30, 30, 30, 0.9);
+    --card-border: rgba(255, 255, 255, 0.15);
+    --input-bg: rgba(255, 255, 255, 0.05);
     --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
   }
   
@@ -40,61 +39,48 @@
 
   [data-theme="light"] {
     --bg-color: #F1F3F5;
-    --modal-text-main: #000000;
-    --modal-text-sub: #666666;
-    --card-bg: rgba(255, 255, 255, 0.6);
-    --card-border: rgba(255, 255, 255, 0.6);
-    --input-bg: rgba(128, 128, 128, 0.1);
+    --text-main: #000000;
+    --text-sub: #666666;
+    --card-bg: rgba(255, 255, 255, 1);
+    --card-border: rgba(0, 0, 0, 0.15);
+    --input-bg: rgba(0, 0, 0, 0.03);
   }
-
-  *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
   body { 
     font-family: var(--font-stack); 
     background-color: var(--bg-color); 
-    color: var(--modal-text-main); 
+    color: var(--text-main); 
     margin: 0; 
     display: flex; 
     justify-content: center; 
     align-items: center; 
     min-height: 100vh; 
     overflow: hidden;
-    transition: background-color 0.5s ease;
+    transition: background-color 0.3s ease;
   }
 
-  /* 背景パーティクル */
-  #particleCanvas {
-    position: fixed; inset: 0; width: 100%; height: 100%;
-    z-index: 0; opacity: 0.4; pointer-events: none;
-    filter: blur(60px);
-  }
-
-  /* 上部コントロール（言語・テーマ切り替え） */
+  /* 上部コントロール */
   .top-controls {
     position: absolute; top: 24px; right: 24px; z-index: 100;
     display: flex; gap: 12px; align-items: center;
   }
-
   .ctrl-btn {
     display: flex; align-items: center; justify-content: center; gap: 8px; 
     background: var(--card-bg); border: 1px solid var(--card-border);
-    height: 44px; border-radius: 50px; color: var(--modal-text-main); font-size: 13px; font-weight: 700;
-    cursor: pointer; backdrop-filter: blur(10px); transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    font-family: var(--font-stack);
+    height: 40px; border-radius: 50px; color: var(--text-main); font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: 0.2s; font-family: var(--font-stack);
   }
-  .ctrl-btn:hover { transform: scale(1.05); background: rgba(128,128,128,0.2); }
-  .ctrl-btn.icon-only { width: 44px; padding: 0; }
+  .ctrl-btn:hover { background: rgba(128,128,128,0.2); }
+  .ctrl-btn.icon-only { width: 40px; padding: 0; }
   .ctrl-btn.lang-trigger { padding: 0 16px; }
-
   .lang-menu {
     position: absolute; top: 100%; right: 0; margin-top: 8px; width: 140px; background: var(--card-bg);
-    border: 1px solid var(--card-border); border-radius: 16px; backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border); border-radius: 16px; 
     box-shadow: 0 10px 40px rgba(0,0,0,0.3); list-style: none; padding: 6px; display: none;
   }
-  .lang-menu.open { display: block; animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+  .lang-menu.open { display: block; }
   .lang-option {
-    padding: 10px 12px; font-size: 13px; font-weight: 700; color: var(--modal-text-main); border-radius: 10px; cursor: pointer; transition: 0.2s;
-    font-family: var(--font-stack);
+    padding: 10px 12px; font-size: 13px; font-weight: 500; color: var(--text-main); border-radius: 10px; cursor: pointer; transition: 0.2s; font-family: var(--font-stack);
   }
   .lang-option:hover { background: rgba(128,128,128,0.15); }
 
@@ -103,124 +89,138 @@
     position: relative;
     z-index: 10;
     width: 90%;
-    max-width: 420px; /* スマホ時の最大幅 */
-    animation: slideUpFade 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    max-width: 420px;
   }
   
   .login-card { 
     background: var(--card-bg); 
     border: 1px solid var(--card-border); 
-    border-radius: 32px; 
+    border-radius: 24px; 
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    backdrop-filter: blur(40px);
-    -webkit-backdrop-filter: blur(40px);
-    box-shadow: 0 30px 80px rgba(0,0,0,0.3);
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
   }
   
   .login-content {
-      padding: 50px 40px;
+      padding: 40px;
       flex: 1;
       display: flex;
       flex-direction: column;
       justify-content: center;
   }
 
-  /* PC向け 2カラムレイアウト (固定幅800px、隙間なく画像を敷き詰める) */
+  /* PC向け 2カラムレイアウト (固定幅800px、拡大禁止・レイアウト崩れ防止) */
   .login-image-side { display: none; }
-
   @media (min-width: 769px) {
-      .login-wrapper { 
-          width: 800px; 
-          max-width: none; 
-      }
-      .login-card { 
-          flex-direction: row; 
-          min-height: 500px; 
-          border-radius: 24px; 
-          align-items: stretch;
-      }
-      .login-wrapper:hover .login-card {
-          transform: translateY(-5px);
-          box-shadow: 0 40px 100px rgba(0,0,0,0.5);
-      }
-      [data-theme="light"] .login-wrapper:hover .login-card { box-shadow: 0 40px 100px rgba(0,0,0,0.15); }
-
-      .login-content { 
-          width: 50%; 
-          padding: 60px 50px; 
-      }
+      .login-wrapper { width: 800px; max-width: none; }
+      .login-card { flex-direction: row; min-height: 480px; border-radius: 16px; align-items: stretch; }
+      .login-content { width: 50%; padding: 50px; }
       .login-image-side {
-          display: block; 
-          width: 50%;
+          display: block; width: 50%;
           position: relative; overflow: hidden;
-          background: rgba(128,128,128,0.05);
-          border-left: 1px solid rgba(128,128,128,0.1);
+          background: rgba(0,0,0,0.2); 
       }
       .login-image-side img {
-          position: absolute;
-          top: 0; left: 0; width: 100%; height: 100%;
-          object-fit: cover; /* ★画像を枠にピッタリ合わせ、はみ出た分をトリミング */
+          position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+          object-fit: cover; /* 枠の幅・高さに合わせて隙間なく表示し、はみ出た部分はトリミング */
       }
   }
 
   /* タイトル・テキスト */
-  h1 { margin: 0 0 10px 0; font-size: 32px; font-weight: 800; font-family: var(--font-stack); }
-  .desc { font-size: 13px; font-weight: 500; color: var(--modal-text-sub); margin: 0 0 30px 0; line-height: 1.6; }
+  h1 { margin: 0 0 30px 0; font-size: 28px; font-weight: 800; font-family: var(--font-stack); }
   
   /* 入力フォーム (角丸) */
   .form-group { margin-bottom: 20px; text-align: left; }
   input {
-    width: 100%; height: 56px; background: var(--input-bg); border: none;
-    border-radius: 50px; color: var(--modal-text-main); padding: 0 24px; font-size: 16px; 
-    outline: none; transition: 0.3s; font-family: var(--font-stack); font-weight: 700;
+    width: 100%; height: 50px; background: transparent; border: 1px solid var(--card-border);
+    border-radius: 50px; color: var(--text-main); padding: 0 24px; font-size: 15px; 
+    outline: none; box-sizing: border-box; transition: 0.3s; font-family: var(--font-stack); font-weight: 700;
   }
-  input::placeholder { color: var(--modal-text-sub); font-weight: 500; font-size: 14px; }
-  input:focus { background: rgba(0, 125, 255, 0.1); color: var(--primary); }
+  input::placeholder { color: var(--text-sub); font-weight: 500; font-size: 13px; }
+  input:focus { border-color: var(--text-main); background: var(--input-bg); }
 
-  /* ボタン */
-  button.btn-primary {
-    height: 56px; border-radius: 50px; font-size: 16px; font-weight: 800; cursor: pointer; transition: transform 0.2s;
-    border: none; display: flex; align-items: center; justify-content: center; width: 100%; margin-top: 10px;
-    background: var(--primary); color: white; font-family: var(--font-stack);
+  /* =========================================
+     ★ スライドして進む コンポーネント ★
+     ========================================= */
+  .slide-container {
+    position: relative;
+    width: 100%;
+    height: 56px;
+    background: var(--input-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 50px;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    box-sizing: border-box;
   }
-  button.btn-primary:active { transform: scale(0.96); }
+  .slide-text {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text-sub);
+    letter-spacing: 2px;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    z-index: 1;
+    font-family: var(--font-stack);
+    white-space: nowrap;
+  }
+  .slide-thumb {
+    position: absolute;
+    left: 4px;
+    top: 4px;
+    bottom: 4px;
+    width: 48px;
+    border-radius: 50px;
+    background: var(--primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    z-index: 2;
+    box-shadow: 0 4px 12px rgba(0,125,255,0.4);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .slide-thumb:active { cursor: grabbing; }
+  .slide-container.is-dragging .slide-thumb { transition: none; }
+  
+  /* ロード中（完了）のアニメーション状態 */
+  .slide-container.is-loading { border-color: var(--primary); }
+  .slide-container.is-loading .slide-thumb {
+    width: calc(100% - 8px);
+    transform: translateX(0) !important;
+    background: var(--primary);
+    cursor: default;
+  }
+  .slide-container.is-loading .slide-thumb i { display: none; }
+  .slide-container.is-loading .slide-text {
+    color: #ffffff;
+    z-index: 3;
+    opacity: 1 !important;
+  }
+  
+  /* スピナー用アニメーション */
+  .lucide-spin { animation: spin 1s linear infinite; }
+  @keyframes spin { 100% { transform: rotate(360deg); } }
   
   /* メッセージ */
   .msg { margin-bottom: 16px; font-size: 13px; font-weight: 700; min-height: 18px; text-align: left; color: var(--danger); font-family: var(--font-stack); }
-
-  /* スポットライト・ホバー効果 */
-  .spotlight-hover { position: relative; overflow: hidden; }
-  .spotlight-hover::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-      background: radial-gradient(150px circle at var(--x, 50%) var(--y, 50%), rgba(255,255,255,0.2), transparent 40%);
-      z-index: 0; pointer-events: none; opacity: 0; transition: opacity 0.3s ease;
-  }
-  [data-theme="light"] .spotlight-hover::before {
-      background: radial-gradient(150px circle at var(--x, 50%) var(--y, 50%), rgba(0,0,0,0.1), transparent 40%);
-  }
-  .spotlight-hover:hover::before { opacity: 1; }
-  .spotlight-hover > * { position: relative; z-index: 1; }
-
-  /* アニメーション */
-  @keyframes slideUpFade { from { opacity: 0; transform: translateY(40px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-  @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-  .loading-dots::after { content: ''; animation: dots-loop 1.5s infinite steps(1); display: inline-block; width: 1em; text-align: left; }
-  @keyframes dots-loop { 0% { content: '.'; } 33% { content: '..'; } 66% { content: '...'; } 100% { content: ''; } }
 </style>
 </head>
 <body>
 
-  <canvas id="particleCanvas"></canvas>
-
   <div class="top-controls">
-    <button class="ctrl-btn icon-only spotlight-hover" id="themeToggle" aria-label="Toggle Theme">
+    <button class="ctrl-btn icon-only" id="themeToggle" aria-label="Toggle Theme">
       <i data-lucide="moon" id="themeIcon"></i>
     </button>
     <div style="position: relative;">
-      <button class="ctrl-btn lang-trigger spotlight-hover" id="langTrigger">
+      <button class="ctrl-btn lang-trigger" id="langTrigger">
         <i data-lucide="globe" style="width: 16px; height: 16px;"></i>
         <span id="currentLangLabel">日本語</span>
         <i data-lucide="chevron-down" style="width: 14px; height: 14px; opacity: 0.5;"></i>
@@ -241,23 +241,22 @@
     <div class="login-card" id="loginView">
       <div class="login-content">
         <h1 data-i18n="title_login">ログイン</h1>
-        <p class="desc" data-i18n="desc_login">利用するにはアカウントが必要です。</p>
-        
         <div id="authStatus" class="msg"></div>
         
         <div class="form-group">
           <input type="email" id="inputEmail" placeholder="ユーザー名" data-i18n-ph="ph_user">
         </div>
         <div class="form-group">
-          <input type="password" id="inputPass" placeholder="パスワード" data-i18n-ph="ph_pass">
+          <input type="password" id="inputPass" placeholder="PASS" data-i18n-ph="ph_pass">
         </div>
         
-        <button id="btnAuthAction" class="btn-primary spotlight-hover">
-          <span data-i18n="btn_login">ログイン</span>
-        </button>
+        <div class="slide-container" id="loginSlider">
+          <div class="slide-text" data-i18n="slide_login">スライドして進む</div>
+          <div class="slide-thumb"><i data-lucide="arrow-right"></i></div>
+        </div>
         
-        <div style="margin-top: 24px; font-size: 13px; font-weight: 700; color: var(--modal-text-sub); text-align: center; font-family: var(--font-stack);">
-            <a href="support.html" style="color: var(--primary); text-decoration: none;" data-i18n="link_support">ログインできない場合はこちら</a>
+        <div style="margin-top: 30px; font-size: 12px; font-weight: 700; color: var(--text-sub); text-align: center; font-family: var(--font-stack);">
+            <a href="support.html" style="color: var(--text-sub); text-decoration: none;" data-i18n="link_support">ログインできない場合</a>
         </div>
       </div>
       <div class="login-image-side">
@@ -267,8 +266,8 @@
 
     <div class="login-card" id="forcePasswordChangeView" style="display:none;">
       <div class="login-content">
-        <h1 style="font-size: 24px;" data-i18n="title_force">パスワードの変更</h1>
-        <p class="desc" data-i18n="desc_force">セキュリティのため、初期パスワードからの変更をお願いします。</p>
+        <h1 style="font-size: 22px; margin-bottom: 10px;" data-i18n="title_force">パスワードの変更が必要です</h1>
+        <p style="color: var(--text-sub); font-size: 12px; margin-bottom: 20px;" data-i18n="desc_force">セキュリティのため、初期パスワードからの変更をお願いします。</p>
         
         <div id="newPassError" class="msg"></div>
 
@@ -279,9 +278,11 @@
           <input type="password" id="newPassConfirm" placeholder="新しいパスワード(確認用)" data-i18n-ph="ph_conf_pass">
         </div>
         
-        <button id="btnSubmitNewPass" class="btn-primary spotlight-hover">
-            <span data-i18n="btn_change">変更してログイン</span>
-        </button>
+        <div class="slide-container" id="forceSlider">
+          <div class="slide-text" data-i18n="slide_force">スライドして変更</div>
+          <div class="slide-thumb"><i data-lucide="arrow-right"></i></div>
+        </div>
+
       </div>
       <div class="login-image-side">
         <img src="https://static.wixstatic.com/media/2f0694_532df990e3f24acbb7c4e1130529cef7~mv2.jpg" alt="Background">
@@ -297,27 +298,13 @@
       window.location.replace('index.html');
   }
 
-  // ===== Micro-Interactions (スポットライトホバー) =====
-  const setupHoverEffects = () => {
-      document.querySelectorAll('.spotlight-hover').forEach(el => {
-          el.addEventListener('mousemove', (e) => {
-              const rect = el.getBoundingClientRect();
-              el.style.setProperty('--x', `${e.clientX - rect.left}px`);
-              el.style.setProperty('--y', `${e.clientY - rect.top}px`);
-          });
-      });
-  };
-  setupHoverEffects();
-
-  // ===== テーマ設定 =====
+  // ===== テーマ設定 (端末設定に追従) =====
   const htmlEl = document.documentElement;
   const themeIcon = document.getElementById('themeIcon');
-  let particleHue = 210;
 
   function applyTheme(theme) {
     htmlEl.setAttribute('data-theme', theme);
     if(themeIcon) themeIcon.setAttribute('data-lucide', theme === 'light' ? 'sun' : 'moon');
-    particleHue = theme === 'light' ? 210 : 220;
     lucide.createIcons();
   }
 
@@ -335,71 +322,58 @@
     if (!localStorage.getItem('user_theme')) applyTheme(e.matches ? 'dark' : 'light');
   });
 
-  // ===== 背景アニメーション (index.html準拠のパーティクル) =====
-  const canvas = document.getElementById('particleCanvas');
-  const ctx = canvas.getContext('2d');
-  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-  class Particle {
-    constructor() { this.x=Math.random()*canvas.width; this.y=Math.random()*canvas.height; this.size=Math.random()*150+50; this.speedX=Math.random()*0.2-0.1; this.speedY=Math.random()*0.2-0.1; this.opacity=Math.random()*0.3+0.1; }
-    update() { this.x+=this.speedX; this.y+=this.speedY; if(this.x<0||this.x>canvas.width)this.speedX*=-1; if(this.y<0||this.y>canvas.height)this.speedY*=-1; }
-    draw() { ctx.fillStyle=`hsla(${particleHue}, 100%, 50%, ${this.opacity*0.2})`; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); }
-  }
-  let p = []; for(let i=0;i<8;i++) p.push(new Particle());
-  function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); p.forEach(i=>{i.update();i.draw();}); requestAnimationFrame(animate); }
-  window.addEventListener('resize', () => { canvas.width=window.innerWidth; canvas.height=window.innerHeight; }); animate();
-
   // ===== 翻訳データ =====
   const TRANSLATIONS = {
     ja: {
-      title_login: "入室通行証", ph_user: "ユーザー名", ph_pass: "パスワード", btn_login: "ログイン", link_support: "ログインできない場合はこちら", desc_login: "利用するにはアカウントが必要です。",
+      title_login: "ログイン", ph_user: "ユーザー名", ph_pass: "PASS", link_support: "ログインできない場合",
       title_force: "パスワードの変更", desc_force: "セキュリティのため、初期パスワードからの変更をお願いします。",
-      ph_new_pass: "新しいパスワード", ph_conf_pass: "確認用パスワード", btn_change: "変更してログイン",
-      msg_logging_in: "ログイン中", msg_changing: "変更中",
+      ph_new_pass: "新しいパスワード", ph_conf_pass: "確認用パスワード", 
+      slide_login: "スライドして進む", slide_force: "スライドして変更", slide_loading: "認証中...",
       err_empty: "ユーザー名とパスワードを入力してください。", err_invalid: "無効なユーザー名またはパスワードです。",
-      err_net: "通信エラーが発生しました。", err_input_all: "すべて入力してください", err_len: "パスワードは6文字以上にしてください",
+      err_net: "通信エラーが発生しました。", err_input_all: "入力してください", err_len: "パスワードは6文字以上にしてください",
       err_match: "パスワードが一致しません", msg_success: "変更完了！ログインします...", lang_label: "日本語"
     },
     en: {
-      title_login: "Entry Pass", ph_user: "Username", ph_pass: "Password", btn_login: "Login", link_support: "Trouble logging in?", desc_login: "An account is required to continue.",
+      title_login: "LOGIN", ph_user: "Username", ph_pass: "Password", link_support: "Trouble logging in?",
       title_force: "Change Password", desc_force: "For security reasons, please change your initial password.",
-      ph_new_pass: "New Password", ph_conf_pass: "Confirm Password", btn_change: "Update & Login",
-      msg_logging_in: "Logging in", msg_changing: "Updating",
+      ph_new_pass: "New Password", ph_conf_pass: "Confirm Password", 
+      slide_login: "Slide to enter", slide_force: "Slide to update", slide_loading: "Authenticating...",
       err_empty: "Please enter your username and password.", err_invalid: "Invalid username or password.",
       err_net: "Network error occurred.", err_input_all: "Please fill in all fields.", err_len: "Password must be at least 6 characters.",
       err_match: "Passwords do not match.", msg_success: "Success! Logging you in...", lang_label: "English"
     },
     zh: {
-      title_login: "入场通行证", ph_user: "用户名", ph_pass: "密码", btn_login: "登录", link_support: "无法登录？", desc_login: "使用本服务需要账户。",
+      title_login: "登录", ph_user: "用户名", ph_pass: "密码", link_support: "无法登录？",
       title_force: "修改密码", desc_force: "出于安全原因，请修改您的初始密码。",
-      ph_new_pass: "新密码", ph_conf_pass: "确认密码", btn_change: "修改并登录",
-      msg_logging_in: "正在登录", msg_changing: "正在修改",
+      ph_new_pass: "新密码", ph_conf_pass: "确认密码", 
+      slide_login: "滑动以进入", slide_force: "滑动以修改", slide_loading: "验证中...",
       err_empty: "请输入用户名和密码。", err_invalid: "用户名或密码无效。",
       err_net: "发生网络错误。", err_input_all: "请填写所有字段。", err_len: "密码长度至少为6个字符。",
       err_match: "两次输入的新密码不一致。", msg_success: "修改成功！正在登录...", lang_label: "简体中文"
     },
     "zh-TW": {
-      title_login: "入場通行證", ph_user: "使用者名稱", ph_pass: "密碼", btn_login: "登入", link_support: "無法登入？", desc_login: "使用本服務需要帳戶。",
+      title_login: "登入", ph_user: "使用者名稱", ph_pass: "密碼", link_support: "無法登入？",
       title_force: "修改密碼", desc_force: "出於安全原因，請修改您的初始密碼。",
-      ph_new_pass: "新密碼", ph_conf_pass: "確認密碼", btn_change: "修改並登入",
-      msg_logging_in: "登入中", msg_changing: "修改中",
+      ph_new_pass: "新密碼", ph_conf_pass: "確認密碼", 
+      slide_login: "滑動以進入", slide_force: "滑動以修改", slide_loading: "驗證中...",
       err_empty: "請輸入使用者名稱和密碼。", err_invalid: "使用者名稱或密碼無效。",
       err_net: "發生網路錯誤。", err_input_all: "請填寫所有欄位。", err_len: "密碼長度至少為6個字符。",
       err_match: "兩次輸入的新密碼不一致。", msg_success: "修改成功！正在登入...", lang_label: "繁體中文"
     },
     ko: {
-      title_login: "입실통행증", ph_user: "사용자 이름", ph_pass: "비밀번호", btn_login: "로그인", link_support: "로그인할 수 없습니까?", desc_login: "이용하려면 계정이 필요합니다.",
+      title_login: "로그인", ph_user: "사용자 이름", ph_pass: "비밀번호", link_support: "로그인할 수 없습니까?",
       title_force: "비밀번호 변경", desc_force: "보안을 위해 초기 비밀번호를 변경해 주세요.",
-      ph_new_pass: "새 비밀번호", ph_conf_pass: "비밀번호 확인", btn_change: "변경 후 로그인",
-      msg_logging_in: "로그인 중", msg_changing: "변경 중",
+      ph_new_pass: "새 비밀번호", ph_conf_pass: "비밀번호 확인", 
+      slide_login: "슬라이드하여 진행", slide_force: "슬라이드하여 변경", slide_loading: "인증 중...",
       err_empty: "사용자 이름과 비밀번호를 입력해 주세요.", err_invalid: "잘못된 사용자 이름 또는 비밀번호입니다.",
       err_net: "통신 오류가 발생했습니다.", err_input_all: "모든 항목을 입력해 주세요.", err_len: "비밀번호는 6자 이상이어야 합니다.",
       err_match: "비밀번호가 일치하지 않습니다.", msg_success: "변경 완료! 로그인합니다...", lang_label: "한국어"
     },
     ru: {
-      title_login: "Вход", ph_user: "Имя пользователя", ph_pass: "Пароль", btn_login: "Войти", link_support: "Забыли пароль?", desc_login: "Для использования требуется учетная запись.",
+      title_login: "ВХОД", ph_user: "Имя пользователя", ph_pass: "Пароль", link_support: "Забыли пароль?",
       title_force: "Смена пароля", desc_force: "В целях безопасности измените начальный пароль.",
-      ph_new_pass: "Новый пароль", ph_conf_pass: "Подтвердите пароль", btn_change: "Обновить и войти",
-      msg_logging_in: "Вход", msg_changing: "Обновление",
+      ph_new_pass: "Новый пароль", ph_conf_pass: "Подтвердите пароль", 
+      slide_login: "Проведите для входа", slide_force: "Проведите для смены", slide_loading: "Аутентификация...",
       err_empty: "Введите имя пользователя и пароль.", err_invalid: "Неверное имя пользователя или пароль.",
       err_net: "Произошла ошибка сети.", err_input_all: "Заполните все поля.", err_len: "Пароль минимум 6 символов.",
       err_match: "Пароли не совпадают.", msg_success: "Успешно! Выполняется вход...", lang_label: "Русский"
@@ -413,7 +387,11 @@
     localStorage.setItem('user_lang', lang);
     const t = TRANSLATIONS[lang] || TRANSLATIONS.ja;
     
-    document.querySelectorAll('[data-i18n]').forEach(el => { el.innerHTML = t[el.getAttribute('data-i18n')]; });
+    document.querySelectorAll('[data-i18n]').forEach(el => { 
+        // ロード中の状態のテキストは上書きしない
+        if (el.closest('.is-loading')) return;
+        el.innerHTML = t[el.getAttribute('data-i18n')]; 
+    });
     document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t[el.getAttribute('data-i18n-ph')]; });
     document.getElementById('currentLangLabel').textContent = t.lang_label;
     document.documentElement.lang = lang;
@@ -430,21 +408,123 @@
 
   applyLanguage(CURRENT_LANG);
 
+  // ===== スライダー機能の共通クラス =====
+  function initSlider(containerId, onComplete) {
+      const container = document.getElementById(containerId);
+      const thumb = container.querySelector('.slide-thumb');
+      const text = container.querySelector('.slide-text');
+      
+      let isDragging = false;
+      let startX = 0;
+      let currentX = 0;
+      let isUnlocked = false;
+
+      const setTransform = (val) => {
+          thumb.style.transform = `translateX(${val}px)`;
+      };
+
+      const onDragStart = (e) => {
+          if (isUnlocked) return;
+          isDragging = true;
+          container.classList.add('is-dragging');
+          startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+      };
+
+      const onDrag = (e) => {
+          if (!isDragging || isUnlocked) return;
+          // 横スライド時の画面の縦スクロールを防止
+          if (e.cancelable && e.type === 'touchmove') e.preventDefault();
+
+          const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+          const delta = clientX - startX;
+          const max = container.offsetWidth - thumb.offsetWidth - 8; // 余白分考慮
+
+          currentX = Math.max(0, Math.min(delta, max));
+          setTransform(currentX);
+          
+          // 進捗に合わせてテキストをフェードアウト
+          text.style.opacity = 1 - (currentX / (max * 0.8));
+      };
+
+      const onDragEnd = () => {
+          if (!isDragging || isUnlocked) return;
+          isDragging = false;
+          container.classList.remove('is-dragging');
+
+          const max = container.offsetWidth - thumb.offsetWidth - 8;
+          if (currentX >= max * 0.85) {
+              // ロック解除処理
+              isUnlocked = true;
+              container.classList.add('is-loading');
+              
+              // ローディングテキストとスピナーへ変更
+              const t = TRANSLATIONS[CURRENT_LANG];
+              text.innerHTML = `<i data-lucide="loader-2" class="lucide-spin" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 8px;"></i> ${t.slide_loading}`;
+              lucide.createIcons();
+
+              // アニメーションを待ってから実際の関数をトリガー
+              setTimeout(() => {
+                  onComplete();
+              }, 400); 
+          } else {
+              // 失敗時はバネのように戻る
+              currentX = 0;
+              setTransform(0);
+              text.style.opacity = 1;
+          }
+      };
+
+      thumb.addEventListener('mousedown', onDragStart);
+      thumb.addEventListener('touchstart', onDragStart, {passive: true});
+      document.addEventListener('mousemove', onDrag);
+      document.addEventListener('touchmove', onDrag, {passive: false});
+      document.addEventListener('mouseup', onDragEnd);
+      document.addEventListener('touchend', onDragEnd);
+
+      // プログラムからローディングにするAPI（Enterキー用）
+      container.setLoading = () => {
+          if(isUnlocked) return;
+          isUnlocked = true;
+          container.classList.add('is-loading');
+          
+          const t = TRANSLATIONS[CURRENT_LANG];
+          text.innerHTML = `<i data-lucide="loader-2" class="lucide-spin" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 8px;"></i> ${t.slide_loading}`;
+          lucide.createIcons();
+          
+          onComplete();
+      };
+
+      // プログラムから元に戻すAPI（エラー時用）
+      container.reset = () => {
+          isUnlocked = false;
+          currentX = 0;
+          setTransform(0);
+          container.classList.remove('is-loading');
+          
+          const t = TRANSLATIONS[CURRENT_LANG];
+          text.innerHTML = t[text.getAttribute('data-i18n')];
+          text.style.opacity = 1;
+      };
+      
+      return container;
+  }
+
   // ===== 認証ロジック =====
   const API_URL = "api/proxy";
   let tempChangeData = null;
 
-  document.getElementById('btnAuthAction').addEventListener('click', async () => {
+  // メインログインスライダーのセットアップ
+  const loginSliderObj = initSlider('loginSlider', async () => {
       const email = document.getElementById('inputEmail').value.trim();
       const pass = document.getElementById('inputPass').value.trim();
       const statusEl = document.getElementById('authStatus');
-      const btn = document.getElementById('btnAuthAction');
       const t = TRANSLATIONS[CURRENT_LANG];
       
-      if (!email || !pass) { statusEl.textContent = t.err_empty; return; }
-      
-      btn.disabled = true;
-      btn.innerHTML = `<span class="loading-dots">${t.msg_logging_in}</span>`;
+      if (!email || !pass) { 
+          statusEl.textContent = t.err_empty; 
+          loginSliderObj.reset();
+          return; 
+      }
       
       try {
         const res = await fetch(API_URL, {
@@ -459,6 +539,7 @@
               tempChangeData = { userId: data.userId, oldPassword: pass };
               document.getElementById('loginView').style.display = 'none';
               document.getElementById('forcePasswordChangeView').style.display = 'flex';
+              loginSliderObj.reset();
               return; 
           }
           localStorage.setItem('user_session_identity', JSON.stringify({ userId: data.userId, email: email }));
@@ -471,28 +552,24 @@
           } else {
               statusEl.textContent = t.err_invalid;
           }
+          loginSliderObj.reset();
         }
       } catch (e) { 
         statusEl.textContent = t.err_net; 
-      } finally { 
-        btn.disabled = false; 
-        btn.innerHTML = `<span data-i18n="btn_login">${t.btn_login}</span>`;
+        loginSliderObj.reset();
       }
   });
 
-  document.getElementById('btnSubmitNewPass').addEventListener('click', async () => {
+  // パスワード変更スライダーのセットアップ
+  const forceSliderObj = initSlider('forceSlider', async () => {
     const newPass = document.getElementById('newPassInput').value.trim();
     const confirmPass = document.getElementById('newPassConfirm').value.trim();
     const errObj = document.getElementById('newPassError');
-    const btn = document.getElementById('btnSubmitNewPass');
     const t = TRANSLATIONS[CURRENT_LANG];
     
-    if(!newPass || !confirmPass) { errObj.textContent = t.err_input_all; return; }
-    if(newPass.length < 6) { errObj.textContent = t.err_len; return; }
-    if(newPass !== confirmPass) { errObj.textContent = t.err_match; return; }
-    
-    btn.innerHTML = `<span class="loading-dots">${t.msg_changing}</span>`;
-    btn.disabled = true;
+    if(!newPass || !confirmPass) { errObj.textContent = t.err_input_all; forceSliderObj.reset(); return; }
+    if(newPass.length < 6) { errObj.textContent = t.err_len; forceSliderObj.reset(); return; }
+    if(newPass !== confirmPass) { errObj.textContent = t.err_match; forceSliderObj.reset(); return; }
     
     try {
         const res = await fetch(API_URL, {
@@ -514,24 +591,27 @@
                 document.getElementById('inputPass').value = newPass;
                 document.getElementById('forcePasswordChangeView').style.display = 'none';
                 document.getElementById('loginView').style.display = 'flex';
-                document.getElementById('btnAuthAction').click();
+                // 変更成功後、自動でログイン処理へ流す
+                loginSliderObj.setLoading();
             }, 1000);
         } else {
             errObj.textContent = data.message;
-            btn.innerHTML = `<span data-i18n="btn_change">${t.btn_change}</span>`;
-            btn.disabled = false;
+            forceSliderObj.reset();
         }
     } catch(e) {
         errObj.textContent = t.err_net;
-        btn.innerHTML = `<span data-i18n="btn_change">${t.btn_change}</span>`;
-        btn.disabled = false;
+        forceSliderObj.reset();
     }
   });
 
+  // Enterキーでの送信
   document.addEventListener('keydown', (e) => {
       if(e.key === 'Enter') {
-          if(document.getElementById('loginView').style.display !== 'none') document.getElementById('btnAuthAction').click();
-          else if(document.getElementById('forcePasswordChangeView').style.display !== 'none') document.getElementById('btnSubmitNewPass').click();
+          if(document.getElementById('loginView').style.display !== 'none') {
+              loginSliderObj.setLoading();
+          } else if(document.getElementById('forcePasswordChangeView').style.display !== 'none') {
+              forceSliderObj.setLoading();
+          }
       }
   });
 </script>
