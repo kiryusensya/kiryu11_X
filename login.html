@@ -2,96 +2,207 @@
 <html lang="ja" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Access Login</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Login//kiryu10-Enterprise</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
 <style>
-  :root { --primary: #007DFF; --bg-color: #121212; --text-main: #FFFFFF; --text-sub: #A0A0A0; --danger: #FF3B30; }
-  body { font-family: 'Noto Sans JP', sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-  .login-card { background: rgba(30, 30, 30, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 40px; width: 90%; max-width: 400px; text-align: center; }
-  
-  .form-group { margin-bottom: 20px; text-align: left; }
+  :root { 
+    --primary: #007DFF; 
+    --bg-color: #121212; 
+    --text-main: #FFFFFF; 
+    --text-sub: #A0A0A0; 
+    --danger: #FF3B30;
+    --card-bg: rgba(40, 40, 40, 0.6);
+  }
+  [data-theme="light"] {
+    --bg-color: #F1F3F5;
+    --text-main: #000000;
+    --text-sub: #666666;
+    --card-bg: rgba(255, 255, 255, 0.8);
+  }
+  body { 
+    font-family: 'Noto Sans JP', sans-serif; 
+    background-color: var(--bg-color); 
+    color: var(--text-main); 
+    margin: 0; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    height: 100vh; 
+    transition: background-color 0.3s ease;
+  }
+  .login-card { 
+    background: var(--card-bg); 
+    border: 1px solid rgba(128,128,128,0.2); 
+    border-radius: 24px; 
+    padding: 50px 40px; 
+    width: 90%; 
+    max-width: 450px; 
+    text-align: center; 
+    backdrop-filter: blur(20px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .form-group { margin-bottom: 24px; text-align: left; }
+  label { font-size: 13px; font-weight: 700; color: var(--text-sub); display: block; margin-bottom: 8px; }
   input {
-    width: 100%; height: 50px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 12px; color: var(--text-main); padding: 0 16px; font-size: 15px; font-family: inherit; outline: none;
-    box-sizing: border-box;
+    width: 100%; height: 56px; background: rgba(128,128,128,0.1); border: 1px solid rgba(128,128,128,0.2);
+    border-radius: 12px; color: var(--text-main); padding: 0 16px; font-size: 16px; outline: none;
+    box-sizing: border-box; transition: 0.3s;
   }
   input:focus { border-color: var(--primary); background: rgba(0, 125, 255, 0.05); }
-  
   button {
-    height: 50px; border-radius: 25px; font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.2s;
-    border: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;
-    box-sizing: border-box;
+    height: 60px; border-radius: 30px; font-size: 18px; font-weight: 800; cursor: pointer; transition: 0.2s;
+    border: none; display: inline-flex; align-items: center; justify-content: center; width: 100%; margin-top: 10px;
   }
-  .btn-primary { background: var(--primary); color: #fff; width: 100%; }
-  .btn-primary:hover { opacity: 0.8; }
-  .msg { margin-top: 15px; font-size: 14px; font-weight: 700; min-height: 20px; text-align: center; }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { opacity: 0.8; transform: translateY(-2px); }
+  .msg { margin-bottom: 12px; font-size: 14px; font-weight: 700; min-height: 20px; text-align: center; color: var(--danger); }
 </style>
 </head>
 <body>
 
-  <div class="login-card">
-    <div style="display:flex; justify-content:center; margin-bottom:20px;">
-        <i data-lucide="shield-check" style="width:48px; height:48px; color:var(--primary);"></i>
+  <div class="login-card" id="loginView">
+    <h1 style="margin: 0 0 10px 0; font-size: 32px; font-weight: 800;">ログイン</h1>
+    <p style="color:var(--text-sub); font-size: 14px; margin-bottom: 30px;">
+        利用するにはアカウントが必要です。<br>
+        ログインできない場合は<a href="support.html" style="color: var(--primary); text-decoration: underline; font-weight: 700;">こちら</a>
+    </p>
+    
+    <div id="authStatus" class="msg"></div>
+    
+    <div class="form-group">
+      <label>ユーザー名</label>
+      <input type="email" id="inputEmail">
     </div>
-    <h1 style="margin: 0 0 30px 0; font-size: 24px;">访问登录</h1>
-    <div class="form-group"><input type="text" id="adminId" placeholder="个人识别号码"></div>
-    <div class="form-group"><input type="password" id="adminPass" placeholder="激活码"></div>
-    <button id="btnLogin" class="btn-primary">登录</button>
-    <div id="loginResult" class="msg" style="color: var(--danger);"></div>
+    <div class="form-group">
+      <label>パスワード</label>
+      <input type="password" id="inputPass">
+    </div>
+    
+    <button id="btnAuthAction" class="btn-primary">ログイン</button>
+  </div>
+
+  <div class="login-card" id="forcePasswordChangeView" style="display:none;">
+    <h2 style="margin: 0 0 10px 0; font-size: 24px;">パスワードの変更が必要です</h2>
+    <p style="font-size:13px; color:var(--text-sub); margin-bottom:30px;">セキュリティのため、初期パスワードからの変更をお願いします。</p>
+    
+    <div id="newPassError" class="msg"></div>
+
+    <div class="form-group">
+      <input type="password" id="newPassInput" placeholder="新しいパスワード">
+    </div>
+    <div class="form-group">
+      <input type="password" id="newPassConfirm" placeholder="新しいパスワード(確認用)">
+    </div>
+    
+    <button id="btnSubmitNewPass" class="btn-primary">変更してログイン</button>
   </div>
 
 <script>
   lucide.createIcons();
-  const GAS_API_URL = "api/proxy"; 
+  const API_URL = "api/proxy";
+  let tempChangeData = null;
 
-  // 【追加】悪さをしている古い localStorage の残骸を確実に消去
-  localStorage.removeItem('admin_session_token');
-
-  // 【追加】Cookieが存在するかチェックする関数
-  function checkCookie(name) {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return true;
-      return false;
+  // 既にログイン済みの場合は index.html へリダイレクト
+  if (localStorage.getItem('user_session_token')) {
+      window.location.replace('index.html');
   }
 
-  // 【修正】localStorageではなく、Cookieを見てダッシュボードへ飛ばす
-  if (checkCookie('admin_token')) {
-      window.location.replace('dashboard.html');
-  }
-
-  // --- ログイン処理 ---
-  document.getElementById('btnLogin').addEventListener('click', async () => {
-      const u = document.getElementById('adminId').value.trim();
-      const p = document.getElementById('adminPass').value.trim();
-      const resEl = document.getElementById('loginResult');
+  // ログイン処理
+  document.getElementById('btnAuthAction').addEventListener('click', async () => {
+      const email = document.getElementById('inputEmail').value.trim();
+      const pass = document.getElementById('inputPass').value.trim();
+      const statusEl = document.getElementById('authStatus');
+      const btn = document.getElementById('btnAuthAction');
       
-      if(!u || !p) { resEl.textContent = "入力してください"; return; }
-      resEl.textContent = "認証中..."; resEl.style.color = "var(--text-sub)";
-
-      try {
-          const res = await fetch(GAS_API_URL, {
-              method: 'POST', 
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ type: 'user_login', email: u, password: p })
-          });
-          const d = await res.json();
-          
-          if(d.success && d.isAdmin) {
-              // ログイン成功時、Cookieにトークンを保存 (有効期限1日)
-              document.cookie = `admin_token=${d.token}; path=/; max-age=86400; Secure; SameSite=Strict`;
-              
-              // ダッシュボードへ遷移
-              window.location.href = 'dashboard.html'; 
-          } else {
-              resEl.textContent = "⚠无效的“个人识别码”或“激活码”不正确。";
-              resEl.style.color = "var(--danger)";
-          }
-      } catch(e) { 
-          resEl.textContent = "⚠通信エラーが発生しました";
-          resEl.style.color = "var(--danger)";
+      if (!email || !pass) { 
+          statusEl.textContent = "ユーザー名とパスワードを入力してください。"; 
+          return; 
       }
+      
+      btn.disabled = true;
+      btn.textContent = "ログイン中...";
+      
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'user_login', email: email, password: pass })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          if (data.requirePasswordChange) {
+              tempChangeData = { userId: data.userId, oldPassword: pass };
+              document.getElementById('loginView').style.display = 'none';
+              document.getElementById('forcePasswordChangeView').style.display = 'block';
+              return; 
+          }
+          
+          // 通常ログイン成功時
+          localStorage.setItem('user_session_identity', JSON.stringify({ userId: data.userId, email: email }));
+          localStorage.setItem('user_session_token', data.token);
+          
+          window.location.href = 'index.html';
+        } else { 
+          statusEl.textContent = data.message || "無効なユーザー名またはパスワードです。"; 
+        }
+      } catch (e) { 
+        statusEl.textContent = "通信エラーが発生しました。"; 
+      } finally { 
+        btn.disabled = false; 
+        btn.textContent = "ログイン";
+      }
+  });
+
+  // 初回パスワード変更処理
+  document.getElementById('btnSubmitNewPass').addEventListener('click', async () => {
+    const newPass = document.getElementById('newPassInput').value.trim();
+    const confirmPass = document.getElementById('newPassConfirm').value.trim();
+    const errObj = document.getElementById('newPassError');
+    const btn = document.getElementById('btnSubmitNewPass');
+    
+    if(!newPass || !confirmPass) { errObj.textContent = "入力してください"; return; }
+    if(newPass.length < 6) { errObj.textContent = "パスワードは6文字以上にしてください"; return; }
+    if(newPass !== confirmPass) { errObj.textContent = "パスワードが一致しません"; return; }
+    
+    btn.textContent = "変更中...";
+    btn.disabled = true;
+    
+    try {
+        const res = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: 'change_password', 
+                userId: tempChangeData.userId, 
+                oldPassword: tempChangeData.oldPassword, 
+                newPassword: newPass 
+            })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+            errObj.style.color = "var(--primary)";
+            errObj.textContent = "変更完了！ログインします...";
+            setTimeout(() => {
+                // パスワード変更成功後、新しいパスワードで再度自動ログイン処理へ流す
+                document.getElementById('inputPass').value = newPass;
+                document.getElementById('forcePasswordChangeView').style.display = 'none';
+                document.getElementById('loginView').style.display = 'block';
+                document.getElementById('btnAuthAction').click();
+            }, 1000);
+        } else {
+            errObj.textContent = data.message;
+            btn.textContent = "変更してログイン";
+            btn.disabled = false;
+        }
+    } catch(e) {
+        errObj.textContent = "通信エラーが発生しました";
+        btn.textContent = "変更してログイン";
+        btn.disabled = false;
+    }
   });
 </script>
 </body>
