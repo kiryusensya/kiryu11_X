@@ -9,22 +9,27 @@
 <style>
   :root { 
     --primary: #007DFF; 
-    --bg-color: #121212; 
+    --bg-color: #0f0f11; 
     --text-main: #FFFFFF; 
     --text-sub: #A0A0A0; 
     --danger: #FF3B30;
     --success: #04CF22;
-    --card-bg: rgba(30, 30, 30, 0.6);
-    --card-border: rgba(255, 255, 255, 0.1);
+    --card-bg: rgba(26, 26, 28, 0.7);
+    --card-border: rgba(255, 255, 255, 0.15);
     --input-bg: rgba(255, 255, 255, 0.05);
+    --btn-bg: #FFFFFF;
+    --btn-text: #000000;
   }
+  
   [data-theme="light"] {
     --bg-color: #F1F3F5;
     --text-main: #000000;
     --text-sub: #666666;
-    --card-bg: rgba(255, 255, 255, 0.7);
-    --card-border: rgba(0, 0, 0, 0.1);
+    --card-bg: rgba(255, 255, 255, 0.85);
+    --card-border: rgba(0, 0, 0, 0.15);
     --input-bg: rgba(0, 0, 0, 0.03);
+    --btn-bg: #000000;
+    --btn-text: #FFFFFF;
   }
 
   body { 
@@ -35,92 +40,34 @@
     display: flex; 
     justify-content: center; 
     align-items: center; 
-    height: 100vh; 
+    min-height: 100vh; 
     overflow: hidden;
     transition: background-color 0.5s ease;
   }
 
-  /* 背景アニメーション */
+  /* 背景パーティクル */
   #particleCanvas {
     position: fixed; inset: 0; width: 100%; height: 100%;
-    z-index: 0; opacity: 0.4; pointer-events: none;
-    filter: blur(60px);
+    z-index: 0; opacity: 0.6; pointer-events: none;
+    filter: blur(40px);
   }
 
-  /* メインカード */
-  .login-wrapper {
-    position: relative;
-    z-index: 10;
-    width: 90%;
-    max-width: 420px;
-    animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-  
-  .login-card { 
-    background: var(--card-bg); 
-    border: 1px solid var(--card-border); 
-    border-radius: 32px; 
-    padding: 50px 40px; 
-    text-align: center; 
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
-    box-shadow: 0 30px 80px rgba(0,0,0,0.4);
-  }
-
-  [data-theme="light"] .login-card { box-shadow: 0 30px 80px rgba(0,0,0,0.1); }
-
-  .brand-icon {
-    display: flex; justify-content: center; align-items: center;
-    width: 64px; height: 64px; border-radius: 20px;
-    background: rgba(0, 125, 255, 0.1); color: var(--primary);
-    margin: 0 auto 24px auto;
-  }
-
-  h1 { margin: 0 0 12px 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
-  p.desc { color: var(--text-sub); font-size: 13px; margin-bottom: 30px; line-height: 1.6; }
-  .support-link { color: var(--primary); text-decoration: none; font-weight: 700; transition: 0.2s; }
-  .support-link:hover { opacity: 0.8; text-decoration: underline; }
-
-  /* 入力フォーム */
-  .form-group { margin-bottom: 20px; text-align: left; position: relative; }
-  .form-group label { display: none; } /* デザイン上プレースホルダーとアイコンに任せる */
-  
-  .input-icon {
-    position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
-    color: var(--text-sub); opacity: 0.7; pointer-events: none; transition: 0.3s;
-  }
-  
-  input {
-    width: 100%; height: 56px; background: var(--input-bg); border: 1px solid var(--card-border);
-    border-radius: 16px; color: var(--text-main); padding: 0 20px 0 50px; font-size: 15px; 
-    outline: none; box-sizing: border-box; transition: all 0.3s ease; font-weight: 500;
-  }
-  input::placeholder { color: var(--text-sub); opacity: 0.6; }
-  input:focus { border-color: var(--primary); background: rgba(0, 125, 255, 0.05); box-shadow: 0 0 0 4px rgba(0, 125, 255, 0.1); }
-  input:focus + .input-icon { color: var(--primary); opacity: 1; }
-
-  /* ボタン */
-  button.btn-primary {
-    height: 56px; border-radius: 28px; font-size: 16px; font-weight: 800; cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    border: none; display: inline-flex; align-items: center; justify-content: center; width: 100%; margin-top: 10px;
-    background: var(--text-main); color: var(--bg-color); gap: 8px;
-  }
-  button.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0.9; }
-  button.btn-primary:active { transform: translateY(0); }
-  
-  /* メッセージ */
-  .msg { margin-bottom: 16px; font-size: 13px; font-weight: 700; min-height: 18px; text-align: center; color: var(--danger); transition: 0.3s; }
-
-  /* 言語切り替えドロップダウン */
-  .lang-selector-container {
+  /* 画面上部のコントロール群（言語・テーマ） */
+  .top-controls {
     position: absolute; top: 24px; right: 24px; z-index: 100;
+    display: flex; gap: 12px; align-items: center;
   }
-  .lang-trigger {
-    display: flex; align-items: center; gap: 8px; background: var(--card-bg); border: 1px solid var(--card-border);
-    padding: 8px 16px; border-radius: 50px; color: var(--text-main); font-size: 13px; font-weight: 700;
-    cursor: pointer; backdrop-filter: blur(10px); transition: 0.2s;
+
+  .ctrl-btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px; 
+    background: var(--card-bg); border: 1px solid var(--card-border);
+    height: 40px; border-radius: 50px; color: var(--text-main); font-size: 13px; font-weight: 700;
+    cursor: pointer; backdrop-filter: blur(10px); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .lang-trigger:hover { background: rgba(128,128,128,0.2); }
+  .ctrl-btn:hover { transform: scale(1.05); background: rgba(128,128,128,0.2); }
+  .ctrl-btn.icon-only { width: 40px; padding: 0; }
+  .ctrl-btn.lang-trigger { padding: 0 16px; }
+
   .lang-menu {
     position: absolute; top: 100%; right: 0; margin-top: 8px; width: 140px; background: var(--card-bg);
     border: 1px solid var(--card-border); border-radius: 16px; backdrop-filter: blur(20px);
@@ -133,10 +80,109 @@
   }
   .lang-option:hover { background: rgba(128,128,128,0.15); }
 
-  /* アニメーション */
-  @keyframes slideUpFade { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+  /* メインレイアウト */
+  .login-wrapper {
+    position: relative;
+    z-index: 10;
+    width: 90%;
+    max-width: 420px; /* スマホ時の最大幅 */
+    animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    perspective: 1000px;
+  }
   
+  .login-card { 
+    background: var(--card-bg); 
+    border: 1px solid var(--card-border); 
+    border-radius: 24px; 
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s ease;
+    transform-style: preserve-3d;
+  }
+  .login-wrapper:hover .login-card {
+      transform: translateY(-5px);
+      box-shadow: 0 40px 100px rgba(0,0,0,0.6);
+  }
+  [data-theme="light"] .login-card { box-shadow: 0 30px 80px rgba(0,0,0,0.1); }
+  [data-theme="light"] .login-wrapper:hover .login-card { box-shadow: 0 40px 100px rgba(0,0,0,0.15); }
+
+  .login-content {
+      padding: 40px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+  }
+
+  /* PC向け 2カラムレイアウト */
+  .login-image-side { display: none; }
+
+  @media (min-width: 769px) {
+      .login-wrapper { max-width: 850px; }
+      .login-card { flex-direction: row; min-height: 500px; border-radius: 16px; }
+      .login-content { width: 55%; padding: 60px 50px; }
+      .login-image-side {
+          display: block; width: 45%;
+          position: relative; overflow: hidden;
+      }
+      .login-image-side img {
+          width: 100%; height: 100%; object-fit: cover;
+          transition: transform 10s ease;
+      }
+      .login-wrapper:hover .login-image-side img {
+          transform: scale(1.05);
+      }
+      /* 画像にかかるシャドウで境界を馴染ませる */
+      .login-image-side::after {
+          content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+          background: linear-gradient(to right, var(--card-bg) 0%, transparent 20%);
+          pointer-events: none;
+      }
+  }
+
+  /* タイトル・テキスト */
+  h1 { margin: 0 0 30px 0; font-size: 32px; font-weight: 800; letter-spacing: 2px; }
+  .login-content.is-force-change h1 { font-size: 24px; margin-bottom: 10px; letter-spacing: 0; }
+  
+  p.desc { color: var(--text-sub); font-size: 13px; margin-bottom: 30px; line-height: 1.6; }
+  .support-link { color: var(--primary); text-decoration: none; font-weight: 700; transition: 0.2s; }
+  .support-link:hover { opacity: 0.8; text-decoration: underline; }
+
+  /* 入力フォーム (ピル形状) */
+  .form-group { margin-bottom: 20px; text-align: left; position: relative; }
+  .input-icon {
+    position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
+    color: var(--text-sub); opacity: 0.7; pointer-events: none; transition: 0.3s;
+  }
+  input {
+    width: 100%; height: 50px; background: transparent; border: 1px solid var(--card-border);
+    border-radius: 50px; color: var(--text-main); padding: 0 20px 0 50px; font-size: 15px; 
+    outline: none; box-sizing: border-box; transition: all 0.3s ease; font-weight: 500;
+    font-family: inherit;
+  }
+  input::placeholder { color: var(--text-sub); font-weight: 700; font-size: 13px; letter-spacing: 1px; }
+  input:focus { border-color: var(--text-main); background: var(--input-bg); }
+  input:focus + .input-icon { color: var(--text-main); opacity: 1; }
+
+  /* ボタン */
+  button.btn-primary {
+    height: 50px; border-radius: 50px; font-size: 15px; font-weight: 800; cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    border: none; display: inline-flex; align-items: center; justify-content: center; width: 100%; margin-top: 10px;
+    background: var(--btn-bg); color: var(--btn-text); letter-spacing: 2px;
+  }
+  button.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); opacity: 0.9; }
+  button.btn-primary:active { transform: translateY(0); }
+  
+  /* メッセージ */
+  .msg { margin-bottom: 16px; font-size: 13px; font-weight: 700; min-height: 18px; text-align: left; color: var(--danger); transition: 0.3s; }
+
+  /* アニメーション */
+  @keyframes slideUpFade { from { opacity: 0; transform: translateY(40px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+  @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
   .loading-dots::after { content: ''; animation: dots-loop 1.5s infinite steps(1); display: inline-block; width: 1em; text-align: left; }
   @keyframes dots-loop { 0% { content: '.'; } 33% { content: '..'; } 66% { content: '...'; } 100% { content: ''; } }
 </style>
@@ -145,67 +191,77 @@
 
   <canvas id="particleCanvas"></canvas>
 
-  <div class="lang-selector-container">
-    <button class="lang-trigger" id="langTrigger">
-      <i data-lucide="globe" style="width: 16px; height: 16px;"></i>
-      <span id="currentLangLabel">日本語</span>
-      <i data-lucide="chevron-down" style="width: 14px; height: 14px; opacity: 0.5;"></i>
+  <div class="top-controls">
+    <button class="ctrl-btn icon-only" id="themeToggle" aria-label="Toggle Theme">
+      <i data-lucide="moon" id="themeIcon"></i>
     </button>
-    <ul class="lang-menu" id="langMenu">
-      <li class="lang-option" data-value="ja">日本語</li>
-      <li class="lang-option" data-value="en">English</li>
-      <li class="lang-option" data-value="zh">简体中文</li>
-      <li class="lang-option" data-value="zh-TW">繁體中文</li>
-      <li class="lang-option" data-value="ko">한국어</li>
-      <li class="lang-option" data-value="ru">Русский</li>
-    </ul>
+    <div style="position: relative;">
+      <button class="ctrl-btn lang-trigger" id="langTrigger">
+        <i data-lucide="globe" style="width: 16px; height: 16px;"></i>
+        <span id="currentLangLabel">日本語</span>
+        <i data-lucide="chevron-down" style="width: 14px; height: 14px; opacity: 0.5;"></i>
+      </button>
+      <ul class="lang-menu" id="langMenu">
+        <li class="lang-option" data-value="ja">日本語</li>
+        <li class="lang-option" data-value="en">English</li>
+        <li class="lang-option" data-value="zh">简体中文</li>
+        <li class="lang-option" data-value="zh-TW">繁體中文</li>
+        <li class="lang-option" data-value="ko">한국어</li>
+        <li class="lang-option" data-value="ru">Русский</li>
+      </ul>
+    </div>
   </div>
 
   <div class="login-wrapper">
     <div class="login-card" id="loginView">
-      <div class="brand-icon"><i data-lucide="fingerprint" style="width: 32px; height: 32px;"></i></div>
-      
-      <h1 data-i18n="title_login">ログイン</h1>
-      <p class="desc" data-i18n="desc_login">
-          利用するにはアカウントが必要です。<br>
-          ログインできない場合は<a href="support.html" class="support-link" data-i18n="link_support">こちら</a>
-      </p>
-      
-      <div id="authStatus" class="msg"></div>
-      
-      <div class="form-group">
-        <input type="email" id="inputEmail" placeholder="ユーザー名" data-i18n-ph="ph_user">
-        <i data-lucide="user" class="input-icon" style="width: 20px; height: 20px;"></i>
+      <div class="login-content">
+        <h1 data-i18n="title_login">ログイン</h1>
+        
+        <div id="authStatus" class="msg"></div>
+        
+        <div class="form-group">
+          <input type="email" id="inputEmail" placeholder="ユーザー名" data-i18n-ph="ph_user">
+          <i data-lucide="user" class="input-icon" style="width: 18px; height: 18px;"></i>
+        </div>
+        <div class="form-group">
+          <input type="password" id="inputPass" placeholder="PASS" data-i18n-ph="ph_pass">
+          <i data-lucide="lock" class="input-icon" style="width: 18px; height: 18px;"></i>
+        </div>
+        
+        <button id="btnAuthAction" class="btn-primary">
+          <span data-i18n="btn_login">ログイン</span>
+        </button>
+        
+        <div style="margin-top: 30px; font-size: 12px; font-weight: 700; color: var(--text-sub); text-align: center;">
+            <a href="support.html" class="support-link" data-i18n="link_support">ログインできない場合</a>
+        </div>
       </div>
-      <div class="form-group">
-        <input type="password" id="inputPass" placeholder="パスワード" data-i18n-ph="ph_pass">
-        <i data-lucide="lock" class="input-icon" style="width: 20px; height: 20px;"></i>
+      <div class="login-image-side">
+        <img src="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=1000&auto=format&fit=crop" alt="Space Background">
       </div>
-      
-      <button id="btnAuthAction" class="btn-primary">
-        <span data-i18n="btn_login">ログイン</span>
-        <i data-lucide="arrow-right" style="width: 18px; height: 18px;"></i>
-      </button>
     </div>
 
     <div class="login-card" id="forcePasswordChangeView" style="display:none;">
-      <div class="brand-icon" style="background: rgba(255, 59, 48, 0.1); color: var(--danger);"><i data-lucide="shield-alert" style="width: 32px; height: 32px;"></i></div>
-      
-      <h1 style="font-size: 24px;" data-i18n="title_force">パスワードの変更が必要です</h1>
-      <p class="desc" data-i18n="desc_force">セキュリティのため、初期パスワードからの変更をお願いします。</p>
-      
-      <div id="newPassError" class="msg"></div>
+      <div class="login-content is-force-change">
+        <h1 data-i18n="title_force">パスワードの変更が必要です</h1>
+        <p class="desc" data-i18n="desc_force">セキュリティのため、初期パスワードからの変更をお願いします。</p>
+        
+        <div id="newPassError" class="msg"></div>
 
-      <div class="form-group">
-        <input type="password" id="newPassInput" placeholder="新しいパスワード" data-i18n-ph="ph_new_pass">
-        <i data-lucide="key" class="input-icon" style="width: 20px; height: 20px;"></i>
+        <div class="form-group">
+          <input type="password" id="newPassInput" placeholder="新しいパスワード" data-i18n-ph="ph_new_pass">
+          <i data-lucide="key" class="input-icon" style="width: 18px; height: 18px;"></i>
+        </div>
+        <div class="form-group">
+          <input type="password" id="newPassConfirm" placeholder="新しいパスワード(確認用)" data-i18n-ph="ph_conf_pass">
+          <i data-lucide="key-round" class="input-icon" style="width: 18px; height: 18px;"></i>
+        </div>
+        
+        <button id="btnSubmitNewPass" class="btn-primary" data-i18n="btn_change">変更してログイン</button>
       </div>
-      <div class="form-group">
-        <input type="password" id="newPassConfirm" placeholder="新しいパスワード(確認用)" data-i18n-ph="ph_conf_pass">
-        <i data-lucide="key-round" class="input-icon" style="width: 20px; height: 20px;"></i>
+      <div class="login-image-side">
+        <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1000&auto=format&fit=crop" alt="Abstract Data Background">
       </div>
-      
-      <button id="btnSubmitNewPass" class="btn-primary" data-i18n="btn_change">変更してログイン</button>
     </div>
   </div>
 
@@ -218,32 +274,101 @@
       window.location.replace('index.html');
   }
 
-  // 背景アニメーションロジック
+  // ===== テーマ設定ロジック =====
+  const htmlEl = document.documentElement;
+  const themeIcon = document.getElementById('themeIcon');
+  let particleHue = 220;
+
+  function applyTheme(theme) {
+    htmlEl.setAttribute('data-theme', theme);
+    if(themeIcon) themeIcon.setAttribute('data-lucide', theme === 'light' ? 'sun' : 'moon');
+    particleHue = theme === 'light' ? 210 : 220;
+    lucide.createIcons();
+  }
+
+  // 1. 保存されたテーマ 2. 端末設定 3. デフォルト(dark) の順で評価
+  const savedTheme = localStorage.getItem('user_theme');
+  const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(savedTheme || (systemPrefersDark ? 'dark' : 'light'));
+
+  // テーマ切り替えボタンのイベント
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    const current = htmlEl.getAttribute('data-theme');
+    const next = current === 'light' ? 'dark' : 'light';
+    localStorage.setItem('user_theme', next);
+    applyTheme(next);
+  });
+
+  // 端末テーマ設定の変更を監視
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+    if (!localStorage.getItem('user_theme')) { // ユーザーが手動で設定していない場合のみ追従
+        applyTheme(e.matches ? 'dark' : 'light');
+    }
+  });
+
+  // ===== 背景アニメーションロジック =====
   const canvas = document.getElementById('particleCanvas');
   const ctx = canvas.getContext('2d');
-  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-  let particleHue = document.documentElement.getAttribute('data-theme') === 'light' ? 210 : 220;
-  class Particle {
-    constructor() { this.x=Math.random()*canvas.width; this.y=Math.random()*canvas.height; this.size=Math.random()*150+50; this.speedX=Math.random()*0.2-0.1; this.speedY=Math.random()*0.2-0.1; this.opacity=Math.random()*0.3+0.1; }
-    update() { this.x+=this.speedX; this.y+=this.speedY; if(this.x<0||this.x>canvas.width)this.speedX*=-1; if(this.y<0||this.y>canvas.height)this.speedY*=-1; }
-    draw() { ctx.fillStyle=`hsla(${particleHue}, 100%, 50%, ${this.opacity*0.2})`; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); }
-  }
-  let p = []; for(let i=0;i<6;i++) p.push(new Particle());
-  function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); p.forEach(i=>{i.update();i.draw();}); requestAnimationFrame(animate); }
-  window.addEventListener('resize', () => { canvas.width=window.innerWidth; canvas.height=window.innerHeight; }); animate();
+  let p = []; 
+  let mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 
-  // 翻訳データ
+  function initCanvas() {
+      canvas.width = window.innerWidth; 
+      canvas.height = window.innerHeight;
+      p = [];
+      for(let i=0; i<8; i++) p.push(new Particle());
+  }
+
+  class Particle {
+    constructor() { 
+        this.x = Math.random() * canvas.width; 
+        this.y = Math.random() * canvas.height; 
+        this.size = Math.random() * 150 + 80; 
+        this.speedX = Math.random() * 0.4 - 0.2; 
+        this.speedY = Math.random() * 0.4 - 0.2; 
+        this.baseOpacity = Math.random() * 0.3 + 0.1; 
+    }
+    update() { 
+        // マウスへの緩やかな引力
+        const dx = mouse.x - this.x;
+        const dy = mouse.y - this.y;
+        this.x += this.speedX + (dx * 0.0005); 
+        this.y += this.speedY + (dy * 0.0005); 
+        
+        if(this.x < -200 || this.x > canvas.width + 200) this.speedX *= -1; 
+        if(this.y < -200 || this.y > canvas.height + 200) this.speedY *= -1; 
+    }
+    draw() { 
+        // テーマに応じた色合い
+        ctx.fillStyle = `hsla(${particleHue}, 80%, 60%, ${this.baseOpacity * 0.3})`; 
+        ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill(); 
+    }
+  }
+
+  window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
+  window.addEventListener('resize', initCanvas);
+  
+  function animate() { 
+      ctx.clearRect(0,0,canvas.width,canvas.height); 
+      p.forEach(i=>{i.update();i.draw();}); 
+      requestAnimationFrame(animate); 
+  }
+  
+  initCanvas();
+  animate();
+
+  // ===== 翻訳データとロジック =====
   const TRANSLATIONS = {
     ja: {
       title_login: "ログイン",
-      desc_login: "利用するにはアカウントが必要です。<br>ログインできない場合は<a href='support.html' class='support-link'>こちら</a>",
       ph_user: "ユーザー名",
-      ph_pass: "パスワード",
+      ph_pass: "PASS",
       btn_login: "ログイン",
+      link_support: "ログインできない場合",
       title_force: "パスワードの変更",
       desc_force: "セキュリティのため、初期パスワードからの変更をお願いします。",
       ph_new_pass: "新しいパスワード",
-      ph_conf_pass: "新しいパスワード(確認用)",
+      ph_conf_pass: "確認用パスワード",
       btn_change: "変更してログイン",
       msg_logging_in: "ログイン中",
       msg_changing: "変更中...",
@@ -257,15 +382,15 @@
       lang_label: "日本語"
     },
     en: {
-      title_login: "Login",
-      desc_login: "An account is required to continue.<br>Trouble logging in? Click <a href='support.html' class='support-link'>here</a>",
+      title_login: "LOGIN",
       ph_user: "Username",
       ph_pass: "Password",
       btn_login: "Login",
-      title_force: "Password Change Required",
+      link_support: "Forgot password?",
+      title_force: "Change Password",
       desc_force: "For security reasons, please change your initial password.",
       ph_new_pass: "New Password",
-      ph_conf_pass: "Confirm New Password",
+      ph_conf_pass: "Confirm Password",
       btn_change: "Update & Login",
       msg_logging_in: "Logging in",
       msg_changing: "Updating...",
@@ -280,14 +405,14 @@
     },
     zh: {
       title_login: "登录",
-      desc_login: "使用本服务需要账户。<br>如果您无法登录，请在<a href='support.html' class='support-link'>此处</a>查询。",
       ph_user: "用户名",
       ph_pass: "密码",
       btn_login: "登录",
-      title_force: "需要修改密码",
+      link_support: "无法登录？",
+      title_force: "修改密码",
       desc_force: "出于安全原因，请修改您的初始密码。",
       ph_new_pass: "新密码",
-      ph_conf_pass: "确认新密码",
+      ph_conf_pass: "确认密码",
       btn_change: "修改并登录",
       msg_logging_in: "正在登录",
       msg_changing: "正在修改...",
@@ -302,14 +427,14 @@
     },
     "zh-TW": {
       title_login: "登入",
-      desc_login: "使用本服務需要帳戶。<br>如果您無法登入，請在<a href='support.html' class='support-link'>此處</a>查詢。",
       ph_user: "使用者名稱",
       ph_pass: "密碼",
       btn_login: "登入",
-      title_force: "需要修改密碼",
+      link_support: "無法登入？",
+      title_force: "修改密碼",
       desc_force: "出於安全原因，請修改您的初始密碼。",
       ph_new_pass: "新密碼",
-      ph_conf_pass: "確認新密碼",
+      ph_conf_pass: "確認密碼",
       btn_change: "修改並登入",
       msg_logging_in: "登入中",
       msg_changing: "修改中...",
@@ -324,14 +449,14 @@
     },
     ko: {
       title_login: "로그인",
-      desc_login: "이용하려면 계정이 필요합니다.<br>로그인할 수 없는 경우 <a href='support.html' class='support-link'>여기</a>를 클릭하세요.",
       ph_user: "사용자 이름",
       ph_pass: "비밀번호",
       btn_login: "로그인",
+      link_support: "로그인할 수 없습니까?",
       title_force: "비밀번호 변경",
       desc_force: "보안을 위해 초기 비밀번호를 변경해 주세요.",
       ph_new_pass: "새 비밀번호",
-      ph_conf_pass: "새 비밀번호 확인",
+      ph_conf_pass: "비밀번호 확인",
       btn_change: "변경 후 로그인",
       msg_logging_in: "로그인 중",
       msg_changing: "변경 중...",
@@ -345,11 +470,11 @@
       lang_label: "한국어"
     },
     ru: {
-      title_login: "Вход",
-      desc_login: "Для использования требуется учетная запись.<br>Проблемы со входом? Нажмите <a href='support.html' class='support-link'>здесь</a>",
+      title_login: "ВХОД",
       ph_user: "Имя пользователя",
       ph_pass: "Пароль",
       btn_login: "Войти",
+      link_support: "Забыли пароль?",
       title_force: "Смена пароля",
       desc_force: "В целях безопасности измените начальный пароль.",
       ph_new_pass: "Новый пароль",
@@ -402,10 +527,9 @@
     if (!langTrigger.contains(e.target)) langMenu.classList.remove('open');
   });
 
-  // 初期言語適用
   applyLanguage(CURRENT_LANG);
 
-  // 認証ロジック
+  // ===== 認証ロジック =====
   const API_URL = "api/proxy";
   let tempChangeData = null;
 
@@ -436,7 +560,7 @@
           if (data.requirePasswordChange) {
               tempChangeData = { userId: data.userId, oldPassword: pass };
               document.getElementById('loginView').style.display = 'none';
-              document.getElementById('forcePasswordChangeView').style.display = 'block';
+              document.getElementById('forcePasswordChangeView').style.display = 'flex';
               return; 
           }
           
@@ -450,8 +574,7 @@
         statusEl.textContent = t.err_net; 
       } finally { 
         btn.disabled = false; 
-        btn.innerHTML = `<span data-i18n="btn_login">${t.btn_login}</span> <i data-lucide="arrow-right" style="width: 18px; height: 18px;"></i>`;
-        lucide.createIcons();
+        btn.innerHTML = `<span data-i18n="btn_login">${t.btn_login}</span>`;
       }
   });
 
@@ -488,17 +611,17 @@
             setTimeout(() => {
                 document.getElementById('inputPass').value = newPass;
                 document.getElementById('forcePasswordChangeView').style.display = 'none';
-                document.getElementById('loginView').style.display = 'block';
+                document.getElementById('loginView').style.display = 'flex';
                 document.getElementById('btnAuthAction').click();
             }, 1000);
         } else {
             errObj.textContent = data.message;
-            btn.innerHTML = t.btn_change;
+            btn.innerHTML = `<span data-i18n="btn_change">${t.btn_change}</span>`;
             btn.disabled = false;
         }
     } catch(e) {
         errObj.textContent = t.err_net;
-        btn.innerHTML = t.btn_change;
+        btn.innerHTML = `<span data-i18n="btn_change">${t.btn_change}</span>`;
         btn.disabled = false;
     }
   });
