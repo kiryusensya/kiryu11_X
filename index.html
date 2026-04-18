@@ -1463,52 +1463,6 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
     </main>
 
 </div>
-<div id="loginOverlay" class="modal-overlay" style="background: rgba(0,0,0,0.9); z-index: 10005;">
-  <div class="modal-sheet login-modal-sheet" style="max-width: 600px; width: 90%; text-align: center; transform: scale(0.95); opacity: 0; transition: all 0.4s ease; position: relative;">
-    
-    <a href="#" style="position: absolute; top: 20px; left: 20px; color: var(--modal-text-sub); font-size: 13px; text-decoration: none; font-weight: 700; display: flex; align-items: center; gap: 6px; transition: opacity 0.2s;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
-        Enterprise
-    </a>
-
-    <div class="theme-pill" id="loginThemeToggle" style="position: absolute; top: 12px; right: 12px; width: 40px; height: 40px; border: none; background: transparent; box-shadow: none;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="loginThemeIcon"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path></svg>
-    </div>
-
-    <h2 style="font-size:32px; font-weight:800; margin: 0 0 12px 0; color: var(--modal-text-main);" data-translate="tab_login">ログイン</h2>
-    
-    <p class="login-desc-text" style="color:var(--modal-text-sub); font-weight: 500;" data-translate="login_desc">
-        利用するにはアカウントが必要です。<br>
-        ログインできない場合は<a href="support.html" style="color: var(--primary); text-decoration: underline; font-weight: 700;">こちら</a>
-    </p>
-    
-    <div style="text-align:left;">
-      <div class="form-group login-input-group">
-        <label class="form-label" style="font-size: 13px;" data-translate="form_email">ユーザー名</label>
-        <input type="email" id="inputEmail" class="form-input" style="height: 56px; font-size: 16px; border-radius: 12px;">
-      </div>
-      <div class="form-group login-input-group">
-        <label class="form-label" style="font-size: 13px;" data-translate="form_pass">パスワード</label>
-        <input type="password" id="inputPass" class="form-input" style="height: 56px; font-size: 16px; border-radius: 12px;">
-      </div>
-      
-      <div class="login-btn-wrapper">
-          <div id="authStatus" style="color:#FF3B30; font-size:13px; font-weight: 700; margin-bottom:12px; min-height:18px; text-align:center;"></div>
-          <button id="btnAuthAction" class="btn-primary" style="height:60px; font-size: 18px; border-radius: 30px; margin-top: 0;" data-translate="btn_login_action">ログイン</button>
-      </div>
-    </div>
-    <div id="forcePasswordChangeView" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:var(--bg); z-index:9999; flex-direction:column; justify-content:center; align-items:center;">
-    <div style="background:var(--sidebar-bg); padding:30px; border-radius:12px; width:90%; max-width:400px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
-        <h2 style="margin-bottom:10px; font-size:18px;">パスワードの変更が必要です</h2>
-        <p style="font-size:12px; color:var(--text-muted); margin-bottom:20px;">セキュリティのため、初期パスワードからの変更をお願いします。</p>
-        
-        <input type="password" id="newPassInput" class="form-input" placeholder="新しいパスワード" style="margin-bottom:10px; width:100%; box-sizing:border-box;">
-        <input type="password" id="newPassConfirm" class="form-input" placeholder="新しいパスワード(確認用)" style="margin-bottom:20px; width:100%; box-sizing:border-box;">
-        
-        <button id="btnSubmitNewPass" class="btn-primary" style="width:100%; height:45px;">変更してログイン</button>
-        <div id="newPassError" style="color:#ff4444; font-size:12px; margin-top:10px;"></div>
-    </div>
-</div>
 
     <div style="position: absolute; bottom: 16px; left: 16px; text-align: left;">
         <button class="lang-trigger-sidebar" id="loginLangTrigger" style="width: auto; height: 36px; padding: 0 12px !important; border: none; background: transparent; color: var(--modal-text-main);">
@@ -1654,6 +1608,9 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
   </div>
 </div>
 <script>
+    if (!localStorage.getItem('user_session_token')) {
+        window.location.replace('login.html');
+    }
 const GAS_API_URL="api/proxy"; 
 
 let CURRENT_LANG="ja";
@@ -2638,7 +2595,7 @@ function logout() {
   localStorage.removeItem('user_session_identity');
   localStorage.removeItem('user_session_token'); 
   currentUser = null;
-  window.location.reload(); 
+  window.location.href = 'login.html'; // リロードではなく login.html へ遷移
 }
 
 function updateLanguage(lang){
