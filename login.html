@@ -128,7 +128,7 @@
       justify-content: center;
   }
 
-  /* PC向け 2カラムレイアウト (固定幅800px、拡大禁止) */
+  /* PC向け 2カラムレイアウト (固定幅800px、隙間なく画像を敷き詰める) */
   .login-image-side { display: none; }
 
   @media (min-width: 769px) {
@@ -153,8 +153,7 @@
           padding: 60px 50px; 
       }
       .login-image-side {
-          display: flex; 
-          align-items: center; justify-content: center; 
+          display: block; 
           width: 50%;
           position: relative; overflow: hidden;
           background: rgba(128,128,128,0.05);
@@ -163,7 +162,7 @@
       .login-image-side img {
           position: absolute;
           top: 0; left: 0; width: 100%; height: 100%;
-          object-fit: scale-down; /* ★拡大禁止、枠内に収める */
+          object-fit: cover; /* ★画像を枠にピッタリ合わせ、はみ出た分をトリミング */
       }
   }
 
@@ -262,7 +261,7 @@
         </div>
       </div>
       <div class="login-image-side">
-        <img src="https://static.wixstatic.com/media/2f0694_5cf8e6ee61784875ae9ddd0395418383~mv2.jpg" alt="Background">
+        <img src="https://static.wixstatic.com/media/2f0694_532df990e3f24acbb7c4e1130529cef7~mv2.jpg" alt="Background">
       </div>
     </div>
 
@@ -285,7 +284,7 @@
         </button>
       </div>
       <div class="login-image-side">
-        <img src="https://static.wixstatic.com/media/2f0694_5cf8e6ee61784875ae9ddd0395418383~mv2.jpg" alt="Background">
+        <img src="https://static.wixstatic.com/media/2f0694_532df990e3f24acbb7c4e1130529cef7~mv2.jpg" alt="Background">
       </div>
     </div>
     
@@ -352,7 +351,7 @@
   // ===== 翻訳データ =====
   const TRANSLATIONS = {
     ja: {
-      title_login: "入室認証パス", ph_user: "ユーザー名", ph_pass: "パスワード", btn_login: "ログイン", link_support: "ログインできない場合はこちら", desc_login: "利用するにはアカウントが必要です。",
+      title_login: "入室通行証", ph_user: "ユーザー名", ph_pass: "パスワード", btn_login: "ログイン", link_support: "ログインできない場合はこちら", desc_login: "利用するにはアカウントが必要です。",
       title_force: "パスワードの変更", desc_force: "セキュリティのため、初期パスワードからの変更をお願いします。",
       ph_new_pass: "新しいパスワード", ph_conf_pass: "確認用パスワード", btn_change: "変更してログイン",
       msg_logging_in: "ログイン中", msg_changing: "変更中...",
@@ -361,7 +360,7 @@
       err_match: "パスワードが一致しません", msg_success: "変更完了！ログインします...", lang_label: "日本語"
     },
     en: {
-      title_login: "System Access Pass", ph_user: "Username", ph_pass: "Password", btn_login: "Login", link_support: "Trouble logging in?", desc_login: "An account is required to continue.",
+      title_login: "Entry Pass", ph_user: "Username", ph_pass: "Password", btn_login: "Login", link_support: "Trouble logging in?", desc_login: "An account is required to continue.",
       title_force: "Change Password", desc_force: "For security reasons, please change your initial password.",
       ph_new_pass: "New Password", ph_conf_pass: "Confirm Password", btn_change: "Update & Login",
       msg_logging_in: "Logging in", msg_changing: "Updating...",
@@ -370,7 +369,7 @@
       err_match: "Passwords do not match.", msg_success: "Success! Logging you in...", lang_label: "English"
     },
     zh: {
-      title_login: "登录", ph_user: "用户名", ph_pass: "密码", btn_login: "登录", link_support: "无法登录？", desc_login: "使用本服务需要账户。",
+      title_login: "入场通行证", ph_user: "用户名", ph_pass: "密码", btn_login: "登录", link_support: "无法登录？", desc_login: "使用本服务需要账户。",
       title_force: "修改密码", desc_force: "出于安全原因，请修改您的初始密码。",
       ph_new_pass: "新密码", ph_conf_pass: "确认密码", btn_change: "修改并登录",
       msg_logging_in: "正在登录", msg_changing: "正在修改...",
@@ -379,7 +378,7 @@
       err_match: "两次输入的新密码不一致。", msg_success: "修改成功！正在登录...", lang_label: "简体中文"
     },
     "zh-TW": {
-      title_login: "登入", ph_user: "使用者名稱", ph_pass: "密碼", btn_login: "登入", link_support: "無法登入？", desc_login: "使用本服務需要帳戶。",
+      title_login: "入場通行證", ph_user: "使用者名稱", ph_pass: "密碼", btn_login: "登入", link_support: "無法登入？", desc_login: "使用本服務需要帳戶。",
       title_force: "修改密碼", desc_force: "出於安全原因，請修改您的初始密碼。",
       ph_new_pass: "新密碼", ph_conf_pass: "確認密碼", btn_change: "修改並登入",
       msg_logging_in: "登入中", msg_changing: "修改中...",
@@ -388,7 +387,7 @@
       err_match: "兩次輸入的新密碼不一致。", msg_success: "修改成功！正在登入...", lang_label: "繁體中文"
     },
     ko: {
-      title_login: "로그인", ph_user: "사용자 이름", ph_pass: "비밀번호", btn_login: "로그인", link_support: "로그인할 수 없습니까?", desc_login: "이용하려면 계정이 필요합니다.",
+      title_login: "입실통행증", ph_user: "사용자 이름", ph_pass: "비밀번호", btn_login: "로그인", link_support: "로그인할 수 없습니까?", desc_login: "이용하려면 계정이 필요합니다.",
       title_force: "비밀번호 변경", desc_force: "보안을 위해 초기 비밀번호를 변경해 주세요.",
       ph_new_pass: "새 비밀번호", ph_conf_pass: "비밀번호 확인", btn_change: "변경 후 로그인",
       msg_logging_in: "로그인 중", msg_changing: "변경 중...",
