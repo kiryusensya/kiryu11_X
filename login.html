@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Login//kiryu10-Enterprise</title>
+<title>Login // Enterprise</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
 <style>
@@ -13,14 +13,20 @@
     --text-main: #FFFFFF; 
     --text-sub: #A0A0A0; 
     --danger: #FF3B30;
-    --card-bg: rgba(40, 40, 40, 0.6);
+    --success: #04CF22;
+    --card-bg: rgba(30, 30, 30, 0.6);
+    --card-border: rgba(255, 255, 255, 0.1);
+    --input-bg: rgba(255, 255, 255, 0.05);
   }
   [data-theme="light"] {
     --bg-color: #F1F3F5;
     --text-main: #000000;
     --text-sub: #666666;
-    --card-bg: rgba(255, 255, 255, 0.8);
+    --card-bg: rgba(255, 255, 255, 0.7);
+    --card-border: rgba(0, 0, 0, 0.1);
+    --input-bg: rgba(0, 0, 0, 0.03);
   }
+
   body { 
     font-family: 'Noto Sans JP', sans-serif; 
     background-color: var(--bg-color); 
@@ -30,99 +36,393 @@
     justify-content: center; 
     align-items: center; 
     height: 100vh; 
-    transition: background-color 0.3s ease;
+    overflow: hidden;
+    transition: background-color 0.5s ease;
   }
+
+  /* 背景アニメーション */
+  #particleCanvas {
+    position: fixed; inset: 0; width: 100%; height: 100%;
+    z-index: 0; opacity: 0.4; pointer-events: none;
+    filter: blur(60px);
+  }
+
+  /* メインカード */
+  .login-wrapper {
+    position: relative;
+    z-index: 10;
+    width: 90%;
+    max-width: 420px;
+    animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  
   .login-card { 
     background: var(--card-bg); 
-    border: 1px solid rgba(128,128,128,0.2); 
-    border-radius: 24px; 
+    border: 1px solid var(--card-border); 
+    border-radius: 32px; 
     padding: 50px 40px; 
-    width: 90%; 
-    max-width: 450px; 
     text-align: center; 
-    backdrop-filter: blur(20px);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.4);
   }
-  .form-group { margin-bottom: 24px; text-align: left; }
-  label { font-size: 13px; font-weight: 700; color: var(--text-sub); display: block; margin-bottom: 8px; }
+
+  [data-theme="light"] .login-card { box-shadow: 0 30px 80px rgba(0,0,0,0.1); }
+
+  .brand-icon {
+    display: flex; justify-content: center; align-items: center;
+    width: 64px; height: 64px; border-radius: 20px;
+    background: rgba(0, 125, 255, 0.1); color: var(--primary);
+    margin: 0 auto 24px auto;
+  }
+
+  h1 { margin: 0 0 12px 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+  p.desc { color: var(--text-sub); font-size: 13px; margin-bottom: 30px; line-height: 1.6; }
+  .support-link { color: var(--primary); text-decoration: none; font-weight: 700; transition: 0.2s; }
+  .support-link:hover { opacity: 0.8; text-decoration: underline; }
+
+  /* 入力フォーム */
+  .form-group { margin-bottom: 20px; text-align: left; position: relative; }
+  .form-group label { display: none; } /* デザイン上プレースホルダーとアイコンに任せる */
+  
+  .input-icon {
+    position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
+    color: var(--text-sub); opacity: 0.7; pointer-events: none; transition: 0.3s;
+  }
+  
   input {
-    width: 100%; height: 56px; background: rgba(128,128,128,0.1); border: 1px solid rgba(128,128,128,0.2);
-    border-radius: 12px; color: var(--text-main); padding: 0 16px; font-size: 16px; outline: none;
-    box-sizing: border-box; transition: 0.3s;
+    width: 100%; height: 56px; background: var(--input-bg); border: 1px solid var(--card-border);
+    border-radius: 16px; color: var(--text-main); padding: 0 20px 0 50px; font-size: 15px; 
+    outline: none; box-sizing: border-box; transition: all 0.3s ease; font-weight: 500;
   }
-  input:focus { border-color: var(--primary); background: rgba(0, 125, 255, 0.05); }
-  button {
-    height: 60px; border-radius: 30px; font-size: 18px; font-weight: 800; cursor: pointer; transition: 0.2s;
+  input::placeholder { color: var(--text-sub); opacity: 0.6; }
+  input:focus { border-color: var(--primary); background: rgba(0, 125, 255, 0.05); box-shadow: 0 0 0 4px rgba(0, 125, 255, 0.1); }
+  input:focus + .input-icon { color: var(--primary); opacity: 1; }
+
+  /* ボタン */
+  button.btn-primary {
+    height: 56px; border-radius: 28px; font-size: 16px; font-weight: 800; cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     border: none; display: inline-flex; align-items: center; justify-content: center; width: 100%; margin-top: 10px;
+    background: var(--text-main); color: var(--bg-color); gap: 8px;
   }
-  .btn-primary { background: var(--primary); color: #fff; }
-  .btn-primary:hover { opacity: 0.8; transform: translateY(-2px); }
-  .msg { margin-bottom: 12px; font-size: 14px; font-weight: 700; min-height: 20px; text-align: center; color: var(--danger); }
+  button.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0.9; }
+  button.btn-primary:active { transform: translateY(0); }
+  
+  /* メッセージ */
+  .msg { margin-bottom: 16px; font-size: 13px; font-weight: 700; min-height: 18px; text-align: center; color: var(--danger); transition: 0.3s; }
+
+  /* 言語切り替えドロップダウン */
+  .lang-selector-container {
+    position: absolute; top: 24px; right: 24px; z-index: 100;
+  }
+  .lang-trigger {
+    display: flex; align-items: center; gap: 8px; background: var(--card-bg); border: 1px solid var(--card-border);
+    padding: 8px 16px; border-radius: 50px; color: var(--text-main); font-size: 13px; font-weight: 700;
+    cursor: pointer; backdrop-filter: blur(10px); transition: 0.2s;
+  }
+  .lang-trigger:hover { background: rgba(128,128,128,0.2); }
+  .lang-menu {
+    position: absolute; top: 100%; right: 0; margin-top: 8px; width: 140px; background: var(--card-bg);
+    border: 1px solid var(--card-border); border-radius: 16px; backdrop-filter: blur(20px);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3); list-style: none; padding: 6px; display: none;
+    animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .lang-menu.open { display: block; }
+  .lang-option {
+    padding: 10px 12px; font-size: 13px; font-weight: 500; color: var(--text-main); border-radius: 10px; cursor: pointer; transition: 0.2s;
+  }
+  .lang-option:hover { background: rgba(128,128,128,0.15); }
+
+  /* アニメーション */
+  @keyframes slideUpFade { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+  
+  .loading-dots::after { content: ''; animation: dots-loop 1.5s infinite steps(1); display: inline-block; width: 1em; text-align: left; }
+  @keyframes dots-loop { 0% { content: '.'; } 33% { content: '..'; } 66% { content: '...'; } 100% { content: ''; } }
 </style>
 </head>
 <body>
 
-  <div class="login-card" id="loginView">
-    <h1 style="margin: 0 0 10px 0; font-size: 32px; font-weight: 800;">ログイン</h1>
-    <p style="color:var(--text-sub); font-size: 14px; margin-bottom: 30px;">
-        利用するにはアカウントが必要です。<br>
-        ログインできない場合は<a href="support.html" style="color: var(--primary); text-decoration: underline; font-weight: 700;">こちら</a>
-    </p>
-    
-    <div id="authStatus" class="msg"></div>
-    
-    <div class="form-group">
-      <label>ユーザー名</label>
-      <input type="email" id="inputEmail">
-    </div>
-    <div class="form-group">
-      <label>パスワード</label>
-      <input type="password" id="inputPass">
-    </div>
-    
-    <button id="btnAuthAction" class="btn-primary">ログイン</button>
+  <canvas id="particleCanvas"></canvas>
+
+  <div class="lang-selector-container">
+    <button class="lang-trigger" id="langTrigger">
+      <i data-lucide="globe" style="width: 16px; height: 16px;"></i>
+      <span id="currentLangLabel">日本語</span>
+      <i data-lucide="chevron-down" style="width: 14px; height: 14px; opacity: 0.5;"></i>
+    </button>
+    <ul class="lang-menu" id="langMenu">
+      <li class="lang-option" data-value="ja">日本語</li>
+      <li class="lang-option" data-value="en">English</li>
+      <li class="lang-option" data-value="zh">简体中文</li>
+      <li class="lang-option" data-value="zh-TW">繁體中文</li>
+      <li class="lang-option" data-value="ko">한국어</li>
+      <li class="lang-option" data-value="ru">Русский</li>
+    </ul>
   </div>
 
-  <div class="login-card" id="forcePasswordChangeView" style="display:none;">
-    <h2 style="margin: 0 0 10px 0; font-size: 24px;">パスワードの変更が必要です</h2>
-    <p style="font-size:13px; color:var(--text-sub); margin-bottom:30px;">セキュリティのため、初期パスワードからの変更をお願いします。</p>
-    
-    <div id="newPassError" class="msg"></div>
+  <div class="login-wrapper">
+    <div class="login-card" id="loginView">
+      <div class="brand-icon"><i data-lucide="fingerprint" style="width: 32px; height: 32px;"></i></div>
+      
+      <h1 data-i18n="title_login">ログイン</h1>
+      <p class="desc" data-i18n="desc_login">
+          利用するにはアカウントが必要です。<br>
+          ログインできない場合は<a href="support.html" class="support-link" data-i18n="link_support">こちら</a>
+      </p>
+      
+      <div id="authStatus" class="msg"></div>
+      
+      <div class="form-group">
+        <input type="email" id="inputEmail" placeholder="ユーザー名" data-i18n-ph="ph_user">
+        <i data-lucide="user" class="input-icon" style="width: 20px; height: 20px;"></i>
+      </div>
+      <div class="form-group">
+        <input type="password" id="inputPass" placeholder="パスワード" data-i18n-ph="ph_pass">
+        <i data-lucide="lock" class="input-icon" style="width: 20px; height: 20px;"></i>
+      </div>
+      
+      <button id="btnAuthAction" class="btn-primary">
+        <span data-i18n="btn_login">ログイン</span>
+        <i data-lucide="arrow-right" style="width: 18px; height: 18px;"></i>
+      </button>
+    </div>
 
-    <div class="form-group">
-      <input type="password" id="newPassInput" placeholder="新しいパスワード">
+    <div class="login-card" id="forcePasswordChangeView" style="display:none;">
+      <div class="brand-icon" style="background: rgba(255, 59, 48, 0.1); color: var(--danger);"><i data-lucide="shield-alert" style="width: 32px; height: 32px;"></i></div>
+      
+      <h1 style="font-size: 24px;" data-i18n="title_force">パスワードの変更が必要です</h1>
+      <p class="desc" data-i18n="desc_force">セキュリティのため、初期パスワードからの変更をお願いします。</p>
+      
+      <div id="newPassError" class="msg"></div>
+
+      <div class="form-group">
+        <input type="password" id="newPassInput" placeholder="新しいパスワード" data-i18n-ph="ph_new_pass">
+        <i data-lucide="key" class="input-icon" style="width: 20px; height: 20px;"></i>
+      </div>
+      <div class="form-group">
+        <input type="password" id="newPassConfirm" placeholder="新しいパスワード(確認用)" data-i18n-ph="ph_conf_pass">
+        <i data-lucide="key-round" class="input-icon" style="width: 20px; height: 20px;"></i>
+      </div>
+      
+      <button id="btnSubmitNewPass" class="btn-primary" data-i18n="btn_change">変更してログイン</button>
     </div>
-    <div class="form-group">
-      <input type="password" id="newPassConfirm" placeholder="新しいパスワード(確認用)">
-    </div>
-    
-    <button id="btnSubmitNewPass" class="btn-primary">変更してログイン</button>
   </div>
 
 <script>
+  // アイコン初期化
   lucide.createIcons();
-  const API_URL = "api/proxy";
-  let tempChangeData = null;
-
-  // 既にログイン済みの場合は index.html へリダイレクト
+  
+  // 既にログイン済みの場合はリダイレクト
   if (localStorage.getItem('user_session_token')) {
       window.location.replace('index.html');
   }
 
-  // ログイン処理
+  // 背景アニメーションロジック
+  const canvas = document.getElementById('particleCanvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  let particleHue = document.documentElement.getAttribute('data-theme') === 'light' ? 210 : 220;
+  class Particle {
+    constructor() { this.x=Math.random()*canvas.width; this.y=Math.random()*canvas.height; this.size=Math.random()*150+50; this.speedX=Math.random()*0.2-0.1; this.speedY=Math.random()*0.2-0.1; this.opacity=Math.random()*0.3+0.1; }
+    update() { this.x+=this.speedX; this.y+=this.speedY; if(this.x<0||this.x>canvas.width)this.speedX*=-1; if(this.y<0||this.y>canvas.height)this.speedY*=-1; }
+    draw() { ctx.fillStyle=`hsla(${particleHue}, 100%, 50%, ${this.opacity*0.2})`; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); }
+  }
+  let p = []; for(let i=0;i<6;i++) p.push(new Particle());
+  function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); p.forEach(i=>{i.update();i.draw();}); requestAnimationFrame(animate); }
+  window.addEventListener('resize', () => { canvas.width=window.innerWidth; canvas.height=window.innerHeight; }); animate();
+
+  // 翻訳データ
+  const TRANSLATIONS = {
+    ja: {
+      title_login: "ログイン",
+      desc_login: "利用するにはアカウントが必要です。<br>ログインできない場合は<a href='support.html' class='support-link'>こちら</a>",
+      ph_user: "ユーザー名",
+      ph_pass: "パスワード",
+      btn_login: "ログイン",
+      title_force: "パスワードの変更",
+      desc_force: "セキュリティのため、初期パスワードからの変更をお願いします。",
+      ph_new_pass: "新しいパスワード",
+      ph_conf_pass: "新しいパスワード(確認用)",
+      btn_change: "変更してログイン",
+      msg_logging_in: "ログイン中",
+      msg_changing: "変更中...",
+      err_empty: "ユーザー名とパスワードを入力してください。",
+      err_invalid: "無効なユーザー名またはパスワードです。",
+      err_net: "通信エラーが発生しました。",
+      err_input_all: "入力してください",
+      err_len: "パスワードは6文字以上にしてください",
+      err_match: "パスワードが一致しません",
+      msg_success: "変更完了！ログインします...",
+      lang_label: "日本語"
+    },
+    en: {
+      title_login: "Login",
+      desc_login: "An account is required to continue.<br>Trouble logging in? Click <a href='support.html' class='support-link'>here</a>",
+      ph_user: "Username",
+      ph_pass: "Password",
+      btn_login: "Login",
+      title_force: "Password Change Required",
+      desc_force: "For security reasons, please change your initial password.",
+      ph_new_pass: "New Password",
+      ph_conf_pass: "Confirm New Password",
+      btn_change: "Update & Login",
+      msg_logging_in: "Logging in",
+      msg_changing: "Updating...",
+      err_empty: "Please enter your username and password.",
+      err_invalid: "Invalid username or password.",
+      err_net: "Network error occurred.",
+      err_input_all: "Please fill in all fields.",
+      err_len: "Password must be at least 6 characters.",
+      err_match: "Passwords do not match.",
+      msg_success: "Success! Logging you in...",
+      lang_label: "English"
+    },
+    zh: {
+      title_login: "登录",
+      desc_login: "使用本服务需要账户。<br>如果您无法登录，请在<a href='support.html' class='support-link'>此处</a>查询。",
+      ph_user: "用户名",
+      ph_pass: "密码",
+      btn_login: "登录",
+      title_force: "需要修改密码",
+      desc_force: "出于安全原因，请修改您的初始密码。",
+      ph_new_pass: "新密码",
+      ph_conf_pass: "确认新密码",
+      btn_change: "修改并登录",
+      msg_logging_in: "正在登录",
+      msg_changing: "正在修改...",
+      err_empty: "请输入用户名和密码。",
+      err_invalid: "用户名或密码无效。",
+      err_net: "发生网络错误。",
+      err_input_all: "请填写所有字段。",
+      err_len: "密码长度至少为6个字符。",
+      err_match: "两次输入的新密码不一致。",
+      msg_success: "修改成功！正在登录...",
+      lang_label: "简体中文"
+    },
+    "zh-TW": {
+      title_login: "登入",
+      desc_login: "使用本服務需要帳戶。<br>如果您無法登入，請在<a href='support.html' class='support-link'>此處</a>查詢。",
+      ph_user: "使用者名稱",
+      ph_pass: "密碼",
+      btn_login: "登入",
+      title_force: "需要修改密碼",
+      desc_force: "出於安全原因，請修改您的初始密碼。",
+      ph_new_pass: "新密碼",
+      ph_conf_pass: "確認新密碼",
+      btn_change: "修改並登入",
+      msg_logging_in: "登入中",
+      msg_changing: "修改中...",
+      err_empty: "請輸入使用者名稱和密碼。",
+      err_invalid: "使用者名稱或密碼無效。",
+      err_net: "發生網路錯誤。",
+      err_input_all: "請填寫所有欄位。",
+      err_len: "密碼長度至少為6個字符。",
+      err_match: "兩次輸入的新密碼不一致。",
+      msg_success: "修改成功！正在登入...",
+      lang_label: "繁體中文"
+    },
+    ko: {
+      title_login: "로그인",
+      desc_login: "이용하려면 계정이 필요합니다.<br>로그인할 수 없는 경우 <a href='support.html' class='support-link'>여기</a>를 클릭하세요.",
+      ph_user: "사용자 이름",
+      ph_pass: "비밀번호",
+      btn_login: "로그인",
+      title_force: "비밀번호 변경",
+      desc_force: "보안을 위해 초기 비밀번호를 변경해 주세요.",
+      ph_new_pass: "새 비밀번호",
+      ph_conf_pass: "새 비밀번호 확인",
+      btn_change: "변경 후 로그인",
+      msg_logging_in: "로그인 중",
+      msg_changing: "변경 중...",
+      err_empty: "사용자 이름과 비밀번호를 입력해 주세요.",
+      err_invalid: "잘못된 사용자 이름 또는 비밀번호입니다.",
+      err_net: "통신 오류가 발생했습니다.",
+      err_input_all: "모든 항목을 입력해 주세요.",
+      err_len: "비밀번호는 6자 이상이어야 합니다.",
+      err_match: "비밀번호가 일치하지 않습니다.",
+      msg_success: "변경 완료! 로그인합니다...",
+      lang_label: "한국어"
+    },
+    ru: {
+      title_login: "Вход",
+      desc_login: "Для использования требуется учетная запись.<br>Проблемы со входом? Нажмите <a href='support.html' class='support-link'>здесь</a>",
+      ph_user: "Имя пользователя",
+      ph_pass: "Пароль",
+      btn_login: "Войти",
+      title_force: "Смена пароля",
+      desc_force: "В целях безопасности измените начальный пароль.",
+      ph_new_pass: "Новый пароль",
+      ph_conf_pass: "Подтвердите пароль",
+      btn_change: "Обновить и войти",
+      msg_logging_in: "Вход",
+      msg_changing: "Обновление...",
+      err_empty: "Введите имя пользователя и пароль.",
+      err_invalid: "Неверное имя пользователя или пароль.",
+      err_net: "Произошла ошибка сети.",
+      err_input_all: "Заполните все поля.",
+      err_len: "Пароль должен содержать не менее 6 символов.",
+      err_match: "Пароли не совпадают.",
+      msg_success: "Успешно! Выполняется вход...",
+      lang_label: "Русский"
+    }
+  };
+
+  let CURRENT_LANG = localStorage.getItem('user_lang') || 'ja';
+  
+  function applyLanguage(lang) {
+    CURRENT_LANG = lang;
+    localStorage.setItem('user_lang', lang);
+    const t = TRANSLATIONS[lang] || TRANSLATIONS.ja;
+    
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      el.innerHTML = t[el.getAttribute('data-i18n')];
+    });
+    document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+      el.placeholder = t[el.getAttribute('data-i18n-ph')];
+    });
+    document.getElementById('currentLangLabel').textContent = t.lang_label;
+    document.documentElement.lang = lang;
+  }
+
+  // 言語セレクターの動作
+  const langTrigger = document.getElementById('langTrigger');
+  const langMenu = document.getElementById('langMenu');
+  langTrigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    langMenu.classList.toggle('open');
+  });
+  document.querySelectorAll('.lang-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      applyLanguage(opt.getAttribute('data-value'));
+      langMenu.classList.remove('open');
+    });
+  });
+  document.addEventListener('click', (e) => {
+    if (!langTrigger.contains(e.target)) langMenu.classList.remove('open');
+  });
+
+  // 初期言語適用
+  applyLanguage(CURRENT_LANG);
+
+  // 認証ロジック
+  const API_URL = "api/proxy";
+  let tempChangeData = null;
+
   document.getElementById('btnAuthAction').addEventListener('click', async () => {
       const email = document.getElementById('inputEmail').value.trim();
       const pass = document.getElementById('inputPass').value.trim();
       const statusEl = document.getElementById('authStatus');
       const btn = document.getElementById('btnAuthAction');
+      const t = TRANSLATIONS[CURRENT_LANG];
       
       if (!email || !pass) { 
-          statusEl.textContent = "ユーザー名とパスワードを入力してください。"; 
+          statusEl.textContent = t.err_empty; 
           return; 
       }
       
       btn.disabled = true;
-      btn.textContent = "ログイン中...";
+      btn.innerHTML = `<span class="loading-dots">${t.msg_logging_in}</span>`;
       
       try {
         const res = await fetch(API_URL, {
@@ -140,34 +440,33 @@
               return; 
           }
           
-          // 通常ログイン成功時
           localStorage.setItem('user_session_identity', JSON.stringify({ userId: data.userId, email: email }));
           localStorage.setItem('user_session_token', data.token);
-          
           window.location.href = 'index.html';
         } else { 
-          statusEl.textContent = data.message || "無効なユーザー名またはパスワードです。"; 
+          statusEl.textContent = data.message || t.err_invalid; 
         }
       } catch (e) { 
-        statusEl.textContent = "通信エラーが発生しました。"; 
+        statusEl.textContent = t.err_net; 
       } finally { 
         btn.disabled = false; 
-        btn.textContent = "ログイン";
+        btn.innerHTML = `<span data-i18n="btn_login">${t.btn_login}</span> <i data-lucide="arrow-right" style="width: 18px; height: 18px;"></i>`;
+        lucide.createIcons();
       }
   });
 
-  // 初回パスワード変更処理
   document.getElementById('btnSubmitNewPass').addEventListener('click', async () => {
     const newPass = document.getElementById('newPassInput').value.trim();
     const confirmPass = document.getElementById('newPassConfirm').value.trim();
     const errObj = document.getElementById('newPassError');
     const btn = document.getElementById('btnSubmitNewPass');
+    const t = TRANSLATIONS[CURRENT_LANG];
     
-    if(!newPass || !confirmPass) { errObj.textContent = "入力してください"; return; }
-    if(newPass.length < 6) { errObj.textContent = "パスワードは6文字以上にしてください"; return; }
-    if(newPass !== confirmPass) { errObj.textContent = "パスワードが一致しません"; return; }
+    if(!newPass || !confirmPass) { errObj.textContent = t.err_input_all; return; }
+    if(newPass.length < 6) { errObj.textContent = t.err_len; return; }
+    if(newPass !== confirmPass) { errObj.textContent = t.err_match; return; }
     
-    btn.textContent = "変更中...";
+    btn.innerHTML = `<span class="loading-dots">${t.msg_changing}</span>`;
     btn.disabled = true;
     
     try {
@@ -184,10 +483,9 @@
         const data = await res.json();
         
         if (data.success) {
-            errObj.style.color = "var(--primary)";
-            errObj.textContent = "変更完了！ログインします...";
+            errObj.style.color = "var(--success)";
+            errObj.textContent = t.msg_success;
             setTimeout(() => {
-                // パスワード変更成功後、新しいパスワードで再度自動ログイン処理へ流す
                 document.getElementById('inputPass').value = newPass;
                 document.getElementById('forcePasswordChangeView').style.display = 'none';
                 document.getElementById('loginView').style.display = 'block';
@@ -195,14 +493,25 @@
             }, 1000);
         } else {
             errObj.textContent = data.message;
-            btn.textContent = "変更してログイン";
+            btn.innerHTML = t.btn_change;
             btn.disabled = false;
         }
     } catch(e) {
-        errObj.textContent = "通信エラーが発生しました";
-        btn.textContent = "変更してログイン";
+        errObj.textContent = t.err_net;
+        btn.innerHTML = t.btn_change;
         btn.disabled = false;
     }
+  });
+
+  // Enterキーでの送信
+  document.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter') {
+          if(document.getElementById('loginView').style.display !== 'none') {
+              document.getElementById('btnAuthAction').click();
+          } else if(document.getElementById('forcePasswordChangeView').style.display !== 'none') {
+              document.getElementById('btnSubmitNewPass').click();
+          }
+      }
   });
 </script>
 </body>
