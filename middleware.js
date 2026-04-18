@@ -1,6 +1,6 @@
 export const config = {
     // 原則として dashboard.html のみに門番を配置
-    matcher: ['/dashboard.html'],
+    matcher: ['/Enforcement-Administrator.html'],
 };
 
 export default function middleware(request) {
@@ -13,7 +13,7 @@ export default function middleware(request) {
     }
 
     // 念のための保険: アクセス先が dashboard.html じゃない場合も素通りさせる
-    if (!url.pathname.startsWith('/dashboard.html')) {
+    if (!url.pathname.startsWith('/Enforcement-Administrator.html')) {
         return;
     }
 
@@ -23,7 +23,7 @@ export default function middleware(request) {
     // Cookieの中に「admin_token=」が存在しない場合
     if (!cookie.includes('admin_token=')) {
         // 未認証ユーザーは login.html へ強制リダイレクト
-        url.pathname = '/login.html';
+        url.pathname = '/signin.html';
         return Response.redirect(url, 307);
     }
 }
