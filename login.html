@@ -98,19 +98,31 @@
       justify-content: center;
   }
 
-  /* PC向け 2カラムレイアウト (スクショの再現) */
+  /* PC向け 2カラムレイアウト (固定幅800px、拡大禁止) */
   .login-image-side { display: none; }
 
   @media (min-width: 769px) {
-      .login-wrapper { max-width: 800px; }
+      .login-wrapper { 
+          width: 800px; /* ★幅を800pxに固定★ */
+          max-width: none; 
+      }
       .login-card { flex-direction: row; min-height: 480px; border-radius: 16px; }
       .login-content { width: 50%; padding: 50px; }
       .login-image-side {
-          display: block; width: 50%;
+          display: flex; /* ★画像を中央配置するためにflexに変更★ */
+          align-items: center; justify-content: center; /* ★画像を中央配置★ */
+          width: 50%;
           position: relative; overflow: hidden;
+          background: rgba(0,0,0,0.2); /* ★画像がないエリアを見やすく★ */
       }
       .login-image-side img {
-          width: 100%; height: 100%; object-fit: cover;
+          display: block;
+          max-width: 100%; /* ★親要素の幅を超えないように縮小★ */
+          max-height: 100%; /* ★親要素の高さを超えないように縮小★ */
+          width: auto; /* ★拡大禁止。元の幅を保つ★ */
+          height: auto; /* ★拡大禁止。元の高さを保つ★ */
+          margin: auto; /* ★エリア内で中央寄せ★ */
+          object-fit: none; /* ★object-fitによる自動拡大を無効化★ */
       }
   }
 
