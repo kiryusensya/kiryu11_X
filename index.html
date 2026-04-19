@@ -322,19 +322,7 @@ button, input, textarea { font-family: var(--font-stack); }
     z-index: 2;
     max-width: 600px;
     text-shadow: 0 4px 20px rgba(0,0,0,0.1); 
-    padding: 40px; 
-    border-radius: 24px;
-    transition: background 0.3s ease, backdrop-filter 0.3s ease;
 }
-
-[data-theme="dark"] .rgl-hero-content {
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-}
-
 
 /* --- タイトル --- */
 .rgl-logo-text {
@@ -368,10 +356,8 @@ button, input, textarea { font-family: var(--font-stack); }
     min-width: 200px;
     padding: 0 40px;
     
-    background: rgba(0, 0, 0, 0.6);
-    color: #FFFFFF;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background-color: var(--modal-text-main);
+    color: var(--bg-color);
     
     font-weight: 800;
     font-size: 18px;
@@ -380,32 +366,22 @@ button, input, textarea { font-family: var(--font-stack); }
     text-transform: none !important;
     
     transition: all 0.2s;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: none;
     box-shadow: 0 10px 20px rgba(0,0,0,0.1);
     font-family: var(--font-stack);
 }
 .rgl-cta-btn:hover {
     transform: translateY(-2px);
-    background: rgba(0, 0, 0, 0.8);
     box-shadow: 0 15px 30px rgba(0,0,0,0.2);
 }
-[data-theme="dark"] .rgl-cta-btn { 
-    background: rgba(255, 255, 255, 0.15); 
-    color: #FFFFFF; 
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-[data-theme="dark"] .rgl-cta-btn:hover {
-    background: rgba(255, 255, 255, 0.25);
-}
+[data-theme="dark"] .rgl-cta-btn { background: #fff; color: #000; }
 
 .rgl-cta-btn.is-download {
-    background: rgba(0, 125, 255, 0.25) !important;
-    color: var(--primary) !important;
-    border: 1px solid rgba(0, 125, 255, 0.4);
+    background-color: var(--primary);
+    color: #fff;
 }
 .rgl-cta-btn.is-download:hover {
-    box-shadow: 0 15px 30px rgba(0, 125, 255, 0.2);
-    background: rgba(0, 125, 255, 0.35) !important;
+    box-shadow: 0 15px 30px rgba(0, 125, 255, 0.4);
 }
 
 /* --- 購入用ボタン (PC用) --- */
@@ -417,10 +393,9 @@ button, input, textarea { font-family: var(--font-stack); }
     min-width: 200px;
     padding: 0 40px;
     
-    background: rgba(255, 255, 255, 0.5);
+    /* ライトモード時: ボタン白 / 文字黒 */
+    background-color: #FFFFFF;
     color: #000000;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
     
     font-weight: 800;
     font-size: 18px;
@@ -429,22 +404,19 @@ button, input, textarea { font-family: var(--font-stack); }
     text-transform: none !important;
     
     transition: all 0.2s;
-    border: 1px solid rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     box-shadow: 0 10px 20px rgba(0,0,0,0.05);
     font-family: var(--font-stack);
 }
 .rgl-buy-btn:hover {
     transform: translateY(-2px);
-    background: rgba(255, 255, 255, 0.7);
     box-shadow: 0 15px 30px rgba(0,0,0,0.15);
 }
+/* ダークモード時: ボタン黒 / 文字白 */
 [data-theme="dark"] .rgl-buy-btn { 
-    background: rgba(0, 0, 0, 0.4); 
+    background-color: #000000; 
     color: #FFFFFF; 
-    border: 1px solid rgba(255, 255, 255, 0.15);
-}
-[data-theme="dark"] .rgl-buy-btn:hover {
-    background: rgba(0, 0, 0, 0.6); 
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* ★ PC用の購入ボタン等に追加されたスマホ用クラスを無効化（PC版の完全保護） */
@@ -1332,6 +1304,39 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 }
 .spotlight-hover:hover::before { opacity: 1; }
 .spotlight-hover > * { position: relative; z-index: 1; }
+/* =========================================
+   Heroボタンのガラス効果（グラスモーフィズム）
+   ========================================= */
+.rgl-cta-btn, .rgl-buy-btn {
+    background: rgba(255, 255, 255, 0.15) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: var(--modal-text-main) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+}
+[data-theme="dark"] .rgl-cta-btn, [data-theme="dark"] .rgl-buy-btn {
+    background: rgba(30, 30, 30, 0.4) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+.rgl-cta-btn:hover, .rgl-buy-btn:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15) !important;
+}
+[data-theme="dark"] .rgl-cta-btn:hover, [data-theme="dark"] .rgl-buy-btn:hover {
+    background: rgba(60, 60, 60, 0.5) !important;
+}
+
+/* 所有済み（ダウンロード）状態のボタンカラー */
+.rgl-cta-btn.is-download {
+    background: rgba(0, 125, 255, 0.15) !important;
+    border: 1px solid rgba(0, 125, 255, 0.4) !important;
+    color: var(--primary) !important;
+}
+.rgl-cta-btn.is-download:hover {
+    background: rgba(0, 125, 255, 0.25) !important;
+}
 </style>
 </head>
 <body>
@@ -1553,6 +1558,7 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
     
     <div id="phase-input" style="display: flex; opacity: 1;">
       <h2 class="modal-title phase-input-title" data-translate="modal_title">アクティベーション</h2>
+      <!-- ★ id="mobileInputDesc" を追加 -->
       <p class="modal-sub phase-input-sub-mobile" id="mobileInputDesc" data-translate="modal_sub">アクティベーションコードを使用すると、コンテンツにアクセスできます。アクティベーションコードを利用するには、以下の入力欄に入力してください。</p>
       
       <div class="phase-input-body">
@@ -1565,10 +1571,12 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
                   <button id="btnConfirm" class="btn-primary" data-translate="modal_btn_auth">確認</button>
               </div>
               <div class="modal-grey-box phase-input-desc-pc">
+                  <!-- ★ id="pcInputDesc" を追加 -->
                   <p class="modal-box-text" id="pcInputDesc" data-translate="modal_sub">アクティベーションコードを使用すると、コンテンツにアクセスできます。<br>アクティベーションコードを利用するには、以下の入力欄に入力してください。</p>
               </div>
           </div>
       </div>
+      <!-- ★ 不要になった statusContainer は非表示にしておくか削除します -->
       <div id="statusContainer" style="display: none;"></div>
     </div>
 
@@ -1771,7 +1779,7 @@ const TRANSLATIONS={
   error_used_msg: "コードが使用済みです",
   error_owned_msg: "既に所有しているようです。",
   error_owned_sub: "左ライブラリメニューからコンテンツを選択してダウンロードしてください。",
-  btn_close:"閉じる",btn_continue:"認証する",btn_download:"ダウンロード", btn_buy:"購入する", 
+  btn_close:"閉じる",btn_continue:"認証する",btn_download:"ダウンロード", btn_buy:"購入する",
   
   preview_buy_title: "購入確認",
   preview_buy_desc: "以下のコンテンツを %s  で購入します:",
@@ -1817,7 +1825,7 @@ const TRANSLATIONS={
   error_used_msg: "This code has already been used.",
   error_owned_msg: "You already own it.",
   error_owned_sub: "Please select the content from the left library menu to download.",
-  btn_close:"Close",btn_continue:"Redeem",btn_download:"Download", btn_buy:"Buy", 
+  btn_close:"Close",btn_continue:"Redeem",btn_download:"Download", btn_buy:"Buy",
   
   preview_buy_title: "Confirm Purchase",
   preview_buy_desc: "You will purchase the following content for %s pt:",
@@ -2128,23 +2136,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initCustomDropdown();
   setupEventListeners();
 });
-
-// 新規追加関数：Hero表示をデフォルトに戻す
-function resetHeroToDefault() {
-    const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja;
-    selectedHeroItem = null;
-    currentHeroContext = 'default';
-    els.heroTitle.textContent = t.hero_title || "個人認証センター";
-    els.heroBgImage.style.backgroundImage = 'none';
-    
-    els.heroActionBtn.innerHTML = `<span data-translate="btn_redeem_code">${t.btn_redeem_code}</span>`;
-    els.heroActionBtn.classList.remove('is-download');
-    els.heroActionBtn.disabled = false;
-    els.heroActionBtn.style.opacity = '1';
-    els.heroActionBtn.style.cursor = 'pointer';
-    
-    if (els.heroBuyBtn) els.heroBuyBtn.style.display = 'none';
-}
 
 function setupEventListeners() {
   setListener(els.openAccount, 'click', (e) => {
@@ -2562,10 +2553,13 @@ function initCustomDropdown() {
             const val = opt.getAttribute('data-value');
             
             localStorage.setItem('user_lang', val);
+            // ★ 言語変更時に選択状態をリセットして自動選択させ直す
+            selectedHeroItem = null; 
             updateLanguage(val);
-            
             if (currentUser) {
                 fetchUserHistory();
+                // fetchAvailableContent(); <- 重複呼び出しになる場合はコメントアウト推奨
+            } else {
                 fetchAvailableContent();
             }
 
@@ -2771,6 +2765,7 @@ async function performAuth(code, mode = 'check') {
   }
 
   try {
+    // 修正：code と userId を正しくバックエンドに送信します
     const d = await safeFetch({
         type: mode === 'check' ? 'check' : 'redeem',
         userId: currentUser ? currentUser.userId : null,
@@ -3085,13 +3080,6 @@ function setHeroButtonState(state, forceUnlock = false) {
     
     btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer'; btn.classList.remove('is-download'); 
 
-    if (!selectedHeroItem) {
-        btn.innerHTML = `<span data-translate="btn_redeem_code">${t.btn_redeem_code || "コード引き換え"}</span>`;
-        if (buyBtn) buyBtn.style.display = 'none';
-        currentHeroContext = 'default';
-        return;
-    }
-
     if (state === 'owned') {
         if(buyBtn) buyBtn.style.display = 'none';
 
@@ -3118,7 +3106,7 @@ function setHeroButtonState(state, forceUnlock = false) {
         if(selectedHeroItem && selectedHeroItem.price > 0) {
             if(buyBtn) {
                 buyBtn.style.display = 'inline-flex';
-                gId('heroBuyBtnText').textContent = `${selectedHeroItem.price} pt`;
+                gId('heroBuyBtnText').textContent = `${selectedHeroItem.price}`;
             }
         } else {
             if(buyBtn) buyBtn.style.display = 'none';
@@ -3174,6 +3162,28 @@ function updateHeroView(item, isOwned) {
     els.heroDesc.style.display = 'none';
     if (item.imageUrl && item.imageUrl.startsWith('http')) els.heroBgImage.style.backgroundImage = `url('${item.imageUrl}')`;
     setHeroButtonState(isOwned ? 'owned' : 'available');
+}
+
+function resetHeroToDefault() {
+    const t = TRANSLATIONS[CURRENT_LANG];
+    selectedHeroItem = null;
+    if(heroTimer) { clearInterval(heroTimer); heroTimer = null; }
+    
+    els.heroTitle.textContent = t.hero_title || "個人認証センター";
+    els.heroDesc.style.display = 'none';
+    els.heroBgImage.style.backgroundImage = 'none';
+    
+    // コード引き換えボタンのみ表示、購入ボタンは隠す
+    els.heroActionBtn.innerHTML = `<span data-translate="btn_redeem_code">${t.btn_redeem_code}</span>`;
+    els.heroActionBtn.classList.remove('is-download');
+    els.heroActionBtn.disabled = false;
+    els.heroActionBtn.style.opacity = '1';
+    
+    if (els.heroBuyBtn) els.heroBuyBtn.style.display = 'none';
+    currentHeroContext = 'default';
+    
+    // サイドバーの選択状態を解除
+    document.querySelectorAll('.sidebar-game-item').forEach(el => el.classList.remove('active'));
 }
 
 function updateAccountUI() {
@@ -3467,52 +3477,29 @@ async function fetchAvailableContent() {
                 
                 div.innerHTML = `<div class="sidebar-game-info"><img src="${escapeHTML(item.imageUrl)}" class="sidebar-game-thumb"><div class="sidebar-game-text"><div class="sidebar-game-title">${escapeHTML(item.message || item.title)}</div></div></div>`;
                 list.appendChild(div);
+                
+                if (!selectedHeroItem && !document.querySelector('.sidebar-game-item.active') && (!currentUser || !currentUser.history.length)) {
+                    updateHeroView(item, false);
+                    div.classList.add('active');
+                }
             });
         } 
-        if (!hasItems) {
-             list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">${t.msg_empty_lib || "No content"}</div>`;
-        }
-        if (!hasMobileItems && mobileList) {
-             mobileList.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px; grid-column: 1 / -1; text-align:center;">${t.msg_empty_lib || "No content"}</div>`;
-        }
-
-        // 強制的にアイテムを選択、全空ならデフォルト表示にする処理
-        let allItems = [];
-        if (currentUser && currentUser.history) allItems = allItems.concat(currentUser.history);
-        if (d.success && d.items) {
-             allItems = allItems.concat(d.items.filter(item => {
-                 const isOwned = (item.groupId && ownedGroups.has(item.groupId)) || (!item.groupId && ownedCodes.has(item.code)) || (item.title && ownedTitles.has(item.title));
-                 return !isOwned;
-             }));
-        }
-
-        if (allItems.length > 0) {
-            const currentStillValid = selectedHeroItem && allItems.some(i => i.code === selectedHeroItem.code || i.title === selectedHeroItem.title);
-            if (!currentStillValid) {
-                const firstItem = allItems[0];
-                const isFirstOwned = (firstItem.groupId && ownedGroups.has(firstItem.groupId)) || (!firstItem.groupId && ownedCodes.has(firstItem.code)) || (firstItem.title && ownedTitles.has(firstItem.title));
-                updateHeroView(firstItem, isFirstOwned);
-                
-                setTimeout(() => {
-                    const firstDomItem = document.querySelector('.sidebar-game-item');
-                    if(firstDomItem) {
-                        document.querySelectorAll('.sidebar-game-item').forEach(el => el.classList.remove('active'));
-                        firstDomItem.classList.add('active');
-                    }
-                }, 50);
-            } else {
-                 const isOwned = (selectedHeroItem.groupId && ownedGroups.has(selectedHeroItem.groupId)) || (!selectedHeroItem.groupId && ownedCodes.has(selectedHeroItem.code)) || (selectedHeroItem.title && ownedTitles.has(selectedHeroItem.title));
-                 updateHeroView(selectedHeroItem, isOwned);
-            }
-        } else {
+        const totalItems = (currentUser && currentUser.history ? currentUser.history.length : 0) + (hasItems ? 1 : 0);
+        if (totalItems === 0) {
             resetHeroToDefault();
         }
 
+        if (!hasItems) {
+             list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">${t.msg_empty_lib || "No content"}</div>`;
+        }
+      　
+        if (!hasMobileItems && mobileList) {
+             mobileList.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px; grid-column: 1 / -1; text-align:center;">${t.msg_empty_lib || "No content"}</div>`;
+        }
     } catch(e) {
         console.error("Fetch Error:", e);
         list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">-</div>`;
         if (mobileList) mobileList.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px; grid-column: 1 / -1; text-align:center;">-</div>`;
-        resetHeroToDefault();
     }
 }
 
@@ -3528,15 +3515,29 @@ async function fetchUserHistory() {
         lang: CURRENT_LANG
     });
     
+    // ...
     if (data.success && Array.isArray(data.history)) {
       currentUser.history = data.history; 
       currentUser.points = data.points || 0;
       updateAccountUI();
-    } 
-  } catch (e) { 
+      
+      // ★ 履歴があれば最初のアイテムを選択状態にする
+      if (currentUser.history.length > 0 && !selectedHeroItem) {
+            updateHeroView(currentUser.history[0], true);
+            setTimeout(() => {
+                const firstItem = els.libraryListSidebar.querySelector('.sidebar-game-item');
+                if (firstItem) {
+                    document.querySelectorAll('.sidebar-game-item').forEach(el => el.classList.remove('active'));
+                    firstItem.classList.add('active');
+                }
+            }, 50);
+      }
+    } catch (e) { 
+      // ▼ ここは残す！エラー時のセーフティネット
       console.error("History Fetch Error:", e);
       updateAccountUI(); 
   } finally {
+      // ▼ ここも残す！履歴取得後にストアを読み込むためのリレー
       fetchAvailableContent();
   }
 }
