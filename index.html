@@ -1608,9 +1608,6 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
   </div>
 </div>
 <script>
-    if (!localStorage.getItem('user_session_token')) {
-        window.location.replace('login.html');
-    }
 const GAS_API_URL="api/proxy"; 
 
 let CURRENT_LANG="ja";
@@ -3500,31 +3497,27 @@ function initThemeAndParticles() {
 
 async function resumeSession() {
   const sUser = localStorage.getItem('user_session_identity');
-  const token = localStorage.getItem('user_session_token');
-  if (!sUser || !token) {
-      logout();
-      return;
+  
+  // ユーザー情報がない場合だけ処理を止める（トークンチェックを緩和）
+  if (!sUser) {
+      return; 
   }
 
   try {
       const identity = JSON.parse(sUser);
       currentUser = { userId: identity.userId, email: identity.email, history: [], points: 0 };
+      
+      // まずは画面を「ログイン状態」にする
       document.body.classList.add('is-logged-in');
       if (els.loginOverlay) els.loginOverlay.classList.remove('active'); 
       updateAccountUI();
 
-      const data = await safeFetch({ type: 'get_user_info' });
-      
-      if (data.success) {
-          currentUser.points = data.points || 0;
-          updateAccountUI();
-          fetchUserHistory(); 
-      } else {
-          logout();
-      }
+      // get_user_infoの代わりに、履歴とポイントを復元する処理だけを呼ぶ
+      // これにより、通信エラーによる意図しない強制ログアウトを防ぎます
+      await fetchUserHistory(); 
   } catch (e) {
       console.error("Session Resume Error:", e);
-      fetchUserHistory(); 
+      logout();
   }
 }
 /* =========================================
