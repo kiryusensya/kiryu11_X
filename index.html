@@ -1305,37 +1305,61 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 .spotlight-hover:hover::before { opacity: 1; }
 .spotlight-hover > * { position: relative; z-index: 1; }
 /* =========================================
-   Heroボタンのガラス効果（グラスモーフィズム）
+   Heroボタンのカスタムデザイン（ガラス効果＋個別カラー）
    ========================================= */
-.rgl-cta-btn, .rgl-buy-btn {
-    background: rgba(255, 255, 255, 0.15) !important;
+
+/* 1. コード引き換えボタン（通常時）: 白背景 ＋ 黒文字 */
+.rgl-cta-btn:not(.is-download) {
+    background: rgba(255, 255, 255, 0.85) !important;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.3) !important;
-    color: var(--modal-text-main) !important;
+    border: 1px solid rgba(255, 255, 255, 1) !important;
+    color: #000000 !important; /* 黒文字 */
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
 }
-[data-theme="dark"] .rgl-cta-btn, [data-theme="dark"] .rgl-buy-btn {
-    background: rgba(30, 30, 30, 0.4) !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-}
-
-.rgl-cta-btn:hover, .rgl-buy-btn:hover {
-    background: rgba(255, 255, 255, 0.25) !important;
+.rgl-cta-btn:not(.is-download):hover {
+    background: rgba(255, 255, 255, 1) !important;
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15) !important;
 }
-[data-theme="dark"] .rgl-cta-btn:hover, [data-theme="dark"] .rgl-buy-btn:hover {
-    background: rgba(60, 60, 60, 0.5) !important;
+
+/* 2. 購入するボタン: 黒っぽく ＋ 白文字 */
+.rgl-buy-btn {
+    background: rgba(20, 20, 20, 0.85) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #FFFFFF !important; /* 白文字 */
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+}
+.rgl-buy-btn:hover {
+    background: rgba(0, 0, 0, 1) !important;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25) !important;
 }
 
-/* 所有済み（ダウンロード）状態のボタンカラー */
+/* 3. ダウンロードボタン: ライト時は白っぽく / ダーク時は黒っぽく ＋ 常に白文字 */
+/* ▼ ライトモード */
 .rgl-cta-btn.is-download {
-    background: rgba(0, 125, 255, 0.15) !important;
-    border: 1px solid rgba(0, 125, 255, 0.4) !important;
-    color: var(--primary) !important;
+    background: rgba(255, 255, 255, 0.3) !important; /* 白っぽいガラス背景 */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.6) !important;
+    color: #FFFFFF !important; /* 白文字 */
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4); /* 白背景でも白文字が読めるように影をつける */
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
 }
 .rgl-cta-btn.is-download:hover {
-    background: rgba(0, 125, 255, 0.25) !important;
+    background: rgba(255, 255, 255, 0.45) !important;
+}
+
+/* ▼ ダークモード */
+[data-theme="dark"] .rgl-cta-btn.is-download {
+    background: rgba(30, 30, 30, 0.6) !important; /* 黒っぽいガラス背景 */
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #FFFFFF !important; /* 白文字 */
+    text-shadow: none; /* 背景が暗いので影は不要 */
+}
+[data-theme="dark"] .rgl-cta-btn.is-download:hover {
+    background: rgba(50, 50, 50, 0.8) !important;
 }
 </style>
 </head>
