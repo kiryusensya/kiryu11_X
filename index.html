@@ -3484,6 +3484,7 @@ async function fetchAvailableContent() {
                 }
             });
         } 
+        
         const totalItems = (currentUser && currentUser.history ? currentUser.history.length : 0) + (hasItems ? 1 : 0);
         if (totalItems === 0) {
             resetHeroToDefault();
@@ -3492,7 +3493,8 @@ async function fetchAvailableContent() {
         if (!hasItems) {
              list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">${t.msg_empty_lib || "No content"}</div>`;
         }
-      　
+        
+        // 全角スペースを除去済
         if (!hasMobileItems && mobileList) {
              mobileList.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px; grid-column: 1 / -1; text-align:center;">${t.msg_empty_lib || "No content"}</div>`;
         }
@@ -3503,7 +3505,7 @@ async function fetchAvailableContent() {
     }
 }
 
-async function fetchUserHistory() {
+aasync function fetchUserHistory() {
   if (!currentUser) {
       fetchAvailableContent();
       return;
@@ -3515,7 +3517,6 @@ async function fetchUserHistory() {
         lang: CURRENT_LANG
     });
     
-    // ...
     if (data.success && Array.isArray(data.history)) {
       currentUser.history = data.history; 
       currentUser.points = data.points || 0;
@@ -3532,12 +3533,11 @@ async function fetchUserHistory() {
                 }
             }, 50);
       }
-    } catch (e) { 
-      // ▼ ここは残す！エラー時のセーフティネット
+    } // ← Missingだった括弧（if文を閉じる）
+  } catch (e) { // ← Missingだった括弧（try文を閉じる）
       console.error("History Fetch Error:", e);
       updateAccountUI(); 
   } finally {
-      // ▼ ここも残す！履歴取得後にストアを読み込むためのリレー
       fetchAvailableContent();
   }
 }
