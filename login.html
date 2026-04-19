@@ -412,7 +412,7 @@
 
   applyLanguage(CURRENT_LANG);
 
-  // ===== スライダー機能の共通クラス =====
+ // ===== スライダー機能の共通クラス =====
   function initSlider(containerId, onComplete) {
       const container = document.getElementById(containerId);
       const thumb = container.querySelector('.slide-thumb');
@@ -436,17 +436,15 @@
 
       const onDrag = (e) => {
           if (!isDragging || isUnlocked) return;
-          // 横スライド時の画面の縦スクロールを防止
           if (e.cancelable && e.type === 'touchmove') e.preventDefault();
 
           const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
           const delta = clientX - startX;
-          const max = container.offsetWidth - thumb.offsetWidth - 8; // 余白分考慮
+          const max = container.offsetWidth - thumb.offsetWidth - 8;
 
           currentX = Math.max(0, Math.min(delta, max));
           setTransform(currentX);
           
-          // 進捗に合わせてテキストをフェードアウト
           text.style.opacity = 1 - (currentX / (max * 0.8));
       };
 
@@ -457,21 +455,20 @@
 
           const max = container.offsetWidth - thumb.offsetWidth - 8;
           if (currentX >= max * 0.85) {
-              // ロック解除処理
               isUnlocked = true;
               container.classList.add('is-loading');
               
-              // ローディングテキストとスピナーへ変更
+              // ★修正箇所: サムの中の矢印を完全に削除して重複を防ぐ
+              thumb.innerHTML = '';
+              
               const t = TRANSLATIONS[CURRENT_LANG];
               text.innerHTML = `<i data-lucide="loader-2" class="lucide-spin" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 8px;"></i> <span class="loading-dots">${t.slide_loading}</span>`;
               lucide.createIcons();
 
-              // アニメーションを待ってから実際の関数をトリガー
               setTimeout(() => {
                   onComplete();
               }, 400); 
           } else {
-              // 失敗時はバネのように戻る
               currentX = 0;
               setTransform(0);
               text.style.opacity = 1;
@@ -485,11 +482,13 @@
       document.addEventListener('mouseup', onDragEnd);
       document.addEventListener('touchend', onDragEnd);
 
-      // プログラムからローディングにするAPI（Enterキー用）
       container.setLoading = () => {
           if(isUnlocked) return;
           isUnlocked = true;
           container.classList.add('is-loading');
+          
+          // ★修正箇所: エンターキーで送信した際も矢印を削除する
+          thumb.innerHTML = '';
           
           const t = TRANSLATIONS[CURRENT_LANG];
           text.innerHTML = `<i data-lucide="loader-2" class="lucide-spin" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 8px;"></i> <span class="loading-dots">${t.slide_loading}</span>`;
@@ -498,16 +497,20 @@
           onComplete();
       };
 
-      // プログラムから元に戻すAPI（エラー時用）
       container.reset = () => {
           isUnlocked = false;
           currentX = 0;
           setTransform(0);
           container.classList.remove('is-loading');
           
+          // ★修正箇所: エラーで戻った時は矢印を復活させる
+          thumb.innerHTML = '<i data-lucide="arrow-right"></i>';
+          
           const t = TRANSLATIONS[CURRENT_LANG];
           text.innerHTML = t[text.getAttribute('data-i18n')];
           text.style.opacity = 1;
+          
+          lucide.createIcons();
       };
       
       return container;
