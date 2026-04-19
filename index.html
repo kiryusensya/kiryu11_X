@@ -1305,10 +1305,10 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 .spotlight-hover:hover::before { opacity: 1; }
 .spotlight-hover > * { position: relative; z-index: 1; }
 /* =========================================
-   Heroボタンのカスタムデザイン（ホバー・フォーカスも完全統一）
+   Heroボタンのカスタムデザイン（全ボタンをダウンロードボタンと同一に統一）
    ========================================= */
 
-/* ▼ 共通のホバー・フォーカス・クリック時の動き（ダウンロードボタン基準） */
+/* ▼ 共通のホバー・フォーカス・クリック時の動き */
 .rgl-cta-btn, .rgl-buy-btn {
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
 }
@@ -1323,8 +1323,8 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1) !important;
 }
 
-/* 1. コード引き換えボタン: 常に「白っぽいガラス背景 ＋ 黒文字」 */
-.rgl-cta-btn:not(.is-download) {
+/* ▼ ライトモード（白ガラス ＋ 黒文字）: すべてのボタンに適用 */
+.rgl-cta-btn, .rgl-buy-btn {
     background: rgba(255, 255, 255, 0.5) !important;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -1333,59 +1333,22 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
     text-shadow: none !important;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
 }
-.rgl-cta-btn:not(.is-download):hover,
-.rgl-cta-btn:not(.is-download):focus {
-    background: rgba(255, 255, 255, 0.8) !important;
-}
-/* ダークモード時も白ガラスを維持 */
-[data-theme="dark"] .rgl-cta-btn:not(.is-download) {
-    background: rgba(255, 255, 255, 0.6) !important;
-    border: 1px solid rgba(255, 255, 255, 0.9) !important;
-}
-[data-theme="dark"] .rgl-cta-btn:not(.is-download):hover,
-[data-theme="dark"] .rgl-cta-btn:not(.is-download):focus {
-    background: rgba(255, 255, 255, 0.9) !important;
-}
-
-/* 2. 購入するボタン: 常に「黒っぽいガラス背景 ＋ 白文字」 */
-.rgl-buy-btn {
-    background: rgba(30, 30, 30, 0.6) !important;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    color: #FFFFFF !important;
-    text-shadow: none !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
-}
-.rgl-buy-btn:hover,
-.rgl-buy-btn:focus {
-    background: rgba(50, 50, 50, 0.8) !important;
-}
-
-/* 3. ダウンロードボタン: ライト時は白ガラス / ダーク時は黒ガラス */
-/* ▼ ライトモード */
-.rgl-cta-btn.is-download {
-    background: rgba(255, 255, 255, 0.5) !important;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.8) !important;
-    color: #000000 !important;
-    text-shadow: none !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
-}
-.rgl-cta-btn.is-download:hover,
-.rgl-cta-btn.is-download:focus {
+.rgl-cta-btn:hover, .rgl-cta-btn:focus,
+.rgl-buy-btn:hover, .rgl-buy-btn:focus {
     background: rgba(255, 255, 255, 0.8) !important;
 }
 
-/* ▼ ダークモード */
-[data-theme="dark"] .rgl-cta-btn.is-download {
+/* ▼ ダークモード（黒ガラス ＋ 白文字）: すべてのボタンに適用 */
+[data-theme="dark"] .rgl-cta-btn,
+[data-theme="dark"] .rgl-buy-btn {
     background: rgba(30, 30, 30, 0.6) !important;
     border: 1px solid rgba(255, 255, 255, 0.15) !important;
     color: #FFFFFF !important;
 }
-[data-theme="dark"] .rgl-cta-btn.is-download:hover,
-[data-theme="dark"] .rgl-cta-btn.is-download:focus {
+[data-theme="dark"] .rgl-cta-btn:hover,
+[data-theme="dark"] .rgl-cta-btn:focus,
+[data-theme="dark"] .rgl-buy-btn:hover,
+[data-theme="dark"] .rgl-buy-btn:focus {
     background: rgba(50, 50, 50, 0.8) !important;
 }
 </style>
