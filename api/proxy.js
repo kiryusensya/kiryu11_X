@@ -149,12 +149,14 @@ export default async function handler(req, res) {
             return res.status(200).json({ success: true, message: "Password reset successful" });
         }
 
-        // ユーザー履歴検索
+        // ==========================================
+        // ユーザー履歴検索 (admin_search) - ポイント数も返すように修正
+        // ==========================================
         if (type === 'admin_search') {
             const { targetEmail } = params;
             if (!targetEmail) return res.status(200).json({ success: false, message: "対象のメールアドレスを指定してください" });
 
-            const { data: targetUser } = await supabase.from('users').select('id, email').eq('email', targetEmail).maybeSingle();
+            const { data: targetUser } = await supabase.from('users').select('id, email, points').eq('email', targetEmail).maybeSingle();
             if (!targetUser) return res.status(200).json({ success: false, message: "指定されたユーザーが見つかりません" });
 
             const { data: histories, error: searchError } = await supabase.from('histories')
@@ -167,49 +169,24 @@ export default async function handler(req, res) {
               title: h.codes ? (h.codes["タイトル(jp)"] || "不明なコンテンツ") : "不明なコンテンツ",
               date: new Date(h.created_at).toLocaleString('ja-JP')
             }));
-            return res.status(200).json({ success: true, userId: targetUser.email, history: historyData });
+            
+            return res.status(200).json({ success: true, userId: targetUser.email, points: targetUser.points || 0, history: historyData });
         }
-      // ==========================================
-        // コンテンツ所有の無効化（履歴の削除）
+
         // ==========================================
-        if (type === 'admin_revoke_content') {
-            const { targetEmail, code } = params;
-            if (!targetEmail || !code) return res.status(200).json({ success: false, message: "パラメーターが不足しています" });
-
-            // 1. 対象ユーザーのIDを取得
-            const { data: targetUser } = await supabase.from('users').select('id').eq('email', targetEmail).maybeSingle();
-            if (!targetUser) return res.status(200).json({ success: false, message: "対象のユーザーが見つかりません" });
-
-            // 2. 該当コードのIDを取得
-            const { data: targetCode } = await supabase.from('codes').select('id').eq('アクティベーションコード', code).maybeSingle();
-            if (!targetCode) return res.status(200).json({ success: false, message: "対象のコードが見つかりません" });
-
-            // 3. histories テーブルから該当レコードを削除する
-            const { error: deleteError } = await supabase.from('histories')
-                .delete()
-                .match({ user_id: targetUser.id, code_id: targetCode.id });
-
-            if (deleteError) {
-                console.error("Revoke Error:", deleteError);
-                return res.status(200).json({ success: false, message: "データベースの削除に失敗しました" });
-            }
-
-            return res.status(200).json({ success: true, message: "Revoked successfully" });
-        }
-      // ==========================================
-        // コードステータス追跡 (admin_check_code)
+        // コードステータス追跡 (admin_check_code) - 確実なデータ取得に修正
         // ==========================================
         if (type === 'admin_check_code') {
             const { code } = params;
             if (!code) return res.status(200).json({ success: false, message: "コードを指定してください" });
 
-            // フロントエンドのフォーマットに合わせて大文字・ハイフンのみに整形
             const safeCode = String(code).replace(/[^A-Z0-9\-]/gi, "").toUpperCase();
             
-            // codeのIDも取得する
-            const { data: master, error } = await supabase.from('codes').select('id, アクティベーションコード, タイトル(jp), バンドル(jp), USED?').eq('アクティベーションコード', safeCode).maybeSingle();
+            // カラム名不一致エラーを回避するため select('*') を使用
+            const { data: master, error } = await supabase.from('codes').select('*').eq('アクティベーションコード', safeCode).maybeSingle();
             
             if (error || !master) {
+                console.error("Check Code Error:", error);
                 return res.status(200).json({ success: false, message: "指定されたコードはデータベースに存在しません" });
             }
 
@@ -218,7 +195,6 @@ export default async function handler(req, res) {
             let usedTime = null;
             let usedBy = null;
 
-            // 使用済みの場合、履歴(histories)から「いつ・誰が」使ったかを取得
             if (isUsed) {
                 const { data: history } = await supabase.from('histories')
                     .select('created_at, users(email)')
@@ -251,29 +227,27 @@ export default async function handler(req, res) {
             if (!code) return res.status(200).json({ success: false, message: "コードを指定してください" });
 
             const safeCode = String(code).replace(/[^A-Z0-9\-]/gi, "").toUpperCase();
-            // USED? フラグを false（未使用）に戻す
             const { error } = await supabase.from('codes').update({ "USED?": false }).eq('アクティベーションコード', safeCode);
             
             if (error) {
                 console.error("Reset Code Error:", error);
                 return res.status(200).json({ success: false, message: "データベースの更新に失敗しました" });
             }
-            
             return res.status(200).json({ success: true, message: "OK" });
         }
 
         // ==========================================
-        // ポイント手動調整 (admin_adjust_points)
+        // ポイント直接設定 (admin_set_points)
         // ==========================================
-        if (type === 'admin_adjust_points') {
+        if (type === 'admin_set_points') {
             const { targetEmail, amount } = params;
             if (!targetEmail || amount === undefined) return res.status(200).json({ success: false, message: "パラメーターが不足しています" });
 
-            const { data: targetUser } = await supabase.from('users').select('id, points').eq('email', targetEmail).maybeSingle();
+            const { data: targetUser } = await supabase.from('users').select('id').eq('email', targetEmail).maybeSingle();
             if (!targetUser) return res.status(200).json({ success: false, message: "対象のユーザーが見つかりません" });
 
-            // 現在のポイントに加算（マイナスになる場合は0でストップさせる）
-            const newPoints = Math.max(0, (targetUser.points || 0) + amount);
+            // 指定された数値を直接上書き（マイナス防止）
+            const newPoints = Math.max(0, amount);
 
             const { error } = await supabase.from('users').update({ points: newPoints }).eq('id', targetUser.id);
             if (error) return res.status(200).json({ success: false, message: "ポイントの更新に失敗しました" });
@@ -282,70 +256,33 @@ export default async function handler(req, res) {
         }
 
         // ==========================================
-        // アカウント完全削除 (admin_delete_user)
-        // ==========================================
-        if (type === 'admin_delete_user') {
-            const { targetEmail } = params;
-            if (!targetEmail) return res.status(200).json({ success: false, message: "パラメーターが不足しています" });
-
-            const { data: targetUser } = await supabase.from('users').select('id').eq('email', targetEmail).maybeSingle();
-            if (!targetUser) return res.status(200).json({ success: false, message: "ユーザーが見つかりません" });
-
-            // 1. 外部キー制約エラーを防ぐため、先に紐づく履歴(histories)を全削除
-            await supabase.from('histories').delete().eq('user_id', targetUser.id);
-            
-            // 2. users テーブルから完全に削除
-            const { error } = await supabase.from('users').delete().eq('id', targetUser.id);
-            
-            if (error) {
-                console.error("Delete User Error:", error);
-                return res.status(200).json({ success: false, message: "アカウントの削除に失敗しました" });
-            }
-
-            return res.status(200).json({ success: true, message: "OK" });
-        }
-
-        // ==========================================
-        // コンテンツ（コード）の新規発行・上書き保存 (admin_save_code)
+        // コンテンツ（コード）の新規発行・上書き保存 (admin_save_code) - 完全対応版
         // ==========================================
         if (type === 'admin_save_code') {
-            const { code, codeType, titleJp, price, pointPpp } = params;
-            if (!code) return res.status(200).json({ success: false, message: "コードを指定してください" });
+            const { payload } = params;
+            if (!payload || !payload["アクティベーションコード"]) return res.status(200).json({ success: false, message: "コードが指定されていません" });
 
-            const safeCode = String(code).replace(/[^A-Z0-9\-]/gi, "").toUpperCase();
-            
-            // 既存のコードかどうかチェック
+            const safeCode = String(payload["アクティベーションコード"]).replace(/[^A-Z0-9\-]/gi, "").toUpperCase();
+            payload["アクティベーションコード"] = safeCode;
+            payload["有効/無効"] = true; // 強制的に有効化
+
             const { data: existing } = await supabase.from('codes').select('id').eq('アクティベーションコード', safeCode).maybeSingle();
-
-            // DBに保存するデータのベース
-            const payload = {
-                "アクティベーションコード": safeCode,
-                "Types": codeType, // ONCE, MULTIPLE, POINT
-                "タイトル(jp)": titleJp,
-                "価格": price || 0,
-                "Point PPP": codeType === 'POINT' ? pointPpp : 0,
-                "有効/無効": true,
-                "show/ hide": "show"
-            };
 
             let error;
             if (existing) {
-                // 既に存在する場合は上書き更新 (UPDATE)
                 const res = await supabase.from('codes').update(payload).eq('id', existing.id);
                 error = res.error;
             } else {
-                // 存在しない場合は新規作成 (INSERT)
                 const res = await supabase.from('codes').insert([payload]);
                 error = res.error;
             }
 
             if (error) {
                 console.error("Save Code Error:", error);
-                return res.status(200).json({ success: false, message: "データベースへの保存に失敗しました" });
+                return res.status(200).json({ success: false, message: "データベースの保存に失敗しました: " + error.message });
             }
             return res.status(200).json({ success: true, message: "OK" });
         }
-    }
 
     // ==========================================
     // 一般ユーザー用機能 (パスワード変更・ストア機能など)
