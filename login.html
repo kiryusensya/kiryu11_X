@@ -110,7 +110,7 @@
       justify-content: center;
   }
 
-  /* PC向け 2カラムレイアウト (固定幅800px、拡大禁止・レイアウト崩れ防止) */
+  /* PC向け 2カラムレイアウト */
   .login-image-side { display: none; }
   @media (min-width: 769px) {
       .login-wrapper { width: 800px; max-width: none; }
@@ -123,7 +123,7 @@
       }
       .login-image-side img {
           position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-          object-fit: cover; /* 枠の幅・高さに合わせて隙間なく表示し、はみ出た部分はトリミング */
+          object-fit: cover;
       }
   }
 
@@ -198,7 +198,10 @@
     background: var(--primary);
     cursor: default;
   }
-  .slide-container.is-loading .slide-thumb i { display: none; }
+  /* ★修正: lucideが生成したsvgごと非表示にする */
+  .slide-container.is-loading .slide-thumb i,
+  .slide-container.is-loading .slide-thumb svg { display: none !important; }
+  
   .slide-container.is-loading .slide-text {
     color: #ffffff;
     z-index: 3;
@@ -325,7 +328,7 @@
   // ===== 翻訳データ =====
   const TRANSLATIONS = {
     ja: {
-      title_login: "ログイン", ph_user: "ユーザー名", ph_pass: "PASS", link_support: "ログインできない場合",
+      title_login: "通行証", ph_user: "ユーザー名", ph_pass: "パスワード", link_support: "ログインできない場合",
       title_force: "パスワードの変更", desc_force: "セキュリティのため、初期パスワードからの変更をお願いします。",
       ph_new_pass: "新しいパスワード", ph_conf_pass: "確認用パスワード", 
       slide_login: "スライドして進む", slide_force: "スライドして変更", slide_loading: "認証中...",
@@ -334,7 +337,7 @@
       err_match: "パスワードが一致しません", msg_success: "変更完了！ログインします...", lang_label: "日本語"
     },
     en: {
-      title_login: "LOGIN", ph_user: "Username", ph_pass: "Password", link_support: "Trouble logging in?",
+      title_login: "ENTRY PASS", ph_user: "Username", ph_pass: "Password", link_support: "Trouble logging in?",
       title_force: "Change Password", desc_force: "For security reasons, please change your initial password.",
       ph_new_pass: "New Password", ph_conf_pass: "Confirm Password", 
       slide_login: "Slide to enter", slide_force: "Slide to update", slide_loading: "Authenticating...",
@@ -343,7 +346,7 @@
       err_match: "Passwords do not match.", msg_success: "Success! Logging you in...", lang_label: "English"
     },
     zh: {
-      title_login: "登录", ph_user: "用户名", ph_pass: "密码", link_support: "无法登录？",
+      title_login: "入口认证通行证", ph_user: "用户名", ph_pass: "密码", link_support: "无法登录？",
       title_force: "修改密码", desc_force: "出于安全原因，请修改您的初始密码。",
       ph_new_pass: "新密码", ph_conf_pass: "确认密码", 
       slide_login: "滑动以进入", slide_force: "滑动以修改", slide_loading: "验证中...",
@@ -352,7 +355,7 @@
       err_match: "两次输入的新密码不一致。", msg_success: "修改成功！正在登录...", lang_label: "简体中文"
     },
     "zh-TW": {
-      title_login: "登入", ph_user: "使用者名稱", ph_pass: "密碼", link_support: "無法登入？",
+      title_login: "入口認證通行證", ph_user: "使用者名稱", ph_pass: "密碼", link_support: "無法登入？",
       title_force: "修改密碼", desc_force: "出於安全原因，請修改您的初始密碼。",
       ph_new_pass: "新密碼", ph_conf_pass: "確認密碼", 
       slide_login: "滑動以進入", slide_force: "滑動以修改", slide_loading: "驗證中...",
@@ -361,7 +364,7 @@
       err_match: "兩次輸入的新密碼不一致。", msg_success: "修改成功！正在登入...", lang_label: "繁體中文"
     },
     ko: {
-      title_login: "로그인", ph_user: "사용자 이름", ph_pass: "비밀번호", link_support: "로그인할 수 없습니까?",
+      title_login: "입실 인증 통행증", ph_user: "사용자 이름", ph_pass: "비밀번호", link_support: "로그인할 수 없습니까?",
       title_force: "비밀번호 변경", desc_force: "보안을 위해 초기 비밀번호를 변경해 주세요.",
       ph_new_pass: "새 비밀번호", ph_conf_pass: "비밀번호 확인", 
       slide_login: "슬라이드하여 진행", slide_force: "슬라이드하여 변경", slide_loading: "인증 중...",
@@ -370,7 +373,7 @@
       err_match: "비밀번호가 일치하지 않습니다.", msg_success: "변경 완료! 로그인합니다...", lang_label: "한국어"
     },
     ru: {
-      title_login: "ВХОД", ph_user: "Имя пользователя", ph_pass: "Пароль", link_support: "Забыли пароль?",
+      title_login: "Проходить", ph_user: "Имя пользователя", ph_pass: "Пароль", link_support: "Забыли пароль?",
       title_force: "Смена пароля", desc_force: "В целях безопасности измените начальный пароль.",
       ph_new_pass: "Новый пароль", ph_conf_pass: "Подтвердите пароль", 
       slide_login: "Проведите для входа", slide_force: "Проведите для смены", slide_loading: "Аутентификация...",
