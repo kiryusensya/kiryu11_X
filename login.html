@@ -469,11 +469,9 @@
           container.classList.add('is-loading');
           
           const t = TRANSLATIONS[CURRENT_LANG];
-          // アイコン、テキスト、そしてアニメーション用のspan枠を配置
           text.innerHTML = `<i data-lucide="loader-2" class="lucide-spin" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 8px;"></i><span>${t.slide_loading}</span><span class="loading-dots" style="display:inline-block; width:1.5em; text-align:left;"></span>`;
           lucide.createIcons();
 
-          // CSSのハックをやめ、JSで確実に「.」「..」「...」を切り替える
           let dotsCount = 0;
           container.dotsInterval = setInterval(() => {
               dotsCount = (dotsCount + 1) % 4;
@@ -483,6 +481,7 @@
               }
           }, 400);
 
+          // 待機時間を少し置いてからコールバックを実行
           setTimeout(() => {
               onComplete();
           }, 400); 
@@ -521,7 +520,6 @@
           setTransform(0);
           container.classList.remove('is-loading');
           
-          // アニメーションを停止
           if(container.dotsInterval) clearInterval(container.dotsInterval);
           
           const t = TRANSLATIONS[CURRENT_LANG];
@@ -559,6 +557,7 @@
         
         if (data.success) {
           if (data.requirePasswordChange) {
+              // ★ ここで userId と 今回入力した password を保持しておく
               tempChangeData = { userId: data.userId, oldPassword: pass };
               document.getElementById('loginView').style.display = 'none';
               document.getElementById('forcePasswordChangeView').style.display = 'flex';
@@ -567,15 +566,9 @@
           }
           localStorage.setItem('user_session_identity', JSON.stringify({ userId: data.userId, email: email }));
           localStorage.setItem('user_session_token', data.token);
-          // パラメータを引き継いで index.html に戻る
           window.location.href = 'index.html' + window.location.search;
         } else {
-          const msg = (data.message || "").toLowerCase();
-          if (msg.includes('invalid') || msg.includes('not found') || msg.includes('incorrect') || msg.includes('無効')) {
-              statusEl.textContent = t.err_invalid;
-          } else {
-              statusEl.textContent = t.err_invalid;
-          }
+          statusEl.textContent = t.err_invalid;
           loginSliderObj.reset();
         }
       } catch (e) { 
@@ -601,9 +594,9 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 type: 'change_password', 
-                userId: tempChangeData.userId, 
-                oldPassword: tempChangeData.oldPassword, 
-                newPassword: newPass 
+                userId: tempChangeData.userId,       // 保存しておいたユーザーID
+                oldPassword: tempChangeData.oldPassword, // 保存しておいた元のパスワード
+                newPassword: newPass                 // 今回入力した新しいパスワード
             })
         });
         const data = await res.json();
@@ -612,17 +605,19 @@
             errObj.style.color = "var(--success)";
             errObj.textContent = t.msg_success;
             setTimeout(() => {
+                // 変更成功後、ログイン画面のパスワード欄を新しいパスワードで上書きして、自動ログインさせる
                 document.getElementById('inputPass').value = newPass;
                 document.getElementById('forcePasswordChangeView').style.display = 'none';
                 document.getElementById('loginView').style.display = 'flex';
-                // 変更成功後、自動でログイン処理へ流す
                 loginSliderObj.setLoading();
             }, 1000);
         } else {
-            errObj.textContent = data.message;
+            errObj.style.color = "var(--danger)";
+            errObj.textContent = data.message || "Invalid";
             forceSliderObj.reset();
         }
     } catch(e) {
+        errObj.style.color = "var(--danger)";
         errObj.textContent = t.err_net;
         forceSliderObj.reset();
     }
@@ -632,9 +627,19 @@
   document.addEventListener('keydown', (e) => {
       if(e.key === 'Enter') {
           if(document.getElementById('loginView').style.display !== 'none') {
-              loginSliderObj.setLoading();
+              // ログイン画面の時
+              const email = document.getElementById('inputEmail').value.trim();
+              const pass = document.getElementById('inputPass').value.trim();
+              if (email && pass) {
+                  loginSliderObj.setLoading();
+              }
           } else if(document.getElementById('forcePasswordChangeView').style.display !== 'none') {
-              forceSliderObj.setLoading();
+              // パスワード変更画面の時
+              const p1 = document.getElementById('newPassInput').value.trim();
+              const p2 = document.getElementById('newPassConfirm').value.trim();
+              if (p1 && p2) {
+                  forceSliderObj.setLoading();
+              }
           }
       }
   });
