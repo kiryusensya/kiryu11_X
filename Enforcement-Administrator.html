@@ -191,6 +191,12 @@
 </div>
 
 <script>
+  const escapeHTML = (str) => {
+  if (!str) return "";
+  return String(str).replace(/[&<>"']/g, (match) => {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[match];
+  });
+};
   lucide.createIcons();
   const GAS_API_URL = "api/proxy"; 
 
