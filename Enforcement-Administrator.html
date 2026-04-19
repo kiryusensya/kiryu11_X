@@ -2,7 +2,7 @@
 <html lang="ja" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Enforcement Administrator</title>
 
 <script>
@@ -47,6 +47,7 @@
   .sidebar {
     width: 280px; background: #000; border-right: 1px solid var(--card-border);
     display: flex; flex-direction: column; padding: 24px;
+    flex-shrink: 0;
   }
   .brand { font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 10px; margin-bottom: 40px; }
 
@@ -74,18 +75,20 @@
 
   .form-group { margin-bottom: 20px; text-align: left; }
   label { display: block; font-size: 13px; font-weight: 700; color: var(--text-sub); margin-bottom: 8px; }
-  input {
+  input, select {
     width: 100%; height: 50px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2);
     border-radius: 12px; color: var(--text-main); padding: 0 16px; font-size: 15px; font-family: inherit; outline: none;
   }
-  input:focus { border-color: var(--primary); background: rgba(0, 125, 255, 0.05); }
+  select { appearance: none; cursor: pointer; }
+  input:focus, select:focus { border-color: var(--primary); background: rgba(0, 125, 255, 0.05); }
 
   button {
     height: 50px; border-radius: 25px; font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.2s;
     border: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;
   }
   .btn-primary { background: var(--primary); color: #fff; width: 100%; }
-  .btn-primary:hover { opacity: 0.8; }
+  .btn-primary:hover:not(:disabled) { opacity: 0.8; }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
   .btn-danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); width: auto; padding: 0 20px; height: 40px; border-radius: 20px; font-size: 14px;}
   .btn-danger:hover { background: rgba(255, 59, 48, 0.1); }
 
@@ -95,27 +98,48 @@
   .history-list li { background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); padding: 16px; margin-bottom: 10px; border-radius: 12px; }
   .history-title { font-weight: 800; font-size: 16px; margin-bottom: 6px; display: block; }
   .history-meta { color: var(--text-sub); font-size: 12px; line-height: 1.5; }
+
+  /* --- スマホ対応 (モバイルレスポンシブ) --- */
+  @media (max-width: 768px) {
+    body { flex-direction: column; overflow-y: auto; }
+    .sidebar { width: 100%; padding: 16px; border-right: none; border-bottom: 1px solid var(--card-border); flex-direction: row; flex-wrap: wrap; justify-content: space-between; align-items: center; }
+    .brand { width: 100%; margin-bottom: 16px; justify-content: center; }
+    .nav-item { width: calc(50% - 6px); justify-content: center; font-size: 12px; padding: 12px 8px; margin-bottom: 8px; }
+    .sidebar > div:last-child { width: 100%; margin-top: 8px; }
+    .main-content { padding: 20px; overflow-y: visible; }
+    .header { flex-direction: column; align-items: flex-start; gap: 10px; margin-bottom: 24px; }
+    .header h1 { font-size: 22px; }
+    .card { padding: 20px; }
+    .form-group input, .form-group select { font-size: 14px; }
+    .grid-form { grid-template-columns: 1fr !important; gap: 0 !important; }
+  }
 </style>
 </head>
 <body>
 
 <div class="sidebar">
   <div class="brand">
-      <i data-lucide="server"></i> 管理控制台
+      <i data-lucide="server"></i> 管理コントロール
   </div>
   
   <div class="nav-item active" onclick="switchTab('create')">
       <i data-lucide="user-plus"></i> ユーザー発行
   </div>
   <div class="nav-item" onclick="switchTab('reset')">
-      <i data-lucide="key-round"></i> パスワードリセット
+      <i data-lucide="key-round"></i> パスワード強制
   </div>
   <div class="nav-item" onclick="switchTab('search')">
-      <i data-lucide="search"></i> 履歴検索
+      <i data-lucide="users"></i> ユーザー管理
+  </div>
+  <div class="nav-item" onclick="switchTab('codes')">
+      <i data-lucide="package"></i> コンテンツ管理
+  </div>
+  <div class="nav-item" onclick="switchTab('code-support')">
+      <i data-lucide="life-buoy"></i> コード追跡・復旧
   </div>
   
   <div style="margin-top: auto;">
-      <button id="btnLogout" class="btn-danger" style="width:100%; border:none; text-align:left; justify-content:flex-start;">
+      <button id="btnLogout" class="btn-danger" style="width:100%; border:none; text-align:center; justify-content:center; background: rgba(255,59,48,0.1);">
           <i data-lucide="log-out"></i> ログアウト
       </button>
   </div>
@@ -133,8 +157,8 @@
       <div class="card">
           <h2>新規アカウントの作成</h2>
           <div class="form-group">
-            <label>新しいユーザーID</label>
-            <input type="text" id="newUserId" placeholder="例: user_001">
+            <label>新しいユーザーID (Email)</label>
+            <input type="text" id="newUserId" placeholder="例: user_001@example.com">
           </div>
           <div class="form-group">
             <label>初期パスワード</label>
@@ -149,7 +173,7 @@
       <div class="card">
           <h2>パスワードの強制リセット</h2>
           <p style="font-size:13px; color:var(--text-sub); margin-bottom:20px;">
-              指定したユーザーのパスワードを上書きします。次回のログイン時に強制的に変更が求められます。
+              指定したユーザーのパスワードを上書きし、次回ログイン時に変更を強制します。
           </p>
           <div class="form-group">
             <label>対象のユーザーID</label>
@@ -166,26 +190,78 @@
 
   <div id="panel-search" class="panel">
       <div class="card" style="max-width: 100%;">
-          <h2>ユーザー履歴・ステータス検索</h2>
+          <h2>ユーザー検索・サポート</h2>
           <div style="display: flex; gap: 16px; align-items: flex-end;">
             <div class="form-group" style="flex:1; margin-bottom:0;">
               <label>対象のユーザーID</label>
               <input type="text" id="searchUserId" placeholder="検索したいユーザーID">
             </div>
-            <button id="btnSearch" class="btn-primary" style="width: 120px;">検索</button>
+            <button id="btnSearch" class="btn-primary" style="width: 100px;">検索</button>
           </div>
           <div id="searchResult" style="margin-top: 30px;"></div>
       </div>
   </div>
+
+  <div id="panel-codes" class="panel">
+      <div class="card" style="max-width: 800px;">
+          <h2>コンテンツ（コード）の発行・編集</h2>
+          <p style="font-size:12px; color:var(--text-sub); margin-bottom:20px;">既存のコードを入力すると上書き更新、新しいコードを入力すると新規作成されます。</p>
+          <div class="grid-form" style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div class="form-group">
+                  <label>アクティベーションコード</label>
+                  <input type="text" id="mngCode" placeholder="AAAA-BBBB-CCCC">
+              </div>
+              <div class="form-group">
+                  <label>タイプ</label>
+                  <select id="mngType">
+                      <option value="ONCE">1回限り (ONCE)</option>
+                      <option value="MULTIPLE">無制限 (MULTIPLE)</option>
+                      <option value="POINT">ポイント付与 (POINT)</option>
+                  </select>
+              </div>
+              <div class="form-group">
+                  <label>タイトル (日本語)</label>
+                  <input type="text" id="mngTitle" placeholder="コンテンツの表示名">
+              </div>
+              <div class="form-group">
+                  <label>価格 (ポイント)</label>
+                  <input type="number" id="mngPrice" value="0">
+              </div>
+              <div class="form-group" style="grid-column: 1 / -1;">
+                  <label>付与ポイント数 (タイプがPOINTの場合のみ)</label>
+                  <input type="number" id="mngPpp" value="0">
+              </div>
+          </div>
+          <button id="btnSaveCode" class="btn-primary" style="background:#04CF22;">保存 / 登録する</button>
+          <div id="codeManageResult" class="msg"></div>
+      </div>
+  </div>
+
+  <div id="panel-code-support" class="panel">
+      <div class="card">
+          <h2>コードステータス追跡・復旧</h2>
+          <p style="font-size:13px; color:var(--text-sub); margin-bottom:20px;">
+              ユーザーが「コードが使えない」と問い合わせてきた際に、使用状況を確認・リセットします。
+          </p>
+          <div class="form-group">
+              <label>対象のコード</label>
+              <div style="display: flex; gap: 10px;">
+                  <input type="text" id="targetSupportCode" placeholder="AAAA-BBBB-CCCC" style="flex:1;">
+                  <button id="btnCheckCode" class="btn-primary" style="width:100px;">確認</button>
+              </div>
+          </div>
+          <div id="codeSupportResult" style="margin-top: 20px;"></div>
+      </div>
+  </div>
+
 </div>
 
 <script>
   lucide.createIcons();
   
-  // GASのデプロイURLを指定してください
+  // GASのデプロイURL (本番環境に合わせて変更)
   const GAS_API_URL = "api/proxy"; 
 
-  // --- Cookie取得関数 ---
   function getCookie(name) {
       const value = `; ${document.cookie}`;
       const parts = value.split(`; ${name}=`);
@@ -193,14 +269,10 @@
       return null;
   }
 
-  // --- 安全な通信ラッパー (Cookieからトークンを取得して送信) ---
   async function safeFetch(bodyObj) {
       const token = getCookie('admin_token');
-      
       const headers = { 'Content-Type': 'application/json' };
-      if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
-      }
+      if (token) headers['Authorization'] = `Bearer ${token}`;
 
       const response = await fetch(GAS_API_URL, {
           method: 'POST',
@@ -209,10 +281,7 @@
       });
       
       const data = await response.json();
-      
-      // サーバー側で認証エラーが返ってきた場合の強制ログアウト処理
       if (data.error === "invalid_token" || data.error === "unauthorized" || data.error === "expired") {
-          // Cookieを明示的に破棄
           document.cookie = "admin_token=; path=/; max-age=0;";
           window.location.replace('signin.html');
           throw new Error("認証セッションが切れました");
@@ -228,18 +297,24 @@
       document.getElementById('panel-' + tabId).classList.add('active');
       event.currentTarget.classList.add('active');
       
-      const titles = { 'create': 'ユーザー発行', 'reset': 'パスワードリセット', 'search': '履歴検索' };
+      const titles = { 
+          'create': 'ユーザー発行', 
+          'reset': 'パスワード強制', 
+          'search': 'ユーザー管理',
+          'codes': 'コンテンツ（コード）管理',
+          'code-support': 'コード追跡・復旧'
+      };
       document.getElementById('pageTitle').textContent = titles[tabId];
   }
 
-  // --- ログアウト処理 ---
   document.getElementById('btnLogout').addEventListener('click', () => {
-      // Cookieを破棄してログイン画面へ
       document.cookie = "admin_token=; path=/; max-age=0;"; 
       window.location.href = 'signin.html';
   });
 
-  // --- 1. ユーザー発行 ---
+  // ==========================================
+  // 1. ユーザー発行
+  // ==========================================
   document.getElementById('btnCreate').addEventListener('click', async () => {
       const u = document.getElementById('newUserId').value.trim();
       const p = document.getElementById('newUserPass').value.trim();
@@ -249,26 +324,21 @@
 
       resEl.textContent = "発行中..."; resEl.style.color = "var(--text-sub)";
       try {
-          const d = await safeFetch({ 
-              type: 'admin_create_user', 
-              email: u, 
-              password: p 
-          });
-          
+          const d = await safeFetch({ type: 'admin_create_user', email: u, password: p });
           if(d.success) {
-              resEl.textContent = `✅ 発行成功！ ID: ${u} / 初期Pass: ${p}`; resEl.style.color = "var(--success)";
+              resEl.textContent = `✅ 発行成功！ ID: ${u}`; resEl.style.color = "var(--success)";
               document.getElementById('newUserId').value = ""; document.getElementById('newUserPass').value = "";
           } else {
               resEl.textContent = `エラー: ${d.message}`; resEl.style.color = "var(--danger)";
           }
       } catch(e) { 
-          if(e.message !== "認証セッションが切れました") {
-              resEl.textContent = "通信エラー"; resEl.style.color = "var(--danger)"; 
-          }
+          if(e.message !== "認証セッションが切れました") resEl.textContent = "通信エラー"; resEl.style.color = "var(--danger)"; 
       }
   });
 
-  // --- 2. パスワードリセット ---
+  // ==========================================
+  // 2. パスワードリセット
+  // ==========================================
   document.getElementById('btnReset').addEventListener('click', async () => {
       const u = document.getElementById('resetUserId').value.trim();
       const p = document.getElementById('resetUserPass').value.trim();
@@ -279,27 +349,22 @@
 
       resEl.textContent = "リセット実行中..."; resEl.style.color = "var(--text-sub)";
       try {
-          const d = await safeFetch({ 
-              type: 'admin_reset_password', 
-              targetEmail: u, 
-              newPassword: p 
-          });
-          
+          const d = await safeFetch({ type: 'admin_reset_password', targetEmail: u, newPassword: p });
           if(d.success) {
-              resEl.textContent = `✅ 完了！ユーザー「${u}」のパスワードを「${p}」に強制リセットしました。`; 
+              resEl.textContent = `✅ 完了！ユーザー「${u}」のパスワードを強制リセットしました。`; 
               resEl.style.color = "var(--success)";
               document.getElementById('resetUserId').value = ""; document.getElementById('resetUserPass').value = "";
           } else {
               resEl.textContent = `エラー: ${d.message}`; resEl.style.color = "var(--danger)";
           }
       } catch(e) { 
-          if(e.message !== "認証セッションが切れました") {
-              resEl.textContent = "通信エラー"; resEl.style.color = "var(--danger)"; 
-          }
+          if(e.message !== "認証セッションが切れました") resEl.textContent = "通信エラー"; resEl.style.color = "var(--danger)"; 
       }
   });
 
- // --- 3. 履歴検索 & 無効化機能 (XSS対策済み) ---
+  // ==========================================
+  // 3. ユーザー管理 (検索 / ポイント調整 / アカウント削除 / 履歴無効化)
+  // ==========================================
   document.getElementById('btnSearch').addEventListener('click', async () => {
     const u = document.getElementById('searchUserId').value.trim();
     const resEl = document.getElementById('searchResult');
@@ -312,42 +377,85 @@
         resEl.innerHTML = '';
 
         if (d.success) {
-            if (!d.history || d.history.length === 0) {
-                resEl.innerHTML = "<div style='text-align:center; color:var(--text-sub); padding:20px;'>このユーザーの履歴はありません。</div>";
-            } else {
-                const targetDiv = document.createElement('div');
-                targetDiv.style.cssText = 'margin-bottom:16px; font-size:14px;';
-                targetDiv.innerHTML = `<strong>Target: </strong>${d.userId || u}`;
-                resEl.appendChild(targetDiv);
+            // --- ユーザー操作パネル ---
+            const actionsDiv = document.createElement('div');
+            actionsDiv.style.cssText = 'background:rgba(255,255,255,0.05); padding:20px; border-radius:12px; margin-bottom:20px; border: 1px solid var(--card-border);';
+            actionsDiv.innerHTML = `
+                <h3 style="margin:0 0 16px 0; font-size:16px;">
+                    <i data-lucide="user" style="width:16px; height:16px; vertical-align:-2px; margin-right:4px;"></i> 
+                    ${d.userId || u}
+                </h3>
+                <div style="display:flex; gap:10px; margin-bottom: 20px; flex-wrap:wrap; align-items:center;">
+                    <input type="number" id="adjustPtVal" placeholder="例: 500 または -100" style="width:180px; height:44px; margin-bottom:0;">
+                    <button class="btn-primary" id="btnAdjustPt" style="width:auto; height:44px; padding:0 20px; font-size:14px; background:#04CF22;">ポイント増減</button>
+                </div>
+                <div style="border-top: 1px solid rgba(255,59,48,0.3); padding-top:16px;">
+                    <button class="btn-danger" id="btnDeleteUser" style="width:100%; color:var(--danger); border-color:var(--danger); background: rgba(255,59,48,0.1);">
+                        <i data-lucide="alert-triangle" style="width:16px; height:16px; margin-right:4px;"></i> このアカウントを完全に削除
+                    </button>
+                </div>
+            `;
+            resEl.appendChild(actionsDiv);
 
+            // ポイント調整イベント
+            actionsDiv.querySelector('#btnAdjustPt').addEventListener('click', async (e) => {
+                const ptVal = actionsDiv.querySelector('#adjustPtVal').value;
+                if(!ptVal) return;
+                const btn = e.currentTarget;
+                btn.textContent = "処理中..."; btn.disabled = true;
+                try {
+                    const ptRes = await safeFetch({ type: 'admin_adjust_points', targetEmail: d.userId || u, amount: parseInt(ptVal) });
+                    if(ptRes.success) {
+                        alert(`成功: ポイントを調整しました。`);
+                        actionsDiv.querySelector('#adjustPtVal').value = '';
+                    } else alert(`エラー: ${ptRes.message}`);
+                } catch(err) { alert('通信エラー'); }
+                btn.textContent = "ポイント増減"; btn.disabled = false;
+            });
+
+            // アカウント完全削除イベント
+            actionsDiv.querySelector('#btnDeleteUser').addEventListener('click', async (e) => {
+                const confCode = prompt(`【危険】本当に削除する場合は対象のID「${d.userId || u}」を入力してください。`);
+                if(confCode !== (d.userId || u)) {
+                    if(confCode !== null) alert("入力されたIDが一致しません。");
+                    return;
+                }
+                
+                const btn = e.currentTarget;
+                btn.textContent = "削除中..."; btn.disabled = true;
+                try {
+                    const delRes = await safeFetch({ type: 'admin_delete_user', targetEmail: d.userId || u });
+                    if(delRes.success) {
+                        alert("アカウントを完全に削除しました。");
+                        resEl.innerHTML = ''; // 画面クリア
+                    } else {
+                        alert(`エラー: ${delRes.message}`);
+                        btn.innerHTML = `<i data-lucide="alert-triangle" style="width:16px; height:16px; margin-right:4px;"></i> このアカウントを完全に削除`; 
+                        btn.disabled = false;
+                    }
+                } catch(err) { alert('通信エラー'); btn.disabled = false;}
+            });
+
+            // --- 履歴リスト ---
+            if (!d.history || d.history.length === 0) {
+                const emptyMsg = document.createElement('div');
+                emptyMsg.style.cssText = 'text-align:center; color:var(--text-sub); padding:20px;';
+                emptyMsg.textContent = 'このユーザーの履歴はありません。';
+                resEl.appendChild(emptyMsg);
+            } else {
                 const ul = document.createElement('ul');
                 ul.className = 'history-list';
 
                 d.history.forEach(h => {
                     const li = document.createElement('li');
-                    li.style.display = 'flex';
-                    li.style.justifyContent = 'space-between';
-                    li.style.alignItems = 'center';
+                    li.style.display = 'flex'; li.style.justifyContent = 'space-between'; li.style.alignItems = 'center';
 
                     const infoDiv = document.createElement('div');
-
-// navigator.languageでブラウザの言語設定を取得し、
-// タイムゾーンはブラウザのローカル環境に自動で委ねる
-const localDate = new Date(h.date).toLocaleString(navigator.language, { 
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit'
-});
-
-infoDiv.innerHTML = `<span class="history-title">${h.title}</span><span class="history-meta">利用コード: ${h.code}<br>認証日時: ${localDate}</span>`;
-li.appendChild(infoDiv);
-                    infoDiv.innerHTML = `<span class="history-title">${h.title}</span><span class="history-meta">利用コード: ${h.code}<br>認証日時: ${h.date}</span>`;
+                    const localDate = new Date(h.date).toLocaleString(navigator.language, { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+                    
+                    infoDiv.innerHTML = `<span class="history-title">${h.title}</span><span class="history-meta">利用コード: ${h.code}<br>日時: ${localDate}</span>`;
                     li.appendChild(infoDiv);
 
-                    // ★管理者の無効化ボタン
                     const revokeBtn = document.createElement('button');
                     revokeBtn.className = 'btn-danger';
                     revokeBtn.style.cssText = 'height: 32px; padding: 0 16px; font-size: 12px; border-radius: 16px;';
@@ -355,53 +463,130 @@ li.appendChild(infoDiv);
                     
                     revokeBtn.addEventListener('click', async () => {
                         if (!confirm(`【警告】\n「${h.title}」の所有権を無効化（削除）しますか？`)) return;
-                        
-                        revokeBtn.textContent = '処理中...';
-                        revokeBtn.disabled = true;
-
+                        revokeBtn.textContent = '処理中...'; revokeBtn.disabled = true;
                         try {
-                            const revokeRes = await safeFetch({
-                                type: 'admin_revoke_content',
-                                targetEmail: d.userId || u,
-                                code: h.code
-                            });
-
+                            const revokeRes = await safeFetch({ type: 'admin_revoke_content', targetEmail: d.userId || u, code: h.code });
                             if (revokeRes.success) {
                                 revokeBtn.textContent = '完了';
-                                revokeBtn.style.background = 'var(--success)';
-                                revokeBtn.style.color = '#fff';
-                                revokeBtn.style.borderColor = 'var(--success)';
-                                
+                                revokeBtn.style.background = 'var(--success)'; revokeBtn.style.color = '#fff'; revokeBtn.style.borderColor = 'var(--success)';
                                 setTimeout(() => {
-                                    li.style.transition = 'all 0.4s ease';
-                                    li.style.opacity = '0';
-                                    li.style.transform = 'translateX(20px)';
+                                    li.style.transition = 'all 0.4s ease'; li.style.opacity = '0'; li.style.transform = 'translateX(20px)';
                                     setTimeout(() => li.remove(), 400);
                                 }, 500);
                             } else {
-                                alert(`エラー: ${revokeRes.message}`);
-                                revokeBtn.disabled = false;
+                                alert(`エラー: ${revokeRes.message}`); revokeBtn.disabled = false;
                             }
-                        } catch(e) {
-                            alert('通信エラーが発生しました。');
-                            revokeBtn.disabled = false;
-                        }
+                        } catch(e) { alert('通信エラーが発生しました。'); revokeBtn.disabled = false; }
                     });
                     li.appendChild(revokeBtn);
                     ul.appendChild(li);
                 });
                 resEl.appendChild(ul);
-                lucide.createIcons();
             }
+            lucide.createIcons();
         } else {
             resEl.innerHTML = `<span style='color:var(--danger);'>エラー: ${d.message}</span>`;
         }
     } catch (e) {
-        if(e.message !== "認証セッションが切れました") {
-            resEl.innerHTML = "<span style='color:var(--danger);'>通信エラー</span>";
-        }
+        if(e.message !== "認証セッションが切れました") resEl.innerHTML = "<span style='color:var(--danger);'>通信エラー</span>";
     }
   });
+
+  // ==========================================
+  // 4. コンテンツ（コード）管理
+  // ==========================================
+  document.getElementById('btnSaveCode').addEventListener('click', async () => {
+      const code = document.getElementById('mngCode').value.trim();
+      const type = document.getElementById('mngType').value;
+      const title = document.getElementById('mngTitle').value.trim();
+      const price = parseInt(document.getElementById('mngPrice').value) || 0;
+      const ppp = parseInt(document.getElementById('mngPpp').value) || 0;
+      const resEl = document.getElementById('codeManageResult');
+
+      if(!code) { resEl.textContent = "コードを入力してください"; resEl.style.color = "var(--danger)"; return; }
+
+      resEl.textContent = "保存中..."; resEl.style.color = "var(--text-sub)";
+      try {
+          const d = await safeFetch({
+              type: 'admin_save_code',
+              code: code,
+              codeType: type,
+              titleJp: title,
+              price: price,
+              pointPpp: ppp
+          });
+          
+          if(d.success) {
+              resEl.textContent = `✅ 完了！コード「${code}」を保存しました。`; 
+              resEl.style.color = "var(--success)";
+              // フォームクリアはしない（連続登録しやすくするため）
+          } else {
+              resEl.textContent = `エラー: ${d.message}`; resEl.style.color = "var(--danger)";
+          }
+      } catch(e) {
+          if(e.message !== "認証セッションが切れました") resEl.textContent = "通信エラー"; resEl.style.color = "var(--danger)";
+      }
+  });
+
+  // ==========================================
+  // 5. コード追跡・復旧
+  // ==========================================
+  document.getElementById('btnCheckCode').addEventListener('click', async () => {
+      const code = document.getElementById('targetSupportCode').value.trim();
+      const resEl = document.getElementById('codeSupportResult');
+      if(!code) return;
+
+      resEl.innerHTML = "<div style='color:var(--text-sub);'>確認中...</div>";
+      try {
+          const d = await safeFetch({ type: 'admin_check_code', code: code });
+          if(d.success) {
+              const statusText = d.isUsed ? "<span style='color:var(--danger); font-weight:800;'>使用済み (USED)</span>" : "<span style='color:var(--success); font-weight:800;'>未使用 (AVAILABLE)</span>";
+              
+              let html = `
+                  <div style="background:rgba(0,0,0,0.3); padding:16px; border-radius:12px; border:1px solid var(--card-border);">
+                      <div style="margin-bottom:8px; font-size:14px;"><strong>コード:</strong> ${d.code}</div>
+                      <div style="margin-bottom:8px; font-size:14px;"><strong>タイトル:</strong> ${d.title || '-'}</div>
+                      <div style="margin-bottom:16px; font-size:14px;"><strong>ステータス:</strong> ${statusText}</div>
+              `;
+
+              // 使用済みのONCE/POINTコードの場合のみリセットボタンを表示
+              if (d.isUsed) {
+                  html += `
+                      <button id="btnResetCodeStatus" class="btn-primary" style="height:40px; background:#FF9500; color:#000;">
+                          <i data-lucide="refresh-cw" style="width:16px; height:16px; margin-right:4px;"></i> ステータスを「未使用」に戻す
+                      </button>
+                  `;
+              }
+              html += `</div>`;
+              resEl.innerHTML = html;
+              lucide.createIcons();
+
+              const btnReset = document.getElementById('btnResetCodeStatus');
+              if (btnReset) {
+                  btnReset.addEventListener('click', async () => {
+                      if(!confirm("このコードを「未使用」状態に戻しますか？\n(他ユーザーが再度使用可能になります)")) return;
+                      btnReset.textContent = "処理中..."; btnReset.disabled = true;
+                      
+                      try {
+                          const r = await safeFetch({ type: 'admin_reset_code', code: d.code });
+                          if(r.success) {
+                              alert("コードを未使用状態にリセットしました。");
+                              document.getElementById('btnCheckCode').click(); // 再読み込み
+                          } else {
+                              alert(`エラー: ${r.message}`);
+                              btnReset.textContent = "ステータスを「未使用」に戻す"; btnReset.disabled = false;
+                          }
+                      } catch(err) { alert("通信エラー"); btnReset.disabled = false; }
+                  });
+              }
+          } else {
+              resEl.innerHTML = `<span style='color:var(--danger);'>エラー: ${d.message}</span>`;
+          }
+      } catch(e) {
+          if(e.message !== "認証セッションが切れました") resEl.innerHTML = "<span style='color:var(--danger);'>通信エラー</span>";
+      }
+  });
+
 </script>
 </body>
 </html>
