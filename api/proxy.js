@@ -324,7 +324,7 @@ export default async function handler(req, res) {
 
     if (type === 'change_password') {
       const { userId, oldPassword, newPassword } = params;
-      const targetId = authUserId || userId; 
+      const targetId = userId || authUserId;
       
       // ① IDがフロントエンドから正しく届いているかチェック
       if (!targetId) {
