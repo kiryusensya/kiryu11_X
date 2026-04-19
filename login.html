@@ -567,8 +567,9 @@
           }
           localStorage.setItem('user_session_identity', JSON.stringify({ userId: data.userId, email: email }));
           localStorage.setItem('user_session_token', data.token);
-          window.location.href = 'index.html';
-        } else { 
+          // パラメータを引き継いで index.html に戻る
+          window.location.href = 'index.html' + window.location.search;
+        } else {
           const msg = (data.message || "").toLowerCase();
           if (msg.includes('invalid') || msg.includes('not found') || msg.includes('incorrect') || msg.includes('無効')) {
               statusEl.textContent = t.err_invalid;
