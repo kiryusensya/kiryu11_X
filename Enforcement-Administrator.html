@@ -47,9 +47,19 @@
   .sidebar {
     width: 280px; background: #000; border-right: 1px solid var(--card-border);
     display: flex; flex-direction: column; padding: 24px;
-    flex-shrink: 0;
+    flex-shrink: 0; transition: all 0.3s ease;
   }
-  .brand { font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 10px; margin-bottom: 40px; }
+  
+  /* スマホ用ヘッダーエリア（PC時はメニューボタ隠す） */
+  .sidebar-header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;
+  }
+  .brand { font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+  .mobile-menu-toggle { display: none; background: transparent; border: none; color: var(--text-main); cursor: pointer; padding: 8px; }
+
+  .sidebar-nav {
+    display: flex; flex-direction: column; flex: 1;
+  }
 
   .nav-item {
     display: flex; align-items: center; gap: 12px; padding: 16px; border-radius: 12px;
@@ -99,13 +109,18 @@
   .history-title { font-weight: 800; font-size: 16px; margin-bottom: 6px; display: block; }
   .history-meta { color: var(--text-sub); font-size: 12px; line-height: 1.5; }
 
-  /* --- スマホ対応 (モバイルレスポンシブ) --- */
+  /* --- スマホ対応 (モバイルレスポンシブ + ハンバーガーメニュー) --- */
   @media (max-width: 768px) {
     body { flex-direction: column; overflow-y: auto; }
-    .sidebar { width: 100%; padding: 16px; border-right: none; border-bottom: 1px solid var(--card-border); flex-direction: row; flex-wrap: wrap; justify-content: space-between; align-items: center; }
-    .brand { width: 100%; margin-bottom: 16px; justify-content: center; }
-    .nav-item { width: calc(50% - 6px); justify-content: center; font-size: 12px; padding: 12px 8px; margin-bottom: 8px; }
-    .sidebar > div:last-child { width: 100%; margin-top: 8px; }
+    
+    .sidebar { width: 100%; padding: 16px 20px; border-right: none; border-bottom: 1px solid var(--card-border); height: auto; }
+    .sidebar-header { margin-bottom: 0; }
+    .mobile-menu-toggle { display: block; }
+    
+    .sidebar-nav { display: none; margin-top: 20px; }
+    .sidebar-nav.open { display: flex; animation: fadeIn 0.3s ease; }
+    .nav-item { padding: 14px 16px; font-size: 14px; justify-content: flex-start; }
+    
     .main-content { padding: 20px; overflow-y: visible; }
     .header { flex-direction: column; align-items: flex-start; gap: 10px; margin-bottom: 24px; }
     .header h1 { font-size: 22px; }
@@ -118,30 +133,37 @@
 <body>
 
 <div class="sidebar">
-  <div class="brand">
-      <i data-lucide="server"></i> 管理コントロール
-  </div>
-  
-  <div class="nav-item active" onclick="switchTab('create')">
-      <i data-lucide="user-plus"></i> ユーザー発行
-  </div>
-  <div class="nav-item" onclick="switchTab('reset')">
-      <i data-lucide="key-round"></i> パスワード強制
-  </div>
-  <div class="nav-item" onclick="switchTab('search')">
-      <i data-lucide="users"></i> ユーザー管理
-  </div>
-  <div class="nav-item" onclick="switchTab('codes')">
-      <i data-lucide="package"></i> コンテンツ管理
-  </div>
-  <div class="nav-item" onclick="switchTab('code-support')">
-      <i data-lucide="life-buoy"></i> コード追跡・復旧
-  </div>
-  
-  <div style="margin-top: auto;">
-      <button id="btnLogout" class="btn-danger" style="width:100%; border:none; text-align:center; justify-content:center; background: rgba(255,59,48,0.1);">
-          <i data-lucide="log-out"></i> ログアウト
+  <div class="sidebar-header">
+      <div class="brand">
+          <i data-lucide="server"></i> 管理コントロール
+      </div>
+      <button class="mobile-menu-toggle" id="mobileMenuBtn">
+          <i data-lucide="menu"></i>
       </button>
+  </div>
+  
+  <div class="sidebar-nav" id="sidebarNav">
+      <div class="nav-item active" onclick="switchTab('create')">
+          <i data-lucide="user-plus"></i> ユーザー発行
+      </div>
+      <div class="nav-item" onclick="switchTab('reset')">
+          <i data-lucide="key-round"></i> パスワード強制
+      </div>
+      <div class="nav-item" onclick="switchTab('search')">
+          <i data-lucide="users"></i> ユーザー管理
+      </div>
+      <div class="nav-item" onclick="switchTab('codes')">
+          <i data-lucide="package"></i> コンテンツ管理
+      </div>
+      <div class="nav-item" onclick="switchTab('code-support')">
+          <i data-lucide="life-buoy"></i> コード追跡・復旧
+      </div>
+      
+      <div style="margin-top: auto; padding-top: 20px;">
+          <button id="btnLogout" class="btn-danger" style="width:100%; border:none; text-align:center; justify-content:center; background: rgba(255,59,48,0.1);">
+              <i data-lucide="log-out"></i> ログアウト
+          </button>
+      </div>
   </div>
 </div>
 
@@ -241,7 +263,7 @@
       <div class="card">
           <h2>コードステータス追跡・復旧</h2>
           <p style="font-size:13px; color:var(--text-sub); margin-bottom:20px;">
-              ユーザーが「コードが使えない」と問い合わせてきた際に、使用状況を確認・リセットします。
+              ユーザーが「コードが使えない」と問い合わせてきた際に、使用状況と時間を確認・リセットします。
           </p>
           <div class="form-group">
               <label>対象のコード</label>
@@ -289,6 +311,11 @@
       return data;
   }
 
+  // --- ハンバーガーメニュー制御 ---
+  document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+      document.getElementById('sidebarNav').classList.toggle('open');
+  });
+
   // --- タブ切り替え ---
   function switchTab(tabId) {
       document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -305,6 +332,11 @@
           'code-support': 'コード追跡・復旧'
       };
       document.getElementById('pageTitle').textContent = titles[tabId];
+
+      // スマホ時にメニューを選んだら自動で閉じる
+      if(window.innerWidth <= 768) {
+          document.getElementById('sidebarNav').classList.remove('open');
+      }
   }
 
   document.getElementById('btnLogout').addEventListener('click', () => {
@@ -363,7 +395,7 @@
   });
 
   // ==========================================
-  // 3. ユーザー管理 (検索 / ポイント調整 / アカウント削除 / 履歴無効化)
+  // 3. ユーザー管理
   // ==========================================
   document.getElementById('btnSearch').addEventListener('click', async () => {
     const u = document.getElementById('searchUserId').value.trim();
@@ -377,7 +409,6 @@
         resEl.innerHTML = '';
 
         if (d.success) {
-            // --- ユーザー操作パネル ---
             const actionsDiv = document.createElement('div');
             actionsDiv.style.cssText = 'background:rgba(255,255,255,0.05); padding:20px; border-radius:12px; margin-bottom:20px; border: 1px solid var(--card-border);';
             actionsDiv.innerHTML = `
@@ -397,7 +428,6 @@
             `;
             resEl.appendChild(actionsDiv);
 
-            // ポイント調整イベント
             actionsDiv.querySelector('#btnAdjustPt').addEventListener('click', async (e) => {
                 const ptVal = actionsDiv.querySelector('#adjustPtVal').value;
                 if(!ptVal) return;
@@ -413,7 +443,6 @@
                 btn.textContent = "ポイント増減"; btn.disabled = false;
             });
 
-            // アカウント完全削除イベント
             actionsDiv.querySelector('#btnDeleteUser').addEventListener('click', async (e) => {
                 const confCode = prompt(`【危険】本当に削除する場合は対象のID「${d.userId || u}」を入力してください。`);
                 if(confCode !== (d.userId || u)) {
@@ -427,7 +456,7 @@
                     const delRes = await safeFetch({ type: 'admin_delete_user', targetEmail: d.userId || u });
                     if(delRes.success) {
                         alert("アカウントを完全に削除しました。");
-                        resEl.innerHTML = ''; // 画面クリア
+                        resEl.innerHTML = ''; 
                     } else {
                         alert(`エラー: ${delRes.message}`);
                         btn.innerHTML = `<i data-lucide="alert-triangle" style="width:16px; height:16px; margin-right:4px;"></i> このアカウントを完全に削除`; 
@@ -436,7 +465,6 @@
                 } catch(err) { alert('通信エラー'); btn.disabled = false;}
             });
 
-            // --- 履歴リスト ---
             if (!d.history || d.history.length === 0) {
                 const emptyMsg = document.createElement('div');
                 emptyMsg.style.cssText = 'text-align:center; color:var(--text-sub); padding:20px;';
@@ -519,7 +547,6 @@
           if(d.success) {
               resEl.textContent = `✅ 完了！コード「${code}」を保存しました。`; 
               resEl.style.color = "var(--success)";
-              // フォームクリアはしない（連続登録しやすくするため）
           } else {
               resEl.textContent = `エラー: ${d.message}`; resEl.style.color = "var(--danger)";
           }
@@ -529,7 +556,7 @@
   });
 
   // ==========================================
-  // 5. コード追跡・復旧
+  // 5. コード追跡・復旧 (時間表示対応)
   // ==========================================
   document.getElementById('btnCheckCode').addEventListener('click', async () => {
       const code = document.getElementById('targetSupportCode').value.trim();
@@ -542,6 +569,15 @@
           if(d.success) {
               const statusText = d.isUsed ? "<span style='color:var(--danger); font-weight:800;'>使用済み (USED)</span>" : "<span style='color:var(--success); font-weight:800;'>未使用 (AVAILABLE)</span>";
               
+              // 時間フォーマット
+              let timeText = "記録なし";
+              if (d.usedTime) {
+                  timeText = new Date(d.usedTime).toLocaleString(navigator.language, { 
+                      year: 'numeric', month: '2-digit', day: '2-digit', 
+                      hour: '2-digit', minute: '2-digit', second: '2-digit' 
+                  });
+              }
+
               let html = `
                   <div style="background:rgba(0,0,0,0.3); padding:16px; border-radius:12px; border:1px solid var(--card-border);">
                       <div style="margin-bottom:8px; font-size:14px;"><strong>コード:</strong> ${d.code}</div>
@@ -549,10 +585,13 @@
                       <div style="margin-bottom:16px; font-size:14px;"><strong>ステータス:</strong> ${statusText}</div>
               `;
 
-              // 使用済みのONCE/POINTコードの場合のみリセットボタンを表示
               if (d.isUsed) {
                   html += `
-                      <button id="btnResetCodeStatus" class="btn-primary" style="height:40px; background:#FF9500; color:#000;">
+                      <div style="margin-bottom:8px; font-size:13px; color:var(--text-sub);">
+                          <i data-lucide="clock" style="width:14px; height:14px; vertical-align:-2px; margin-right:4px;"></i> 使用日時: ${timeText}<br>
+                          <i data-lucide="user" style="width:14px; height:14px; vertical-align:-2px; margin-right:4px;"></i> 使用者: ${d.usedBy || '不明'}
+                      </div>
+                      <button id="btnResetCodeStatus" class="btn-primary" style="height:40px; margin-top:10px; background:#FF9500; color:#000;">
                           <i data-lucide="refresh-cw" style="width:16px; height:16px; margin-right:4px;"></i> ステータスを「未使用」に戻す
                       </button>
                   `;
@@ -571,7 +610,7 @@
                           const r = await safeFetch({ type: 'admin_reset_code', code: d.code });
                           if(r.success) {
                               alert("コードを未使用状態にリセットしました。");
-                              document.getElementById('btnCheckCode').click(); // 再読み込み
+                              document.getElementById('btnCheckCode').click(); 
                           } else {
                               alert(`エラー: ${r.message}`);
                               btnReset.textContent = "ステータスを「未使用」に戻す"; btnReset.disabled = false;
