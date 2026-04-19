@@ -325,13 +325,36 @@ export default async function handler(req, res) {
     if (type === 'change_password') {
       const { userId, oldPassword, newPassword } = params;
       const targetId = authUserId || userId; 
-      const { data: user } = await supabase.from('users').select('*').eq('id', targetId).maybeSingle();
       
-      if (user && await bcrypt.compare(oldPassword, user.password)) {
+      // ① IDがフロントエンドから正しく届いているかチェック
+      if (!targetId) {
+          return res.status(200).json({ success: false, message: "システムエラー: ユーザーIDが認識できません" });
+      }
+
+      const { data: user, error: userError } = await supabase.from('users').select('*').eq('id', targetId).maybeSingle();
+      
+      // ② ユーザーがDBに存在するかチェック
+      if (userError || !user) {
+          return res.status(200).json({ success: false, message: "システムエラー: 対象のユーザーが見つかりません" });
+      }
+
+      // ③ パスワードの照合
+      const isValidOldPass = await bcrypt.compare(oldPassword, user.password);
+      if (isValidOldPass) {
           const hashedNewPass = await bcrypt.hash(newPassword, 10);
-          await supabase.from('users').update({ password: hashedNewPass, needs_password_change: false }).eq('id', targetId);
+          const { error: updateError } = await supabase.from('users').update({ 
+              password: hashedNewPass, 
+              needs_password_change: false 
+          }).eq('id', targetId);
+          
+          if (updateError) {
+              return res.status(200).json({ success: false, message: "データベースの更新に失敗しました" });
+          }
+          
           return res.status(200).json({ success: true });
       }
+      
+      // ④ 本当にパスワードが違う場合のみエラーを出す
       return res.status(200).json({ success: false, message: "現在のパスワードが間違っています。" });
     }
 
