@@ -2172,7 +2172,7 @@ document.addEventListener('DOMContentLoaded', () => {
       resumeSession();
   } else {
       // 未ログイン時は強制的にリダイレクト
-      window.location.href = 'login.html';
+      window.location.href = 'login.html' + window.location.search;
   }
   initThemeAndParticles();
   initCustomDropdown();
@@ -3615,19 +3615,9 @@ function initThemeAndParticles() {
 async function resumeSession() {
   const sUser = localStorage.getItem('user_session_identity');
   
-  // URLからコードを取得
-  const urlParams = new URLSearchParams(window.location.search);
-  const urlCode = urlParams.get('code');
-  
-  // コードがあれば、ログイン後でも使えるように保存しておく
-  if (urlCode) {
-    localStorage.setItem('pending_url_code', urlCode);
-  }
-
+  // ユーザー情報がない場合だけ処理を止める（トークンチェックを緩和）
   if (!sUser) {
-    // ログインしていない場合はログイン画面へ
-    window.location.href = 'login.html';
-    return; 
+      return; 
   }
 
   try {
