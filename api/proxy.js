@@ -2,6 +2,10 @@ import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
+const requestCounts = new Map();
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1分間
+const MAX_REQUESTS = 60; // 1分間に許可する最大リクエスト数
+
 // 必須の環境変数を取得
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -23,43 +27,77 @@ const ALLOWED_ORIGINS = [
 
 export default async function handler(req, res) {
   const origin = req.headers.origin;
-  
-  // リクエスト元が許可リストにある場合のみ、動的にOriginを許可
   if (ALLOWED_ORIGINS.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
   }
   
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Credentials', 'true'); // Cookieの送受信に必須
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
 
-  // プリフライトリクエストへの応答
   if (req.method === 'OPTIONS') return res.status(200).end();
+
+  // --- 1. レートリミット (Rate Limiting) の適用 ---
+  const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+  const now = Date.now();
+  if (!requestCounts.has(ip)) {
+      requestCounts.set(ip, { count: 1, startTime: now });
+  } else {
+      const data = requestCounts.get(ip);
+      if (now - data.startTime > RATE_LIMIT_WINDOW) {
+          requestCounts.set(ip, { count: 1, startTime: now });
+      } else {
+          data.count++;
+          if (data.count > MAX_REQUESTS) {
+              return res.status(429).json({ success: false, message: "リクエストが多すぎます。しばらく待ってから再試行してください。" });
+          }
+      }
+  }
+  // ---------------------------------------------
 
   const params = req.method === 'POST' ? req.body : req.query;
   const type = params.type;
-  const lang = params.lang || 'ja';
 
-  // ==========================================
-  // JWTトークンによる認証情報の抽出
-  // ==========================================
+  // --- 2. HttpOnly Cookie と Header からトークンを取得 ---
   let authUserId = null;
   let isAdmin = false;
+  let token = null;
+
+  // Headerからの取得 (一般ユーザー用フォールバック)
   const authHeader = req.headers.authorization;
-  
   if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.split(' ')[1];
+      token = authHeader.split(' ')[1];
+  }
+
+  // Cookieからの取得 (HttpOnly化された管理者トークン)
+  const cookieHeader = req.headers.cookie;
+  if (cookieHeader) {
+      const cookies = Object.fromEntries(cookieHeader.split('; ').map(c => c.split('=')));
+      if (cookies.admin_token) token = cookies.admin_token;
+  }
+
+  if (token) {
     try {
       const decoded = jwt.verify(token, JWT_SECRET);
       authUserId = decoded.userId;
       isAdmin = decoded.isAdmin || false;
     } catch (e) {
-      // 不正なトークン・期限切れトークンはここで弾かれる
+      // 不正なトークン
     }
   }
+
+  // --- 3. 監査ログ (Audit Trail) の記録用ヘルパー関数 ---
+  const logAudit = async (actionType, targetUser, details) => {
+      if (isAdmin && authUserId) {
+          await supabase.from('admin_audit_logs').insert([{
+              admin_id: authUserId,
+              action_type: actionType,
+              target_user: targetUser,
+              details: details
+          }]);
+      }
+  };
+  // ---------------------------------------------------
 
   try {
     // 1. ユーザー登録
@@ -77,38 +115,41 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, userId: newUser.id, message: "OK" });
     }
 
-    // 2. ユーザーログイン (DBの is_admin カラムを参照)
+    // ユーザーログイン
     if (type === 'user_login') {
       const { email, password } = params;
-      
       const { data: user } = await supabase.from('users').select('*').eq('email', email).maybeSingle();
       
-      if (user) {
-        // bcrypt でパスワードを照合
-        const isValidPassword = await bcrypt.compare(password, user.password);
-        
-        if (isValidPassword) {
-            const isUserAdmin = user.is_admin === true;
+      if (user && await bcrypt.compare(password, user.password)) {
+          const isUserAdmin = user.is_admin === true;
+          if (user.needs_password_change && !isUserAdmin) {
+              return res.status(200).json({ success: true, requirePasswordChange: true, userId: user.id });
+          }
 
-            // 一般ユーザーで、初期パスワード変更が必要な場合
-            if (user.needs_password_change && !isUserAdmin) {
-                return res.status(200).json({ success: true, requirePasswordChange: true, userId: user.id });
-            }
-
-            // トークンを発行 (DBから取得した権限を付与)
-            const token = jwt.sign({ userId: user.id, isAdmin: isUserAdmin }, JWT_SECRET, { expiresIn: '24h' });
-            
-            return res.status(200).json({ 
-                success: true, 
-                isAdmin: isUserAdmin, 
-                token: token, 
-                userId: user.id, 
-                points: user.points, 
-                history: [] 
-            });
-        }
+          const token = jwt.sign({ userId: user.id, isAdmin: isUserAdmin }, JWT_SECRET, { expiresIn: '24h' });
+          
+          // 管理者の場合、HttpOnlyのトークンと、UI表示用のダミーフラグを発行する
+          if (isUserAdmin) {
+              const isProd = process.env.NODE_ENV === 'production';
+              const secure = isProd ? 'Secure;' : '';
+              res.setHeader('Set-Cookie', [
+                  `admin_token=${token}; HttpOnly; ${secure} SameSite=Strict; Path=/; Max-Age=86400`,
+                  `admin_logged_in=true; ${secure} SameSite=Strict; Path=/; Max-Age=86400`
+              ]);
+          }
+          
+          return res.status(200).json({ success: true, isAdmin: isUserAdmin, token: token, userId: user.id });
       }
       return res.status(200).json({ success: false, message: "Invalid" });
+    }
+
+    // ログアウト (Cookieの破棄)
+    if (type === 'admin_logout') {
+        res.setHeader('Set-Cookie', [
+            `admin_token=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0`,
+            `admin_logged_in=; SameSite=Strict; Path=/; Max-Age=0`
+        ]);
+        return res.status(200).json({ success: true });
     }
 
     // ==========================================
@@ -251,6 +292,7 @@ export default async function handler(req, res) {
 
             const { error } = await supabase.from('users').update({ points: newPoints }).eq('id', targetUser.id);
             if (error) return res.status(200).json({ success: false, message: "ポイントの更新に失敗しました" });
+            await logAudit('ADJUST_POINTS', targetEmail, { amount_added: amount, new_total: newPoints });
 
             return res.status(200).json({ success: true, message: "OK" });
         }
