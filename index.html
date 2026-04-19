@@ -2306,7 +2306,7 @@ function setupEventListeners() {
       setListener(els.code, 'input', (e) => { els.code.value = formatCodeInput(els.code.value); });
   }
 
-  ssetListener(els.heroActionBtn, 'click', (e) => {
+  setListener(els.heroActionBtn, 'click', (e) => {
      e.stopPropagation(); 
      
      if(window.innerWidth > 768 && currentHeroContext === 'owned' && selectedHeroItem) {
