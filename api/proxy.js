@@ -206,7 +206,8 @@ export default async function handler(req, res) {
             // フロントエンドのフォーマットに合わせて大文字・ハイフンのみに整形
             const safeCode = String(code).replace(/[^A-Z0-9\-]/gi, "").toUpperCase();
             
-            const { data: master, error } = await supabase.from('codes').select('*').eq('アクティベーションコード', safeCode).maybeSingle();
+            // codeのIDも取得する
+            const { data: master, error } = await supabase.from('codes').select('id, アクティベーションコード, タイトル(jp), バンドル(jp), USED?').eq('アクティベーションコード', safeCode).maybeSingle();
             
             if (error || !master) {
                 return res.status(200).json({ success: false, message: "指定されたコードはデータベースに存在しません" });
@@ -214,11 +215,31 @@ export default async function handler(req, res) {
 
             const isUsed = master["USED?"] === true || String(master["USED?"]).trim().toUpperCase() === 'TRUE';
             
+            let usedTime = null;
+            let usedBy = null;
+
+            // 使用済みの場合、履歴(histories)から「いつ・誰が」使ったかを取得
+            if (isUsed) {
+                const { data: history } = await supabase.from('histories')
+                    .select('created_at, users(email)')
+                    .eq('code_id', master.id)
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
+                
+                if (history) {
+                    usedTime = history.created_at;
+                    usedBy = history.users ? history.users.email : '不明なユーザー';
+                }
+            }
+
             return res.status(200).json({
                 success: true,
                 code: master["アクティベーションコード"],
                 title: master["タイトル(jp)"] || master["バンドル(jp)"] || "不明",
-                isUsed: isUsed
+                isUsed: isUsed,
+                usedTime: usedTime,
+                usedBy: usedBy
             });
         }
 
