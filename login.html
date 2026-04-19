@@ -58,6 +58,9 @@
     overflow: hidden;
     transition: background-color 0.3s ease;
   }
+  *, *::before, *::after {
+  box-sizing: border-box;
+}
 
   /* 上部コントロール */
   .top-controls {
@@ -90,6 +93,7 @@
     z-index: 10;
     width: 90%;
     max-width: 420px;
+    margin: 0 auto;
   }
   
   .login-card { 
@@ -221,6 +225,12 @@
   
   /* メッセージ */
   .msg { margin-bottom: 16px; font-size: 13px; font-weight: 700; min-height: 18px; text-align: left; color: var(--danger); font-family: var(--font-stack); }
+  /* スマホ向けの微調整 */
+  @media (max-width: 480px) {
+    .login-content {
+      padding: 30px 20px; /* 左右の余白を減らしてコンテンツ幅を確保 */
+    }
+  }
 </style>
 </head>
 <body>
