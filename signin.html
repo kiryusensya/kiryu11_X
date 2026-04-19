@@ -45,10 +45,10 @@
   lucide.createIcons();
   const GAS_API_URL = "api/proxy"; 
 
-  // 【追加】悪さをしている古い localStorage の残骸を確実に消去
+  // 悪さをしている古い localStorage の残骸を確実に消去
   localStorage.removeItem('admin_session_token');
 
-  // 【追加】Cookieが存在するかチェックする関数
+  // Cookieが存在するかチェックする関数
   function checkCookie(name) {
       const value = `; ${document.cookie}`;
       const parts = value.split(`; ${name}=`);
@@ -56,8 +56,8 @@
       return false;
   }
 
-  // 【修正】localStorageではなく、Cookieを見てダッシュボードへ飛ばす
-  if (checkCookie('admin_token')) {
+  // 【修正点1】admin_tokenはHttpOnlyで見えないため、admin_logged_inフラグで判定する
+  if (checkCookie('admin_logged_in')) {
       window.location.replace('Enforcement-Administrator.html');
   }
 
@@ -74,13 +74,15 @@
           const res = await fetch(GAS_API_URL, {
               method: 'POST', 
               headers: { 'Content-Type': 'application/json' },
+              // 【修正点2】サーバーが発行したCookieを受け取るために必須
+              credentials: 'include', 
               body: JSON.stringify({ type: 'user_login', email: u, password: p })
           });
           const d = await res.json();
           
           if(d.success && d.isAdmin) {
-              // ログイン成功時、Cookieにトークンを保存 (有効期限1日)
-              document.cookie = `admin_token=${d.token}; path=/; max-age=86400; Secure; SameSite=Strict`;
+              // 【修正点3】サーバー(api/proxy.js)が安全なCookieをセット済みなので
+              // ここでの document.cookie による手動保存は削除します。
               
               // ダッシュボードへ遷移
               window.location.href = 'Enforcement-Administrator.html'; 
