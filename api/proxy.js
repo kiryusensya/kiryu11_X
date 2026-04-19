@@ -67,6 +67,7 @@ export default async function handler(req, res) {
     }
     // undefinedによる .startsWith クラッシュを防ぐため空文字をフォールバック
     const type = params.type || ''; 
+    const lang = params.lang || 'ja';
 
     // --- 3. HttpOnly Cookie と Header からトークンを安全に取得 ---
     let authUserId = null;
