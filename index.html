@@ -2178,11 +2178,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const sUser = localStorage.getItem('user_session_identity');
   if (sUser) {
-     resumeSession();
+      resumeSession();
   } else {
-     updateAccountUI();
+      // 未ログイン時は強制的にリダイレクト
+      window.location.href = 'login.html';
   }
-
   initThemeAndParticles();
   initCustomDropdown();
   setupEventListeners();
