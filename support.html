@@ -216,10 +216,15 @@ button, input, textarea, a { font-family: var(--font-stack); }
   width: 44px; height: 44px; border-radius: 50%;
   background: var(--card-bg); border: 1px solid rgba(128,128,128,0.2);
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: transform 0.3s; backdrop-filter: blur(10px); color: var(--modal-text-main);
+  cursor: pointer; transition: transform 0.3s; backdrop-filter: blur(10px); 
+  /* ▼ ヘッダーアイコンの色（ライトモード時）を変更する場合はここを変えます ▼ */
+  color: #e6002f(--modal-text-main);
 }
 .theme-pill:hover { transform: scale(1.1); }
-[data-theme="dark"] .theme-pill { color: #fff; }
+[data-theme="dark"] .theme-pill { 
+  /* ▼ ヘッダーアイコンの色（ダークモード時）を変更する場合はここを変えます ▼ */
+  color: #e6002f; 
+}
 
 /* SUPPORT CONTENT */
 .support-content {
@@ -232,7 +237,7 @@ button, input, textarea, a { font-family: var(--font-stack); }
 .page-title-area {
     text-align: center;
     margin-bottom: 40px;
-    margin-top: auto; /* 余白があれば下へ押し出す */
+    margin-top: auto;
     animation: fadeInUp 0.6s ease forwards;
     flex-shrink: 0;
 }
@@ -247,7 +252,7 @@ button, input, textarea, a { font-family: var(--font-stack); }
     display: grid;
     width: 100%;
     max-width: 1000px; 
-    margin: 0 auto auto auto; /* 中央揃え ＆ 上へ押し出す */
+    margin: 0 auto auto auto;
     grid-template-columns: 1fr 1fr; 
     gap: 30px;
 }
@@ -442,7 +447,7 @@ button, input, textarea, a { font-family: var(--font-stack); }
                 <i data-lucide="menu"></i>
             </button>
             <div class="rgl-brand">
-                <i data-lucide="shield-check"></i>
+                <i data-lucide="triangle-alert"></i>
                 <span data-translate="brand_name">kiryu10 | Support</span>
             </div>
         </div>
@@ -680,32 +685,10 @@ button, input, textarea, a { font-family: var(--font-stack); }
             if (mobileLangTrigger && mobileLangMenu && !mobileLangTrigger.contains(e.target)) mobileLangMenu.classList.remove('open');
         });
 
-        // テーマ切り替え処理
         const htmlEl = document.documentElement;
         const themeToggle = document.getElementById('themeToggle');
-        
-        function applyTheme(theme) {
-            htmlEl.setAttribute('data-theme', theme);
-            if (themeToggle) {
-                // DOMを直接書き換えてアイコンを再生成させる（バグ回避）
-                themeToggle.innerHTML = theme === 'light' ? '<i data-lucide="sun"></i>' : '<i data-lucide="moon"></i>';
-                try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
-            }
-            initParticles(theme);
-        }
 
-        const savedTheme = localStorage.getItem('user_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        applyTheme(savedTheme);
-
-        if (themeToggle) {
-            themeToggle.addEventListener('click', () => {
-                const next = htmlEl.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-                applyTheme(next);
-                localStorage.setItem('user_theme', next);
-            });
-        }
-
-        // 背景パーティクル処理
+        // ▼ 修正箇所：背景パーティクル処理（Canvas）の定義と初期化を先に配置 ▼
         const canvas = document.getElementById('particleCanvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -746,6 +729,32 @@ button, input, textarea, a { font-family: var(--font-stack); }
         }
         window.addEventListener('resize', () => { initParticles(htmlEl.getAttribute('data-theme')); });
         animate();
+        // ▲ Canvas定義ここまで ▲
+
+
+        // ▼ 修正箇所：テーマ切り替え処理をCanvas定義の後に配置 ▼
+        function applyTheme(theme) {
+            htmlEl.setAttribute('data-theme', theme);
+            if (themeToggle) {
+                // DOMを直接書き換えてアイコンを再生成させる（バグ回避）
+                themeToggle.innerHTML = theme === 'light' ? '<i data-lucide="sun"></i>' : '<i data-lucide="moon"></i>';
+                try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+            }
+            initParticles(theme);
+        }
+
+        const savedTheme = localStorage.getItem('user_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        applyTheme(savedTheme);
+
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const next = htmlEl.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+                applyTheme(next);
+                localStorage.setItem('user_theme', next);
+            });
+        }
+        // ▲ テーマ処理ここまで ▲
+
     });
 
     // モーダルオープン・クローズ処理
