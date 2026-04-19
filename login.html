@@ -159,17 +159,23 @@
     -webkit-user-select: none;
     box-sizing: border-box;
   }
-  .slide-text {
+ .slide-text {
     position: relative;
     font-size: 14px;
     font-weight: 800;
     color: var(--text-sub);
-    letter-spacing: 2px;
+    letter-spacing: 2px; /* ← 日本語・中国語など向けの広い間隔 */
     pointer-events: none;
     transition: opacity 0.3s;
     z-index: 1;
     font-family: var(--font-stack);
     white-space: nowrap;
+  }
+
+  /* ★ ここから下の4行を追加してください ★ */
+  :root:lang(en) .slide-text,
+  :root:lang(ru) .slide-text {
+    letter-spacing: normal;
   }
   .slide-thumb {
     position: absolute;
@@ -212,6 +218,22 @@
   /* スピナー用アニメーション */
   .lucide-spin { animation: spin 1s linear infinite; }
   @keyframes spin { 100% { transform: rotate(360deg); } }
+
+  /* ★修正: 全端末対応の「.」「..」「...」アニメーション */
+  .loading-dots::after { 
+    content: '...'; 
+    display: inline-block; 
+    overflow: hidden; 
+    vertical-align: bottom;
+    letter-spacing: 2px;
+    animation: dots-loop 1.5s infinite;
+  }
+  @keyframes dots-loop { 
+    0%, 25%   { width: 0; } 
+    26%, 50%  { width: 0.5em; } 
+    51%, 75%  { width: 1em; } 
+    76%, 100% { width: 1.5em; } 
+  }
   
   /* メッセージ */
   .msg { margin-bottom: 16px; font-size: 13px; font-weight: 700; min-height: 18px; text-align: left; color: var(--danger); font-family: var(--font-stack); }
