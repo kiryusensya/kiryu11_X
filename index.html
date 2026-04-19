@@ -3726,7 +3726,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (data.success && Array.isArray(data.history)) {
                 // サーバーから返ってきた最新の履歴の「数」と、今画面に表示している「数」が違うか？
-                // （＝管理者がdashboard.htmlで無効化して、アイテムが減ったか？）
                 if (data.history.length !== currentUser.history.length) {
                     
                     // 内部データを最新に書き換える
@@ -3742,14 +3741,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     // 画面（ライブラリとストア）を再描画して最新状態にする
-                    // これにより、リロードしなくても消されたアイテムがフワッと消えてストアに戻る
                     updateAccountUI();
                     fetchAvailableContent();
                 }
-            } else if (data.message === "Unauthorized" || data.success === false) {
-                // 万が一管理者にアカウントごと消された場合は強制ログアウト
+            // ▼▼▼ ここを修正 ▼▼▼
+            } else if (data.message === "Unauthorized" || data.message === "User not found") {
+                // セッション切れ、または管理者にアカウントごと消された場合のみ強制ログアウト
                 logout();
             }
+            // ▲▲▲ ここまで ▲▲▲
         } catch (e) {
             // エラー時は何もしない（次の5秒後に再トライ）
         }
