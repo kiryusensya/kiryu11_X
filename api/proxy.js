@@ -196,6 +196,134 @@ export default async function handler(req, res) {
 
             return res.status(200).json({ success: true, message: "Revoked successfully" });
         }
+      // ==========================================
+        // コードステータス追跡 (admin_check_code)
+        // ==========================================
+        if (type === 'admin_check_code') {
+            const { code } = params;
+            if (!code) return res.status(200).json({ success: false, message: "コードを指定してください" });
+
+            // フロントエンドのフォーマットに合わせて大文字・ハイフンのみに整形
+            const safeCode = String(code).replace(/[^A-Z0-9\-]/gi, "").toUpperCase();
+            
+            const { data: master, error } = await supabase.from('codes').select('*').eq('アクティベーションコード', safeCode).maybeSingle();
+            
+            if (error || !master) {
+                return res.status(200).json({ success: false, message: "指定されたコードはデータベースに存在しません" });
+            }
+
+            const isUsed = master["USED?"] === true || String(master["USED?"]).trim().toUpperCase() === 'TRUE';
+            
+            return res.status(200).json({
+                success: true,
+                code: master["アクティベーションコード"],
+                title: master["タイトル(jp)"] || master["バンドル(jp)"] || "不明",
+                isUsed: isUsed
+            });
+        }
+
+        // ==========================================
+        // コードステータス復旧 (admin_reset_code)
+        // ==========================================
+        if (type === 'admin_reset_code') {
+            const { code } = params;
+            if (!code) return res.status(200).json({ success: false, message: "コードを指定してください" });
+
+            const safeCode = String(code).replace(/[^A-Z0-9\-]/gi, "").toUpperCase();
+            // USED? フラグを false（未使用）に戻す
+            const { error } = await supabase.from('codes').update({ "USED?": false }).eq('アクティベーションコード', safeCode);
+            
+            if (error) {
+                console.error("Reset Code Error:", error);
+                return res.status(200).json({ success: false, message: "データベースの更新に失敗しました" });
+            }
+            
+            return res.status(200).json({ success: true, message: "OK" });
+        }
+
+        // ==========================================
+        // ポイント手動調整 (admin_adjust_points)
+        // ==========================================
+        if (type === 'admin_adjust_points') {
+            const { targetEmail, amount } = params;
+            if (!targetEmail || amount === undefined) return res.status(200).json({ success: false, message: "パラメーターが不足しています" });
+
+            const { data: targetUser } = await supabase.from('users').select('id, points').eq('email', targetEmail).maybeSingle();
+            if (!targetUser) return res.status(200).json({ success: false, message: "対象のユーザーが見つかりません" });
+
+            // 現在のポイントに加算（マイナスになる場合は0でストップさせる）
+            const newPoints = Math.max(0, (targetUser.points || 0) + amount);
+
+            const { error } = await supabase.from('users').update({ points: newPoints }).eq('id', targetUser.id);
+            if (error) return res.status(200).json({ success: false, message: "ポイントの更新に失敗しました" });
+
+            return res.status(200).json({ success: true, message: "OK" });
+        }
+
+        // ==========================================
+        // アカウント完全削除 (admin_delete_user)
+        // ==========================================
+        if (type === 'admin_delete_user') {
+            const { targetEmail } = params;
+            if (!targetEmail) return res.status(200).json({ success: false, message: "パラメーターが不足しています" });
+
+            const { data: targetUser } = await supabase.from('users').select('id').eq('email', targetEmail).maybeSingle();
+            if (!targetUser) return res.status(200).json({ success: false, message: "ユーザーが見つかりません" });
+
+            // 1. 外部キー制約エラーを防ぐため、先に紐づく履歴(histories)を全削除
+            await supabase.from('histories').delete().eq('user_id', targetUser.id);
+            
+            // 2. users テーブルから完全に削除
+            const { error } = await supabase.from('users').delete().eq('id', targetUser.id);
+            
+            if (error) {
+                console.error("Delete User Error:", error);
+                return res.status(200).json({ success: false, message: "アカウントの削除に失敗しました" });
+            }
+
+            return res.status(200).json({ success: true, message: "OK" });
+        }
+
+        // ==========================================
+        // コンテンツ（コード）の新規発行・上書き保存 (admin_save_code)
+        // ==========================================
+        if (type === 'admin_save_code') {
+            const { code, codeType, titleJp, price, pointPpp } = params;
+            if (!code) return res.status(200).json({ success: false, message: "コードを指定してください" });
+
+            const safeCode = String(code).replace(/[^A-Z0-9\-]/gi, "").toUpperCase();
+            
+            // 既存のコードかどうかチェック
+            const { data: existing } = await supabase.from('codes').select('id').eq('アクティベーションコード', safeCode).maybeSingle();
+
+            // DBに保存するデータのベース
+            const payload = {
+                "アクティベーションコード": safeCode,
+                "Types": codeType, // ONCE, MULTIPLE, POINT
+                "タイトル(jp)": titleJp,
+                "価格": price || 0,
+                "Point PPP": codeType === 'POINT' ? pointPpp : 0,
+                "有効/無効": true,
+                "show/ hide": "show"
+            };
+
+            let error;
+            if (existing) {
+                // 既に存在する場合は上書き更新 (UPDATE)
+                const res = await supabase.from('codes').update(payload).eq('id', existing.id);
+                error = res.error;
+            } else {
+                // 存在しない場合は新規作成 (INSERT)
+                const res = await supabase.from('codes').insert([payload]);
+                error = res.error;
+            }
+
+            if (error) {
+                console.error("Save Code Error:", error);
+                return res.status(200).json({ success: false, message: "データベースへの保存に失敗しました" });
+            }
+            return res.status(200).json({ success: true, message: "OK" });
+        }
     }
 
     // ==========================================
