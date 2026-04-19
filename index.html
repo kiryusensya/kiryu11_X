@@ -1305,7 +1305,7 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 .spotlight-hover:hover::before { opacity: 1; }
 .spotlight-hover > * { position: relative; z-index: 1; }
 /* =========================================
-   Heroボタンのカスタムデザイン（全ボタンをダウンロードボタンと同一に統一）
+   Heroボタンのカスタムデザイン（各ボタンの役割ごとにカラーを固定）
    ========================================= */
 
 /* ▼ 共通のホバー・フォーカス・クリック時の動き */
@@ -1323,8 +1323,8 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1) !important;
 }
 
-/* ▼ ライトモード（白ガラス ＋ 黒文字）: すべてのボタンに適用 */
-.rgl-cta-btn, .rgl-buy-btn {
+/* 1. コード引き換えボタン: 常に【ライトモード風の白ガラス ＋ 黒文字】 */
+.rgl-cta-btn:not(.is-download) {
     background: rgba(255, 255, 255, 0.5) !important;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -1333,22 +1333,50 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
     text-shadow: none !important;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
 }
-.rgl-cta-btn:hover, .rgl-cta-btn:focus,
-.rgl-buy-btn:hover, .rgl-buy-btn:focus {
+.rgl-cta-btn:not(.is-download):hover,
+.rgl-cta-btn:not(.is-download):focus {
     background: rgba(255, 255, 255, 0.8) !important;
 }
 
-/* ▼ ダークモード（黒ガラス ＋ 白文字）: すべてのボタンに適用 */
-[data-theme="dark"] .rgl-cta-btn,
-[data-theme="dark"] .rgl-buy-btn {
+/* 2. 購入するボタン: 常に【ダークモード風の黒ガラス ＋ 白文字】 */
+.rgl-buy-btn {
+    background: rgba(30, 30, 30, 0.6) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #FFFFFF !important;
+    text-shadow: none !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+}
+.rgl-buy-btn:hover,
+.rgl-buy-btn:focus {
+    background: rgba(50, 50, 50, 0.8) !important;
+}
+
+/* 3. ダウンロードボタン: 【テーマに応じて白黒切り替え】 */
+/* ▼ ライトモード時 */
+.rgl-cta-btn.is-download {
+    background: rgba(255, 255, 255, 0.5) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.8) !important;
+    color: #000000 !important;
+    text-shadow: none !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+}
+.rgl-cta-btn.is-download:hover,
+.rgl-cta-btn.is-download:focus {
+    background: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* ▼ ダークモード時 */
+[data-theme="dark"] .rgl-cta-btn.is-download {
     background: rgba(30, 30, 30, 0.6) !important;
     border: 1px solid rgba(255, 255, 255, 0.15) !important;
     color: #FFFFFF !important;
 }
-[data-theme="dark"] .rgl-cta-btn:hover,
-[data-theme="dark"] .rgl-cta-btn:focus,
-[data-theme="dark"] .rgl-buy-btn:hover,
-[data-theme="dark"] .rgl-buy-btn:focus {
+[data-theme="dark"] .rgl-cta-btn.is-download:hover,
+[data-theme="dark"] .rgl-cta-btn.is-download:focus {
     background: rgba(50, 50, 50, 0.8) !important;
 }
 </style>
