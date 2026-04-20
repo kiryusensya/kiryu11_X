@@ -226,7 +226,7 @@
 
   lucide.createIcons();
   const GAS_API_URL = "api/proxy"; 
-  const langs = ['jp', 'en', 'SC', 'TC', 'ko', 'ru'];
+  const langs = ['日本語', 'English', '简体中文', '繁體中文', '한국어', 'Русский'];
   const txtFields = ['ボタン', 'バンドル', 'メッセージ', 'タイトル', '詳細'];
   const langContainer = document.getElementById('langFormsContainer');
   let langHtml = '';
@@ -265,7 +265,7 @@
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       document.getElementById('panel-' + tabId).classList.add('active');
       event.currentTarget.classList.add('active');
-      const titles = { 'create': 'ユーザー発行', 'reset': 'パスワード強制', 'search': 'ユーザー管理', 'codes': 'コンテンツ管理', 'code-support': 'コード追跡・復旧' };
+      const titles = { 'create': 'ユーザー発行', 'reset': 'パスワード強制', 'search': 'ユーザー管理', 'codes': 'コンテンツ管理', 'code-support': 'コード確認・復旧' };
       document.getElementById('pageTitle').textContent = titles[tabId];
       if(window.innerWidth <= 768) document.getElementById('sidebarNav').classList.remove('open');
   }
@@ -326,7 +326,7 @@
                 <div style="display:flex; flex-direction:column; gap:10px; margin-bottom: 20px;">
                     <div style="font-size:14px; color:var(--text-sub);">現在の所持ポイント: <strong style="color:#fff; font-size:20px; margin-left:8px;">${escapeHTML(String(d.points))}</strong> pt</div>
                     <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                        <input type="number" id="setPtVal" placeholder="新しいポイント数を入力 (例: 3850)" style="width:250px; height:44px; margin-bottom:0;">
+                        <input type="number" id="setPtVal" placeholder="ポイント数を入力" style="width:250px; height:44px; margin-bottom:0;">
                         <button class="btn-primary" id="btnSetPt" style="width:auto; height:44px; padding:0 20px; background:#04CF22;">ポイントを設定</button>
                     </div>
                 </div>
