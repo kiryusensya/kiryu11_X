@@ -1,29 +1,35 @@
 export const config = {
-    // 原則として dashboard.html のみに門番を配置
-    matcher: ['/Enforcement-Administrator.html'],
+    // index.html, ルートパス(/), および管理画面群を門番の監視対象にする
+    matcher: ['/', '/index.html', '/dashboard.html', '/Enforcement-Administrator.html'],
 };
 
 export default function middleware(request) {
     const url = new URL(request.url);
     
-    // 【超重要: 無限ループ防止】
-    // もし今アクセスしようとしている先が「login.html」なら、絶対に門番をスルーさせる
-    if (url.pathname.startsWith('/login.html')) {
-        return; // 何もせずにそのまま通す
-    }
-
-    // 念のための保険: アクセス先が dashboard.html じゃない場合も素通りさせる
-    if (!url.pathname.startsWith('/Enforcement-Administrator.html')) {
+    // 【無限ループ防止】ログイン系ページは絶対にスルーさせる
+    if (url.pathname.startsWith('/login.html') || url.pathname.startsWith('/signin.html')) {
         return;
     }
 
     // リクエストヘッダーからCookieを取得
     const cookie = request.headers.get('cookie') || '';
 
-    // Cookieの中に「admin_token=」が存在しない場合
-    if (!cookie.includes('admin_token=')) {
-        // 未認証ユーザーは login.html へ強制リダイレクト
-        url.pathname = '/signin.html';
-        return Response.redirect(url, 307);
+    // --- 1. 管理画面 (dashboard.html, Enforcement-Administrator.html) のチェック ---
+    if (url.pathname.startsWith('/dashboard.html') || url.pathname.startsWith('/Enforcement-Administrator.html')) {
+        if (!cookie.includes('admin_token=')) {
+            url.pathname = '/signin.html';
+            return Response.redirect(url, 307);
+        }
+        return; // admin_tokenがあれば通過
+    }
+
+    // --- 2. 一般ユーザー画面 (index.html, /) のチェック ---
+    if (url.pathname === '/' || url.pathname.startsWith('/index.html')) {
+        // Cookieの中に user_session_token が存在するかチェック
+        if (!cookie.includes('user_session_token=')) {
+            url.pathname = '/login.html';
+            return Response.redirect(url, 307);
+        }
+        return; // user_session_tokenがあれば通過
     }
 }
