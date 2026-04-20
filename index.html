@@ -2666,8 +2666,10 @@ function initCustomDropdown() {
 function logout() {
   localStorage.removeItem('user_session_identity');
   localStorage.removeItem('user_session_token'); 
+  // Cookieからも確実に削除
+  document.cookie = "user_session_token=; path=/; max-age=0;"; 
   currentUser = null;
-  window.location.href = 'login.html'; // リロードではなく login.html へ遷移
+  window.location.href = 'login.html'; 
 }
 
 function updateLanguage(lang){
@@ -3111,8 +3113,10 @@ async function performAuthAction() {
       localStorage.setItem('user_session_identity', JSON.stringify({ userId: data.userId, email: email }));
       
       if (data.token) {
-          localStorage.setItem('user_session_token', data.token);
-      }
+    localStorage.setItem('user_session_token', data.token);
+    // Middlewareが読み取れるようにCookieにも保存 (有効期限は例として1日)
+    document.cookie = `user_session_token=${data.token}; path=/; max-age=86400; secure; samesite=lax`;
+    }
       
       document.body.classList.add('is-logged-in');
       if (els.loginOverlay) els.loginOverlay.classList.remove('active'); 
