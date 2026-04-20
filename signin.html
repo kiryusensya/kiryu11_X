@@ -61,58 +61,44 @@
     <button id="btnLogin" class="btn-primary">登录</button>
     <div id="loginResult" class="msg" style="color: var(--danger);"></div>
   </div>
-
 <script>
   lucide.createIcons();
   const GAS_API_URL = "api/proxy"; 
-
-  // 悪さをしている古い localStorage の残骸を確実に消去
   localStorage.removeItem('admin_session_token');
-
-  // Cookieが存在するかチェックする関数
   function checkCookie(name) {
       const value = `; ${document.cookie}`;
       const parts = value.split(`; ${name}=`);
       if (parts.length === 2) return true;
       return false;
   }
-
-  // 【修正点1】admin_tokenはHttpOnlyで見えないため、admin_logged_inフラグで判定する
   if (checkCookie('admin_logged_in')) {
       window.location.replace('Enforcement-Administrator.html');
   }
-
-  // --- ログイン処理 ---
   document.getElementById('btnLogin').addEventListener('click', async () => {
       const u = document.getElementById('adminId').value.trim();
       const p = document.getElementById('adminPass').value.trim();
       const resEl = document.getElementById('loginResult');
       
-      if(!u || !p) { resEl.textContent = "入力してください"; return; }
-      resEl.textContent = "認証中..."; resEl.style.color = "var(--text-sub)";
+      if(!u || !p) { resEl.textContent = "请填写所有字段。"; return; }
+      resEl.textContent = "正在验证个人识别号码..."; resEl.style.color = "var(--text-sub)";
 
       try {
           const res = await fetch(GAS_API_URL, {
               method: 'POST', 
               headers: { 'Content-Type': 'application/json' },
-              // 【修正点2】サーバーが発行したCookieを受け取るために必須
               credentials: 'include', 
               body: JSON.stringify({ type: 'user_login', email: u, password: p })
           });
           const d = await res.json();
           
           if(d.success && d.isAdmin) {
-              // 【修正点3】サーバー(api/proxy.js)が安全なCookieをセット済みなので
-              // ここでの document.cookie による手動保存は削除します。
-              
-              // ダッシュボードへ遷移
               window.location.href = 'Enforcement-Administrator.html'; 
           } else {
               resEl.textContent = "⚠无效的“个人识别码”或“激活码”不正确。";
               resEl.style.color = "var(--danger)";
           }
       } catch(e) { 
-          resEl.textContent = "⚠通信エラーが発生しました";
+          resEl.textContent = "⚠发生通信错误。";
           resEl.style.color = "var(--danger)";
       }
   });
