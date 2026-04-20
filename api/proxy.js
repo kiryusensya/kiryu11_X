@@ -111,7 +111,6 @@ export default async function handler(req, res) {
             }
         } catch (e) {
             console.error("Audit Log Error:", e);
-            // ログ記録に失敗してもメイン処理を止めない
         }
     };
 
@@ -246,7 +245,7 @@ export default async function handler(req, res) {
             const { data: master, error } = await supabase.from('codes').select('*').eq('アクティベーションコード', safeCode).maybeSingle();
             
             if (error || !master) {
-                return res.status(200).json({ success: false, message: "⚠指定されたコードはデータベースに存在しません" });
+                return res.status(200).json({ success: false, message: "指定されたコードはデータベースに存在しません" });
             }
 
             const isUsed = master["USED?"] === true || String(master["USED?"]).trim().toUpperCase() === 'TRUE';
