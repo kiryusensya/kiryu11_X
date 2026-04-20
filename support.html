@@ -12,13 +12,10 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
-/* --- FONT FACE DEFINITIONS --- */
 @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
 @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
 @font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Medium.woff') format('woff'); font-weight: 400; font-style: normal; }
 @font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Medium.woff') format('woff'); font-weight: 400; font-style: normal; }
-
-/* --- THEME VARIABLES --- */
 :root {
   --primary: #007DFF;
   --bg-color: #F1F3F5;
@@ -53,8 +50,6 @@
   --sidebar-text: #fff;
   --sidebar-item-hover: rgba(255,255,255,0.1);
 }
-
-/* Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(128, 128, 128, 0.2); border-radius: 10px; }
@@ -83,8 +78,6 @@ button, input, textarea, a { font-family: var(--font-stack); }
   z-index: 0; opacity: 0.4; pointer-events: none;
   filter: blur(80px);
 }
-
-/* --- RGL LAYOUT STRUCTURE --- */
 .rgl-wrapper {
   display: flex;
   width: 100%;
@@ -92,8 +85,6 @@ button, input, textarea, a { font-family: var(--font-stack); }
   z-index: 5;
   position: relative;
 }
-
-/* SIDEBAR */
 .rgl-sidebar {
   width: var(--sidebar-width);
   background-color: var(--sidebar-bg);
@@ -217,12 +208,10 @@ button, input, textarea, a { font-family: var(--font-stack); }
   background: var(--card-bg); border: 1px solid rgba(128,128,128,0.2);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; transition: transform 0.3s; backdrop-filter: blur(10px); 
-  /* ▼ ヘッダーアイコンの色（ライトモード時）を変更する場合はここを変えます ▼ */
   color: #e6002f(--modal-text-main);
 }
 .theme-pill:hover { transform: scale(1.1); }
 [data-theme="dark"] .theme-pill { 
-  /* ▼ ヘッダーアイコンの色（ダークモード時）を変更する場合はここを変えます ▼ */
   color: #fff; 
 }
 
@@ -340,11 +329,9 @@ button, input, textarea, a { font-family: var(--font-stack); }
     position: absolute; top: 20px; right: 20px; width: 44px; height: 44px; border-radius: 50%;
     background: rgba(128,128,128,0.1); display: flex; align-items: center; justify-content: center;
     cursor: pointer; border: none; color: var(--modal-text-main); transition: 0.2s;
-    z-index: 10; /* ← これを追加 */
+    z-index: 10;
 }
 .close-btn:hover { background: rgba(128,128,128,0.2); }
-
-/* スマホ用レイアウト上書き */
 .mobile-menu-trigger { display: none; }
 .mobile-nav-overlay { display: none; }
 
@@ -634,12 +621,8 @@ button, input, textarea, a { font-family: var(--font-stack); }
     document.addEventListener('DOMContentLoaded', () => {
         try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
         setupHoverEffects();
-
-        // 言語設定の初期化
         let sLang = localStorage.getItem('user_lang') || 'ja';
         setLanguage(sLang);
-
-        // スマホメニュー処理
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const mobileNav = document.getElementById('mobileNav');
         const mobileMenuCloseBtn = document.getElementById('mobileMenuCloseBtn');
@@ -650,8 +633,6 @@ button, input, textarea, a { font-family: var(--font-stack); }
         if (mobileMenuCloseBtn && mobileNav) {
             mobileMenuCloseBtn.addEventListener('click', () => mobileNav.classList.remove('active'));
         }
-
-        // 言語切り替えメニュー処理
         const langTrigger = document.getElementById('langTrigger');
         const langMenu = document.getElementById('langMenu');
         if(langTrigger && langMenu) {
@@ -687,8 +668,6 @@ button, input, textarea, a { font-family: var(--font-stack); }
 
         const htmlEl = document.documentElement;
         const themeToggle = document.getElementById('themeToggle');
-
-        // ▼ 修正箇所：背景パーティクル処理（Canvas）の定義と初期化を先に配置 ▼
         const canvas = document.getElementById('particleCanvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -729,14 +708,9 @@ button, input, textarea, a { font-family: var(--font-stack); }
         }
         window.addEventListener('resize', () => { initParticles(htmlEl.getAttribute('data-theme')); });
         animate();
-        // ▲ Canvas定義ここまで ▲
-
-
-        // ▼ 修正箇所：テーマ切り替え処理をCanvas定義の後に配置 ▼
         function applyTheme(theme) {
             htmlEl.setAttribute('data-theme', theme);
             if (themeToggle) {
-                // DOMを直接書き換えてアイコンを再生成させる（バグ回避）
                 themeToggle.innerHTML = theme === 'light' ? '<i data-lucide="sun"></i>' : '<i data-lucide="moon"></i>';
                 try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
             }
@@ -753,11 +727,7 @@ button, input, textarea, a { font-family: var(--font-stack); }
                 localStorage.setItem('user_theme', next);
             });
         }
-        // ▲ テーマ処理ここまで ▲
-
     });
-
-    // モーダルオープン・クローズ処理
     const overlay = document.getElementById('detailOverlay');
     const mTitle = document.getElementById('modalTitle');
     const mDesc = document.getElementById('modalDesc');
@@ -770,12 +740,9 @@ button, input, textarea, a { font-family: var(--font-stack); }
         const t = TRANSLATIONS[lang] || TRANSLATIONS.ja;
         
         if(!data) return;
-
         mTitle.textContent = t[data.titleKey] || data.titleKey;
         mDesc.innerText = t[data.descKey] || data.descKey;
         mBtn.href = data.url;
-        
-        // モーダル内のアイコンを挿入・再生成
         mVisual.innerHTML = data.iconHtml;
         mVisual.style.background = `linear-gradient(135deg, ${data.color} 0%, #000000 100%)`;
 
