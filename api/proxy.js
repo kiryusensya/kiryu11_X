@@ -36,8 +36,6 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
-    // --- 1. レートリミット (安全なIP取得) ---
-    // サーバーレス環境で req.socket が無い場合のエラーを回避 (?. を使用)
     const ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown';
     const now = Date.now();
     if (!requestCounts.has(ip)) {
@@ -101,8 +99,6 @@ export default async function handler(req, res) {
         // トークン無効時はそのまま続行（後の権限チェックで弾く）
       }
     }
-
-    // --- 4. 監査ログ関数 (エラーを握りつぶす安全設計) ---
     const logAudit = async (actionType, targetUser, details) => {
         try {
             if (isAdmin && authUserId) {
@@ -229,7 +225,7 @@ export default async function handler(req, res) {
             const { data: master, error } = await supabase.from('codes').select('*').eq('アクティベーションコード', safeCode).maybeSingle();
             
             if (error || !master) {
-                return res.status(200).json({ success: false, message: "指定されたコードはデータベースに存在しません" });
+                return res.status(200).json({ success: false, message: "⚠指定されたコードはデータベースに存在しません" });
             }
 
             const isUsed = master["USED?"] === true || String(master["USED?"]).trim().toUpperCase() === 'TRUE';
@@ -328,14 +324,14 @@ export default async function handler(req, res) {
       
       // ① IDがフロントエンドから正しく届いているかチェック
       if (!targetId) {
-          return res.status(200).json({ success: false, message: "システムエラー: ユーザーIDが認識できません" });
+          return res.status(200).json({ success: false, message: "⚠システムエラー: ユーザーIDが認識できません" });
       }
 
       const { data: user, error: userError } = await supabase.from('users').select('*').eq('id', targetId).maybeSingle();
       
       // ② ユーザーがDBに存在するかチェック
       if (userError || !user) {
-          return res.status(200).json({ success: false, message: "システムエラー: 対象のユーザーが見つかりません" });
+          return res.status(200).json({ success: false, message: "⚠システムエラー: 対象のユーザーが見つかりません" });
       }
 
       // ③ パスワードの照合
@@ -348,14 +344,13 @@ export default async function handler(req, res) {
           }).eq('id', targetId);
           
           if (updateError) {
-              return res.status(200).json({ success: false, message: "データベースの更新に失敗しました" });
+              return res.status(200).json({ success: false, message: "⚠データベースの更新に失敗しました" });
           }
           
           return res.status(200).json({ success: true });
       }
       
-      // ④ 本当にパスワードが違う場合のみエラーを出す
-      return res.status(200).json({ success: false, message: "現在のパスワードが間違っています。" });
+      return res.status(200).json({ success: false, message: "⚠現在のパスワードが間違っています。" });
     }
 
     if (type === 'get_user_info') {
@@ -527,11 +522,11 @@ export default async function handler(req, res) {
 
         if (targetId) {
            const { error: histErr } = await supabase.from('histories').insert([{ user_id: targetId, code_id: master.id }]);
-           if(histErr) console.error("履歴追加エラー:", histErr);
+           if(histErr) console.error("⚠履歴追加エラー:", histErr);
         }
         if (isOnce) {
            const { error: updErr } = await supabase.from('codes').update({ "USED?": true }).eq('アクティベーションコード', safeCode);
-           if(updErr) console.error("使用済み更新エラー:", updErr);
+           if(updErr) console.error("⚠使用済み更新エラー:", updErr);
         }
 
         return res.status(200).json({
@@ -542,12 +537,9 @@ export default async function handler(req, res) {
         });
       }
     }
-
-    // どの条件にも合致しなかった場合
     return res.status(200).json({ success: false, message: "Invalid request" });
 
   } catch (error) {
-    // 全体を包むキャッチブロックで確実にエラーを捉える
     console.error("Critical API Error:", error);
     return res.status(500).json({ success: false, message: "Internal Server Error" });
   }
