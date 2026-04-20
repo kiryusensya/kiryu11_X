@@ -11,7 +11,6 @@
       const parts = value.split(`; ${name}=`);
       return parts.length === 2;
   }
-  // ★セキュリティ強化: admin_tokenはHttpOnlyで見えないため、admin_logged_inフラグで判定
   if (!checkCookie('admin_logged_in')) {
       window.location.replace('signin.html');
   }
@@ -106,12 +105,12 @@
 
 <div class="sidebar">
   <div class="sidebar-header">
-      <div class="brand"><i data-lucide="server"></i> 管理コントロール</div>
+      <div class="brand"><i data-lucide="server"></i> 管理控制台</div>
       <button class="mobile-menu-toggle" id="mobileMenuBtn"><i data-lucide="menu"></i></button>
   </div>
   <div class="sidebar-nav" id="sidebarNav">
       <div class="nav-item active" onclick="switchTab('create')"><i data-lucide="user-plus"></i> ユーザー発行</div>
-      <div class="nav-item" onclick="switchTab('reset')"><i data-lucide="key-round"></i> パスワード強制</div>
+      <div class="nav-item" onclick="switchTab('reset')"><i data-lucide="key-round"></i> パスワードリセット</div>
       <div class="nav-item" onclick="switchTab('search')"><i data-lucide="users"></i> ユーザー管理</div>
       <div class="nav-item" onclick="switchTab('codes')"><i data-lucide="package"></i> コンテンツ管理</div>
       <div class="nav-item" onclick="switchTab('code-support')"><i data-lucide="life-buoy"></i> コード追跡・復旧</div>
@@ -206,7 +205,6 @@
 </div>
 
 <script>
-  // XSS対策のサニタイズ関数
   const escapeHTML = (str) => {
     if (!str) return "";
     return String(str).replace(/[&<>"']/g, (match) => {
@@ -216,8 +214,6 @@
 
   lucide.createIcons();
   const GAS_API_URL = "api/proxy"; 
-
-  // --- 多言語フォームの自動生成 ---
   const langs = ['jp', 'en', 'SC', 'TC', 'ko', 'ru'];
   const txtFields = ['ボタン', 'バンドル', 'メッセージ', 'タイトル', '詳細'];
   const langContainer = document.getElementById('langFormsContainer');
@@ -230,11 +226,8 @@
       langHtml += `</div>`;
   });
   langContainer.innerHTML = langHtml;
-
-  // ★ セキュリティ強化: APIへの通信ラッパー (HttpOnly Cookieを自動送信)
   async function safeFetch(bodyObj) {
       const headers = { 'Content-Type': 'application/json' };
-      // credentials: 'include' を設定することで、HttpOnlyのCookie(admin_token)が裏でAPIに送信されます
       const response = await fetch(GAS_API_URL, { 
           method: 'POST', 
           headers: headers, 
@@ -264,8 +257,6 @@
       document.getElementById('pageTitle').textContent = titles[tabId];
       if(window.innerWidth <= 768) document.getElementById('sidebarNav').classList.remove('open');
   }
-
-  // ★ セキュリティ強化: APIを通してサーバー側のCookieも破棄させる
   document.getElementById('btnLogout').addEventListener('click', async () => {
       try {
           await fetch(GAS_API_URL, { 
@@ -279,8 +270,6 @@
       document.cookie = "admin_logged_in=; path=/; max-age=0;"; 
       window.location.href = 'signin.html';
   });
-
-  // 1 & 2 (Create & Reset)
   document.getElementById('btnCreate').addEventListener('click', async () => {
       const u = document.getElementById('newUserId').value.trim(), p = document.getElementById('newUserPass').value.trim();
       const resEl = document.getElementById('createResult');
@@ -306,7 +295,6 @@
       } catch(e) { resEl.textContent = "通信エラー"; resEl.style.color = "var(--danger)"; }
   });
 
-  // 3. ユーザー管理
   document.getElementById('btnSearch').addEventListener('click', async () => {
     const u = document.getElementById('searchUserId').value.trim();
     const resEl = document.getElementById('searchResult');
@@ -388,8 +376,7 @@
         } else { resEl.innerHTML = `<span style='color:var(--danger);'>エラー: ${escapeHTML(d.message)}</span>`; }
     } catch (e) { resEl.innerHTML = "<span style='color:var(--danger);'>通信エラー</span>"; }
   });
-
-  // 4. コンテンツ（コード）管理
+  
   document.getElementById('btnSaveCode').addEventListener('click', async () => {
       const resEl = document.getElementById('codeManageResult');
       const payload = {};
@@ -428,7 +415,6 @@
       }
   });
 
-  // 5. コード追跡・復旧
   document.getElementById('btnCheckCode').addEventListener('click', async () => {
       const code = document.getElementById('targetSupportCode').value.trim();
       const resEl = document.getElementById('codeSupportResult');
