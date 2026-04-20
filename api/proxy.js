@@ -188,6 +188,27 @@ export default async function handler(req, res) {
             await logAudit('CREATE_USER', email, {});
             return res.status(200).json({ success: true, message: "OK" });
         }
+      if (type === 'admin_revoke_content') {
+            const { targetEmail, code } = params;
+            if (!targetEmail || !code) return res.status(200).json({ success: false, message: "対象ユーザーまたはコードが指定されていません" });
+
+            // 1. 対象ユーザーの取得
+            const { data: targetUser } = await supabase.from('users').select('id').eq('email', targetEmail).maybeSingle();
+            if (!targetUser) return res.status(200).json({ success: false, message: "ユーザーが見つかりません" });
+
+            // 2. 対象コードの取得（ハイフンを残したまま安全にフォーマット）
+            const safeCode = String(code).replace(/[^A-Z0-9\-]/gi, "").toUpperCase();
+            const { data: targetCode } = await supabase.from('codes').select('id').eq('アクティベーションコード', safeCode).maybeSingle();
+            if (!targetCode) return res.status(200).json({ success: false, message: "対象のコードが見つかりません" });
+
+            // 3. ユーザーの所持履歴から対象コードを削除
+            const { error: deleteError } = await supabase.from('histories').delete().match({ user_id: targetUser.id, code_id: targetCode.id });
+            if (deleteError) return res.status(200).json({ success: false, message: "データベースの更新に失敗しました" });
+
+            // 4. 管理者ログの記録
+            await logAudit('REVOKE_CONTENT', targetEmail, { code: safeCode });
+            return res.status(200).json({ success: true, message: "OK" });
+        }
 
         if (type === 'admin_reset_password') {
             const { targetEmail, newPassword } = params;
@@ -306,17 +327,6 @@ export default async function handler(req, res) {
     // ==========================================
     // 一般ユーザー用機能
     // ==========================================
-    if (type === 'revoke_content') {
-      const { code } = params;
-      if (!authUserId) return res.status(401).json({ success: false, message: "Unauthorized" });
-
-      const { data: targetCode } = await supabase.from('codes').select('id').eq('アクティベーションコード', code).maybeSingle();
-      if (!targetCode) return res.status(200).json({ success: false, message: "対象のコードが見つかりません" });
-
-      const { error: deleteError } = await supabase.from('histories').delete().match({ user_id: authUserId, code_id: targetCode.id });
-      if (deleteError) return res.status(200).json({ success: false, message: "データベースの削除に失敗しました" });
-      return res.status(200).json({ success: true, message: "Revoked successfully" });
-    }
 
     if (type === 'change_password') {
       const { userId, oldPassword, newPassword } = params;
