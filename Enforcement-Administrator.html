@@ -69,6 +69,7 @@
   input, select, textarea { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: var(--text-main); padding: 0 16px; font-size: 14px; font-family: inherit; outline: none; }
   input, select { height: 50px; }
   select { appearance: none; cursor: pointer; }
+  option { background-color: var(--bg-color); color: var(--text-main); }
   input:focus, select:focus, textarea:focus { border-color: var(--primary); background: rgba(0, 125, 255, 0.05); }
   
   .grid-form { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -113,7 +114,7 @@
       <div class="nav-item" onclick="switchTab('reset')"><i data-lucide="key-round"></i> パスワードリセット</div>
       <div class="nav-item" onclick="switchTab('search')"><i data-lucide="users"></i> ユーザー管理</div>
       <div class="nav-item" onclick="switchTab('codes')"><i data-lucide="package"></i> コンテンツ管理</div>
-      <div class="nav-item" onclick="switchTab('code-support')"><i data-lucide="life-buoy"></i> コード追跡・復旧</div>
+      <div class="nav-item" onclick="switchTab('code-support')"><i data-lucide="life-buoy"></i> コード確認・復旧</div>
       <div style="margin-top: auto; padding-top: 20px;">
           <button id="btnLogout" class="btn-danger" style="width:100%; border:none; text-align:center; justify-content:center; background: rgba(255,59,48,0.1);"><i data-lucide="log-out"></i> ログアウト</button>
       </div>
@@ -129,7 +130,7 @@
   <div id="panel-create" class="panel active">
       <div class="card">
           <h2>新規アカウントの作成</h2>
-          <div class="form-group"><label>新しいユーザーID (Email)</label><input type="text" id="newUserId" placeholder="例: user_001@example.com"></div>
+          <div class="form-group"><label>新しいユーザーID (Email)</label><input type="text" id="newUserId" placeholder="username"></div>
           <div class="form-group"><label>初期パスワード</label><input type="text" id="newUserPass" placeholder="初期パスワードを入力"></div>
           <button id="btnCreate" class="btn-primary">アカウントを発行</button>
           <div id="createResult" class="msg"></div>
@@ -138,8 +139,8 @@
 
   <div id="panel-reset" class="panel">
       <div class="card">
-          <h2>パスワードの強制リセット</h2>
-          <div class="form-group"><label>対象のユーザーID</label><input type="text" id="resetUserId" placeholder="例: user_001"></div>
+          <h2>パスワードのリセット</h2>
+          <div class="form-group"><label>ユーザーID</label><input type="text" id="resetUserId" placeholder="例:username"></div>
           <div class="form-group"><label>新しい仮パスワード</label><input type="text" id="resetUserPass" placeholder="新しい仮パスワードを入力"></div>
           <button id="btnReset" class="btn-primary" style="background:#FF9500; color:#000;">強制リセットを実行</button>
           <div id="resetResult" class="msg"></div>
@@ -150,7 +151,7 @@
       <div class="card" style="max-width: 100%;">
           <h2>ユーザー検索・サポート</h2>
           <div style="display: flex; gap: 16px; align-items: flex-end;">
-            <div class="form-group" style="flex:1; margin-bottom:0;"><label>対象のユーザーID</label><input type="text" id="searchUserId" placeholder="検索したいユーザーID"></div>
+            <div class="form-group" style="flex:1; margin-bottom:0;"><label>ユーザーID</label><input type="text" id="searchUserId" placeholder="ユーザーID"></div>
             <button id="btnSearch" class="btn-primary" style="width: 100px;">検索</button>
           </div>
           <div id="searchResult" style="margin-top: 30px;"></div>
@@ -159,7 +160,7 @@
 
   <div id="panel-codes" class="panel">
       <div class="card wide">
-          <h2>コンテンツ（コード）の発行・編集</h2>
+          <h2>コードの発行・編集</h2>
           <p style="font-size:12px; color:var(--text-sub); margin-bottom:20px;">
             <span style="color:var(--danger); font-weight:bold;">※すべての項目が必須です。1つでも空欄があると保存できません。</span><br>
             既存のコードを入力すると上書き更新、新しいコードを入力すると新規作成されます。
@@ -191,11 +192,11 @@
 
   <div id="panel-code-support" class="panel">
       <div class="card">
-          <h2>コードステータス追跡・復旧</h2>
+          <h2>コードステータス</h2>
           <div class="form-group">
-              <label>対象のコード</label>
+              <label>引き換えコード</label>
               <div style="display: flex; gap: 10px;">
-                  <input type="text" id="targetSupportCode" placeholder="AAAA-BBBB-CCCC" style="flex:1;">
+                  <input type="text" id="targetSupportCode" placeholder="AAAAA-BBBBB=CCCCC-DDDDD-EEEEE" style="flex:1;">
                   <button id="btnCheckCode" class="btn-primary" style="width:100px;">確認</button>
               </div>
           </div>
@@ -277,7 +278,7 @@
       resEl.textContent = "処理中..."; resEl.style.color = "var(--text-sub)";
       try {
           const d = await safeFetch({ type: 'admin_create_user', email: u, password: p });
-          if(d.success) { resEl.textContent = `✅ 発行成功！ ID: ${escapeHTML(u)}`; resEl.style.color = "var(--success)"; document.getElementById('newUserId').value = ""; document.getElementById('newUserPass').value = ""; } 
+          if(d.success) { resEl.textContent = `✅ 発行成功！ ID: ${escapeHTML(u)} / PW: ${escapeHTML(p)}`; resEl.style.color = "var(--success)"; document.getElementById('newUserId').value = ""; document.getElementById('newUserPass').value = ""; } 
           else { resEl.textContent = `エラー: ${escapeHTML(d.message)}`; resEl.style.color = "var(--danger)"; }
       } catch(e) { resEl.textContent = "通信エラー"; resEl.style.color = "var(--danger)"; }
   });
@@ -351,8 +352,8 @@
                 } catch(err) { alert('通信エラー'); }
             });
 
-            if (!d.history || d.history.length === 0) {
-                resEl.innerHTML += '<div style="text-align:center; color:var(--text-sub); padding:20px;">履歴なし</div>';
+           if (!d.history || d.history.length === 0) {
+                resEl.insertAdjacentHTML('beforeend', '<div style="text-align:center; color:var(--text-sub); padding:20px;">履歴なし</div>');
             } else {
                 const ul = document.createElement('ul'); ul.className = 'history-list';
                 d.history.forEach(h => {
