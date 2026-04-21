@@ -343,7 +343,7 @@ export default async function handler(req, res) {
       const items = filteredContents.map(content => {
         const isOwned = ownedContentIds.has(content.id) || (content["重複"] && ownedGroupIds.has(content["重複"]));
         return {
-          contentId: content.id,
+          code: content.id,
           title: content[`タイトル(${suffix})`] || content["タイトル(jp)"],
           message: content[`メッセージ(${suffix})`] || content["メッセージ(jp)"], 
           extraInfo: content[`詳細(${suffix})`] || content["詳細(jp)"],
