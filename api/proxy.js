@@ -376,7 +376,7 @@ export default async function handler(req, res) {
     if (type === 'get_history') {
       if (!authUserId) return res.status(401).json({ success: false, message: "Unauthorized" });
       const { data: user } = await supabase.from('users').select('points').eq('id', authUserId).maybeSingle();
-      
+      if (!user) return res.status(200).json({ success: false, message: "User not found" });
       const { data: histories } = await supabase.from('histories').select(`created_at, codes (*, contents(*))`).eq('user_id', authUserId).order('created_at', { ascending: false });
       
       const lMap = { ja: 'jp', en: 'en', zh: 'zh', 'zh-TW': 'zh-TW', ko: 'ko', ru: 'ru' };
