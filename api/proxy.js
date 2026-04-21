@@ -87,7 +87,9 @@ export default async function handler(req, res) {
                 cookies[parts[0].trim()] = parts[1].trim();
             }
         });
-        if (cookies.admin_token) token = cookies.admin_token;
+      if (!token && cookies.admin_token) {
+            token = cookies.admin_token;
+        }
     }
 
     if (token) {
