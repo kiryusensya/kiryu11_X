@@ -211,12 +211,17 @@
           <div class="form-group">
               <label>アクティベーションコード (必須)</label>
               <div style="display: flex; gap: 10px;">
-                  <input type="text" id="genCodeStr" placeholder="例: ABCDE-12345" style="text-transform: uppercase;">
-                  <button class="btn-primary" style="width: 100px; background: rgba(255,255,255,0.1); border: 1px solid var(--card-border);" onclick="document.getElementById('genCodeStr').value = 'CODE-' + Math.random().toString(36).substr(2, 9).toUpperCase();">自動生成</button>
+                  <input type="text" id="genCodeStr" placeholder="例: ABCDE-12345" style="text-transform: uppercase; flex: 1;">
+                  <select id="codeFormatSelect" style="width: auto; padding: 0 10px; flex-shrink: 0;">
+                      <option value="4x4">4桁 × 4ブロック</option>
+                      <option value="4x3">4桁 × 3ブロック</option>
+                      <option value="5x5">5桁 × 5ブロック</option>
+                  </select>
+                  <button type="button" class="btn-primary" style="width: 100px; flex-shrink: 0; background: rgba(255,255,255,0.1); border: 1px solid var(--card-border);" onclick="generateProSerialCode()">自動生成</button>
               </div>
           </div>
           <div class="grid-form">
-              <div class="form-group"><label>コードタイプ</label><select id="genCodeType"><option value="ONCE">ONCE (1回使い切り)</option><option value="POINT">POINT (ポイント付与)</option></select></div>
+              <div class="form-group"><label>コードタイプ</label><select id="genCodeType"><option value="ONCE">ONCE (1回使い切り)</option><option value="MULTIPLE">MULTI (複数回)</option><option value="POINT">POINT (ポイント付与)</option></select></div>
               <div class="form-group"><label>付与ポイント(POINT時のみ)</label><input type="number" id="genPointPpp" placeholder="0"></div>
               <div class="form-group" style="grid-column: 1 / -1;"><label>初期ステータス</label><select id="genIsActive"><option value="true">有効 (利用可能)</option><option value="false">無効</option></select></div>
           </div>
@@ -231,7 +236,7 @@
           <div class="form-group">
               <label>引き換えコード</label>
               <div style="display: flex; gap: 10px;">
-                  <input type="text" id="targetSupportCode" placeholder="AAAAA-BBBBB=CCCCC-DDDDD-EEEEE" style="flex:1;">
+                  <input type="text" id="targetSupportCode" placeholder="AAAAA-BBBBB-CCCCC-DDDDD-EEEEE" style="flex:1;">
                   <button id="btnCheckCode" class="btn-primary" style="width:100px;">確認</button>
               </div>
           </div>
@@ -517,6 +522,38 @@
           } else { resEl.innerHTML = `<span style='color:var(--danger);'>⚠エラー: ${escapeHTML(d.message)}</span>`; }
       } catch(e) { resEl.innerHTML = "<span style='color:var(--danger);'>⚠通信エラー</span>"; }
   });
+ // 本格的なシリアルコードを生成する関数（プルダウン連動版）
+  function generateProSerialCode() {
+      // 画面のプルダウンから選択されたフォーマットを取得
+      const format = document.getElementById('codeFormatSelect').value;
+      
+      let blocks = 4;
+      let charsPerBlock = 4;
+
+      // 選択されたフォーマットに合わせて長さを設定
+      if (format === '4x3') {
+          blocks = 3; charsPerBlock = 4;
+      } else if (format === '5x5') {
+          blocks = 5; charsPerBlock = 5;
+      } else { // 4x4 (デフォルト)
+          blocks = 4; charsPerBlock = 4;
+      }
+
+      // O(オー)や0(ゼロ)、I(アイ)や1など、見間違えやすい文字を省いた安全な文字リスト
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; 
+      let codeParts = [];
+      
+      for (let i = 0; i < blocks; i++) {
+          let part = '';
+          for (let j = 0; j < charsPerBlock; j++) {
+              part += chars.charAt(Math.floor(Math.random() * chars.length));
+          }
+          codeParts.push(part);
+      }
+      
+      // ハイフンで繋いで入力欄にセット
+      document.getElementById('genCodeStr').value = codeParts.join('-');
+  }
 </script>
 </body>
 </html>
