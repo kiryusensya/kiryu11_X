@@ -147,6 +147,32 @@ export default async function handler(req, res) {
       }
       return res.status(200).json({ success: false, message: "Invalid" });
     }
+    if (type === 'change_password') {
+      const { userId, oldPassword, newPassword } = params;
+      if (!userId || !oldPassword || !newPassword) {
+          return res.status(200).json({ success: false, message: "Missing fields" });
+      }
+
+      // ユーザーの存在確認と、古いパスワードが合っているかチェック
+      const { data: user } = await supabase.from('users').select('*').eq('id', userId).maybeSingle();
+      if (!user) return res.status(200).json({ success: false, message: "User not found" });
+
+      const isMatch = await bcrypt.compare(oldPassword, user.password);
+      if (!isMatch) return res.status(200).json({ success: false, message: "Invalid current password" });
+
+      // 新しいパスワードを暗号化して保存 ＆ パスワード変更要求（needs_password_change）を解除
+      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+      const { error } = await supabase.from('users').update({ 
+          password: hashedNewPassword, 
+          needs_password_change: false 
+      }).eq('id', userId);
+
+      if (error) {
+          return res.status(200).json({ success: false, message: "Database update failed" });
+      }
+
+      return res.status(200).json({ success: true, message: "Password updated successfully" });
+    }
 
     if (type === 'admin_logout') {
         res.setHeader('Set-Cookie', [
