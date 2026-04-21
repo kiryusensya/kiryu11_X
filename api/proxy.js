@@ -382,7 +382,7 @@ export default async function handler(req, res) {
 
     // purchase：ストアでのポイント購入（※在庫を消費せず、無限に買える方式）
     if (type === 'purchase') {
-      const contentId = params.code; // フロントエンドからは商品IDが 'code' という名前で届く
+      const { contentId } = params; // フロントエンドからは商品IDが 'code' という名前で届く
       if (!authUserId) return res.status(401).json({ success: false, message: "Unauthorized" });
       
       const { data: contentMaster } = await supabase.from('contents').select('*').eq('id', contentId).maybeSingle();
