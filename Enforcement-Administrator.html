@@ -77,10 +77,9 @@
     margin: 0;
   }
   input[type="number"] {
-    -moz-appearance: textfield; /* Firefox用 */
+    -moz-appearance: textfield; 
   }
   select { appearance: none; cursor: pointer; }
-  option { background-color: var(--bg-color); color: var(--text-main); }
   input:focus, select:focus, textarea:focus { border-color: var(--primary); background: rgba(0, 125, 255, 0.05); }
   
   .grid-form { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -124,7 +123,10 @@
       <div class="nav-item active" onclick="switchTab('create')"><i data-lucide="user-plus"></i> ユーザー発行</div>
       <div class="nav-item" onclick="switchTab('reset')"><i data-lucide="key-round"></i> パスワードリセット</div>
       <div class="nav-item" onclick="switchTab('search')"><i data-lucide="users"></i> ユーザー管理</div>
-      <div class="nav-item" onclick="switchTab('codes')"><i data-lucide="package"></i> コンテンツ管理</div>
+      
+      <div class="nav-item" onclick="switchTab('contents')"><i data-lucide="package"></i> コンテンツ登録</div>
+      <div class="nav-item" onclick="switchTab('codes')"><i data-lucide="ticket"></i> コード発行</div>
+      
       <div class="nav-item" onclick="switchTab('code-support')"><i data-lucide="life-buoy"></i> コード確認・復旧</div>
       <div style="margin-top: auto; padding-top: 20px;">
           <button id="btnLogout" class="btn-danger" style="width:100%; border:none; text-align:center; justify-content:center; background: rgba(255,59,48,0.1);"><i data-lucide="log-out"></i> ログアウト</button>
@@ -169,41 +171,63 @@
       </div>
   </div>
 
-  <div id="panel-codes" class="panel">
+  <div id="panel-contents" class="panel">
       <div class="card wide">
-          <h2>コードの発行・編集</h2>
+          <h2>コンテンツの登録・更新（マスターデータ）</h2>
           <p style="font-size:12px; color:var(--text-sub); margin-bottom:20px;">
-            <span style="color:var(--danger); font-weight:bold;">※すべての項目が必須です。1つでも空欄があると保存できません。</span><br>
-            既存のコードを入力すると上書き更新、新しいコードを入力すると新規作成されます。
+            新規登録の場合は「コンテンツID」を空欄にしてください。既存のコンテンツを上書きする場合はIDを入力します。
           </p>
           
           <div style="max-height: 600px; overflow-y: auto; padding-right: 15px;">
               <h3 style="border-bottom: 1px solid var(--card-border); padding-bottom: 8px; margin-top:0;">基本設定</h3>
               <div class="grid-form">
-                  <div class="form-group"><label>アクティベーションコード</label><input type="text" class="mng-input" data-col="アクティベーションコード" placeholder="必須"></div>
-                  <div class="form-group"><label>コードタイプ</label><select class="mng-input" data-col="Types"><option value="ONCE">ONCE</option><option value="MULTIPLE">MULTIPLE</option><option value="POINT">POINT</option></select></div>
-                  <div class="form-group"><label>表示設定</label><select class="mng-input" data-col="show/ hide"><option value="show">show</option><option value="hide">hide</option></select></div>
-                  <div class="form-group"><label>価格 (ポイント)</label><input type="number" class="mng-input" data-col="価格" placeholder="0"></div>
-                  <div class="form-group"><label>解禁時間</label><input type="datetime-local" class="mng-input" data-col="解禁時間"></div>
-                  <div class="form-group"><label>有効時間</label><input type="datetime-local" class="mng-input" data-col="有効時間"></div>
-                  <div class="form-group"><label>アイコン</label><input type="text" class="mng-input" data-col="アイコン" placeholder="例: download"></div>
-                  <div class="form-group"><label>重複 (グループID)</label><input type="text" class="mng-input" data-col="重複" placeholder="必須"></div>
-                  <div class="form-group" style="grid-column: 1 / -1;"><label>付与ポイント数 (POINT時のみ)</label><input type="number" class="mng-input" data-col="Point PPP" placeholder="0"></div>
-                  <div class="form-group" style="grid-column: 1 / -1;"><label>Action_url</label><input type="text" class="mng-input" data-col="Action_url" placeholder="必須"></div>
-                  <div class="form-group" style="grid-column: 1 / -1;"><label>Imag_Url</label><input type="text" class="mng-input" data-col="Imag_Url" placeholder="必須"></div>
+                  <div class="form-group" style="grid-column: 1 / -1;"><label>コンテンツID (※上書き更新する場合のみ入力)</label><input type="number" class="content-input" data-col="id" placeholder="空欄で新規作成"></div>
+                  <div class="form-group"><label>表示設定</label><select class="content-input" data-col="show/ hide"><option value="show">show</option><option value="hide">hide</option></select></div>
+                  <div class="form-group"><label>価格 (ポイント)</label><input type="number" class="content-input" data-col="価格" placeholder="0"></div>
+                  <div class="form-group"><label>解禁時間</label><input type="datetime-local" class="content-input" data-col="解禁時間"></div>
+                  <div class="form-group"><label>有効時間</label><input type="datetime-local" class="content-input" data-col="有効時間"></div>
+                  <div class="form-group"><label>アイコン</label><input type="text" class="content-input" data-col="アイコン" placeholder="例: download"></div>
+                  <div class="form-group"><label>重複 (グループID)</label><input type="text" class="content-input" data-col="重複" placeholder="例: APP_KIRYU"></div>
+                  <div class="form-group" style="grid-column: 1 / -1;"><label>Action_url (ダウンロード先等)</label><input type="text" class="content-input" data-col="Action_url" placeholder="https://..."></div>
+                  <div class="form-group" style="grid-column: 1 / -1;"><label>Imag_Url (サムネイル画像)</label><input type="text" class="content-input" data-col="Imag_Url" placeholder="https://..."></div>
               </div>
-
               <div id="langFormsContainer"></div>
           </div>
-          
-          <button id="btnSaveCode" class="btn-primary" style="background:#04CF22; margin-top:20px;">保存 / 登録する</button>
+          <button id="btnSaveContent" class="btn-primary" style="background:#04CF22; margin-top:20px;">コンテンツを保存する</button>
+          <div id="contentManageResult" class="msg"></div>
+      </div>
+  </div>
+
+  <div id="panel-codes" class="panel">
+      <div class="card">
+          <h2>配布用シリアルコードの発行</h2>
+          <p style="font-size:12px; color:var(--text-sub); margin-bottom:20px;">
+            登録済みの「コンテンツID」に対して、ユーザーが入力するコードを発行します。
+          </p>
+          <div class="form-group">
+              <label>紐づけるコンテンツID (必須)</label>
+              <input type="number" id="genCodeContentId" placeholder="例: 1">
+          </div>
+          <div class="form-group">
+              <label>アクティベーションコード (必須)</label>
+              <div style="display: flex; gap: 10px;">
+                  <input type="text" id="genCodeStr" placeholder="例: ABCDE-12345" style="text-transform: uppercase;">
+                  <button class="btn-primary" style="width: 100px; background: rgba(255,255,255,0.1); border: 1px solid var(--card-border);" onclick="document.getElementById('genCodeStr').value = 'CODE-' + Math.random().toString(36).substr(2, 9).toUpperCase();">自動生成</button>
+              </div>
+          </div>
+          <div class="grid-form">
+              <div class="form-group"><label>コードタイプ</label><select id="genCodeType"><option value="ONCE">ONCE (1回使い切り)</option><option value="POINT">POINT (ポイント付与)</option></select></div>
+              <div class="form-group"><label>付与ポイント(POINT時のみ)</label><input type="number" id="genPointPpp" placeholder="0"></div>
+              <div class="form-group" style="grid-column: 1 / -1;"><label>初期ステータス</label><select id="genIsActive"><option value="true">有効 (利用可能)</option><option value="false">無効</option></select></div>
+          </div>
+          <button id="btnCreateCode" class="btn-primary" style="background:#007DFF; margin-top:10px;">コードを発行する</button>
           <div id="codeManageResult" class="msg"></div>
       </div>
   </div>
 
   <div id="panel-code-support" class="panel">
       <div class="card">
-          <h2>コードステータス</h2>
+          <h2>コードステータス確認</h2>
           <div class="form-group">
               <label>引き換えコード</label>
               <div style="display: flex; gap: 10px;">
@@ -226,18 +250,19 @@
 
   lucide.createIcons();
   const GAS_API_URL = "api/proxy"; 
-  const langs = ['日本語', 'English', '简体中文', '繁體中文', '한국어', 'Русский'];
+  const langs = ['jp', 'en', 'zh', 'zh-TW', 'ko', 'ru'];
   const txtFields = ['ボタン', 'バンドル', 'メッセージ', 'タイトル', '詳細'];
   const langContainer = document.getElementById('langFormsContainer');
   let langHtml = '';
   langs.forEach(l => {
       langHtml += `<h3 style="border-bottom: 1px solid var(--card-border); padding-bottom: 8px; margin-top: 30px; color:var(--primary);">言語: ${l}</h3><div class="grid-form">`;
       txtFields.forEach(f => {
-          langHtml += `<div class="form-group"><label>${f}(${l})</label><input type="text" class="mng-input" data-col="${f}(${l})" placeholder="必須"></div>`;
+          langHtml += `<div class="form-group"><label>${f}(${l})</label><input type="text" class="content-input" data-col="${f}(${l})"></div>`;
       });
       langHtml += `</div>`;
   });
   langContainer.innerHTML = langHtml;
+
   async function safeFetch(bodyObj) {
       const headers = { 'Content-Type': 'application/json' };
       const response = await fetch(GAS_API_URL, { 
@@ -265,10 +290,11 @@
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       document.getElementById('panel-' + tabId).classList.add('active');
       event.currentTarget.classList.add('active');
-      const titles = { 'create': 'ユーザー発行', 'reset': 'パスワード強制', 'search': 'ユーザー管理', 'codes': 'コンテンツ管理', 'code-support': 'コード確認・復旧' };
+      const titles = { 'create': 'ユーザー発行', 'reset': 'パスワードリセット', 'search': 'ユーザー管理', 'contents': 'コンテンツ登録', 'codes': 'コード発行', 'code-support': 'コード確認・復旧' };
       document.getElementById('pageTitle').textContent = titles[tabId];
       if(window.innerWidth <= 768) document.getElementById('sidebarNav').classList.remove('open');
   }
+
   document.getElementById('btnLogout').addEventListener('click', async () => {
       try {
           await fetch(GAS_API_URL, { 
@@ -278,10 +304,10 @@
               body: JSON.stringify({ type: 'admin_logout' }) 
           });
       } catch (e) { console.error("Logout Error:", e); }
-      
       document.cookie = "admin_logged_in=; path=/; max-age=0;"; 
       window.location.href = 'signin.html';
   });
+
   document.getElementById('btnCreate').addEventListener('click', async () => {
       const u = document.getElementById('newUserId').value.trim(), p = document.getElementById('newUserPass').value.trim();
       const resEl = document.getElementById('createResult');
@@ -389,36 +415,61 @@
     } catch (e) { resEl.innerHTML = "<span style='color:var(--danger);'>⚠通信エラー</span>"; }
   });
   
-  document.getElementById('btnSaveCode').addEventListener('click', async () => {
-      const resEl = document.getElementById('codeManageResult');
+  // コンテンツの登録（contentsテーブルへの保存）
+  document.getElementById('btnSaveContent').addEventListener('click', async () => {
+      const resEl = document.getElementById('contentManageResult');
       const payload = {};
-      let isMissing = false;
-
-      document.querySelectorAll('.mng-input').forEach(el => {
+      
+      document.querySelectorAll('.content-input').forEach(el => {
           const val = el.value.trim();
-          if (val === '') {
-              isMissing = true;
-              el.style.borderColor = "var(--danger)";
-          } else {
-              el.style.borderColor = "rgba(255,255,255,0.2)";
-          }
-          
           let col = el.getAttribute('data-col');
-          if (el.type === 'number') payload[col] = parseInt(val) || 0;
-          else payload[col] = val;
+          if (val !== '') {
+              if (el.type === 'number') payload[col] = parseInt(val) || 0;
+              else payload[col] = val;
+          }
       });
-
-      if (isMissing) {
-          resEl.textContent = "⚠すべての項目を入力してください！";
-          resEl.style.color = "var(--danger)";
-          return;
-      }
 
       resEl.textContent = "保存中..."; resEl.style.color = "var(--text-sub)";
       try {
-          const d = await safeFetch({ type: 'admin_save_code', payload: payload });
+          const d = await safeFetch({ type: 'admin_save_content', payload: payload });
           if(d.success) {
-              resEl.textContent = `✅ 保存成功！`; resEl.style.color = "var(--success)";
+              resEl.textContent = `✅ 登録成功！ (コンテンツID: ${d.contentId})`; resEl.style.color = "var(--success)";
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+          } else {
+              resEl.textContent = `⚠エラー: ${escapeHTML(d.message)}`; resEl.style.color = "var(--danger)";
+          }
+      } catch(e) {
+          resEl.textContent = "⚠通信エラー"; resEl.style.color = "var(--danger)";
+      }
+  });
+
+  // シリアルコードの発行（codesテーブルへの保存）
+  document.getElementById('btnCreateCode').addEventListener('click', async () => {
+      const resEl = document.getElementById('codeManageResult');
+      const contentId = document.getElementById('genCodeContentId').value.trim();
+      const codeStr = document.getElementById('genCodeStr').value.trim();
+      const codeType = document.getElementById('genCodeType').value;
+      const pointPpp = document.getElementById('genPointPpp').value.trim();
+      const isActive = document.getElementById('genIsActive').value === 'true';
+
+      if (!contentId || !codeStr) {
+          resEl.textContent = "⚠ コンテンツIDとアクティベーションコードは必須です"; 
+          resEl.style.color = "var(--danger)"; return;
+      }
+
+      resEl.textContent = "発行中..."; resEl.style.color = "var(--text-sub)";
+      try {
+          const d = await safeFetch({ 
+              type: 'admin_create_code', 
+              contentId: parseInt(contentId), 
+              code: codeStr, 
+              codeType: codeType, 
+              pointPpp: parseInt(pointPpp) || 0, 
+              isActive: isActive 
+          });
+          if(d.success) {
+              resEl.textContent = `✅ コード発行成功！ (${escapeHTML(codeStr)})`; resEl.style.color = "var(--success)";
+              document.getElementById('genCodeStr').value = ''; 
           } else {
               resEl.textContent = `⚠エラー: ${escapeHTML(d.message)}`; resEl.style.color = "var(--danger)";
           }
