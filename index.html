@@ -3735,8 +3735,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (data.success && Array.isArray(data.history)) {
-                // サーバーから返ってきた最新の履歴の「数」と、今画面に表示している「数」が違うか？
-                if (data.history.length !== currentUser.history.length) {
+                // ▼ 修正: 履歴の数だけでなく、「ポイントの変動」も検知する！
+                const historyChanged = data.history.length !== currentUser.history.length;
+                const pointsChanged = data.points !== currentUser.points;
+
+                if (historyChanged || pointsChanged) {
                     
                     // 内部データを最新に書き換える
                     currentUser.history = data.history;
@@ -3750,20 +3753,22 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
 
-                    // 画面（ライブラリとストア）を再描画して最新状態にする
+                    // 画面のポイント数や履歴を再描画して最新状態にする
                     updateAccountUI();
-                    fetchAvailableContent();
+                    
+                    // 履歴の数が変わった（没収された・増えた）時だけストア画面も再構築する
+                    if (historyChanged) {
+                        fetchAvailableContent();
+                    }
                 }
-            // ▼▼▼ ここを修正 ▼▼▼
             } else if (data.message === "Unauthorized" || data.message === "User not found") {
-                // セッション切れ、または管理者にアカウントごと消された場合のみ強制ログアウト
+                // ▼ 管理者にアカウントを削除された、またはセッションが切れた場合は即座に強制ログアウト
                 logout();
             }
-            // ▲▲▲ ここまで ▲▲▲
         } catch (e) {
             // エラー時は何もしない（次の5秒後に再トライ）
         }
-    }, 5000); // 5000ミリ秒 ＝ 5秒ごとにチェック
+    }, 5000);
 </script>
 </body>
 </html>
