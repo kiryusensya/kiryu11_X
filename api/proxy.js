@@ -162,16 +162,54 @@ export default async function handler(req, res) {
     if (type.startsWith('admin_')) {
         if (!isAdmin) return res.status(401).json({ success: false, message: "管理者権限がありません" });
 
-        if (type === 'admin_create_user') { /* 既存ロジックそのまま */ }
-        
-        if (type === 'admin_revoke_content') { /* 既存ロジックそのまま */ }
+        if (type === 'admin_create_user') {
+            const { email, password } = params;
+            if (!email || !password) return res.status(200).json({ success: false, message: "Missing credentials" });
+            const { data: existing } = await supabase.from('users').select('id').eq('email', email).maybeSingle();
+            if (existing) return res.status(200).json({ success: false, message: "そのIDは既に存在します" });
+            
+            const hashedPassword = await bcrypt.hash(password, 10);
+            const { error } = await supabase.from('users').insert([{ email, password: hashedPassword, points: 0, needs_password_change: true }]);
+            if (error) throw error;
+            await logAudit('CREATE_USER', email, {});
+            return res.status(200).json({ success: true, message: "OK" });
+        }
+
+        if (type === 'admin_revoke_content') {
+            const { targetEmail, code } = params;
+            if (!targetEmail || !code) return res.status(200).json({ success: false, message: "対象ユーザーまたはコードが指定されていません" });
+
+            const { data: targetUser } = await supabase.from('users').select('id').eq('email', targetEmail).maybeSingle();
+            if (!targetUser) return res.status(200).json({ success: false, message: "ユーザーが見つかりません" });
+
+            const safeCode = String(code).replace(/[^A-Z0-9\-]/gi, "").toUpperCase();
+            const { data: targetCode } = await supabase.from('codes').select('id').eq('アクティベーションコード', safeCode).maybeSingle();
+            if (!targetCode) return res.status(200).json({ success: false, message: "対象のコードが見つかりません" });
+
+            const { error: deleteError } = await supabase.from('histories').delete().match({ user_id: targetUser.id, code_id: targetCode.id });
+            if (deleteError) return res.status(200).json({ success: false, message: "データベースの更新に失敗しました" });
+
+            await logAudit('REVOKE_CONTENT', targetEmail, { code: safeCode });
+            return res.status(200).json({ success: true, message: "OK" });
+        }
+
+        if (type === 'admin_reset_password') {
+            const { targetEmail, newPassword } = params;
+            const { data: targetUser } = await supabase.from('users').select('id').eq('email', targetEmail).maybeSingle();
+            if (!targetUser) return res.status(200).json({ success: false, message: "ユーザーが見つかりません" });
+
+            const hashedNewPass = await bcrypt.hash(newPassword, 10);
+            const { error } = await supabase.from('users').update({ password: hashedNewPass, needs_password_change: true }).eq('id', targetUser.id);
+            if (error) return res.status(200).json({ success: false, message: "データベースの更新に失敗しました" });
+            await logAudit('RESET_PASSWORD', targetEmail, {});
+            return res.status(200).json({ success: true, message: "Password reset successful" });
+        }
 
         if (type === 'admin_search') {
             const { targetEmail } = params;
             const { data: targetUser } = await supabase.from('users').select('id, email, points').eq('email', targetEmail).maybeSingle();
             if (!targetUser) return res.status(200).json({ success: false, message: "ユーザーが見つかりません" });
 
-            // 変更点: codes経由でcontentsの情報もJOINする
             const { data: histories } = await supabase.from('histories').select(`created_at, codes (*, contents(*))`).eq('user_id', targetUser.id).order('created_at', { ascending: false });
 
             const historyData = (histories || []).map(h => {
@@ -189,8 +227,6 @@ export default async function handler(req, res) {
         if (type === 'admin_check_code') {
             const { code } = params;
             const safeCode = String(code).replace(/[^A-Z0-9\-]/gi, "").toUpperCase();
-            
-            // 変更点: contentsをJOIN
             const { data: master, error } = await supabase.from('codes').select('*, contents(*)').eq('アクティベーションコード', safeCode).maybeSingle();
             
             if (error || !master) return res.status(200).json({ success: false, message: "存在しません" });
@@ -211,15 +247,66 @@ export default async function handler(req, res) {
             return res.status(200).json({ success: true, code: master["アクティベーションコード"], title: cInfo["タイトル(jp)"] || cInfo["バンドル(jp)"] || "不明", isUsed, usedTime, usedBy });
         }
 
+        if (type === 'admin_reset_code') {
+            const { code } = params;
+            const safeCode = String(code).replace(/[^A-Z0-9\-]/gi, "").toUpperCase();
+            const { error } = await supabase.from('codes').update({ "USED?": false }).eq('アクティベーションコード', safeCode);
+            if (error) return res.status(200).json({ success: false, message: "データベースの更新に失敗しました" });
+            await logAudit('RESET_CODE', null, { code: safeCode });
+            return res.status(200).json({ success: true, message: "OK" });
+        }
+
+        if (type === 'admin_set_points') {
+            const { targetEmail, amount } = params;
+            const { data: targetUser } = await supabase.from('users').select('id').eq('email', targetEmail).maybeSingle();
+            if (!targetUser) return res.status(200).json({ success: false, message: "対象のユーザーが見つかりません" });
+
+            const newPoints = Math.max(0, amount);
+            const { error } = await supabase.from('users').update({ points: newPoints }).eq('id', targetUser.id);
+            if (error) return res.status(200).json({ success: false, message: "ポイントの更新に失敗しました" });
+            
+            await logAudit('SET_POINTS', targetEmail, { amount: newPoints });
+            return res.status(200).json({ success: true, message: "OK" });
+        }
+
+        if (type === 'admin_delete_user') {
+            const { targetEmail } = params;
+            const { data: targetUser } = await supabase.from('users').select('id').eq('email', targetEmail).maybeSingle();
+            if (!targetUser) return res.status(200).json({ success: false, message: "ユーザーが見つかりません" });
+
+            await supabase.from('histories').delete().eq('user_id', targetUser.id);
+            const { error } = await supabase.from('users').delete().eq('id', targetUser.id);
+            if (error) return res.status(200).json({ success: false, message: "アカウントの削除に失敗しました" });
+            
+            await logAudit('DELETE_USER', targetEmail, {});
+            return res.status(200).json({ success: true, message: "OK" });
+        }
+
         if (type === 'admin_save_code') {
-            // 🚨フロントエンド改修ポイント: 
-            // 管理画面からは「コンテンツの作成」と「コードの生成」を分ける必要があります。
-            // 暫定として、既存ロジックを残していますが、今後は contents テーブルと codes テーブルのそれぞれに INSERT する設計に変更してください。
-            return res.status(200).json({ success: false, message: "API構造が変更されました。コンテンツ管理とコード管理を分離して保存してください。" });
+            const { payload } = params;
+            if (!payload || !payload["アクティベーションコード"]) return res.status(200).json({ success: false, message: "コードが指定されていません" });
+
+            const safeCode = String(payload["アクティベーションコード"]).replace(/[^A-Z0-9\-]/gi, "").toUpperCase();
+
+            // 新データベース構成に対応：codesテーブルが持つステータス（有効/無効、USED?）のみを更新できるように修正
+            const updateData = {};
+            if (payload["有効/無効"] !== undefined) updateData["有効/無効"] = payload["有効/無効"];
+            if (payload["USED?"] !== undefined) updateData["USED?"] = payload["USED?"];
+
+            const { data: existing } = await supabase.from('codes').select('id').eq('アクティベーションコード', safeCode).maybeSingle();
+
+            if (existing) {
+                const { error } = await supabase.from('codes').update(updateData).eq('id', existing.id);
+                if (error) return res.status(200).json({ success: false, message: "データベースの保存に失敗しました" });
+                await logAudit('SAVE_CODE', null, { code: safeCode });
+                return res.status(200).json({ success: true, message: "OK" });
+            } else {
+                return res.status(200).json({ success: false, message: "コードが見つかりません。新規作成はデータベースのcontentsとcodesテーブルから行ってください。" });
+            }
         }
     }
 
-    // ==========================================
+    /// ==========================================
     // 一般ユーザー用機能
     // ==========================================
     
@@ -228,13 +315,11 @@ export default async function handler(req, res) {
       const isGuest = (!params.userId || params.userId === "GUEST");
       const targetId = isGuest ? null : authUserId; 
       
-      // 変更点: ベースをcontentsテーブルに変更
       const { data: allContents } = await supabase.from('contents').select('*').order('id', { ascending: true });
       let ownedContentIds = new Set(); 
       let ownedGroupIds = new Set();
 
       if (targetId) {
-        // historiesからユーザーの所持コードを取得し、紐づくcontent_idを抽出
         const { data: history } = await supabase.from('histories').select('codes(content_id)').eq('user_id', targetId);
         if (history) {
             const contentIds = history.map(h => h.codes?.content_id).filter(Boolean);
@@ -258,7 +343,7 @@ export default async function handler(req, res) {
       const items = filteredContents.map(content => {
         const isOwned = ownedContentIds.has(content.id) || (content["重複"] && ownedGroupIds.has(content["重複"]));
         return {
-          contentId: content.id, // 🚨コードではなくコンテンツIDを返す
+          contentId: content.id,
           title: content[`タイトル(${suffix})`] || content["タイトル(jp)"],
           message: content[`メッセージ(${suffix})`] || content["メッセージ(jp)"], 
           extraInfo: content[`詳細(${suffix})`] || content["詳細(jp)"],
@@ -274,7 +359,6 @@ export default async function handler(req, res) {
       if (!authUserId) return res.status(401).json({ success: false, message: "Unauthorized" });
       const { data: user } = await supabase.from('users').select('points').eq('id', authUserId).maybeSingle();
       
-      // 変更点: codes経由でcontentsをJOIN
       const { data: histories } = await supabase.from('histories').select(`created_at, codes (*, contents(*))`).eq('user_id', authUserId).order('created_at', { ascending: false });
       
       const lMap = { ja: 'jp', en: 'en', zh: 'zh', 'zh-TW': 'zh-TW', ko: 'ko', ru: 'ru' };
@@ -283,7 +367,7 @@ export default async function handler(req, res) {
       const historyData = (histories || []).map(h => {
         const codeRec = h.codes;
         if(!codeRec) return null;
-        const c = codeRec.contents; // コンテンツ情報
+        const c = codeRec.contents; 
         if(!c) return null;
 
         return {
@@ -296,9 +380,9 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, points: user?.points || 0, history: historyData });
     }
 
-    // purchase：ストアでのポイント購入（※コンテンツIDを受け取り、未使用コードを払い出す方式に変更）
+    // purchase：ストアでのポイント購入
     if (type === 'purchase') {
-      const { contentId } = params; // フロントエンドは code ではなく contentId を送る必要があります
+      const { contentId } = params; 
       if (!authUserId) return res.status(401).json({ success: false, message: "Unauthorized" });
       
       const { data: contentMaster } = await supabase.from('contents').select('*').eq('id', contentId).maybeSingle();
@@ -306,7 +390,6 @@ export default async function handler(req, res) {
       
       const { data: user } = await supabase.from('users').select('points').eq('id', authUserId).maybeSingle();
       
-      // 所持チェック
       const { data: existingHist } = await supabase.from('histories').select('codes(content_id)').eq('user_id', authUserId);
       let alreadyOwned = false;
       if (existingHist) {
@@ -317,7 +400,6 @@ export default async function handler(req, res) {
       const price = contentMaster["価格"] || 0;
       if (user.points < price) return res.status(200).json({ success: false, message: "Not enough points" });
 
-      // 対象コンテンツの未使用コードを1つ確保（早い者勝ち）
       const { data: availableCode } = await supabase.from('codes')
         .select('id')
         .eq('content_id', contentId)
@@ -328,7 +410,6 @@ export default async function handler(req, res) {
 
       if (!availableCode) return res.status(200).json({ success: false, message: "在庫（未使用コード）がありません" });
       
-      // トランザクション的に処理
       await supabase.from('users').update({ points: user.points - price }).eq('id', authUserId);
       await supabase.from('codes').update({ "USED?": true }).eq('id', availableCode.id);
       await supabase.from('histories').insert([{ user_id: authUserId, code_id: availableCode.id }]);
@@ -344,20 +425,22 @@ export default async function handler(req, res) {
 
       const safeCode = (key || "").replace(/[^A-Z0-9\-]/gi, "").toUpperCase();
       
-      // 変更点: contentsをJOIN
       const { data: master, error } = await supabase.from('codes').select('*, contents(*)').eq('アクティベーションコード', safeCode).maybeSingle();
 
+      // エラー文言の統一：無効・期限切れ・使用済みはすべて同じメッセージにする
+      const unifiedErrorMessage = "The code is invalid or has already been used.";
+
       if (error || !master || !master.contents) {
-          return res.status(200).json({ success: false, message: "Invalid code" });
+          return res.status(200).json({ success: false, message: unifiedErrorMessage });
       }
 
-      const content = master.contents; // コンテンツ側データ
+      const content = master.contents;
       const isActive = master["有効/無効"] === true || String(master["有効/無効"]).trim().toUpperCase() === 'TRUE';
-      if (!isActive) return res.status(200).json({ success: false, message: "Invalid code" });
+      if (!isActive) return res.status(200).json({ success: false, message: unifiedErrorMessage });
 
       const now = new Date();
       if (content["有効時間"] && now > new Date(content["有効時間"])) {
-        return res.status(200).json({ success: false, message: "Invalid code" });
+        return res.status(200).json({ success: false, message: unifiedErrorMessage });
       }
 
       const codeType = (master.Types || "").trim().toUpperCase();
@@ -366,7 +449,7 @@ export default async function handler(req, res) {
       const isCodeUsed = rawUsed === true || String(rawUsed).trim().toUpperCase() === 'TRUE';
 
       if ((isOnce || codeType === 'POINT') && isCodeUsed) {
-        return res.status(200).json({ success: false, message: "This code has already been used." });
+        return res.status(200).json({ success: false, message: unifiedErrorMessage });
       }
       
       const lMap = { ja: 'jp', en: 'en', zh: 'zh', 'zh-TW': 'zh-TW', ko: 'ko', ru: 'ru' };
@@ -402,7 +485,6 @@ export default async function handler(req, res) {
           if (existingHist) {
             isOwned = existingHist.some(h => {
                 if (!h.codes) return false;
-                // コンテンツIDが完全に一致するか、重複グループ名が一致したら「所持済み」とする
                 return h.codes.content_id === content.id || 
                       (content["重複"] && h.codes.contents && h.codes.contents["重複"] === content["重複"]);
             });
