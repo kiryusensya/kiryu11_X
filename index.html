@@ -2466,7 +2466,7 @@ function showPurchasePreview(item, price) {
         if (userPts < itemPrice) {
             showPurchaseError(userPts, itemPrice);
         } else {
-            buyItemWithPoints(item.code, itemPrice);
+            buyItemWithPoints(item.contentId, itemPrice);
         }
     });
     
@@ -2474,7 +2474,7 @@ function showPurchasePreview(item, price) {
     setTimeout(() => els.phasePreview.style.opacity = '1', 50);
 }
   
-async function buyItemWithPoints(code, price) {
+async function buyItemWithPoints(contentId, price) { // ⭕ 引数を変更
     const thisRequestId = currentAuthRequestId;
     const t = TRANSLATIONS[CURRENT_LANG];
     const spinnerHtml = `<span class="loading-spinner" style="border-top-color:currentColor; width:18px; height:18px; border-width:2px; margin:0;"></span>`;
@@ -2486,7 +2486,7 @@ async function buyItemWithPoints(code, price) {
         const data = await safeFetch({
             type: 'purchase',
             userId: currentUser.userId,
-            code: code,
+            contentId: contentId, // ⭕ contentIdとして送信する
             _t: Date.now()
         });
         if (thisRequestId !== currentAuthRequestId) return;
