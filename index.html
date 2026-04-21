@@ -3235,13 +3235,16 @@ function startHeroCountdown(targetDate) {
 function updateHeroView(item, isOwned) {
     if (window.innerWidth <= 768) return; 
     selectedHeroItem = item; 
-    
     document.querySelector('.rgl-hero-content').style.display = 'block';
     els.heroTitle.textContent = item.message || item.title; 
-    
     if(heroTimer) { clearInterval(heroTimer); heroTimer = null; }
     els.heroDesc.style.display = 'none';
-    if (item.imageUrl && item.imageUrl.startsWith('http')) els.heroBgImage.style.backgroundImage = `url('${item.imageUrl}')`;
+    if (item.imageUrl && item.imageUrl.trim().startsWith('http')) {
+        els.heroBgImage.style.backgroundImage = `url('${item.imageUrl.trim()}')`;
+    } else {
+        els.heroBgImage.style.backgroundImage = 'none';
+    }
+    
     setHeroButtonState(isOwned ? 'owned' : 'available');
 }
 
