@@ -2466,7 +2466,7 @@ function showPurchasePreview(item, price) {
         if (userPts < itemPrice) {
             showPurchaseError(userPts, itemPrice);
         } else {
-            buyItemWithPoints(item.contentId, itemPrice);
+            buyItemWithPoints(item.code, itemPrice);
         }
     });
     
