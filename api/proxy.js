@@ -282,29 +282,46 @@ export default async function handler(req, res) {
             return res.status(200).json({ success: true, message: "OK" });
         }
 
-        if (type === 'admin_save_code') {
+        if (type === 'admin_save_content') {
             const { payload } = params;
-            if (!payload || !payload["アクティベーションコード"]) return res.status(200).json({ success: false, message: "コードが指定されていません" });
+            const contentId = payload.id;
+            delete payload.id; // DBへの誤書き込みを防ぐため削除
 
-            const safeCode = String(payload["アクティベーションコード"]).replace(/[^A-Z0-9\-]/gi, "").toUpperCase();
-
-            // 新データベース構成に対応：codesテーブルが持つステータス（有効/無効、USED?）のみを更新できるように修正
-            const updateData = {};
-            if (payload["有効/無効"] !== undefined) updateData["有効/無効"] = payload["有効/無効"];
-            if (payload["USED?"] !== undefined) updateData["USED?"] = payload["USED?"];
-
-            const { data: existing } = await supabase.from('codes').select('id').eq('アクティベーションコード', safeCode).maybeSingle();
-
-            if (existing) {
-                const { error } = await supabase.from('codes').update(updateData).eq('id', existing.id);
-                if (error) return res.status(200).json({ success: false, message: "データベースの保存に失敗しました" });
-                await logAudit('SAVE_CODE', null, { code: safeCode });
-                return res.status(200).json({ success: true, message: "OK" });
+            let error, data;
+            if (contentId) {
+                // IDがある場合は「上書き更新」
+                const res = await supabase.from('contents').update(payload).eq('id', contentId).select('id').single();
+                error = res.error; data = res.data;
             } else {
-                return res.status(200).json({ success: false, message: "コードが見つかりません。新規作成はデータベースのcontentsとcodesテーブルから行ってください。" });
+                // IDがない場合は「新規作成」
+                const res = await supabase.from('contents').insert([payload]).select('id').single();
+                error = res.error; data = res.data;
             }
+            
+            if (error) return res.status(200).json({ success: false, message: error.message });
+            await logAudit('SAVE_CONTENT', null, { id: data ? data.id : contentId });
+            return res.status(200).json({ success: true, message: `OK`, contentId: data ? data.id : contentId });
         }
-    }
+
+        if (type === 'admin_create_code') {
+            const { contentId, code, codeType, pointPpp, isActive } = params;
+            if (!contentId || !code) return res.status(200).json({ success: false, message: "必須項目が不足しています" });
+            
+            const safeCode = String(code).replace(/[^A-Z0-9\-]/gi, "").toUpperCase();
+            
+            const { error } = await supabase.from('codes').insert([{
+                content_id: contentId,
+                "アクティベーションコード": safeCode,
+                "Types": codeType || 'ONCE',
+                "Point PPP": pointPpp || 0,
+                "USED?": false,
+                "有効/無効": isActive
+            }]);
+            
+            if (error) return res.status(200).json({ success: false, message: "データベースの保存に失敗しました: " + error.message });
+            await logAudit('CREATE_CODE', null, { code: safeCode });
+            return res.status(200).json({ success: true, message: "OK" });
+        }
 
     /// ==========================================
     // 一般ユーザー用機能
@@ -382,7 +399,7 @@ export default async function handler(req, res) {
 
     // purchase：ストアでのポイント購入（※在庫を消費せず、無限に買える方式）
     if (type === 'purchase') {
-      const { contentId } = params; // フロントエンドからは商品IDが 'code' という名前で届く
+      const contentId = params.code; // フロントエンドからは商品IDが 'code' という名前で届く
       if (!authUserId) return res.status(401).json({ success: false, message: "Unauthorized" });
       
       const { data: contentMaster } = await supabase.from('contents').select('*').eq('id', contentId).maybeSingle();
