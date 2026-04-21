@@ -2488,7 +2488,8 @@ async function buyItemWithPoints(contentId, price) { // ⭕ 引数を変更
         const data = await safeFetch({
             type: 'purchase',
             userId: currentUser.userId,
-            contentId: contentId, // ⭕ contentIdとして送信する
+            contentId: contentId, // APIが contentId で待っている場合用
+            code: contentId,      // APIが code で待っている場合用（両方送って絶対繋げる！）
             _t: Date.now()
         });
         if (thisRequestId !== currentAuthRequestId) return;
