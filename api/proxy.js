@@ -112,9 +112,9 @@ export default async function handler(req, res) {
     };
 
     // ==========================================
-    // 認証系処理（変更なしのため割愛部分もそのまま記載）
+    // 認証系処理
     // ==========================================
-    if (type === 'register') { /* 既存と同じため省略せず記載 */
+    if (type === 'register') {
       const { email, password } = params;
       if (!email || !password) return res.status(200).json({ success: false, message: "Missing credentials" });
       const { data: existing } = await supabase.from('users').select('id').eq('email', email).maybeSingle();
@@ -282,18 +282,17 @@ export default async function handler(req, res) {
             return res.status(200).json({ success: true, message: "OK" });
         }
 
+        // ✅ コンテンツの保存処理（旧 admin_save_code と差し替えた部分）
         if (type === 'admin_save_content') {
             const { payload } = params;
             const contentId = payload.id;
-            delete payload.id; // DBへの誤書き込みを防ぐため削除
+            delete payload.id; 
 
             let error, data;
             if (contentId) {
-                // IDがある場合は「上書き更新」
                 const res = await supabase.from('contents').update(payload).eq('id', contentId).select('id').single();
                 error = res.error; data = res.data;
             } else {
-                // IDがない場合は「新規作成」
                 const res = await supabase.from('contents').insert([payload]).select('id').single();
                 error = res.error; data = res.data;
             }
@@ -303,6 +302,7 @@ export default async function handler(req, res) {
             return res.status(200).json({ success: true, message: `OK`, contentId: data ? data.id : contentId });
         }
 
+        // ✅ コードの新規作成処理
         if (type === 'admin_create_code') {
             const { contentId, code, codeType, pointPpp, isActive } = params;
             if (!contentId || !code) return res.status(200).json({ success: false, message: "必須項目が不足しています" });
@@ -322,12 +322,13 @@ export default async function handler(req, res) {
             await logAudit('CREATE_CODE', null, { code: safeCode });
             return res.status(200).json({ success: true, message: "OK" });
         }
+    }
 
-    /// ==========================================
+    // ==========================================
     // 一般ユーザー用機能
     // ==========================================
     
-    // get_available：ストア一覧の取得（コード単位ではなくコンテンツ単位で取得）
+    // get_available：ストア一覧の取得
     if (type === 'get_available') {
       const isGuest = (!params.userId || params.userId === "GUEST");
       const targetId = isGuest ? null : authUserId; 
@@ -360,7 +361,7 @@ export default async function handler(req, res) {
       const items = filteredContents.map(content => {
         const isOwned = ownedContentIds.has(content.id) || (content["重複"] && ownedGroupIds.has(content["重複"]));
         return {
-          code: content.id,
+          code: content.id, // ✅ IDを "code" としてフロントエンドに渡す
           title: content[`タイトル(${suffix})`] || content["タイトル(jp)"],
           message: content[`メッセージ(${suffix})`] || content["メッセージ(jp)"], 
           extraInfo: content[`詳細(${suffix})`] || content["詳細(jp)"],
@@ -399,7 +400,7 @@ export default async function handler(req, res) {
 
     // purchase：ストアでのポイント購入（※在庫を消費せず、無限に買える方式）
     if (type === 'purchase') {
-      const contentId = params.code; // フロントエンドからは商品IDが 'code' という名前で届く
+      const contentId = params.code; // ✅ フロントエンドからは商品IDが 'code' という名前で届く
       if (!authUserId) return res.status(401).json({ success: false, message: "Unauthorized" });
       
       const { data: contentMaster } = await supabase.from('contents').select('*').eq('id', contentId).maybeSingle();
@@ -418,7 +419,7 @@ export default async function handler(req, res) {
       const price = contentMaster["価格"] || 0;
       if (user.points < price) return res.status(200).json({ success: false, message: "Not enough points" });
 
-      // ▼ 修正ポイント：在庫を探すのではなく、「購入者専用のシステムコード」を裏側で自動発行する
+      // 在庫を探すのではなく、「購入者専用のシステムコード」を裏側で自動発行する
       const systemCode = `STORE-BUY-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
       const { data: newCode, error: codeErr } = await supabase.from('codes')
           .insert([{
@@ -451,7 +452,6 @@ export default async function handler(req, res) {
       
       const { data: master, error } = await supabase.from('codes').select('*, contents(*)').eq('アクティベーションコード', safeCode).maybeSingle();
 
-      // エラー文言の統一：無効・期限切れ・使用済みはすべて同じメッセージにする
       const unifiedErrorMessage = "The code is invalid or has already been used.";
 
       if (error || !master || !master.contents) {
