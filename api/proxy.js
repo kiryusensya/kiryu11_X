@@ -380,9 +380,9 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, points: user?.points || 0, history: historyData });
     }
 
-    // purchase：ストアでのポイント購入
+    // purchase：ストアでのポイント購入（※在庫を消費せず、無限に買える方式）
     if (type === 'purchase') {
-      const { contentId } = params; 
+      const contentId = params.code; // フロントエンドからは商品IDが 'code' という名前で届く
       if (!authUserId) return res.status(401).json({ success: false, message: "Unauthorized" });
       
       const { data: contentMaster } = await supabase.from('contents').select('*').eq('id', contentId).maybeSingle();
@@ -390,29 +390,36 @@ export default async function handler(req, res) {
       
       const { data: user } = await supabase.from('users').select('points').eq('id', authUserId).maybeSingle();
       
+      // 所持チェック
       const { data: existingHist } = await supabase.from('histories').select('codes(content_id)').eq('user_id', authUserId);
       let alreadyOwned = false;
       if (existingHist) {
-         alreadyOwned = existingHist.some(h => h.codes && h.codes.content_id === contentId);
+         alreadyOwned = existingHist.some(h => h.codes && String(h.codes.content_id) === String(contentId));
       }
       if (alreadyOwned) return res.status(200).json({ success: false, message: "Already owned" });
 
       const price = contentMaster["価格"] || 0;
       if (user.points < price) return res.status(200).json({ success: false, message: "Not enough points" });
 
-      const { data: availableCode } = await supabase.from('codes')
-        .select('id')
-        .eq('content_id', contentId)
-        .eq('USED?', false)
-        .eq('有効/無効', true)
-        .limit(1)
-        .maybeSingle();
+      // ▼ 修正ポイント：在庫を探すのではなく、「購入者専用のシステムコード」を裏側で自動発行する
+      const systemCode = `STORE-BUY-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      const { data: newCode, error: codeErr } = await supabase.from('codes')
+          .insert([{
+              content_id: contentId,
+              "アクティベーションコード": systemCode,
+              "USED?": true,  // 発行と同時に使用済みにする（他人が使えないようにするため）
+              "有効/無効": true
+          }])
+          .select('id')
+          .single();
 
-      if (!availableCode) return res.status(200).json({ success: false, message: "在庫（未使用コード）がありません" });
+      if (codeErr || !newCode) {
+          return res.status(200).json({ success: false, message: "システムエラーにより購入に失敗しました" });
+      }
       
+      // ポイントを減らし、自動発行したコードをユーザーの履歴に登録
       await supabase.from('users').update({ points: user.points - price }).eq('id', authUserId);
-      await supabase.from('codes').update({ "USED?": true }).eq('id', availableCode.id);
-      await supabase.from('histories').insert([{ user_id: authUserId, code_id: availableCode.id }]);
+      await supabase.from('histories').insert([{ user_id: authUserId, code_id: newCode.id }]);
       
       return res.status(200).json({ success: true, remainingPoints: user.points - price });
     }
