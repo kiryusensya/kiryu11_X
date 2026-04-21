@@ -2466,7 +2466,9 @@ function showPurchasePreview(item, price) {
         if (userPts < itemPrice) {
             showPurchaseError(userPts, itemPrice);
         } else {
-            buyItemWithPoints(item.code, itemPrice);
+            // 🚨 ここが直っていませんでした！ 🚨
+            // item.contentId ではなく item.code を渡すのが正解です
+            buyItemWithPoints(item.code, itemPrice); 
         }
     });
     
