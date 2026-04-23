@@ -478,19 +478,23 @@ export default async function handler(req, res) {
       
       const { data: master, error } = await supabase.from('codes').select('*, contents(*)').eq('アクティベーションコード', safeCode).maybeSingle();
 
-      const unifiedErrorMessage = "The code is invalid or has already been used.";
+      // 削除またはコメントアウト
+      // const unifiedErrorMessage = "The code is invalid or has already been used.";
 
+      // 修正後：エラーの種類に応じて明確に分離
       if (error || !master || !master.contents) {
-          return res.status(200).json({ success: false, message: unifiedErrorMessage });
+          return res.status(200).json({ success: false, message: "Invalid code" });
       }
 
       const content = master.contents;
       const isActive = master["有効/無効"] === true || String(master["有効/無効"]).trim().toUpperCase() === 'TRUE';
-      if (!isActive) return res.status(200).json({ success: false, message: unifiedErrorMessage });
+      if (!isActive) {
+          return res.status(200).json({ success: false, message: "Invalid code" });
+      }
 
       const now = new Date();
       if (content["有効時間"] && now > new Date(content["有効時間"])) {
-        return res.status(200).json({ success: false, message: unifiedErrorMessage });
+        return res.status(200).json({ success: false, message: "Invalid code" });
       }
 
       const codeType = (master.Types || "").trim().toUpperCase();
@@ -498,8 +502,9 @@ export default async function handler(req, res) {
       const rawUsed = master["USED?"];
       const isCodeUsed = rawUsed === true || String(rawUsed).trim().toUpperCase() === 'TRUE';
 
+      // ここで「使用済み」のステータスを明確に分離して返す
       if ((isOnce || codeType === 'POINT') && isCodeUsed) {
-        return res.status(200).json({ success: false, message: unifiedErrorMessage });
+        return res.status(200).json({ success: false, message: "This code has already been used." });
       }
       
       const lMap = { ja: 'jp', en: 'en', zh: 'zh', 'zh-TW': 'zh-TW', ko: 'ko', ru: 'ru' };
