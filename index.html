@@ -1781,41 +1781,6 @@ const formatCodeInput = (val) => {
     return res;
 };
 
-function getFormattedCurrentTime(lang) {
-    const now = new Date();
-    const y = now.getFullYear();
-    const m = String(now.getMonth() + 1).padStart(2, '0');
-    const d = String(now.getDate()).padStart(2, '0');
-    const h = String(now.getHours()).padStart(2, '0');
-    const min = String(now.getMinutes()).padStart(2, '0');
-    const s = String(now.getSeconds()).padStart(2, '0');
-
-    if (['ja', 'zh', 'zh-TW'].includes(lang)) return `${y}年${m}月${d}日 ${h}:${min}:${s} JST`;
-    else if (lang === 'ko') return `${y}년 ${m}월 ${d}일 ${h}:${min}:${s} KST`;
-    else if (lang === 'ru') return `${d}.${m}.${y} ${h}:${min}:${s}`;
-    else return `${m}/${d}/${y} ${h}:${min}:${s}`;
-}
-
-function formatSavedTime(timeStr, lang) {
-    if (!timeStr) return "";
-    if (timeStr.includes('JST') || timeStr.includes('KST')) return timeStr;
-
-    const d = new Date(timeStr.replace(/-/g, '/'));
-    if (isNaN(d.getTime())) return timeStr;
-
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    const h = String(d.getHours()).padStart(2, '0');
-    const min = String(d.getMinutes()).padStart(2, '0');
-    const s = String(d.getSeconds()).padStart(2, '0');
-
-    if (['ja', 'zh', 'zh-TW'].includes(lang)) return `${y}年${m}月${day}日 ${h}:${min}:${s} JST`;
-    else if (lang === 'ko') return `${y}년 ${m}월 ${day}일 ${h}:${min}:${s} KST`;
-    else if (lang === 'ru') return `${day}.${m}.${y} ${h}:${min}:${s}`;
-    else return `${m}/${day}/${y} ${h}:${min}:${s}`;
-}
-
 function generateErrorCode() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+';
     let code = '';
