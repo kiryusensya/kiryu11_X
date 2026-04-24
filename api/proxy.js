@@ -439,7 +439,8 @@ export default async function handler(req, res) {
           code: codeRec["アクティベーションコード"], date: h.created_at, title: c[`タイトル(${suffix})`] || c["タイトル(jp)"],
           message: c[`メッセージ(${suffix})`] || c["メッセージ(jp)"], url: c.Action_url, imageUrl: c.Imag_Url,
           icon: c.アイコン || 'download', releaseDateIso: c["解禁時間"], extraInfo: c[`詳細(${suffix})`] || c["詳細(jp)"],
-          groupId: c["重複"], buttonLabel: c[`ボタン(${suffix})`] || c["ボタン(jp)"]
+          groupId: c["重複"], buttonLabel: c[`ボタン(${suffix})`] || c["ボタン(jp)"],
+          price: c["価格"] || 0
         };
       }).filter(Boolean);
       return res.status(200).json({ success: true, points: user?.points || 0, history: historyData });
