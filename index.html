@@ -3968,27 +3968,66 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 }
 
+function formatLocalTime(dateObj, lang) {
+    try {
+        // ★ timeZoneを指定しないことで、自動的に端末のローカルタイムが使われます
+        const formatter = new Intl.DateTimeFormat('en-US', {
+            year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', hour12: false
+        });
+        
+        const parts = formatter.formatToParts(dateObj);
+        const p = {};
+        parts.forEach(part => { p[part.type] = part.value; });
+
+        // 24時表記のブレを補正
+        let hr = p.hour;
+        if (hr === '24') hr = '00';
+
+        const mInt = parseInt(p.month, 10) - 1;
+        const enMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const ruMonths = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+
+        // 端末の時間を、選択中の言語フォーマットで出力
+        switch(lang) {
+            case 'ja':
+            case 'zh':
+            case 'zh-TW':
+                return `${p.year}年${p.month}月${p.day}日 ${hr}:${p.minute}`;
+            case 'ko':
+                return `${p.year}년 ${p.month}월 ${p.day}일 ${hr}:${p.minute}`;
+            case 'ru':
+                return `${p.day} ${ruMonths[mInt]} ${p.year} г. ${hr}:${p.minute}`;
+            case 'en':
+            default:
+                return `${enMonths[mInt]} ${p.day}, ${p.year} ${hr}:${p.minute}`;
+        }
+    } catch (e) {
+        return dateObj.toLocaleString();
+    }
+}
+
 function getFormattedCurrentTime(lang) {
-    return formatRegionalTime(new Date(), lang);
+    return formatLocalTime(new Date(), lang);
 }
 
 function formatSavedTime(timeStr, lang) {
     if (!timeStr) return "";
     
-    // Supabaseから来るISO文字列（UTC）や、過去のローカル保存形式をDate化する
+    // DBから来る時刻（UTCなど）を端末のローカル時刻として解釈
     let d = new Date(timeStr);
     
-    // パースに失敗した場合はハイフンやJST表記を除去して再チャレンジ
+    // パースに失敗した場合の保険（過去の独自フォーマット対策）
     if (isNaN(d.getTime())) {
-        d = new Date(timeStr.replace(/-/g, '/').replace(/ JST| KST/g, ''));
+        d = new Date(timeStr.replace(/-/g, '/').replace(/ JST| KST| CST/gi, ''));
     }
     
-    // それでもパースできない特殊な文字列の場合はそのまま返す
+    // それでもパースできなければそのまま返す
     if (isNaN(d.getTime())) {
         return timeStr;
     }
 
-    return formatRegionalTime(d, lang);
+    return formatLocalTime(d, lang);
 }
 </script>
 </body>
