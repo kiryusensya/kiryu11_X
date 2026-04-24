@@ -918,7 +918,10 @@ button, input, textarea { font-family: var(--font-stack); }
         cursor: pointer;
         font-family: var(--font-stack);
     }
-    
+    #historyModal .modal-sheet {
+        padding: 24px !important; /* スマホの時は余白を狭くする */
+        max-height: 85vh;
+    }
     .mobile-store-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -3854,49 +3857,58 @@ document.addEventListener('DOMContentLoaded', () => {
     const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja;
 
     if (!currentUser || !currentUser.history || currentUser.history.length === 0) {
-        container.innerHTML = `<div style="text-align:center; opacity:0.5; padding:40px 20px; font-weight:700;">${t.history_empty || "履歴がありません。"}</div>`;
+        container.innerHTML = `<div style="text-align:center; opacity:0.5; padding:60px 20px; font-weight:700;">${t.history_empty || "履歴がありません。"}</div>`;
         return;
     }
 
     currentUser.history.forEach(item => {
         const div = document.createElement('div');
-        div.className = 'modal-grey-box';
-        div.style.marginBottom = '0';
-        div.style.flexDirection = 'row';
-        div.style.alignItems = 'center';
-        div.style.gap = '16px';
-        div.style.padding = '12px 16px';
-        div.style.borderRadius = '12px';
+        // PC・スマホ共通のモダンなカードデザイン
+        div.style.cssText = `
+            background: rgba(128, 128, 128, 0.05); 
+            border: 1px solid rgba(128, 128, 128, 0.1); 
+            border-radius: 16px; 
+            padding: 16px; 
+            display: flex; 
+            gap: 16px; 
+            align-items: flex-start; 
+            position: relative;
+            transition: transform 0.2s;
+        `;
 
         const imgUrl = (item.imageUrl && item.imageUrl.startsWith('http')) ? item.imageUrl : 'https://static.wixstatic.com/media/2f0694_38068f106089439b89c7902ef4fb3d2d~mv2.jpg';
         
-        // 価格が設定されている（1以上）場合は購入とみなし、それ以外は0ptとする
+        // 価格・コード・日付の判定
         const priceValue = (item.price && item.price > 0) ? item.price : 0;
-        const priceDisplay = `${priceValue} pt`;
-        
-        // ポイント購入でない（=0pt）かつコードが存在する場合は、コード引き換えと判定してコードを表示
         const isCodeRedeemed = (priceValue === 0 && item.code);
-        const codeDisplayHtml = isCodeRedeemed 
-            ? `<div style="font-size: 11px; font-weight: 700; opacity: 0.6; margin-top: 4px; display: flex; align-items: center; gap: 4px;">
-                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-key"><path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/></svg>
-                 <span style="font-family: monospace;">${escapeHTML(formatDisplayCode(item.code))}</span>
-               </div>` 
-            : '';
+        const timeString = formatSavedTime(item.authTime || item.date, CURRENT_LANG);
 
+        // ★ポイント用バッジ（青背景）
+        const priceBadge = `<div style="background: rgba(0, 125, 255, 0.1); color: var(--primary); padding: 4px 8px; border-radius: 8px; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-coins"><circle cx="8" cy="8" r="6"></circle><path d="M18.09 10.37A6 6 0 1 1 10.34 18"></path><path d="M7 6h1v4"></path><path d="m16.71 13.88.7.71-2.82 2.82"></path></svg>
+            ${priceValue} pt
+        </div>`;
+
+        // ★コード用バッジ（グレー背景・等幅フォント）
+        const codeBadge = isCodeRedeemed ? `<div style="background: rgba(128, 128, 128, 0.1); color: var(--modal-text-main); padding: 4px 8px; border-radius: 8px; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; font-family: monospace; letter-spacing: 0.5px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-key"><path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/></svg>
+            ${escapeHTML(formatDisplayCode(item.code))}
+        </div>` : '';
+
+        // 要素の組み立て (flex-wrap: wrap でスマホの画面幅でも自動で折り返す)
         div.innerHTML = `
-            <img src="${escapeHTML(imgUrl)}" style="width: 56px; height: 56px; border-radius: 8px; object-fit: cover; flex-shrink: 0; background: rgba(128,128,128,0.2);">
-            <div style="flex: 1; min-width: 0;">
-                <div style="font-weight: 800; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--modal-text-main);">
+            <img src="${escapeHTML(imgUrl)}" style="width: 56px; height: 56px; border-radius: 12px; object-fit: cover; flex-shrink: 0; background: rgba(128,128,128,0.2);">
+            <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; justify-content: center;">
+                <div style="font-weight: 800; font-size: 14px; color: var(--modal-text-main); line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                     ${escapeHTML(item.title || item.message)}
                 </div>
-                <div style="font-size: 13px; font-weight: 800; color: var(--primary); margin-top: 4px; display: flex; align-items: center; gap: 4px;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-coins"><circle cx="8" cy="8" r="6"></circle><path d="M18.09 10.37A6 6 0 1 1 10.34 18"></path><path d="M7 6h1v4"></path><path d="m16.71 13.88.7.71-2.82 2.82"></path></svg>
-                    ${priceDisplay}
+                <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
+                    ${priceBadge}
+                    ${codeBadge}
                 </div>
-                ${codeDisplayHtml}
-            </div>
-            <div style="font-size: 11px; font-weight: 700; opacity: 0.5; white-space: nowrap; text-align: right;">
-                ${formatSavedTime(item.authTime || item.date, CURRENT_LANG).replace(' ', '<br>')}
+                <div style="font-size: 11px; font-weight: 700; opacity: 0.5; color: var(--modal-text-main); margin-top: 2px;">
+                    ${timeString}
+                </div>
             </div>
         `;
         container.appendChild(div);
