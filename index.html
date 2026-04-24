@@ -2494,12 +2494,17 @@ async function buyItemWithPoints(contentId, price) { // ⭕ 引数を変更
         });
         if (thisRequestId !== currentAuthRequestId) return;
         
+        // index.html の 846行目付近
+// buyItemWithPoints 関数内の if (data.success) { ... } の中身を以下に置き換えます
+
         if (data.success) {
             currentUser.points = data.remainingPoints;
             updateAccountUI();
+            
+            // ★サーバーから最新の履歴を取得（今買ったアイテムが history[0] に入ります）
             await fetchUserHistory(); 
             
-            // --- アニメーション処理追加 ---
+            // --- アニメーション処理 ---
             const flash = document.createElement('div');
             flash.className = 'screen-flash';
             document.body.appendChild(flash);
@@ -2514,28 +2519,49 @@ async function buyItemWithPoints(contentId, price) { // ⭕ 引数を変更
             els.successImage.parentElement.appendChild(stamp);
             // -----------------------------
 
-            const successTops = els.phaseSuccess.querySelectorAll('.modal-title-top, .mobile-title');
-            successTops.forEach(el => el.textContent = t.success_buy_title || "購入完了");
-            const label = els.phaseSuccess.querySelector('.modal-label');
-            if(label) label.textContent = t.success_buy_desc || "以下のコンテンツが正常に処理されました。";
-            
-            els.successImage.src = currentContentData.imageUrl || "https://via.placeholder.com/300";
-            els.successTitleUnderImg.textContent = currentContentData.title;
-            els.successBundleName.textContent = currentContentData.title;
-            els.successMessageText.innerHTML = t.success_msg_box.replace(/\n/g, '<br>');
-            els.successTime.textContent = currentAuthTime;
-            
-            els.btnSuccessClose.style.flex = "none";
-            els.btnSuccessClose.style.width = "100%";
-            els.btnSuccessDownload.style.display = "none";
-            
-            els.phasePreview.style.opacity = '0';
-            setTimeout(() => {
-              if (thisRequestId !== currentAuthRequestId) return;
-              els.phasePreview.style.display = 'none';
-              els.phaseSuccess.style.display = 'flex';
-              setTimeout(() => els.phaseSuccess.style.opacity = '1', 50);
-            }, 400);
+            // ★ スマホ版とPC版で表示を分ける＆UIの更新
+            if (window.innerWidth <= 768) {
+                // スマホ版：ダウンロードボタン付きの専用モーダル関数に任せる
+                const boughtItem = currentUser.history.length > 0 ? currentUser.history[0] : currentContentData;
+                showMobileItemDetail(boughtItem, true);
+                
+                // タイトルや文言を購入完了用に上書き
+                const successTops = els.phaseSuccess.querySelectorAll('.modal-title-top, .mobile-title');
+                successTops.forEach(el => el.textContent = t.success_buy_title || "購入完了");
+                const label = els.phaseSuccess.querySelector('.modal-label');
+                if(label) label.textContent = t.success_buy_desc || "以下のコンテンツが正常に処理されました。";
+                els.successMessageText.innerHTML = t.success_msg_box.replace(/\n/g, '<br>');
+                
+            } else {
+                // PC版：モーダルを更新しつつ、背景のHeroエリアも更新
+                const successTops = els.phaseSuccess.querySelectorAll('.modal-title-top, .mobile-title');
+                successTops.forEach(el => el.textContent = t.success_buy_title || "購入完了");
+                const label = els.phaseSuccess.querySelector('.modal-label');
+                if(label) label.textContent = t.success_buy_desc || "以下のコンテンツが正常に処理されました。";
+                
+                els.successImage.src = currentContentData.imageUrl || "https://via.placeholder.com/300";
+                els.successTitleUnderImg.textContent = currentContentData.title;
+                els.successBundleName.textContent = currentContentData.title;
+                els.successMessageText.innerHTML = t.success_msg_box.replace(/\n/g, '<br>');
+                els.successTime.textContent = currentAuthTime;
+                
+                els.btnSuccessClose.style.flex = "none";
+                els.btnSuccessClose.style.width = "100%";
+                els.btnSuccessDownload.style.display = "none"; // PC版はモーダル内ではなくHeroエリアでダウンロードさせる
+                
+                els.phasePreview.style.opacity = '0';
+                setTimeout(() => {
+                  if (thisRequestId !== currentAuthRequestId) return;
+                  els.phasePreview.style.display = 'none';
+                  els.phaseSuccess.style.display = 'flex';
+                  setTimeout(() => els.phaseSuccess.style.opacity = '1', 50);
+                }, 400);
+
+                // ★ PC版のHeroエリア（背景とダウンロードボタン）を即座に更新！
+                if (currentUser.history.length > 0) {
+                    updateHeroView(currentUser.history[0], true); 
+                }
+            }
             try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
         } else {
             let specificErrorCode = generateErrorCode();
