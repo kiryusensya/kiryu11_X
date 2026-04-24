@@ -1780,6 +1780,56 @@ const formatCodeInput = (val) => {
     }
     return res;
 };
+function formatLocalTime(dateObj, lang) {
+    try {
+        const formatter = new Intl.DateTimeFormat('en-US', {
+            year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', hour12: false,
+            timeZoneName: 'short' 
+        });
+        
+        const parts = formatter.formatToParts(dateObj);
+        const p = {};
+        parts.forEach(part => { p[part.type] = part.value; });
+
+        let hr = p.hour;
+        if (hr === '24') hr = '00';
+
+        const mInt = parseInt(p.month, 10) - 1;
+        const enMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const ruMonths = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+
+        const tz = p.timeZoneName ? ` ${p.timeZoneName}` : '';
+
+        switch(lang) {
+            case 'ja': case 'zh': case 'zh-TW':
+                return `${p.year}年${p.month}月${p.day}日 ${hr}:${p.minute}${tz}`;
+            case 'ko':
+                return `${p.year}년 ${p.month}월 ${p.day}일 ${hr}:${p.minute}${tz}`;
+            case 'ru':
+                return `${p.day} ${ruMonths[mInt]} ${p.year} г. ${hr}:${p.minute}${tz}`;
+            case 'en': default:
+                return `${enMonths[mInt]} ${p.day}, ${p.year} ${hr}:${p.minute}${tz}`;
+        }
+    } catch (e) {
+        return dateObj.toLocaleString();
+    }
+}
+
+function getFormattedCurrentTime(lang) {
+    return formatLocalTime(new Date(), lang);
+}
+
+function formatSavedTime(timeStr, lang) {
+    if (!timeStr) return "";
+    let d = new Date(timeStr);
+    
+    if (isNaN(d.getTime())) {
+        d = new Date(timeStr.replace(/-/g, '/').replace(/ JST| KST| CST/gi, ''));
+    }
+    if (isNaN(d.getTime())) return timeStr;
+    return formatLocalTime(d, lang);
+}
 
 function generateErrorCode() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+';
