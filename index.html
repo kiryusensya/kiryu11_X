@@ -3878,7 +3878,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     currentUser.history.forEach(item => {
         const div = document.createElement('div');
-        // PC・スマホ共通のモダンなカードデザイン
         div.style.cssText = `
             background: rgba(128, 128, 128, 0.05); 
             border: 1px solid rgba(128, 128, 128, 0.1); 
@@ -3893,24 +3892,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const imgUrl = (item.imageUrl && item.imageUrl.startsWith('http')) ? item.imageUrl : 'https://static.wixstatic.com/media/2f0694_38068f106089439b89c7902ef4fb3d2d~mv2.jpg';
         
-        // 価格・コード・日付の判定
-        const priceValue = (item.price && item.price > 0) ? item.price : 0;
-        const isCodeRedeemed = (priceValue === 0 && item.code);
+        // ==========================================
+        // ★ 修正ポイント：判定ロジックを正確にする
+        // ==========================================
+        // バックエンドがポイント購入時に発行する "STORE-BUY-" が含まれているかで判定
+        const isPointPurchase = item.code && item.code.includes('STORE-BUY-');
+        
+        let priceValue = 0;
+        let isCodeRedeemed = false;
+
+        if (isPointPurchase) {
+            // ポイント購入の場合：DBの価格を表示、コードは隠す
+            priceValue = item.price || 0;
+            isCodeRedeemed = false;
+        } else if (item.code) {
+            // 通常のコード引き換えの場合：価格を0ptにして、コードを表示
+            priceValue = 0;
+            isCodeRedeemed = true;
+        } else {
+            // その他（コードがない場合など）
+            priceValue = item.price || 0;
+            isCodeRedeemed = false;
+        }
+
+        const priceDisplay = `${priceValue} pt`;
         const timeString = formatSavedTime(item.authTime || item.date, CURRENT_LANG);
 
-        // ★ポイント用バッジ（青背景）
         const priceBadge = `<div style="background: rgba(0, 125, 255, 0.1); color: var(--primary); padding: 4px 8px; border-radius: 8px; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px;">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-coins"><circle cx="8" cy="8" r="6"></circle><path d="M18.09 10.37A6 6 0 1 1 10.34 18"></path><path d="M7 6h1v4"></path><path d="m16.71 13.88.7.71-2.82 2.82"></path></svg>
             ${priceValue} pt
         </div>`;
 
-        // ★コード用バッジ（グレー背景・等幅フォント）
         const codeBadge = isCodeRedeemed ? `<div style="background: rgba(128, 128, 128, 0.1); color: var(--modal-text-main); padding: 4px 8px; border-radius: 8px; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; letter-spacing: 0.5px;">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-key"><path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/></svg>
             <span>${escapeHTML(formatDisplayCode(item.code))}</span>
         </div>` : '';
 
-        // 要素の組み立て (flex-wrap: wrap でスマホの画面幅でも自動で折り返す)
         div.innerHTML = `
             <img src="${escapeHTML(imgUrl)}" style="width: 56px; height: 56px; border-radius: 12px; object-fit: cover; flex-shrink: 0; background: rgba(128,128,128,0.2);">
             <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; justify-content: center;">
