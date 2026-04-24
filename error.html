@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>kiryu10 // Error Search</title>
+<link rel="icon" href="https://static.wixstatic.com/media/2f0694_eb4d3063598a4cc5b6bd6b8e31cba915~mv2.png/v1/crop/x_248,y_0,w_1065,h_950/fill/w_816,h_728,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/1767545356653.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Medium.woff') format('woff'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Medium.woff') format('woff'); font-weight: 400; font-style: normal; }
+
+:root {
+  --primary: #007DFF;
+  --bg-color: #F1F3F5;
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --modal-text-main: #000000;
+  --modal-text-sub: #666666;
+  --btn-close-border: #000000;
+  --nav-text: #000;
+  --sidebar-bg: #E0E0E0;
+  --sidebar-text: #000;
+  --sidebar-width: 340px;
+  --sidebar-item-hover: rgba(0,0,0,0.05);
+  --spring-ease: cubic-bezier(0.33, 1, 0.68, 1);
+  --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
+}
+
+:root:lang(ja) { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
+:root:lang(en) { --font-stack: 'HarmonyOS Sans', sans-serif; }
+:root:lang(zh) { --font-stack: 'HarmonyOS Sans SC', 'Microsoft YaHei', sans-serif; }
+:root:lang(zh-TW) { --font-stack: 'HarmonyOS Sans TC', 'Microsoft JhengHei', sans-serif; }
+:root:lang(ko) { --font-stack: 'HarmonyOS Sans', 'Noto Sans KR', sans-serif; }
+:root:lang(ru) { --font-stack: 'HarmonyOS Sans', sans-serif; }
+
+[data-theme="dark"] {
+  --bg-color: #121212;
+  --card-bg: #1C1C1E;
+  --modal-text-main: #FFFFFF;
+  --modal-text-sub: #A0A0A0;
+  --btn-close-border: #FFFFFF;
+  --nav-text: #fff;
+  --sidebar-bg: #000000;
+  --sidebar-text: #fff;
+  --sidebar-item-hover: rgba(255,255,255,0.1);
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(128, 128, 128, 0.2); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(128, 128, 128, 0.4); }
+[data-theme="dark"] ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); }
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
+
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  margin: 0; padding: 0;
+  background-color: var(--bg-color);
+  color: var(--modal-text-main);
+  font-family: var(--font-stack);
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden; 
+  display: flex; 
+  transition: background-color 0.5s ease;
+}
+
+button, input, textarea, a { font-family: var(--font-stack); }
+
+#particleCanvas {
+  position: fixed; inset: 0; width: 100%; height: 100%;
+  z-index: 0; opacity: 0.4; pointer-events: none;
+  filter: blur(80px);
+}
+
+.rgl-wrapper {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  position: relative;
+}
+
+/* Sidebar Styles */
+.rgl-sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--sidebar-bg);
+  display: flex;
+  flex-direction: column; 
+  padding: 0; 
+  flex-shrink: 0;
+  border-right: 1px solid rgba(128,128,128,0.1);
+  color: var(--sidebar-text);
+  z-index: 100;
+  overflow: hidden; 
+}
+.rgl-brand-area { padding: 30px 24px 20px 24px; flex-shrink: 0; }
+.rgl-brand { font-family: var(--font-stack); font-weight: 800; font-size: 20px; display: flex; align-items: center; gap: 12px; color: var(--sidebar-text); white-space: nowrap; }
+.rgl-brand svg { color: #e6002f; }
+
+.capsule-menu {
+    display: flex; background: rgba(128, 128, 128, 0.1); border-radius: 50px;
+    padding: 6px !important; margin: 0 24px 20px 24px; gap: 4px; border: none !important;
+}
+.capsule-menu .rgl-tab {
+    flex: 1; text-align: center; padding: 10px 0; border-radius: 50px; font-size: 13px; font-weight: 800;
+    color: var(--sidebar-text); opacity: 0.6; transition: all 0.3s ease; text-decoration: none;
+}
+.capsule-menu .rgl-tab.active { opacity: 1; background: var(--card-bg); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+[data-theme="dark"] .capsule-menu .rgl-tab.active { background: rgba(255,255,255,0.15); }
+
+.rgl-scroll-content { flex: 1; overflow-y: auto; padding: 10px 24px; }
+.rgl-bottom-controls { margin-top: auto; padding: 20px 24px 30px 24px; flex-shrink: 0; border-top: 1px solid rgba(128,128,128,0.1); }
+
+.lang-trigger-sidebar {
+    width: 100%; height: 40px; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px !important; cursor: pointer; font-size: 14px; font-weight: 700; color: var(--sidebar-text);
+    border-radius: 50px !important; background: transparent; transition: all 0.2s ease; border: 1px solid transparent;
+}
+.lang-trigger-sidebar:hover { background: rgba(128, 128, 128, 0.15); }
+[data-theme="dark"] .lang-trigger-sidebar { border: 1px solid rgba(255, 255, 255, 0.6) !important; background: rgba(255, 255, 255, 0.05); }
+[data-theme="dark"] .lang-trigger-sidebar:hover { border-color: #fff !important; background: rgba(255, 255, 255, 0.15); }
+.lang-list { position: absolute; bottom: 80px; left: 24px; width: 200px; background: var(--card-bg); backdrop-filter: blur(20px); padding: 5px; border-radius: 12px; list-style: none; display: none; box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 200; border: 1px solid rgba(128,128,128,0.1); margin: 0; }
+.lang-list.open { display: block; animation: popIn 0.3s; }
+.lang-list li { padding: 10px 15px; cursor: pointer; border-radius: 8px; color: var(--modal-text-main); font-size: 13px; font-family: var(--font-stack); }
+.lang-list li:hover { background: rgba(128,128,128,0.1); }
+[data-theme="dark"] .lang-list li { color: #fff; }
+
+/* Main Content Area */
+.rgl-main { flex: 1; position: relative; display: flex; flex-direction: column; overflow-y: auto; background-color: var(--bg-color); }
+.rgl-header { position: sticky; top: 0; z-index: 50; padding: 24px 40px; display: flex; justify-content: flex-end; align-items: center; }
+
+.theme-pill {
+  width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid rgba(128,128,128,0.2);
+  display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.3s; backdrop-filter: blur(10px); color: var(--modal-text-main);
+}
+.theme-pill:hover { transform: scale(1.1); }
+[data-theme="dark"] .theme-pill { color: #fff; }
+
+.support-content { padding: 40px 60px 80px 60px; flex: 1; display: flex; flex-direction: column; align-items: center; }
+
+.page-title-area { text-align: center; margin-bottom: 40px; animation: fadeInUp 0.6s ease forwards; flex-shrink: 0; }
+.page-title { font-size: 36px; font-weight: 800; margin: 0 0 8px 0; text-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+.page-sub { opacity: 0.6; font-size: 14px; font-weight: 500; }
+
+/* Search Card Styles */
+.search-card-wrapper { width: 100%; max-width: 800px; animation: fadeInUp 0.8s ease forwards; }
+.search-card {
+    background: var(--card-bg); border: 1px solid rgba(128,128,128,0.2); border-radius: 32px;
+    padding: 50px 40px; display: flex; flex-direction: column; align-items: center;
+    backdrop-filter: blur(20px); box-shadow: 0 20px 50px rgba(0,0,0,0.05); color: var(--modal-text-main); transition: all 0.3s var(--spring-ease);
+}
+[data-theme="dark"] .search-card { border-color: rgba(255,255,255,0.1); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+
+.search-title { margin:0 0 10px 0; font-size:24px; font-weight:800; text-align: center; }
+.search-sub { color:var(--modal-text-sub); margin:0 0 40px 0; font-size:14px; text-align: center; }
+
+.search-input-group { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 16px; }
+.code-search-field {
+    width: 100%; border: 1px solid rgba(128,128,128,0.2); background: rgba(128, 128, 128, 0.05); height: 56px; border-radius: 16px;
+    text-align: center; outline: none; transition: 0.3s; color: var(--modal-text-main); font-family: var(--font-stack); font-size: 17px; font-weight: 700; padding: 0 20px;
+}
+[data-theme="dark"] .code-search-field { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); }
+.code-search-field:focus { border-color: var(--primary); background: rgba(0, 125, 255, 0.05); }
+
+.btn-search-code {
+    width: 100%; height: 56px; border: none; background: var(--primary); color: white; border-radius: 50px;
+    font-size: 16px; font-weight: 700; cursor: pointer; transition: transform 0.2s; font-family: var(--font-stack); display: flex; align-items: center; justify-content: center;
+}
+.btn-search-code:active { transform: scale(0.98); }
+.btn-search-code:disabled { opacity: 0.6; pointer-events: none; }
+
+.search-result-area { width: 100%; margin-top: 40px; padding-top: 30px; border-top: 1px solid rgba(128,128,128,0.2); display: none; flex-direction: column; animation: fadeInUp 0.4s ease forwards; }
+.result-box { background: rgba(128,128,128,0.1); border-radius: 16px; padding: 24px; text-align: left; }
+.result-code-title { margin: 0 0 12px 0; font-size: 20px; color: var(--primary); font-weight: 800;}
+.result-message { margin: 0; font-size: 15px; line-height: 1.6; white-space: pre-wrap; font-weight: 500;}
+
+.mobile-menu-trigger { display: none; }
+.mobile-nav-overlay { display: none; }
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .mobile-menu-trigger { display: flex; align-items: center; justify-content: center; background: transparent; border: none; color: var(--sidebar-text); cursor: pointer; padding: 8px; margin-right: 4px; }
+    .rgl-brand { order: 2; }
+    .mobile-menu-trigger { order: 1; }
+    
+    .mobile-nav-overlay { display: flex; flex-direction: column; position: fixed; inset: 0; background: var(--bg-color); z-index: 10001; padding: 40px; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); visibility: hidden; }
+    .mobile-nav-overlay.active { transform: translateX(0); visibility: visible; }
+    .mobile-menu-close { align-self: flex-end; background: transparent; border: 1px solid var(--btn-close-border); color: var(--modal-text-main); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 40px; }
+    .mobile-nav-content { display: flex; flex-direction: column; gap: 40px; flex: 1; }
+    .mobile-nav-item { font-family: var(--font-stack); font-size: 32px; font-weight: 800; color: var(--modal-text-main); text-decoration: none; text-align: left; opacity: 0; transform: translateX(-20px); transition: opacity 0.3s ease, transform 0.3s ease; }
+    .mobile-nav-overlay.active .mobile-nav-item { opacity: 1; transform: translateX(0); }
+    .mobile-nav-overlay.active .mobile-nav-item:nth-child(1) { transition-delay: 0.1s; }
+    .mobile-nav-overlay.active .mobile-nav-item:nth-child(2) { transition-delay: 0.2s; }
+    .mobile-menu-footer { margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(128,128,128,0.1); position: relative; }
+    
+    .rgl-wrapper { flex-direction: column; }
+    .rgl-sidebar { width: 100%; height: auto; padding: 0; border-right: none; border-bottom: 1px solid rgba(128,128,128,0.1); overflow: visible; position: relative; z-index: 100; background-color: var(--sidebar-bg); }
+    .rgl-brand-area { padding: 16px 12px; display: flex; align-items: center; justify-content: flex-start; gap: 8px; width: 100%; padding-right: 120px; }
+    
+    .rgl-scroll-content, .rgl-bottom-controls, .capsule-menu { display: none !important; } 
+    .rgl-main { position: static !important; }
+
+    .rgl-header { position: absolute !important; top: 0; right: 0; width: auto; height: 70px; background: transparent !important; padding: 0 16px; z-index: 200; display: flex !important; align-items: center; justify-content: flex-end; pointer-events: none; }
+    .rgl-header > * { pointer-events: auto; }
+    
+    .support-content { padding: 30px 20px; }
+    .search-card { padding: 30px 20px; }
+}
+
+@keyframes popIn { 0% { opacity: 0; transform: scale(0.95) translateY(10px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+/* Spotlight effect */
+.spotlight-hover { position: relative; overflow: hidden; }
+.spotlight-hover::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(150px circle at var(--x, 50%) var(--y, 50%), rgba(255,255,255,0.15), transparent 40%);
+    z-index: 0; pointer-events: none; opacity: 0; transition: opacity 0.3s ease;
+}
+[data-theme="light"] .spotlight-hover::before {
+    background: radial-gradient(150px circle at var(--x, 50%) var(--y, 50%), rgba(0,0,0,0.08), transparent 40%);
+}
+.spotlight-hover:hover::before { opacity: 1; }
+.spotlight-hover > * { position: relative; z-index: 1; }
+</style>
+</head>
+<body>
+
+<canvas id="particleCanvas" width="1125" height="605"></canvas>
+
+<div class="mobile-nav-overlay" id="mobileNav">
+    <button class="mobile-menu-close" id="mobileMenuCloseBtn">
+        <i data-lucide="x"></i>
+    </button>
+    <div class="mobile-nav-content">
+        <a href="index.html" class="mobile-nav-item" data-translate="tab_home">Home</a>
+        <a href="support.html" class="mobile-nav-item" data-translate="tab_support">Support</a>
+    </div>
+    <div class="mobile-menu-footer">
+         <div class="lang-trigger-sidebar" id="mobileLangTrigger">
+             <span style="display:flex;align-items:center;gap:8px;">
+                 <i data-lucide="globe" style="width: 16px; height: 16px;"></i> 
+                 <span id="mobileCurrentLangLabel">日本語</span>
+             </span>
+             <i data-lucide="chevron-up" style="width: 14px; height: 14px; opacity:0.5;"></i>
+         </div>
+         <ul class="lang-list" id="mobileLangMenu">
+            <li class="lang-option" data-value="ja">日本語</li>
+            <li class="lang-option" data-value="en">English</li>
+            <li class="lang-option" data-value="zh">简体中文</li>
+            <li class="lang-option" data-value="zh-TW">繁體中文</li>
+            <li class="lang-option" data-value="ko">한국어</li>
+            <li class="lang-option" data-value="ru">Русский</li>
+         </ul>
+    </div>
+</div>
+
+<div class="rgl-wrapper" id="mainContainer">
+    
+   <aside class="rgl-sidebar">
+        <div class="rgl-brand-area">
+            <button class="mobile-menu-trigger" id="mobileMenuBtn">
+                <i data-lucide="menu"></i>
+            </button>
+            <div class="rgl-brand">
+                <i data-lucide="triangle-alert"></i>
+                <span data-translate="brand_name">kiryu10 | Support</span>
+            </div>
+        </div>
+        
+        <div class="sidebar-main-nav capsule-menu">
+            <a href="index.html" class="rgl-tab spotlight-hover" data-translate="tab_home">Home</a>
+            <a href="support.html" class="rgl-tab active spotlight-hover" data-translate="tab_support">Support</a>
+        </div>
+
+        <div class="rgl-scroll-content">
+            </div>
+
+        <div class="rgl-bottom-controls">
+            <div style="position:relative;">
+                 <button class="lang-trigger-sidebar" id="langTrigger">
+                     <span style="display:flex;align-items:center;gap:8px;">
+                         <i data-lucide="globe" style="width: 16px; height: 16px;"></i>
+                         <span id="currentLangLabel">日本語</span>
+                     </span>
+                     <i data-lucide="chevron-up" style="width: 14px; height: 14px; opacity:0.5;"></i>
+                 </button>
+                 <ul class="lang-list" id="langMenu">
+                    <li class="lang-option" data-value="ja">日本語</li>
+                    <li class="lang-option" data-value="en">English</li>
+                    <li class="lang-option" data-value="zh">简体中文</li>
+                    <li class="lang-option" data-value="zh-TW">繁體中文</li>
+                    <li class="lang-option" data-value="ko">한국어</li>
+                    <li class="lang-option" data-value="ru">Русский</li>
+                 </ul>
+            </div>
+            <div style="margin-top:20px; font-size:10px; opacity:0.3; text-align:center;">
+                © 2026 kiryu-sensya
+           </div>
+        </div>
+    </aside>
+
+    <main class="rgl-main">
+        <nav class="rgl-header">
+            <div class="theme-pill" id="themeToggle">
+                <i data-lucide="moon"></i>
+            </div>
+        </nav>
+
+        <div class="support-content">
+            <div class="page-title-area">
+                <h1 class="page-title" data-translate="page_title">Support Center</h1>
+                <div class="page-sub" data-translate="page_sub">エラーコード検索</div>
+            </div>
+
+            <div class="search-card-wrapper">
+                <div class="search-card spotlight-hover">
+                    <i data-lucide="search" style="color:var(--primary); width:48px; height:48px; margin-bottom:20px;"></i>
+                    <h2 class="search-title" data-translate="error_modal_title">エラーコード検索</h2>
+                    <p class="search-sub" data-translate="error_modal_sub">サポートが必要なエラーコードを入力してください。</p>
+
+                    <div class="search-input-group">
+                        <input type="text" id="errorCodeInput" class="code-search-field" placeholder="" autocomplete="off">
+                        <button id="btnErrorCheck" class="btn-search-code" onclick="searchErrorCode()"><span data-translate="btn_search">検索する</span></button>
+                        <div id="errorSearchStatus" style="color:#FF3B30; font-size:13px; min-height:20px; text-align:center;"></div>
+                    </div>
+
+                    <div id="searchResultArea" class="search-result-area">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                            <h3 style="margin:0; font-size:18px; font-weight:800;" data-translate="error_result_title">検索結果</h3>
+                            <button onclick="resetSearch()" style="background:transparent; border:none; color:var(--modal-text-sub); cursor:pointer; font-size:14px; text-decoration:underline;" data-translate="btn_back">クリア</button>
+                        </div>
+                        <div class="result-box">
+                            <h4 class="result-code-title" id="resultErrorCode">Error: ----</h4>
+                            <p class="result-message" id="resultErrorMessage"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // Translations Database
+    const TRANSLATIONS = {
+        ja: { 
+            brand_name: "kiryu10 | Support",
+            tab_home: "ホーム", tab_support: "サポート",
+            page_title: "サポートセンター", page_sub: "エラーコードを検索して解決策を見つけます", 
+            error_modal_title: "エラー検索", error_modal_sub: "サポートが必要なエラーコードを入力してください。",
+            btn_search: "検索する", error_empty: "エラーコードを入力してください。", error_not_found: "エラーコードが見つかりません。",
+            error_result_title: "検索結果", btn_back: "クリア"
+        },
+        en: { 
+            brand_name: "kiryu10 | Support",
+            tab_home: "Home", tab_support: "Support",
+            page_title: "Support Center", page_sub: "Search for error codes to find solutions", 
+            error_modal_title: "Error Search", error_modal_sub: "Enter the error code you need support with.",
+            btn_search: "Search", error_empty: "Please enter an error code.", error_not_found: "Error code not found.",
+            error_result_title: "Result", btn_back: "Clear"
+        },
+        zh: { 
+            brand_name: "kiryu10 | Support",
+            tab_home: "首页", tab_support: "支持",
+            page_title: "服务中心", page_sub: "搜索错误代码以查找解决方案", 
+            error_modal_title: "错误查询", error_modal_sub: "请输入需要支持的错误代码。",
+            btn_search: "查询", error_empty: "请输入错误代码。", error_not_found: "未找到该错误代码。",
+            error_result_title: "查询结果", btn_back: "清除"
+        },
+        "zh-TW": { 
+            brand_name: "kiryu10 | Support",
+            tab_home: "首頁", tab_support: "支援",
+            page_title: "服務中心", page_sub: "搜尋錯誤代碼以尋找解決方案", 
+            error_modal_title: "錯誤查詢", error_modal_sub: "請輸入需要支援的錯誤代碼。",
+            btn_search: "查詢", error_empty: "請輸入錯誤代碼。", error_not_found: "未找到該錯誤代碼。",
+            error_result_title: "查詢結果", btn_back: "清除"
+        },
+        ko: { 
+            brand_name: "kiryu10 | Support",
+            tab_home: "메인 페이지", tab_support: "지원",
+            page_title: "서비스 센터", page_sub: "오류 코드를 검색하여 해결책을 찾으세요", 
+            error_modal_title: "오류 검색", error_modal_sub: "지원이 필요한 오류 코드를 입력하세요.",
+            btn_search: "검색", error_empty: "오류 코드를 입력하세요.", error_not_found: "오류 코드를 찾을 수 없습니다.",
+            error_result_title: "검색 결과", btn_back: "지우기"
+        },
+        ru: { 
+            brand_name: "kiryu10 | Support",
+            tab_home: "Главная", tab_support: "Поддержка",
+            page_title: "Центр поддержки", page_sub: "Поиск кодов ошибок для поиска решений", 
+            error_modal_title: "Поиск ошибки", error_modal_sub: "Введите код ошибки для поддержки.",
+            btn_search: "Поиск", error_empty: "Введите код ошибки.", error_not_found: "Код ошибки не найден.",
+            error_result_title: "Результат", btn_back: "Очистить"
+        }
+    };
+
+    function setLanguage(lang) {
+        const t = TRANSLATIONS[lang] || TRANSLATIONS.ja;
+        document.documentElement.lang = lang;
+        
+        document.querySelectorAll('[data-translate]').forEach(el => {
+            const key = el.getAttribute('data-translate');
+            if(t[key]) el.textContent = t[key];
+        });
+        
+        const langMap = { ja: '日本語', en: 'English', zh: '简体中文', 'zh-TW': '繁體中文', ko: '한국어', ru: 'Русский' };
+        const lbl = document.getElementById('currentLangLabel');
+        const mlbl = document.getElementById('mobileCurrentLangLabel');
+        if(lbl) lbl.textContent = langMap[lang] || 'Language';
+        if(mlbl) mlbl.textContent = langMap[lang] || 'Language';
+        
+        return t;
+    }
+
+    // Spotlight & Initialization
+    document.addEventListener('DOMContentLoaded', () => {
+        try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+        
+        const targets = document.querySelectorAll('.spotlight-hover');
+        targets.forEach(el => {
+            el.addEventListener('mousemove', (e) => {
+                const rect = el.getBoundingClientRect();
+                el.style.setProperty('--x', `${e.clientX - rect.left}px`);
+                el.style.setProperty('--y', `${e.clientY - rect.top}px`);
+            });
+        });
+
+        let sLang = localStorage.getItem('user_lang') || 'ja';
+        setLanguage(sLang);
+
+        // Mobile Nav
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileNav = document.getElementById('mobileNav');
+        const mobileMenuCloseBtn = document.getElementById('mobileMenuCloseBtn');
+        if (mobileMenuBtn && mobileNav) mobileMenuBtn.addEventListener('click', () => mobileNav.classList.add('active'));
+        if (mobileMenuCloseBtn && mobileNav) mobileMenuCloseBtn.addEventListener('click', () => mobileNav.classList.remove('active'));
+        
+        // Language Menus
+        const langTrigger = document.getElementById('langTrigger');
+        const langMenu = document.getElementById('langMenu');
+        if(langTrigger && langMenu) {
+            langTrigger.addEventListener('click', (e) => { e.stopPropagation(); langMenu.classList.toggle('open'); });
+        }
+        
+        const mobileLangTrigger = document.getElementById('mobileLangTrigger');
+        const mobileLangMenu = document.getElementById('mobileLangMenu');
+        if(mobileLangTrigger && mobileLangMenu) {
+            mobileLangTrigger.addEventListener('click', (e) => { e.stopPropagation(); mobileLangMenu.classList.toggle('open'); });
+        }
+
+        document.querySelectorAll('.lang-option').forEach(opt => {
+            opt.addEventListener('click', () => {
+                const val = opt.getAttribute('data-value');
+                localStorage.setItem('user_lang', val);
+                setLanguage(val);
+                if(langMenu) langMenu.classList.remove('open');
+                if(mobileLangMenu) mobileLangMenu.classList.remove('open');
+            });
+        });
+
+        document.addEventListener('click', (e) => { 
+            if (langTrigger && langMenu && !langTrigger.contains(e.target)) langMenu.classList.remove('open'); 
+            if (mobileLangTrigger && mobileLangMenu && !mobileLangTrigger.contains(e.target)) mobileLangMenu.classList.remove('open');
+        });
+
+        // Theme and Particles
+        const htmlEl = document.documentElement;
+        const themeToggle = document.getElementById('themeToggle');
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let particleHue = 210;
+
+        function initParticles(theme) {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            particleHue = theme === 'light' ? 210 : 220; particles = [];
+            for(let i=0; i<8; i++) particles.push(new Particle());
+        }
+
+        class Particle {
+            constructor() { 
+                this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; 
+                this.size = Math.random() * 150 + 50; this.speedX = Math.random() * 0.2 - 0.1; 
+                this.speedY = Math.random() * 0.2 - 0.1; this.opacity = Math.random() * 0.3 + 0.1; 
+            }
+            update() { 
+                this.x += this.speedX; this.y += this.speedY; 
+                if(this.x < 0 || this.x > canvas.width) this.speedX *= -1; 
+                if(this.y < 0 || this.y > canvas.height) this.speedY *= -1; 
+            }
+            draw() { 
+                ctx.fillStyle = `hsla(${particleHue}, 100%, 50%, ${this.opacity * 0.2})`; 
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill(); 
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
+        window.addEventListener('resize', () => { initParticles(htmlEl.getAttribute('data-theme')); });
+        animate();
+
+        function applyTheme(theme) {
+            htmlEl.setAttribute('data-theme', theme);
+            if (themeToggle) {
+                themeToggle.innerHTML = theme === 'light' ? '<i data-lucide="sun"></i>' : '<i data-lucide="moon"></i>';
+                try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+            }
+            initParticles(theme);
+        }
+
+        const savedTheme = localStorage.getItem('user_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        applyTheme(savedTheme);
+
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const next = htmlEl.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+                applyTheme(next);
+                localStorage.setItem('user_theme', next);
+            });
+        }
+    });
+
+    // Error Search Logic
+    const SUPABASE_API_URL = "/api/proxy"; // Standard Vercel API Route
+
+    window.resetSearch = function() {
+        document.getElementById('errorCodeInput').value = '';
+        document.getElementById('errorSearchStatus').textContent = '';
+        document.getElementById('searchResultArea').style.display = 'none';
+        document.getElementById('errorCodeInput').focus();
+    };
+
+    window.searchErrorCode = async function() {
+        const code = document.getElementById('errorCodeInput').value.trim();
+        const statusEl = document.getElementById('errorSearchStatus');
+        const btn = document.getElementById('btnErrorCheck');
+        const resultArea = document.getElementById('searchResultArea');
+        const lang = localStorage.getItem('user_lang') || 'ja';
+        const t = TRANSLATIONS[lang] || TRANSLATIONS.ja;
+
+        resultArea.style.display = 'none';
+
+        if (!code) {
+            statusEl.textContent = t.error_empty || "エラーコードを入力してください。";
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = `<i data-lucide="loader" style="animation: spin 1s linear infinite;"></i>`; 
+        lucide.createIcons();
+        statusEl.textContent = "";
+
+        try {
+            const res = await fetch(`${SUPABASE_API_URL}?type=error_search&code=${encodeURIComponent(code)}&lang=${lang}`);
+            const data = await res.json();
+
+            if (data.success) {
+                document.getElementById('resultErrorCode').textContent = "Error: " + data.code;
+                document.getElementById('resultErrorMessage').textContent = data.errorMessage;
+                resultArea.style.display = 'flex';
+            } else {
+                statusEl.textContent = data.message === "Error code not found" ? (t.error_not_found || "見つかりません。") : data.message;
+            }
+        } catch (e) {
+            statusEl.textContent = "Network Error: 接続に失敗しました。";
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = `<span data-translate="btn_search">${t.btn_search}</span>`;
+        }
+    };
+    
+    // Trigger search on Enter key
+    document.getElementById('errorCodeInput').addEventListener('keydown', function(e) {
+        if(e.key === 'Enter') {
+            e.preventDefault();
+            searchErrorCode();
+        }
+    });
+</script>
+</body>
+</html>
