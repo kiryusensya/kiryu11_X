@@ -1499,10 +1499,15 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
                             <span data-translate="btn_redeem_code">コード引き換え</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="key-round" aria-hidden="true" size="18" class="lucide lucide-key-round"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"></path><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"></circle></svg>
                          </button>
 
-                         <button class="menu-btn" id="btnMenuAccount">
-                            <span data-translate="modal_acc_title">アカウント管理</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings" size="18"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                         </button>
+                         <button class="menu-btn" id="btnMenuHistory">
+                          <span data-translate="btn_history">利用履歴</span>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-history" size="18"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+                    </button>
+
+                    <button class="menu-btn" id="btnMenuPassword">
+                    <span data-translate="modal_acc_change_pass">パスワード変更</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock" size="18"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                 </button>
                          <button class="menu-btn" id="btnLogout" style="color:#FF3B30;">
                             <span data-translate="btn_logout">ログアウト</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="log-out" aria-hidden="true" size="18" class="lucide lucide-log-out"><path d="m16 17 5-5-5-5"></path><path d="M21 12H9"></path><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path></svg>
                          </button>
@@ -1565,7 +1570,7 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
     </div>
     
-    <h2 style="font-size:24px; font-weight:800; margin: 0 0 20px 0; color: var(--modal-text-main);" data-translate="modal_acc_title">アカウント管理</h2>
+    <h2 style="font-size:24px; font-weight:800; margin: 0 0 20px 0; color: var(--modal-text-main);" data-translate="modal_acc_title">パスワード変更</h2>
     
     <div style="text-align: left; margin-bottom: 24px; background: rgba(128,128,128,0.05); padding: 16px; border-radius: 12px; border: 1px solid rgba(128,128,128,0.1);">
         <label style="font-size:12px; font-weight:700; opacity:0.7; color:var(--modal-text-main); display:block; margin-bottom:4px;" data-translate="modal_acc_userid">ユーザーID</label>
@@ -1587,6 +1592,18 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
         <div id="accStatusMessage" style="font-size:13px; font-weight: 700; margin-bottom:12px; min-height:18px; text-align:center;"></div>
         <button id="btnSubmitAccPassChange" class="btn-primary" style="height:50px; font-size: 16px; border-radius: 25px; margin-top: 0;" data-translate="modal_acc_btn_change">パスワードを変更</button>
     </div>
+  </div>
+ </div>
+  <div id="historyModal" class="modal-overlay" style="z-index: 10005;">
+  <div class="modal-sheet" style="max-width: 600px; width: 90%; text-align: left; padding: 40px; display: flex; flex-direction: column; max-height: 80vh;">
+    <div style="position:absolute; top:20px; right:20px; cursor:pointer; opacity:0.6; z-index:10;" id="closeHistoryModalBtn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+    </div>
+    
+    <h2 style="font-size:24px; font-weight:800; margin: 0 0 20px 0; color: var(--modal-text-main);" data-translate="modal_history_title">利用履歴</h2>
+    
+    <div id="historyListContainer" style="overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; padding-right: 4px;">
+        </div>
   </div>
 </div>
 
@@ -1849,7 +1866,7 @@ const TRANSLATIONS={
   login_desc: "利用するにはアカウントが必要です。<br>ログインでお困りの場合は<a href='support.html' style='color: var(--primary); text-decoration: underline; font-weight: 700;'>こちら</a>",
   msg_login_empty: "ユーザー名とパスワードを入力してください。",
   msg_login_invalid: "無効なユーザー名またはパスワードです。",
-  modal_acc_title:"アカウント管理", modal_acc_userid:"ユーザーID", modal_acc_change_pass:"パスワードの変更", modal_acc_btn_change:"パスワードを変更", acc_pass_curr:"現在のパスワード", acc_pass_new:"新しいパスワード", acc_pass_conf:"新しいパスワード (確認用)", msg_acc_err_empty:"すべての項目を入力してください", msg_acc_err_len:"パスワードは6文字以上にしてください", msg_acc_err_match:"パスワードが一致しません", msg_acc_changing:"変更中...", msg_acc_success:"パスワードを変更しました！"
+  modal_acc_title:"アカウント管理", modal_acc_userid:"ユーザーID", modal_acc_change_pass:"パスワードの変更", modal_acc_btn_change:"パスワードを変更", acc_pass_curr:"現在のパスワード", acc_pass_new:"新しいパスワード", acc_pass_conf:"新しいパスワード (確認用)", msg_acc_err_empty:"すべての項目を入力してください", msg_acc_err_len:"パスワードは6文字以上にしてください", msg_acc_err_match:"パスワードが一致しません", msg_acc_changing:"変更中...", msg_acc_success:"パスワードを変更しました！", btn_history: "利用履歴", modal_history_title: "利用履歴", history_empty: "履歴がありません。"
  },
  en:{
   header_brand:"kiryu10", hero_title:"Personal Activation Center", hero_sub:"Manage your access and resources. Redeem your code to unlock exclusive content.",
@@ -1896,7 +1913,7 @@ const TRANSLATIONS={
   login_desc: "An account is required to use this service.<br>If you cannot log in, please contact us <a href='support.html' style='color: var(--primary); text-decoration: underline; font-weight: 700;'>here</a>.",
   msg_login_empty: "Please enter username and password.",
   msg_login_invalid: "Invalid username or password.",
-  modal_acc_title:"Account Settings", modal_acc_userid:"User ID", modal_acc_change_pass:"Change Password", modal_acc_btn_change:"Update Password", acc_pass_curr:"Current Password", acc_pass_new:"New Password", acc_pass_conf:"Confirm New Password", msg_acc_err_empty:"Please fill in all fields", msg_acc_err_len:"Password must be at least 6 characters", msg_acc_err_match:"Passwords do not match", msg_acc_changing:"Updating...", msg_acc_success:"Password changed successfully!"
+  modal_acc_title:"Account Settings", modal_acc_userid:"User ID", modal_acc_change_pass:"Change Password", modal_acc_btn_change:"Update Password", acc_pass_curr:"Current Password", acc_pass_new:"New Password", acc_pass_conf:"Confirm New Password", msg_acc_err_empty:"Please fill in all fields", msg_acc_err_len:"Password must be at least 6 characters", msg_acc_err_match:"Passwords do not match", msg_acc_changing:"Updating...", msg_acc_success:"Password changed successfully!", btn_history: "Usage History", modal_history_title: "Usage History", history_empty: "No history found."
  },
  zh:{ 
   header_brand:"kiryu10", hero_title:"个人代码检查中心", hero_sub:"管理您的访问权限和资源。兑換产品代码以解锁独家内容。", 
@@ -1990,7 +2007,7 @@ const TRANSLATIONS={
   login_desc: "使用本服務需要帳戶。<br>如果您無法登入，請在<a href='support.html' style='color: var(--primary); text-decoration: underline; font-weight: 700;'>此處</a>查詢。",
   msg_login_empty: "請輸入使用者名稱和密碼。",
   msg_login_invalid: "使用者名稱或密碼無效。",
-  modal_acc_title:"帳戶管理", modal_acc_userid:"用戶ID", modal_acc_change_pass:"修改密碼", modal_acc_btn_change:"提交修改", acc_pass_curr:"當前密碼", acc_pass_new:"新密碼", acc_pass_conf:"確認新密碼", msg_acc_err_empty:"請填寫所有欄位", msg_acc_err_len:"密碼長度至少為6個字符", msg_acc_err_match:"兩次輸入的新密碼不一致", msg_acc_changing:"正在修改...", msg_acc_success:"密碼修改成功！"
+  modal_acc_title:"帳戶管理", modal_acc_userid:"用戶ID", modal_acc_change_pass:"修改密碼", modal_acc_btn_change:"提交修改", acc_pass_curr:"當前密碼", acc_pass_new:"新密碼", acc_pass_conf:"確認新密碼", msg_acc_err_empty:"請填寫所有欄位", msg_acc_err_len:"密碼長度至少為6個字符", msg_acc_err_match:"兩次輸入的新密碼不一致", msg_acc_changing:"正在修改...", msg_acc_success:"密碼修改成功！", btn_history: "使用记录", modal_history_title: "使用记录", history_empty: "没有记录。", btn_history: "使用紀錄", modal_history_title: "使用紀錄", history_empty: "沒有紀錄。"
  },
  ko:{ 
   header_brand:"kiryu10", hero_title:"개인 코드 검사 센터", hero_sub:"액세스 권한 및 리소스 관리. 제품 코드를 사용하여 콘텐츠 잠금을 해제하세요.", 
@@ -2037,7 +2054,7 @@ const TRANSLATIONS={
   login_desc: "이용하려면 계정이 필요합니다.<br>로그인할 수 없는 경우 <a href='support.html' style='color: var(--primary); text-decoration: underline; font 가중치: 700;'>여기</a>에서 문의해 주세요.",
   msg_login_empty: "사용자 이름과 비밀번호를 입력해 주세요.",
   msg_login_invalid: "사용자 이름 또는 비밀번호가 올바르지 않습니다.",
-  modal_acc_title:"계정 관리", modal_acc_userid:"사용자 ID", modal_acc_change_pass:"비밀번호 변경", modal_acc_btn_change:"비밀번호 변경", acc_pass_curr:"현재 비밀번호", acc_pass_new:"새 비밀번호", acc_pass_conf:"새 비밀번호 확인", msg_acc_err_empty:"모든 항목을 입력해주세요", msg_acc_err_len:"비밀번호는 6자 이상이어야 합니다", msg_acc_err_match:"새 비밀번호가 일치하지 않습니다", msg_acc_changing:"변경 중...", msg_acc_success:"비밀번호가 변경되었습니다!"
+  modal_acc_title:"계정 관리", modal_acc_userid:"사용자 ID", modal_acc_change_pass:"비밀번호 변경", modal_acc_btn_change:"비밀번호 변경", acc_pass_curr:"현재 비밀번호", acc_pass_new:"새 비밀번호", acc_pass_conf:"새 비밀번호 확인", msg_acc_err_empty:"모든 항목을 입력해주세요", msg_acc_err_len:"비밀번호는 6자 이상이어야 합니다", msg_acc_err_match:"새 비밀번호가 일치하지 않습니다", msg_acc_changing:"변경 중...", msg_acc_success:"비밀번호가 변경되었습니다!", btn_history: "이용 내역", modal_history_title: "이용 내역", history_empty: "내역이 없습니다."
  },
  ru:{ 
   header_brand:"kiryu10", hero_title:"Центр личной активации", hero_sub:"Управление доступом и ресурсами. Активируйте код продукта для разблокировки.", 
@@ -2084,7 +2101,7 @@ const TRANSLATIONS={
   login_desc: "Для использования требуется учетная запись.<br>Если вы не можете войти, пожалуйста, обратитесь <a href='support.html' style='color: var(--primary); text-decoration: underline; font-weight: 700;'>сюда</a>.",
   msg_login_empty: "Пожалуйста, введите имя пользователя и пароль.",
   msg_login_invalid: "Неверное имя пользователя или пароль.",
-  modal_acc_title:"Настройки аккаунта", modal_acc_userid:"ID пользователя", modal_acc_change_pass:"Изменить пароль", modal_acc_btn_change:"Сохранить", acc_pass_curr:"Текущий пароль", acc_pass_new:"Новый пароль", acc_pass_conf:"Подтвердите пароль", msg_acc_err_empty:"Пожалуйста, заполните все поля", msg_acc_err_len:"Пароль должен содержать не менее 6 символов", msg_acc_err_match:"Пароли не совпадают", msg_acc_changing:"Сохранение...", msg_acc_success:"Пароль успешно изменен!"
+  modal_acc_title:"Настройки аккаунта", modal_acc_userid:"ID пользователя", modal_acc_change_pass:"Изменить пароль", modal_acc_btn_change:"Сохранить", acc_pass_curr:"Текущий пароль", acc_pass_new:"Новый пароль", acc_pass_conf:"Подтвердите пароль", msg_acc_err_empty:"Пожалуйста, заполните все поля", msg_acc_err_len:"Пароль должен содержать не менее 6 символов", msg_acc_err_match:"Пароли не совпадают", msg_acc_changing:"Сохранение...", msg_acc_success:"Пароль успешно изменен!", btn_history: "История использования", modal_history_title: "История использования", history_empty: "История пуста."
  }
 };
 
@@ -2155,7 +2172,12 @@ document.addEventListener('DOMContentLoaded', () => {
     loginLangTrigger: gId('loginLangTrigger'),
     loginLangMenu: gId('loginLangMenu'),
     loginLangLabel: gId('loginLangLabel'),
-    loginOverlay: gId('loginOverlay') 
+    loginOverlay: gId('loginOverlay'),
+    btnMenuHistory: gId('btnMenuHistory'),
+    btnMenuPassword: gId('btnMenuPassword'),
+    historyModal: gId('historyModal'),
+    closeHistoryModalBtn: gId('closeHistoryModalBtn'),
+    historyListContainer: gId('historyListContainer'),
   };
 
   try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
@@ -2219,8 +2241,9 @@ function setupEventListeners() {
   const closeAccountModalBtn = document.getElementById('closeAccountModalBtn');
   const btnSubmitAccPassChange = document.getElementById('btnSubmitAccPassChange');
 
-  if (btnMenuAccount) {
-      btnMenuAccount.addEventListener('click', (e) => {
+  // 1. パスワード変更モーダルの開く処理（btnMenuAccount から変更）
+  if (els.btnMenuPassword) {
+      els.btnMenuPassword.addEventListener('click', (e) => {
           e.stopPropagation();
           toggleDropdown(false);
           if (currentUser) document.getElementById('accountModalUserId').textContent = currentUser.email;
@@ -2229,6 +2252,36 @@ function setupEventListeners() {
           document.getElementById('accNewPassConfirm').value = '';
           document.getElementById('accStatusMessage').textContent = '';
           accountModal.classList.add('active');
+      });
+  }
+
+  // 2. パスワード変更モーダルの閉じる処理（※元のコードをそのまま残す）
+  if (closeAccountModalBtn) {
+      closeAccountModalBtn.addEventListener('click', () => accountModal.classList.remove('active'));
+  }
+  if (accountModal) {
+      accountModal.addEventListener('click', (e) => {
+          if (e.target === accountModal) accountModal.classList.remove('active');
+      });
+  }
+
+  // 3. 【新規追加】利用履歴モーダルの開閉処理
+  if (els.btnMenuHistory) {
+      els.btnMenuHistory.addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleDropdown(false);
+          renderHistoryModal(); // モーダルを開く前に履歴を生成
+          els.historyModal.classList.add('active');
+      });
+  }
+
+  if (els.closeHistoryModalBtn) {
+      els.closeHistoryModalBtn.addEventListener('click', () => els.historyModal.classList.remove('active'));
+  }
+  
+  if (els.historyModal) {
+      els.historyModal.addEventListener('click', (e) => {
+          if (e.target === els.historyModal) els.historyModal.classList.remove('active');
       });
   }
 
