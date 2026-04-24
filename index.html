@@ -3916,6 +3916,80 @@ document.addEventListener('DOMContentLoaded', () => {
     
     try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
 }
+  function formatRegionalTime(dateObj, lang) {
+    let tz;
+    // 各言語ごとの地域タイムゾーンを設定
+    switch(lang) {
+        case 'ja': tz = 'Asia/Tokyo'; break;
+        case 'zh': tz = 'Asia/Shanghai'; break;
+        case 'zh-TW': tz = 'Asia/Taipei'; break;
+        case 'ko': tz = 'Asia/Seoul'; break;
+        case 'ru': tz = 'Europe/Moscow'; break;
+        case 'en': default: tz = 'America/New_York'; break; // 英語は基準としてニューヨーク時間を採用
+    }
+
+    try {
+        // 指定したタイムゾーンで日時パーツを抽出
+        const formatter = new Intl.DateTimeFormat('en-US', {
+            timeZone: tz,
+            year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', hour12: false
+        });
+        
+        const parts = formatter.formatToParts(dateObj);
+        const p = {};
+        parts.forEach(part => { p[part.type] = part.value; });
+
+        // Intlの仕様上、24時が'24'と返る場合があるため '00' に補正
+        let hr = p.hour;
+        if (hr === '24') hr = '00';
+
+        const mInt = parseInt(p.month, 10) - 1;
+        const enMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const ruMonths = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+
+        // 要求されたフォーマットで組み立て
+        switch(lang) {
+            case 'ja':
+            case 'zh':
+            case 'zh-TW':
+                return `${p.year}年${p.month}月${p.day}日 ${hr}:${p.minute}`;
+            case 'ko':
+                return `${p.year}년 ${p.month}월 ${p.day}일 ${hr}:${p.minute}`;
+            case 'ru':
+                return `${p.day} ${ruMonths[mInt]} ${p.year} г. ${hr}:${p.minute}`;
+            case 'en':
+            default:
+                return `${enMonths[mInt]} ${p.day}, ${p.year} ${hr}:${p.minute}`;
+        }
+    } catch (e) {
+        // ブラウザがタイムゾーンに未対応などの場合のフォールバック
+        return dateObj.toLocaleString();
+    }
+}
+
+function getFormattedCurrentTime(lang) {
+    return formatRegionalTime(new Date(), lang);
+}
+
+function formatSavedTime(timeStr, lang) {
+    if (!timeStr) return "";
+    
+    // Supabaseから来るISO文字列（UTC）や、過去のローカル保存形式をDate化する
+    let d = new Date(timeStr);
+    
+    // パースに失敗した場合はハイフンやJST表記を除去して再チャレンジ
+    if (isNaN(d.getTime())) {
+        d = new Date(timeStr.replace(/-/g, '/').replace(/ JST| KST/g, ''));
+    }
+    
+    // それでもパースできない特殊な文字列の場合はそのまま返す
+    if (isNaN(d.getTime())) {
+        return timeStr;
+    }
+
+    return formatRegionalTime(d, lang);
+}
 </script>
 </body>
 </html>
