@@ -397,6 +397,27 @@ export default async function handler(req, res) {
       });
       return res.status(200).json({ success: true, items });
     }
+    if (type === 'error_search') {
+      const { code } = params;
+      if (!code) return res.status(200).json({ success: false, message: "Code is required" });
+
+      // Supabaseの「errors」テーブルを参照（必要に応じてテーブル名を変更してください）
+      // カラム構成例: code, ja, en, zh, zh_TW, ko, ru
+      const { data: errData, error } = await supabase.from('errors').select('*').eq('code', code).maybeSingle();
+
+      if (error || !errData) {
+        return res.status(200).json({ success: false, message: "Error code not found" });
+      }
+
+      // クライアントの言語に応じたカラムへマッピング
+      const langColMap = { ja: 'ja', en: 'en', zh: 'zh', 'zh-TW': 'zh_TW', ko: 'ko', ru: 'ru' };
+      const colIdx = langColMap[lang] || 'ja';
+
+      // 指定言語のテキストがない場合は、強制的に日本語(ja)へフォールバック
+      const msg = errData[colIdx] || errData['ja'] || errData.message || "エラー詳細が見つかりません。";
+
+      return res.status(200).json({ success: true, code: errData.code, errorMessage: msg });
+    }
 
     // get_history：履歴取得
     if (type === 'get_history') {
