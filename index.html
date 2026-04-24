@@ -254,25 +254,28 @@ button, input, textarea { font-family: var(--font-stack); }
   gap: 20px;
 }
 
-.rgl-tabs {
-  display: flex;
-  gap: 30px;
+/* ⭕ index.html の 406行目付近を以下で上書き */
+.capsule-menu {
+    display: flex;
+    background: rgba(128, 128, 128, 0.1);
+    border-radius: 50px;
+    padding: 6px !important;
+    margin: 0 24px 20px 24px;
+    gap: 4px;
+    border: none !important;
 }
-
-.rgl-tab {
-  font-size: 14px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--nav-text);
-  opacity: 0.6;
-  cursor: pointer;
-  transition: opacity 0.3s;
-  text-decoration: none;
-  position: relative;
+.capsule-menu .rgl-tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px 0;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--sidebar-text);
+    opacity: 0.6;
+    transition: all 0.3s ease;
+    text-decoration: none; /* ← ここを追加！(リンクの下線を防ぐ) */
 }
-.rgl-tab:hover { opacity: 1; }
-.rgl-tab.active { opacity: 1; }
 
 .theme-pill {
   width: 44px; height: 44px; border-radius: 50%;
