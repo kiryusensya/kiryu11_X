@@ -120,9 +120,9 @@
       <button class="mobile-menu-toggle" id="mobileMenuBtn"><i data-lucide="menu"></i></button>
   </div>
   <div class="sidebar-nav" id="sidebarNav">
-      <div class="nav-item active" onclick="switchTab('create')"><i data-lucide="user-plus"></i> ユーザー発行</div>
+      <div class="nav-item active" onclick="switchTab('create')"><i data-lucide="user-plus"></i> 個人識別子発行</div>
       <div class="nav-item" onclick="switchTab('reset')"><i data-lucide="key-round"></i> パスワードリセット</div>
-      <div class="nav-item" onclick="switchTab('search')"><i data-lucide="users"></i> ユーザー管理</div>
+      <div class="nav-item" onclick="switchTab('search')"><i data-lucide="users"></i> 個人識別子管理</div>
       
       <div class="nav-item" onclick="switchTab('contents')"><i data-lucide="package"></i> コンテンツ登録</div>
       <div class="nav-item" onclick="switchTab('codes')"><i data-lucide="ticket"></i> コード発行</div>
@@ -136,14 +136,14 @@
 
 <div class="main-content">
   <div class="header">
-      <h1 id="pageTitle">ユーザー発行</h1>
+      <h1 id="pageTitle">個人識別子発行</h1>
       <div style="font-size:12px; color:var(--text-sub); background:rgba(255,255,255,0.05); padding:8px 16px; border-radius:20px;">権限: Enforcement Administrator</div>
   </div>
 
   <div id="panel-create" class="panel active">
       <div class="card">
           <h2>新規アカウントの作成</h2>
-          <div class="form-group"><label>新しいユーザーID</label><input type="text" id="newUserId" placeholder="ユーザーID"></div>
+          <div class="form-group"><label>新しい個人識別子</label><input type="text" id="newUserId" placeholder="個人識別子"></div>
           <div class="form-group"><label>初期パスワード</label><input type="text" id="newUserPass" placeholder="初期パスワード"></div>
           <button id="btnCreate" class="btn-primary">アカウントを発行</button>
           <div id="createResult" class="msg"></div>
@@ -153,7 +153,7 @@
   <div id="panel-reset" class="panel">
       <div class="card">
           <h2>パスワードのリセット</h2>
-          <div class="form-group"><label>ユーザーID</label><input type="text" id="resetUserId" placeholder="ユーザーID"></div>
+          <div class="form-group"><label>個人識別子</label><input type="text" id="resetUserId" placeholder="個人識別子"></div>
           <div class="form-group"><label>新しい仮パスワード</label><input type="text" id="resetUserPass" placeholder="新しい仮パスワード"></div>
           <button id="btnReset" class="btn-primary" style="background:#FF9500; color:#000;">強制リセットを実行</button>
           <div id="resetResult" class="msg"></div>
@@ -162,9 +162,9 @@
 
   <div id="panel-search" class="panel">
       <div class="card" style="max-width: 100%;">
-          <h2>ユーザー検索・サポート</h2>
+          <h2>個人識別子検索・サポート</h2>
           <div style="display: flex; gap: 16px; align-items: flex-end;">
-            <div class="form-group" style="flex:1; margin-bottom:0;"><label>ユーザーID</label><input type="text" id="searchUserId" placeholder="ユーザーID"></div>
+            <div class="form-group" style="flex:1; margin-bottom:0;"><label>個人識別子</label><input type="text" id="searchUserId" placeholder="個人識別子"></div>
             <button id="btnSearch" class="btn-primary" style="width: 100px;">検索</button>
           </div>
           <div id="searchResult" style="margin-top: 30px;"></div>
@@ -295,7 +295,7 @@
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       document.getElementById('panel-' + tabId).classList.add('active');
       event.currentTarget.classList.add('active');
-      const titles = { 'create': 'ユーザー発行', 'reset': 'パスワードリセット', 'search': 'ユーザー管理', 'contents': 'コンテンツ登録', 'codes': 'コード発行', 'code-support': 'コード確認・復旧' };
+      const titles = { 'create': '個人識別子発行', 'reset': 'パスワードリセット', 'search': '個人識別子管理', 'contents': 'コンテンツ登録', 'codes': 'コード発行', 'code-support': 'コード確認・復旧' };
       document.getElementById('pageTitle').textContent = titles[tabId];
       if(window.innerWidth <= 768) document.getElementById('sidebarNav').classList.remove('open');
   }
