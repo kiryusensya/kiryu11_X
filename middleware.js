@@ -7,7 +7,7 @@ export default function middleware(request) {
     const url = new URL(request.url);
     
     // 【無限ループ防止】ログイン系ページは絶対にスルーさせる
-    if (url.pathname.startsWith('/login.html') || url.pathname.startsWith('/signin.html')) {
+    if (url.pathname.startsWith('/Access.html') || url.pathname.startsWith('/signin.html')) {
         return;
     }
 
@@ -27,7 +27,7 @@ export default function middleware(request) {
     if (url.pathname === '/' || url.pathname.startsWith('/index.html')) {
         // Cookieの中に user_session_token が存在するかチェック
         if (!cookie.includes('user_session_token=')) {
-            url.pathname = '/login.html';
+            url.pathname = '/Access.html';
             return Response.redirect(url, 307);
         }
         return; // user_session_tokenがあれば通過
