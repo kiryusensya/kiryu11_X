@@ -232,13 +232,6 @@
       </div>
   </div>
 
-  <div id="panel-code-support" class="panel">
-      <div class="card">
-          <h2>コードステータス確認</h2>
-          <div id="codeSupportResult" style="margin-top: 20px;"></div>
-      </div>
-  </div>
-
   <div id="panel-access-log" class="panel">
       <div class="card wide">
           <h2>アクセスログ</h2>
@@ -260,19 +253,20 @@
                       <tr>
                           <th style="padding: 12px 16px; border-bottom: 1px solid var(--card-border);">日時</th>
                           <th style="padding: 12px 16px; border-bottom: 1px solid var(--card-border);">IPアドレス</th>
-                          <th style="padding: 12px 16px; border-bottom: 1px solid var(--card-border);">アクション (type)</th>
+                          <th style="padding: 12px 16px; border-bottom: 1px solid var(--card-border);">アクション</th>
+                          <th style="padding: 12px 16px; border-bottom: 1px solid var(--card-border);">入力コード</th>
                           <th style="padding: 12px 16px; border-bottom: 1px solid var(--card-border);">ユーザー</th>
                       </tr>
                   </thead>
                   <tbody id="logTableBody">
-                      <tr><td colspan="4" style="padding: 20px; text-align: center; color: var(--text-sub);">「更新」ボタンを押して読み込んでください</td></tr>
+                      <tr><td colspan="5" style="padding: 20px; text-align: center; color: var(--text-sub);">「更新」ボタンを押して読み込んでください</td></tr>
                   </tbody>
               </table>
           </div>
           <div id="logResultMsg" class="msg"></div>
       </div>
   </div>
-  </div>
+</div>
 
 <script>
   const escapeHTML = (str) => {
@@ -324,8 +318,9 @@
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       document.getElementById('panel-' + tabId).classList.add('active');
       event.currentTarget.classList.add('active');
-      const titles = { 'create': '個人識別子発行', 'reset': 'パスワードリセット', 'search': '個人識別子管理', 'contents': 'コンテンツ登録', 'codes': 'コード発行', 'code-support': 'コード確認・復旧' };
-      document.getElementById('pageTitle').textContent = titles[tabId];
+      // ▼ 'access-log': 'アクセスログ' を追加しました
+      const titles = { 'create': '個人識別子発行', 'reset': 'パスワードリセット', 'search': '個人識別子管理', 'contents': 'コンテンツ登録', 'codes': 'コード発行', 'code-support': 'コード確認・復旧', 'access-log': 'アクセスログ' };
+      document.getElementById('pageTitle').textContent = titles[tabId] || '';
       if(window.innerWidth <= 768) document.getElementById('sidebarNav').classList.remove('open');
   }
 
@@ -584,20 +579,18 @@
       document.getElementById('genCodeStr').value = codeParts.join('-');
   }
   // ==========================================
-  // ▼ アクセスログ取得処理（フィルター対応版） ▼
+  // ▼ アクセスログ取得処理（フィルター＆入力コード対応版） ▼
   // ==========================================
   const btnLoadLogs = document.getElementById('btnLoadLogs');
   const logFilterSelect = document.getElementById('logFilterSelect');
-  let allLogsData = []; // 取得したログを保持する配列
+  let allLogsData = [];
 
-  // ログを描画する関数
   function renderLogs() {
       const tbody = document.getElementById('logTableBody');
       const filterValue = logFilterSelect ? logFilterSelect.value : 'all';
       
       tbody.innerHTML = ''; 
 
-      // フィルター条件に合わせて配列を絞り込む
       const filteredLogs = allLogsData.filter(log => {
           if (filterValue === 'all') return true;
           if (filterValue === 'login') return log.type === 'user_login';
@@ -607,12 +600,11 @@
       });
 
       if (filteredLogs.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="4" style="padding: 20px; text-align: center; color: var(--text-sub);">該当するログはありません</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="5" style="padding: 20px; text-align: center; color: var(--text-sub);">該当するログはありません</td></tr>';
           return;
       }
 
       filteredLogs.forEach(log => {
-          // 見やすくするためにアクションごとに色とラベルを変える
           let typeStyle = "background: rgba(255,255,255,0.1); color: var(--text-sub);";
           let typeLabel = log.type;
 
@@ -620,12 +612,15 @@
               typeStyle = "background: rgba(0, 125, 255, 0.1); color: var(--primary); border: 1px solid rgba(0, 125, 255, 0.3);";
               typeLabel = "ログイン";
           } else if (log.type === 'check') {
-              typeStyle = "background: rgba(255, 149, 0, 0.1); color: #FF9500; border: 1px solid rgba(255, 149, 0, 0.3);"; // オレンジ
+              typeStyle = "background: rgba(255, 149, 0, 0.1); color: #FF9500; border: 1px solid rgba(255, 149, 0, 0.3);";
               typeLabel = "プレビュー (確認)";
           } else if (log.type === 'redeem') {
-              typeStyle = "background: rgba(4, 207, 34, 0.1); color: var(--success); border: 1px solid rgba(4, 207, 34, 0.3);"; // 緑
+              typeStyle = "background: rgba(4, 207, 34, 0.1); color: var(--success); border: 1px solid rgba(4, 207, 34, 0.3);";
               typeLabel = "引き換え (実行)";
           }
+
+          // 未入力やログ記録がない場合はハイフンにする
+          const displayCode = log.code && log.code !== '-' ? log.code : '（入力なし）';
 
           const tr = document.createElement('tr');
           tr.style.borderBottom = "1px solid var(--card-border)";
@@ -633,6 +628,7 @@
               <td style="padding: 12px 16px;">${escapeHTML(log.date)}</td>
               <td style="padding: 12px 16px;">${escapeHTML(log.ip)}</td>
               <td style="padding: 12px 16px;"><span style="padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; ${typeStyle}">${escapeHTML(typeLabel)}</span></td>
+              <td style="padding: 12px 16px; font-family: monospace; letter-spacing: 0.5px;">${escapeHTML(displayCode)}</td>
               <td style="padding: 12px 16px;">${escapeHTML(log.email)}</td>
           `;
           tbody.appendChild(tr);
@@ -640,7 +636,6 @@
       lucide.createIcons();
   }
 
-  // 更新ボタンを押したときの処理
   if (btnLoadLogs) {
       btnLoadLogs.addEventListener('click', async () => {
           const resEl = document.getElementById('logResultMsg');
@@ -649,13 +644,13 @@
           resEl.style.color = "var(--text-sub)";
           
           try {
-              // 絞り込みをするため、少し多め（300件）に取得しておく
+              // API(バックエンド)へ通信
               const d = await safeFetch({ type: 'admin_get_access_logs', limit: 300 });
               
               if (d.success) {
                   resEl.textContent = "";
-                  allLogsData = d.logs || []; // データを変数に保存
-                  renderLogs(); // 画面に描画
+                  allLogsData = d.logs || [];
+                  renderLogs();
               } else {
                   resEl.textContent = `⚠エラー: ${escapeHTML(d.message)}`; 
                   resEl.style.color = "var(--danger)";
@@ -669,7 +664,6 @@
       });
   }
 
-  // プルダウンを変更した瞬間に自動で表示を切り替える
   if (logFilterSelect) {
       logFilterSelect.addEventListener('change', renderLogs);
   }
