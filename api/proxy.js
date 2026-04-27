@@ -220,6 +220,8 @@ export default async function handler(req, res) {
                     user_agent,
                     users ( email )
                 `)
+                .neq('action_type', 'get_history') // ← この行を追加（get_historyを除外）
+                .neq('action_type', 'get_available') //
                 .order('created_at', { ascending: false })
                 .limit(limit);
 
