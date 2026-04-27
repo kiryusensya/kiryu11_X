@@ -99,19 +99,23 @@ export default async function handler(req, res) {
     // ▼ 追加: 全アクセスログの記録処理 ▼
     // ==========================================
     const userAgent = req.headers['user-agent'] || 'unknown';
-    // パスワードなどの機密情報をログに残さないための安全策
     const safeType = type || 'unknown';
     
-    // GETリクエストや不要な通信をログから除外したい場合は条件を変更できます
-    try {
-        await supabase.from('access_logs').insert([{
-            ip_address: ip,
-            action_type: safeType,
-            user_id: authUserId || null,
-            user_agent: userAgent
-        }]);
-    } catch (logError) {
-        console.error("Access Log Insert Error:", logError);
+    // ▼ ログに記録したくないアクション名をリストアップ ▼
+    const ignoredActions = ['get_history', 'get_available', 'error_search'];
+    
+    // 除外リストに含まれていない場合のみログを保存する
+    if (!ignoredActions.includes(safeType)) {
+        try {
+            await supabase.from('access_logs').insert([{
+                ip_address: ip,
+                action_type: safeType,
+                user_id: authUserId || null,
+                user_agent: userAgent
+            }]);
+        } catch (logError) {
+            console.error("Access Log Insert Error:", logError);
+        }
     }
     
     const logAudit = async (actionType, targetUser, details) => {
