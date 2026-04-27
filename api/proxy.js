@@ -211,7 +211,7 @@ export default async function handler(req, res) {
     if (type.startsWith('admin_')) {
         if (!isAdmin) return res.status(401).json({ success: false, message: "管理者権限がありません" });
       if (type === 'admin_get_access_logs') {
-            const limit = params.limit || 100; // デフォルトで最新100件取得
+            const limit = params.limit || 100;
             const { data: logs, error } = await supabase.from('access_logs')
                 .select(`
                     id, 
@@ -219,10 +219,9 @@ export default async function handler(req, res) {
                     ip_address, 
                     action_type, 
                     user_agent,
+                    target_code, /* ← これを追加 */
                     users ( email )
                 `)
-                .neq('action_type', 'get_history') // ← この行を追加（get_historyを除外）
-                .neq('action_type', 'get_available') //
                 .order('created_at', { ascending: false })
                 .limit(limit);
 
@@ -230,12 +229,12 @@ export default async function handler(req, res) {
                 return res.status(200).json({ success: false, message: "ログの取得に失敗しました", error: error.message });
             }
 
-            // フロントエンドで扱いやすいようにデータを整形して返す
             const formattedLogs = logs.map(log => ({
                 id: log.id,
                 date: new Date(log.created_at).toLocaleString('ja-JP'),
                 ip: log.ip_address,
                 type: log.action_type,
+                code: log.target_code || '-', // ← これを追加
                 email: log.users ? log.users.email : '未ログイン (GUEST)',
                 userAgent: log.user_agent
             }));
