@@ -1402,57 +1402,6 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 [data-theme="dark"] .rgl-cta-btn.is-download:focus {
     background: rgba(50, 50, 50, 0.8) !important;
 }
-/* --- PC版：不自然な高さを排除し、ガタつきだけを抑える設定 --- */
-@media (min-width: 769px) {
-  /* 1. 横幅は 980px で絶対固定（これはガタつき防止に必須） */
-  .modal-sheet.is-input-wide,
-  .modal-sheet.is-wide {
-    width: 980px !important;
-    max-width: 980px !important;
-    min-height: auto !important; /* きもい高さ固定を解除 */
-    padding: 40px !important;
-    transition: opacity 0.3s ease !important; /* 横幅のアニメーションを消して一瞬で切り替える */
-  }
-
-  /* 2. 左側の画像エリアの幅を 360px に固定。高さは「比率」で保つ */
-  .phase-input-left,
-  .modal-left-col {
-    width: 360px !important;
-    min-width: 360px !important;
-    flex: 0 0 360px !important;
-  }
-
-  .phase-input-left img,
-  .modal-left-col img {
-    width: 100% !important;
-    height: auto !important;
-    aspect-ratio: 16 / 10; /* 画像の「形」だけ決めて、高さは自動にする */
-    object-fit: cover;
-    border-radius: 16px;
-  }
-
-  /* 3. 入力画面と確認画面で「タイトルの有無」によるズレを解消する */
-  /* 入力画面のタイトルを外に出して、確認画面と同じ位置関係にする */
-  #phase-input {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
-  }
-
-  /* 入力画面の「アクティベーション」という文字を確認画面のタイトルの高さと合わせる */
-  .phase-input-title {
-    margin-bottom: 24px !important;
-    min-height: 32px; 
-  }
-
-  /* コンテンツエリア（右側）の余白を統一 */
-  .phase-input-body,
-  .modal-body-flex {
-    gap: 30px !important;
-    align-items: flex-start !important; /* 上揃えにしてガタつき防止 */
-  }
-}
 </style>
 </head>
 <body>
