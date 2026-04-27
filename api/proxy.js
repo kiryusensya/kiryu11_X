@@ -102,7 +102,7 @@ export default async function handler(req, res) {
     const safeType = type || 'unknown';
     
     // ▼ ログに記録したくないアクション名をリストアップ ▼
-    const ignoredActions = ['get_history', 'get_available', 'error_search'];
+    const ignoredActions = ['get_history', 'get_available', 'error_search', 'admin_get_access_logs', 'admin_search', 'admin_set_points'];
     
     // ★入力されたコードを取得するための変数を追加
     let targetCode = null;
@@ -219,7 +219,6 @@ export default async function handler(req, res) {
       if (type === 'admin_get_access_logs') {
             const limit = params.limit || 100;
             
-            // ▼ エラーの原因になりやすい「users ( email )」の結合をやめ、シンプルに全データを取得します
             const { data: logs, error } = await supabase.from('access_logs')
                 .select(`
                     id, 
@@ -230,6 +229,7 @@ export default async function handler(req, res) {
                     target_code,
                     user_id
                 `)
+                .neq('action_type', 'admin_get_access_logs') // ★この1行を追加して除外する
                 .order('created_at', { ascending: false })
                 .limit(limit);
 
