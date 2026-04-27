@@ -1402,6 +1402,64 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 [data-theme="dark"] .rgl-cta-btn.is-download:focus {
     background: rgba(50, 50, 50, 0.8) !important;
 }
+/* --- PC版：モーダルサイズ・位置の完全固定 --- */
+@media (min-width: 769px) {
+  /* 1. モーダル自体の動き（アニメーション）を止める */
+  .modal-sheet {
+    transition: clip-path 0.7s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                opacity 0.4s ease !important; /* max-widthのtransitionを削除 */
+  }
+
+  /* 2. 入力・確認・成功すべてのフェーズで幅を 980px に強制固定 */
+  .modal-sheet,
+  .modal-sheet.is-wide,
+  .modal-sheet.is-input-wide {
+    width: 980px !important;
+    max-width: 980px !important;
+    min-height: 550px; /* 高さが変わるのも防ぐために最小高さを設定 */
+    padding: 40px !important;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* 3. 画像エリア（左側）の幅を 360px に完全固定 */
+  .phase-input-left,
+  .modal-left-col {
+    width: 360px !important;
+    min-width: 360px !important;
+    max-width: 360px !important;
+    flex: 0 0 360px !important;
+  }
+
+  /* 4. 画像自体のサイズを固定 */
+  .phase-input-left img,
+  .modal-left-col img {
+    width: 100% !important;
+    height: 400px !important; /* 画像の高さも固定 */
+    object-fit: cover;
+  }
+
+  /* 5. 右側のコンテンツエリア（文字側）を固定 */
+  .phase-input-right,
+  .modal-right-col {
+    flex: 1 !important;
+    min-width: 0;
+  }
+
+  /* 6. 確認画面のタイトル位置が原因で中身が下がるのを防ぐ */
+  .modal-title-top {
+    margin-bottom: 24px !important;
+    height: 32px; /* タイトルの高さを確保して位置を固定 */
+  }
+  
+  /* 入力画面にタイトルがない場合は、高さを合わせるためのスペースを作る */
+  #phase-input::before {
+    content: "";
+    display: block;
+    height: 56px; /* 確認画面のタイトル+マージン分（26+30程度） */
+  }
+}
 </style>
 </head>
 <body>
