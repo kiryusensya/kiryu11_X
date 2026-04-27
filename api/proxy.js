@@ -218,6 +218,8 @@ export default async function handler(req, res) {
         if (!isAdmin) return res.status(401).json({ success: false, message: "管理者権限がありません" });
       if (type === 'admin_get_access_logs') {
             const limit = params.limit || 100;
+            
+            // ▼ エラーの原因になりやすい「users ( email )」の結合をやめ、シンプルに全データを取得します
             const { data: logs, error } = await supabase.from('access_logs')
                 .select(`
                     id, 
@@ -225,29 +227,30 @@ export default async function handler(req, res) {
                     ip_address, 
                     action_type, 
                     user_agent,
-                    target_code, /* ← これを追加 */
-                    users ( email )
+                    target_code,
+                    user_id
                 `)
                 .order('created_at', { ascending: false })
                 .limit(limit);
 
             if (error) {
+                // エラーの詳細な理由もフロントエンドに返すように強化
                 return res.status(200).json({ success: false, message: "ログの取得に失敗しました", error: error.message });
             }
 
-            const formattedLogs = logs.map(log => ({
+            const formattedLogs = (logs || []).map(log => ({
                 id: log.id,
                 date: new Date(log.created_at).toLocaleString('ja-JP'),
                 ip: log.ip_address,
                 type: log.action_type,
-                code: log.target_code || '-', // ← これを追加
-                email: log.users ? log.users.email : '未ログイン (GUEST)',
+                code: log.target_code || '-',
+                // ▼ メールアドレスの代わりに、エラーが起きないユーザーIDを表示します
+                email: log.user_id ? `ID: ${log.user_id.substring(0, 8)}...` : '未ログイン (GUEST)',
                 userAgent: log.user_agent
             }));
 
             return res.status(200).json({ success: true, logs: formattedLogs });
         }
-
         if (type === 'admin_create_user') {
             const { email, password } = params;
             if (!email || !password) return res.status(200).json({ success: false, message: "Missing credentials" });
