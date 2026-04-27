@@ -242,9 +242,17 @@
   <div id="panel-access-log" class="panel">
       <div class="card wide">
           <h2>アクセスログ</h2>
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
               <p style="font-size:12px; color:var(--text-sub); margin:0;">最新のAPIリクエスト履歴を表示します。</p>
-              <button id="btnLoadLogs" class="btn-primary" style="width: auto; padding: 0 20px; height: 40px; font-size: 14px;"><i data-lucide="refresh-cw"></i> 更新</button>
+              <div style="display: flex; gap: 10px;">
+                  <select id="logFilterSelect" style="width: auto; height: 40px; border-radius: 20px; font-size: 13px; padding: 0 16px;">
+                      <option value="all">すべて表示</option>
+                      <option value="login">ログインのみ (user_login)</option>
+                      <option value="check">プレビューのみ (check)</option>
+                      <option value="redeem">引き換え実行 (redeem)</option>
+                  </select>
+                  <button id="btnLoadLogs" class="btn-primary" style="width: auto; padding: 0 20px; height: 40px; font-size: 14px;"><i data-lucide="refresh-cw"></i> 更新</button>
+              </div>
           </div>
           <div style="overflow-x: auto; background: rgba(0,0,0,0.3); border-radius: 12px; border: 1px solid var(--card-border);">
               <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
@@ -574,6 +582,96 @@
       
       // ハイフンで繋いで入力欄にセット
       document.getElementById('genCodeStr').value = codeParts.join('-');
+  }
+  // ==========================================
+  // ▼ アクセスログ取得処理（フィルター対応版） ▼
+  // ==========================================
+  const btnLoadLogs = document.getElementById('btnLoadLogs');
+  const logFilterSelect = document.getElementById('logFilterSelect');
+  let allLogsData = []; // 取得したログを保持する配列
+
+  // ログを描画する関数
+  function renderLogs() {
+      const tbody = document.getElementById('logTableBody');
+      const filterValue = logFilterSelect ? logFilterSelect.value : 'all';
+      
+      tbody.innerHTML = ''; 
+
+      // フィルター条件に合わせて配列を絞り込む
+      const filteredLogs = allLogsData.filter(log => {
+          if (filterValue === 'all') return true;
+          if (filterValue === 'login') return log.type === 'user_login';
+          if (filterValue === 'check') return log.type === 'check';
+          if (filterValue === 'redeem') return log.type === 'redeem';
+          return true;
+      });
+
+      if (filteredLogs.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" style="padding: 20px; text-align: center; color: var(--text-sub);">該当するログはありません</td></tr>';
+          return;
+      }
+
+      filteredLogs.forEach(log => {
+          // 見やすくするためにアクションごとに色とラベルを変える
+          let typeStyle = "background: rgba(255,255,255,0.1); color: var(--text-sub);";
+          let typeLabel = log.type;
+
+          if (log.type === 'user_login') {
+              typeStyle = "background: rgba(0, 125, 255, 0.1); color: var(--primary); border: 1px solid rgba(0, 125, 255, 0.3);";
+              typeLabel = "ログイン";
+          } else if (log.type === 'check') {
+              typeStyle = "background: rgba(255, 149, 0, 0.1); color: #FF9500; border: 1px solid rgba(255, 149, 0, 0.3);"; // オレンジ
+              typeLabel = "プレビュー (確認)";
+          } else if (log.type === 'redeem') {
+              typeStyle = "background: rgba(4, 207, 34, 0.1); color: var(--success); border: 1px solid rgba(4, 207, 34, 0.3);"; // 緑
+              typeLabel = "引き換え (実行)";
+          }
+
+          const tr = document.createElement('tr');
+          tr.style.borderBottom = "1px solid var(--card-border)";
+          tr.innerHTML = `
+              <td style="padding: 12px 16px;">${escapeHTML(log.date)}</td>
+              <td style="padding: 12px 16px;">${escapeHTML(log.ip)}</td>
+              <td style="padding: 12px 16px;"><span style="padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; ${typeStyle}">${escapeHTML(typeLabel)}</span></td>
+              <td style="padding: 12px 16px;">${escapeHTML(log.email)}</td>
+          `;
+          tbody.appendChild(tr);
+      });
+      lucide.createIcons();
+  }
+
+  // 更新ボタンを押したときの処理
+  if (btnLoadLogs) {
+      btnLoadLogs.addEventListener('click', async () => {
+          const resEl = document.getElementById('logResultMsg');
+          btnLoadLogs.disabled = true;
+          resEl.textContent = "読み込み中..."; 
+          resEl.style.color = "var(--text-sub)";
+          
+          try {
+              // 絞り込みをするため、少し多め（300件）に取得しておく
+              const d = await safeFetch({ type: 'admin_get_access_logs', limit: 300 });
+              
+              if (d.success) {
+                  resEl.textContent = "";
+                  allLogsData = d.logs || []; // データを変数に保存
+                  renderLogs(); // 画面に描画
+              } else {
+                  resEl.textContent = `⚠エラー: ${escapeHTML(d.message)}`; 
+                  resEl.style.color = "var(--danger)";
+              }
+          } catch (e) {
+              resEl.textContent = "⚠通信エラー"; 
+              resEl.style.color = "var(--danger)";
+          } finally {
+              btnLoadLogs.disabled = false;
+          }
+      });
+  }
+
+  // プルダウンを変更した瞬間に自動で表示を切り替える
+  if (logFilterSelect) {
+      logFilterSelect.addEventListener('change', renderLogs);
   }
 </script>
 </body>
