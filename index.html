@@ -1402,62 +1402,55 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 [data-theme="dark"] .rgl-cta-btn.is-download:focus {
     background: rgba(50, 50, 50, 0.8) !important;
 }
-/* --- PC版：モーダルサイズ・位置の完全固定 --- */
+/* --- PC版：不自然な高さを排除し、ガタつきだけを抑える設定 --- */
 @media (min-width: 769px) {
-  /* 1. モーダル自体の動き（アニメーション）を止める */
-  .modal-sheet {
-    transition: clip-path 0.7s cubic-bezier(0.34, 1.56, 0.64, 1), 
-                transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1), 
-                opacity 0.4s ease !important; /* max-widthのtransitionを削除 */
-  }
-
-  /* 2. 入力・確認・成功すべてのフェーズで幅を 980px に強制固定 */
-  .modal-sheet,
-  .modal-sheet.is-wide,
-  .modal-sheet.is-input-wide {
+  /* 1. 横幅は 980px で絶対固定（これはガタつき防止に必須） */
+  .modal-sheet.is-input-wide,
+  .modal-sheet.is-wide {
     width: 980px !important;
     max-width: 980px !important;
-    min-height: 550px; /* 高さが変わるのも防ぐために最小高さを設定 */
+    min-height: auto !important; /* きもい高さ固定を解除 */
     padding: 40px !important;
-    display: flex;
-    flex-direction: column;
+    transition: opacity 0.3s ease !important; /* 横幅のアニメーションを消して一瞬で切り替える */
   }
 
-  /* 3. 画像エリア（左側）の幅を 360px に完全固定 */
+  /* 2. 左側の画像エリアの幅を 360px に固定。高さは「比率」で保つ */
   .phase-input-left,
   .modal-left-col {
     width: 360px !important;
     min-width: 360px !important;
-    max-width: 360px !important;
     flex: 0 0 360px !important;
   }
 
-  /* 4. 画像自体のサイズを固定 */
   .phase-input-left img,
   .modal-left-col img {
     width: 100% !important;
-    height: 400px !important; /* 画像の高さも固定 */
+    height: auto !important;
+    aspect-ratio: 16 / 10; /* 画像の「形」だけ決めて、高さは自動にする */
     object-fit: cover;
+    border-radius: 16px;
   }
 
-  /* 5. 右側のコンテンツエリア（文字側）を固定 */
-  .phase-input-right,
-  .modal-right-col {
-    flex: 1 !important;
-    min-width: 0;
+  /* 3. 入力画面と確認画面で「タイトルの有無」によるズレを解消する */
+  /* 入力画面のタイトルを外に出して、確認画面と同じ位置関係にする */
+  #phase-input {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
   }
 
-  /* 6. 確認画面のタイトル位置が原因で中身が下がるのを防ぐ */
-  .modal-title-top {
+  /* 入力画面の「アクティベーション」という文字を確認画面のタイトルの高さと合わせる */
+  .phase-input-title {
     margin-bottom: 24px !important;
-    height: 32px; /* タイトルの高さを確保して位置を固定 */
+    min-height: 32px; 
   }
-  
-  /* 入力画面にタイトルがない場合は、高さを合わせるためのスペースを作る */
-  #phase-input::before {
-    content: "";
-    display: block;
-    height: 56px; /* 確認画面のタイトル+マージン分（26+30程度） */
+
+  /* コンテンツエリア（右側）の余白を統一 */
+  .phase-input-body,
+  .modal-body-flex {
+    gap: 30px !important;
+    align-items: flex-start !important; /* 上揃えにしてガタつき防止 */
   }
 }
 </style>
