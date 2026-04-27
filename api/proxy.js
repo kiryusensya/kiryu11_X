@@ -95,6 +95,24 @@ export default async function handler(req, res) {
       } catch (e) {
       }
     }
+    // ==========================================
+    // ▼ 追加: 全アクセスログの記録処理 ▼
+    // ==========================================
+    const userAgent = req.headers['user-agent'] || 'unknown';
+    // パスワードなどの機密情報をログに残さないための安全策
+    const safeType = type || 'unknown';
+    
+    // GETリクエストや不要な通信をログから除外したい場合は条件を変更できます
+    try {
+        await supabase.from('access_logs').insert([{
+            ip_address: ip,
+            action_type: safeType,
+            user_id: authUserId || null,
+            user_agent: userAgent
+        }]);
+    } catch (logError) {
+        console.error("Access Log Insert Error:", logError);
+    }
     
     const logAudit = async (actionType, targetUser, details) => {
         try {
@@ -187,6 +205,36 @@ export default async function handler(req, res) {
     // ==========================================
     if (type.startsWith('admin_')) {
         if (!isAdmin) return res.status(401).json({ success: false, message: "管理者権限がありません" });
+      if (type === 'admin_get_access_logs') {
+            const limit = params.limit || 100; // デフォルトで最新100件取得
+            const { data: logs, error } = await supabase.from('access_logs')
+                .select(`
+                    id, 
+                    created_at, 
+                    ip_address, 
+                    action_type, 
+                    user_agent,
+                    users ( email )
+                `)
+                .order('created_at', { ascending: false })
+                .limit(limit);
+
+            if (error) {
+                return res.status(200).json({ success: false, message: "ログの取得に失敗しました", error: error.message });
+            }
+
+            // フロントエンドで扱いやすいようにデータを整形して返す
+            const formattedLogs = logs.map(log => ({
+                id: log.id,
+                date: new Date(log.created_at).toLocaleString('ja-JP'),
+                ip: log.ip_address,
+                type: log.action_type,
+                email: log.users ? log.users.email : '未ログイン (GUEST)',
+                userAgent: log.user_agent
+            }));
+
+            return res.status(200).json({ success: true, logs: formattedLogs });
+        }
 
         if (type === 'admin_create_user') {
             const { email, password } = params;
