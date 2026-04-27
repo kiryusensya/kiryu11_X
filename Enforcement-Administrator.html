@@ -231,7 +231,20 @@
           <div id="codeManageResult" class="msg"></div>
       </div>
   </div>
-
+  <div id="panel-code-support" class="panel">
+      <div class="card">
+          <h2>コードステータス確認</h2>
+          
+          <div class="form-group">
+              <label>引き換えコード</label>
+              <div style="display: flex; gap: 10px;">
+                  <input type="text" id="targetSupportCode" placeholder="AAAAA-BBBBB-CCCCC-DDDDD-EEEEE" style="flex:1;">
+                  <button id="btnCheckCode" class="btn-primary" style="width:100px;">確認</button>
+              </div>
+          </div>
+          <div id="codeSupportResult" style="margin-top: 20px;"></div>
+      </div>
+  </div>
   <div id="panel-access-log" class="panel">
       <div class="card wide">
           <h2>アクセスログ</h2>
