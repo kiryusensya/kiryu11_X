@@ -104,6 +104,12 @@ export default async function handler(req, res) {
     // ▼ ログに記録したくないアクション名をリストアップ ▼
     const ignoredActions = ['get_history', 'get_available', 'error_search'];
     
+    // ★入力されたコードを取得するための変数を追加
+    let targetCode = null;
+    if (safeType === 'check' || safeType === 'redeem') {
+        targetCode = params.code || params.key || null; 
+    }
+    
     // 除外リストに含まれていない場合のみログを保存する
     if (!ignoredActions.includes(safeType)) {
         try {
@@ -112,7 +118,7 @@ export default async function handler(req, res) {
                 action_type: safeType,
                 user_id: authUserId || null,
                 user_agent: userAgent,
-                target_code: targetCode
+                target_code: targetCode // ★変数として正しく認識される
             }]);
         } catch (logError) {
             console.error("Access Log Insert Error:", logError);
