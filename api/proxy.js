@@ -111,7 +111,8 @@ export default async function handler(req, res) {
                 ip_address: ip,
                 action_type: safeType,
                 user_id: authUserId || null,
-                user_agent: userAgent
+                user_agent: userAgent,
+                target_code: targetCode
             }]);
         } catch (logError) {
             console.error("Access Log Insert Error:", logError);
