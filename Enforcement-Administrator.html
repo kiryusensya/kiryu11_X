@@ -6,14 +6,51 @@
 <title>Enforcement Administrator</title>
 
 <script>
+  // ログイン状態の確認関数
   function checkCookie(name) {
       const value = `; ${document.cookie}`;
       const parts = value.split(`; ${name}=`);
       return parts.length === 2;
   }
+
+  // 1. アクセス時の初回チェック
   if (!checkCookie('admin_logged_in')) {
       window.location.replace('signin.html');
   }
+
+  // 2. Cookie（キャッシュ）削除の監視（3秒ごとにチェック）
+  setInterval(() => {
+      if (!checkCookie('admin_logged_in')) {
+          // Cookieが削除されているのを検知したら即座にリダイレクト
+          window.location.replace('signin.html');
+      }
+  }, 3000);
+
+  // 3. 20分無操作で強制ログアウトさせるタイマー処理
+  let inactivityTimer;
+  const INACTIVITY_LIMIT = 20 * 60 * 1000; // 20分 = 1,200,000ミリ秒
+
+  function performAutoLogout() {
+      // Cookieを強制的に削除してサインイン画面へ
+      document.cookie = "admin_logged_in=; path=/; max-age=0;";
+      alert("20分間操作がなかったため、セキュリティ保護のため自動的にログアウトしました。");
+      window.location.replace('signin.html');
+  }
+
+  function resetInactivityTimer() {
+      clearTimeout(inactivityTimer);
+      inactivityTimer = setTimeout(performAutoLogout, INACTIVITY_LIMIT);
+  }
+
+  // ユーザーのアクション（マウス移動、クリック、キー入力、スクロール等）を検知したらタイマーをリセット
+  window.addEventListener('mousemove', resetInactivityTimer);
+  window.addEventListener('mousedown', resetInactivityTimer);
+  window.addEventListener('keypress', resetInactivityTimer);
+  window.addEventListener('touchstart', resetInactivityTimer);
+  window.addEventListener('scroll', resetInactivityTimer);
+
+  // ページ読み込み時にタイマーを初回起動
+  resetInactivityTimer();
 </script>
 
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800&display=swap" rel="stylesheet">
