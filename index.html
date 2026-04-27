@@ -1117,9 +1117,42 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 .phase-input-controls { width: 100%; display: flex; flex-direction: column; }
 
 @media (min-width: 769px) {
-  .modal-sheet.is-input-wide {
-    max-width: 980px;
+  /* 1. モーダル全体の横幅を 980px で統一（!importantで競合を防止） */
+  .modal-sheet.is-input-wide,
+  .modal-sheet.is-wide {
+    max-width: 980px !important;
+    width: 980px !important;
   }
+
+  /* 2. 左側の画像エリアを 360px で統一 */
+  .phase-input-left,
+  .modal-left-col {
+    display: flex !important;
+    width: 360px !important;
+    min-width: 360px !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* 3. 画像自体の角丸などを共通化 */
+  .phase-input-left img,
+  .modal-left-col img {
+    width: 100% !important;
+    height: auto;
+    border-radius: 16px;
+    object-fit: cover;
+    background: rgba(128,128,128,0.2);
+  }
+
+  /* 4. 右側のコンテンツエリアを共通化 */
+  .phase-input-right,
+  .modal-right-col {
+    flex: 1 !important;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  /* --- 以下、入力フェーズ(#phase-input)専用の細かな調整 --- */
   .modal-sheet.is-input-wide #phase-input {
     flex-direction: column;
     align-items: flex-start;
@@ -1137,23 +1170,7 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
     flex-direction: row;
     gap: 30px;
     align-items: stretch;
-  }
-  .modal-sheet.is-input-wide .phase-input-left {
-    display: flex;
-    width: 360px;
-    flex-shrink: 0;
-  }
-  .modal-sheet.is-input-wide .phase-input-left img {
     width: 100%;
-    border-radius: 16px;
-    object-fit: cover;
-    background: rgba(128,128,128,0.2);
-  }
-  .modal-sheet.is-input-wide .phase-input-right {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
   }
   .modal-sheet.is-input-wide .phase-input-controls {
     flex-direction: row;
@@ -1167,24 +1184,24 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
     height: 56px;
     text-align: left;
     padding: 0 20px;
-    border-radius: 50px; /* ★修正 */
+    border-radius: 50px;
   }
   .modal-sheet.is-input-wide .phase-input-controls .btn-primary {
     margin-top: 0;
     width: 120px;
     height: 56px;
-    border-radius: 50px !important; /* ★修正 */
+    border-radius: 50px !important;
   }
   .modal-sheet.is-input-wide .phase-input-desc-pc {
     display: flex;
     flex: 1;
     margin-bottom: 0;
-    justify-content: flex-start; /* ★追加 */
-    align-items: flex-start;     /* ★追加 */
+    justify-content: flex-start;
+    align-items: flex-start;
   }
   .modal-sheet.is-input-wide .phase-input-desc-pc .modal-box-text {
-    text-align: left; /* ★追加 */
-    margin: 0;        /* ★追加 */
+    text-align: left;
+    margin: 0;
   }
 }
 @keyframes flashEffect {
