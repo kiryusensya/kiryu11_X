@@ -444,6 +444,8 @@ export default async function handler(req, res) {
       const filteredContents = (allContents || []).filter(c => {
           const isShow = String(c["show/ hide"] || "").trim().toLowerCase() === 'show';
           if (!isShow) return false;
+          
+          // ★ 有効期限切れのコンテンツを除外
           if (c["有効時間"] && new Date(c["有効時間"]).getTime() <= Date.now()) {
               return false;
           }
@@ -505,13 +507,16 @@ export default async function handler(req, res) {
             return null;
         }
 
-       return {
+        return {
           code: codeRec["アクティベーションコード"], date: h.created_at, title: c[`タイトル(${suffix})`] || c["タイトル(jp)"],
           message: c[`メッセージ(${suffix})`] || c["メッセージ(jp)"], url: c.Action_url, imageUrl: c.Imag_Url,
           icon: c.アイコン || 'download', releaseDateIso: c["解禁時間"], expireDateIso: c["有効時間"], extraInfo: c[`詳細(${suffix})`] || c["詳細(jp)"],
           groupId: c["重複"], buttonLabel: c[`ボタン(${suffix})`] || c["ボタン(jp)"],
           price: c["価格"] || 0
         };
+      }).filter(Boolean);
+      return res.status(200).json({ success: true, points: user?.points || 0, history: historyData });
+    }
 
     // purchase：ストアでのポイント購入（※在庫を消費せず、無限に買える方式）
     if (type === 'purchase') {
