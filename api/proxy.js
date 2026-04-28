@@ -443,6 +443,7 @@ export default async function handler(req, res) {
 
       const filteredContents = (allContents || []).filter(c => {
           const isShow = String(c["show/ hide"] || "").trim().toLowerCase() === 'show';
+          if (c["有効時間"] && new Date(c["有効時間"]).getTime() <= Date.now()) {
           if (!isShow) return false;
           return true;
       });
@@ -497,6 +498,10 @@ export default async function handler(req, res) {
         if(!codeRec) return null;
         const c = codeRec.contents; 
         if(!c) return null;
+
+        if (c["有効時間"] && new Date(c["有効時間"]).getTime() <= Date.now()) {
+            return null;
+        }
 
         return {
           code: codeRec["アクティベーションコード"], date: h.created_at, title: c[`タイトル(${suffix})`] || c["タイトル(jp)"],
