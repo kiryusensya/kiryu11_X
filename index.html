@@ -113,12 +113,6 @@ button, input, textarea { font-family: var(--font-stack); }
   filter: blur(80px);
 }
 
-.loading-dots::after {
-  content: ''; animation: dots-loop 1.5s infinite steps(1);
-  display: inline-block; width: 1em; text-align: left;
-}
-@keyframes dots-loop { 0% { content: '.'; } 33% { content: '..'; } 66% { content: '...'; } 100% { content: ''; } }
-
 /* --- RGL LAYOUT STRUCTURE --- */
 .rgl-wrapper {
   display: flex;
@@ -252,29 +246,6 @@ button, input, textarea { font-family: var(--font-stack); }
   justify-content: flex-end;
   align-items: center;
   gap: 20px;
-}
-
-/* ⭕ index.html の 406行目付近を以下で上書き */
-.capsule-menu {
-    display: flex;
-    background: rgba(128, 128, 128, 0.1);
-    border-radius: 50px;
-    padding: 6px !important;
-    margin: 0 24px 20px 24px;
-    gap: 4px;
-    border: none !important;
-}
-.capsule-menu .rgl-tab {
-    flex: 1;
-    text-align: center;
-    padding: 10px 0;
-    border-radius: 50px;
-    font-size: 13px;
-    font-weight: 800;
-    color: var(--sidebar-text);
-    opacity: 0.6;
-    transition: all 0.3s ease;
-    text-decoration: none; /* ← ここを追加！(リンクの下線を防ぐ) */
 }
 
 .theme-pill {
@@ -460,9 +431,6 @@ button, input, textarea { font-family: var(--font-stack); }
 .lang-list li:hover { background: rgba(128,128,128,0.1); }
 [data-theme="dark"] .lang-list li { color: #fff; }
 
-/* Hide old elements */
-.wrapper, .bento-grid, .hero-text, header, footer { display: none !important; }
-
 /* Keep Animations */
 @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 
@@ -634,9 +602,6 @@ button, input, textarea { font-family: var(--font-stack); }
 }
 .btn-primary:active { transform: scale(0.96); }
 
-#statusContainer { 
-  margin-top: 0; min-height: 0; position: absolute; bottom: -30px; left: 0; width: 100%; text-align: center;
-}
 
 /* --- 新しいモーダルレイアウト (PC表示) --- */
 .new-modal-layout {
@@ -812,49 +777,6 @@ button, input, textarea { font-family: var(--font-stack); }
 }
 .account-dropdown.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; visibility: visible; }
 
-#loginOverlay.active {
-  opacity: 1 !important;
-  pointer-events: auto !important;
-  display: flex !important;
-}
-#loginOverlay.active .modal-sheet {
-  transform: scale(1) translateY(0) !important;
-  opacity: 1 !important;
-}
-/* --- ログインモーダル専用の余白・文字サイズ調整 --- */
-.login-modal-sheet {
-  padding: 60px 40px 70px 40px !important;
-}
-.login-desc-text {
-  font-size: 14px !important;
-  margin-bottom: 30px !important;
-}
-.login-input-group {
-  margin-bottom: 24px !important;
-}
-
-/* スマホ用の画面幅のときだけ、さらに小さく・狭くする */
-@media (max-width: 768px) {
-  .login-modal-sheet {
-    padding: 50px 24px 60px 24px !important;
-  }
-  .login-desc-text {
-    font-size: 12px !important;       /* 文字を小さく */
-    line-height: 1.4 !important;      /* 行間を狭く */
-    margin-bottom: 20px !important;   /* 下の入力欄との間を短く */
-  }
-  .login-input-group {
-    margin-bottom: 16px !important;   /* 入力欄同士の隙間を短く */
-  }
-  .login-btn-wrapper {
-    margin-top: 10px !important;      /* パスワードとボタンの隙間を短く */
-  }
-  #loginLangTrigger {
-    font-size: 12px !important;
-  }
-  .capsule-menu { display: none !important; }
-}
-
 /* Header inside Dropdown */
 .account-mini-header { 
   display: flex; flex-direction: column; align-items: flex-start;
@@ -877,12 +799,7 @@ button, input, textarea { font-family: var(--font-stack); }
 .menu-btn:hover { background: rgba(128,128,128,0.08); }
 .menu-btn i { opacity: 0.5; }
 
-/* Login Form inside Dropdown */
-.auth-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid rgba(128,128,128,0.2); padding-bottom:10px; }
-.auth-tab { flex: 1; text-align: center; padding: 8px; cursor: pointer; font-weight: 700; opacity: 0.5; transition: 0.3s; color: var(--modal-text-main); font-size: 14px; font-family: var(--font-stack); }
-.auth-tab.active { opacity: 1; border-bottom: 2px solid var(--primary); color: var(--primary); }
 .form-group { text-align: left; margin-bottom: 12px; }
-.form-label { font-size: 11px; font-weight: 700; margin-bottom: 4px; display: block; opacity: 0.7; color: var(--modal-text-main); font-family: var(--font-stack); }
 .form-input { width: 100%; height: 44px; border-radius: 10px; border: 1px solid rgba(128,128,128,0.2); background: transparent; padding: 0 12px; color: var(--modal-text-main); font-family: inherit; outline: none; font-size: 14px; font-weight: 500; }
 .form-input:focus { border-color: var(--primary); background: rgba(128,128,128,0.05); }
 
@@ -1104,9 +1021,6 @@ button, input, textarea { font-family: var(--font-stack); }
     #phase-error .modal-body-error { padding: 24px; }
 }
 
-footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font-size: 12px; }
-[data-theme="dark"] footer { color: #888; }
-
 .loading-spinner { display: inline-block; vertical-align: middle; width: 24px; height: 24px; border: 3px solid rgba(128,128,128,0.2); border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 8px; }
 @keyframes spin { to{transform: rotate(360deg);} }
 
@@ -1243,6 +1157,7 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
     color: var(--sidebar-text);
     opacity: 0.6;
     transition: all 0.3s ease;
+    text-decoration: none;
 }
 .capsule-menu .rgl-tab.active {
     opacity: 1;
@@ -1251,51 +1166,6 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 }
 [data-theme="dark"] .capsule-menu .rgl-tab.active {
     background: rgba(255,255,255,0.15);
-}
-
-/* 2. 入力欄＋ボタンの1行デザイン (画像77, 78対応) */
-.auth-input-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 20px;
-    width: 100%;
-}
-.auth-input-row .code-field {
-    flex: 1;
-    height: 48px;
-    margin: 0;
-    border-radius: 50px;
-    text-align: left;
-    padding: 0 20px;
-    background: rgba(128, 128, 128, 0.2);
-    border: 1px solid rgba(128, 128, 128, 0.1);
-    transition: all 0.3s ease;
-}
-.auth-input-row .auth-btn {
-    width: 64px;
-    height: 48px;
-    border-radius: 50px !important;
-    background: var(--primary);
-    color: white;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: background 0.3s, transform 0.2s;
-}
-.auth-input-row .auth-btn:active { transform: scale(0.95); }
-
-/* エラー時の赤色レイアウト */
-.auth-input-row.is-error .code-field {
-    border-color: rgba(255, 59, 48, 0.5);
-    background: rgba(255, 59, 48, 0.05);
-    color: #FF3B30;
-}
-.auth-input-row.is-error .auth-btn {
-    background: #FF3B30;
 }
 
 /* 3. スポットライト・ホバー効果（全ボタン対応） */
@@ -1570,9 +1440,6 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
         </ul>
     </div>
 
-  </div>
-</div>
-
  <div id="accountModal" class="modal-overlay" style="z-index: 10005;">
   <div class="modal-sheet" style="max-width: 450px; width: 90%; text-align: center; padding: 40px;">
     <div style="position:absolute; top:20px; right:20px; cursor:pointer; opacity:0.6; z-index:10;" id="closeAccountModalBtn">
@@ -1626,7 +1493,6 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
     
     <div id="phase-input" style="display: flex; opacity: 1;">
       <h2 class="modal-title phase-input-title" data-translate="modal_title">アクティベーション</h2>
-      <!-- ★ id="mobileInputDesc" を追加 -->
       <p class="modal-sub phase-input-sub-mobile" id="mobileInputDesc" data-translate="modal_sub">アクティベーションコードを使用すると、コンテンツにアクセスできます。アクティベーションコードを利用するには、以下の入力欄に入力してください。</p>
       
       <div class="phase-input-body">
@@ -1639,13 +1505,10 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
                   <button id="btnConfirm" class="btn-primary" data-translate="modal_btn_auth">確認</button>
               </div>
               <div class="modal-grey-box phase-input-desc-pc">
-                  <!-- ★ id="pcInputDesc" を追加 -->
                   <p class="modal-box-text" id="pcInputDesc" data-translate="modal_sub">アクティベーションコードを使用すると、コンテンツにアクセスできます。<br>アクティベーションコードを利用するには、以下の入力欄に入力してください。</p>
               </div>
           </div>
       </div>
-      <!-- ★ 不要になった statusContainer は非表示にしておくか削除します -->
-      <div id="statusContainer" style="display: none;"></div>
     </div>
 
     <div id="phase-preview" style="display: none; opacity: 0;" class="new-modal-layout">
@@ -1863,7 +1726,7 @@ const TRANSLATIONS={
   error_locked_msg: "このコンテンツは解禁していません。",
   error_owned_msg: "既に所有しているようです。",
   error_owned_sub: "左ライブラリメニューからコンテンツを選択してダウンロードしてください。",
-  btn_close:"閉じる",btn_continue:"認証する",btn_download:"ダウンロード", btn_buy:"購入する",
+  btn_close:"閉じる",btn_continue:"認証する",btn_download:"ダウンロード", btn_buy:"購入する", 
   
   preview_buy_title: "購入確認",
   preview_buy_desc: "以下のコンテンツを %s  で購入します:",
@@ -2144,8 +2007,6 @@ document.addEventListener('DOMContentLoaded', () => {
     code: gId('activationCode'),
     heroActionBtn: gId('heroActionBtn'),
     heroBuyBtn: gId('heroBuyBtn'), 
-    tabs: document.querySelectorAll('.auth-tab'),
-    btnAuthAction: gId('btnAuthAction'),
     mobileMenuBtn: gId('mobileMenuBtn'),
     mobileNav: gId('mobileNav'),
     mobileMenuCloseBtn: gId('mobileMenuCloseBtn'),
@@ -2177,11 +2038,6 @@ document.addEventListener('DOMContentLoaded', () => {
     successMessageText: gId('successMessageText'),
     successTime: gId('successTime'),
     btnSuccessDownload: gId('btnSuccessDownload'),
-    status: gId('statusContainer'),
-    email: gId('inputEmail'),
-    pass: gId('inputPass'),
-    authStatus: gId('authStatus'),
-    loggedOutView: gId('loggedOutView'),
     loggedInView: gId('loggedInView'),
     displayUserEmail: gId('displayUserEmail'),
     secLibrary: gId('secLibrary'),
@@ -2196,7 +2052,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loginLangTrigger: gId('loginLangTrigger'),
     loginLangMenu: gId('loginLangMenu'),
     loginLangLabel: gId('loginLangLabel'),
-    loginOverlay: gId('loginOverlay'),
     btnMenuHistory: gId('btnMenuHistory'),
     btnMenuPassword: gId('btnMenuPassword'),
     historyModal: gId('historyModal'),
@@ -2260,7 +2115,6 @@ function setupEventListeners() {
       });
   }
 
-  const btnMenuAccount = document.getElementById('btnMenuAccount');
   const accountModal = document.getElementById('accountModal');
   const closeAccountModalBtn = document.getElementById('closeAccountModalBtn');
   const btnSubmitAccPassChange = document.getElementById('btnSubmitAccPassChange');
@@ -2306,15 +2160,6 @@ function setupEventListeners() {
   if (els.historyModal) {
       els.historyModal.addEventListener('click', (e) => {
           if (e.target === els.historyModal) els.historyModal.classList.remove('active');
-      });
-  }
-
-  if (closeAccountModalBtn) {
-      closeAccountModalBtn.addEventListener('click', () => accountModal.classList.remove('active'));
-  }
-  if (accountModal) {
-      accountModal.addEventListener('click', (e) => {
-          if (e.target === accountModal) accountModal.classList.remove('active');
       });
   }
 
@@ -2420,8 +2265,6 @@ function setupEventListeners() {
      }
   });
 
-  setListener(els.btnAuthAction, 'click', performAuthAction);
-  
   if (els.mobileMenuBtn) {
       els.mobileMenuBtn.addEventListener('click', () => {
           els.mobileNav.classList.add('active');
@@ -2823,7 +2666,6 @@ function resetAuthModal(){
 
   els.code.value=""; els.code.disabled=false; els.confirm.disabled=false;
   els.confirm.textContent=TRANSLATIONS[CURRENT_LANG].modal_btn_auth;
-  els.status.innerHTML=""; 
   
   els.btnSuccessClose.style.flex = "none";
   els.btnSuccessClose.style.width = "100%";
@@ -2941,7 +2783,6 @@ async function performAuth(code, mode = 'check') {
     if(!safeCode) return;
     els.code.disabled = true; els.confirm.disabled = true;
     els.confirm.innerHTML = spinnerHtml;
-    els.status.innerHTML = "";
   } else if (mode === 'redeem') {
     els.btnPreviewRedeem.disabled = true;
     els.btnPreviewRedeem.innerHTML = `${spinnerHtml}`;
@@ -3186,76 +3027,6 @@ async function performAuth(code, mode = 'check') {
     }
   }
 }
-
-async function performAuthAction() {
-  const email = els.email.value.trim();
-  const pass = els.pass.value.trim();
-  const t = TRANSLATIONS[CURRENT_LANG];
-  
-  if (!email || !pass) { 
-      els.authStatus.textContent = t.msg_login_empty || "ユーザー名とパスワードを入力してください。"; 
-      return; 
-  }
-  
-  els.btnAuthAction.disabled = true;
-  els.btnAuthAction.innerHTML = `<span class="loading-dots">${t.msg_logging_in || "ログイン中"}</span>`;
-  
-  try {
-    const res = await fetch(GAS_API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: 'user_login', email: email, password: pass })
-    });
-    const data = await res.json();
-    
-    if (data.success) {
-      if (data.requirePasswordChange) {
-          window.tempChangeData = { userId: data.userId, oldPassword: pass };
-          document.getElementById('forcePasswordChangeView').style.display = 'flex';
-          return; 
-      }
-      
-      currentUser = { userId: data.userId, email: email, history: data.history || [], points: data.points || 0 };
-      localStorage.setItem('user_session_identity', JSON.stringify({ userId: data.userId, email: email }));
-      
-      if (data.token) {
-    localStorage.setItem('user_session_token', data.token);
-    // Middlewareが読み取れるようにCookieにも保存 (有効期限は例として1日)
-    document.cookie = `user_session_token=${data.token}; path=/; max-age=86400; secure; samesite=lax`;
-    }
-      
-      document.body.classList.add('is-logged-in');
-      if (els.loginOverlay) els.loginOverlay.classList.remove('active'); 
-      updateAccountUI(); 
-      fetchUserHistory(); 
-      
-      els.email.value = ""; els.pass.value = "";
-      
-      if (pendingActivationCode) {
-          setTimeout(() => {
-              openAuthModal(); 
-              const codeToUse = formatCodeInput(pendingActivationCode);
-              els.code.value = codeToUse;
-              performAuth(codeToUse); 
-              pendingActivationCode = null;
-          }, 500);
-      }
-    } else { 
-      const lowMsg = (data.message || "").toLowerCase();
-      let errorMsg = data.message || t.msg_error;
-      
-      if (lowMsg.includes('invalid') || lowMsg.includes('not found') || lowMsg.includes('incorrect') || lowMsg.includes('無効')) {
-          errorMsg = t.msg_login_invalid || "無効なユーザー名またはパスワードです。";
-      }
-      els.authStatus.textContent = errorMsg; 
-    }
-  } catch (e) { 
-    els.authStatus.textContent = t.msg_error || "Network Error."; 
-  } finally { 
-    els.btnAuthAction.disabled = false; 
-    els.btnAuthAction.textContent = t.btn_login_action;
-  }
-}
   
 function setHeroButtonState(state, forceUnlock = false) {
     if (window.innerWidth <= 768) return;
@@ -3282,7 +3053,6 @@ function setHeroButtonState(state, forceUnlock = false) {
             btn.innerHTML = `<span>${displayLabel}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="${iconName}" aria-hidden="true" size="20" class="lucide lucide-${iconName}"></svg>`;
             btn.classList.add('is-download');
             
-            // currentHeroContext = 'owned'; ← ★ここにあった記述は削除(上に移動したため)
             try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
         }
     } else {
@@ -3384,7 +3154,6 @@ function updateAccountUI() {
     if (!selectedHeroItem) {
         document.querySelector('.rgl-hero-content').style.display = 'none';
     }
-    if (els.loggedOutView) els.loggedOutView.style.display = 'none';
     if (els.loggedInView) els.loggedInView.style.display = 'block';
     if(els.displayUserEmail) els.displayUserEmail.textContent = currentUser.email || '-';
     if(gId('ptValue')) gId('ptValue').textContent = currentUser.points || 0;
@@ -3420,7 +3189,6 @@ function updateAccountUI() {
 
   } else {
     document.body.classList.remove('is-logged-in');
-    if (els.loginOverlay) els.loginOverlay.classList.add('active');
     
     document.querySelector('.rgl-hero-content').style.display = 'block';
     selectedHeroItem = null;
@@ -3535,7 +3303,6 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
         const dlBtn = mDiv.querySelector('.is-owned-download');
         if (dlBtn) {
             if (isLocked) {
-                // dlBtn.style.pointerEvents = 'none'; ← ★削除（クリックできるようにする）
                 dlBtn.style.background = 'rgba(128, 128, 128, 0.2)';
                 dlBtn.style.color = 'var(--modal-text-main)';
                 dlBtn.style.border = '1px solid transparent';
@@ -3683,7 +3450,7 @@ async function fetchAvailableContent() {
             });
         } 
         
-        const totalItems = (currentUser && currentUser.history ? currentUser.history.length : 0) + (hasItems ? 1 : 0);
+        const totalItems = (currentUser && currentUser.history ? currentUser.history.length : 0) + (hasItems ? 1 : 0); // ← 途切れていた閉じカッコ
         if (totalItems === 0) {
             resetHeroToDefault();
         }
@@ -3692,7 +3459,6 @@ async function fetchAvailableContent() {
              list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">${t.msg_empty_lib || "No content"}</div>`;
         }
         
-        // 全角スペースを除去済
         if (!hasMobileItems && mobileList) {
              mobileList.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px; grid-column: 1 / -1; text-align:center;">${t.msg_empty_lib || "No content"}</div>`;
         }
@@ -3720,7 +3486,6 @@ async function fetchUserHistory() {
       currentUser.points = data.points || 0;
       updateAccountUI();
       
-      // ★ 履歴があれば最初のアイテムを選択状態にする
       if (currentUser.history.length > 0 && !selectedHeroItem) {
             updateHeroView(currentUser.history[0], true);
             setTimeout(() => {
@@ -3731,8 +3496,8 @@ async function fetchUserHistory() {
                 }
             }, 50);
       }
-    } // ← Missingだった括弧（if文を閉じる）
-  } catch (e) { // ← Missingだった括弧（try文を閉じる）
+    } 
+  } catch (e) { 
       console.error("History Fetch Error:", e);
       updateAccountUI(); 
   } finally {
@@ -3770,8 +3535,6 @@ function initThemeAndParticles() {
 
 async function resumeSession() {
   const sUser = localStorage.getItem('user_session_identity');
-  
-  // ユーザー情報がない場合だけ処理を止める（トークンチェックを緩和）
   if (!sUser) {
       return; 
   }
@@ -3780,22 +3543,17 @@ async function resumeSession() {
       const identity = JSON.parse(sUser);
       currentUser = { userId: identity.userId, email: identity.email, history: [], points: 0 };
       
-      // まずは画面を「ログイン状態」にする
       document.body.classList.add('is-logged-in');
       if (els.loginOverlay) els.loginOverlay.classList.remove('active'); 
       updateAccountUI();
 
-      // get_user_infoの代わりに、履歴とポイントを復元する処理だけを呼ぶ
-      // これにより、通信エラーによる意図しない強制ログアウトを防ぎます
       await fetchUserHistory(); 
   } catch (e) {
       console.error("Session Resume Error:", e);
       logout();
   }
 }
-/* =========================================
-   Micro-Interactions Logic
-   ========================================= */
+
 document.addEventListener('DOMContentLoaded', () => {
     const setupHoverEffects = () => {
         const targets = document.querySelectorAll('.sidebar-game-item, .rgl-tab, .btn-primary, .btn-outline, .btn-solid, .rgl-cta-btn, .menu-btn, .auth-btn, .mobile-store-btn');
@@ -3825,54 +3583,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setupHoverEffects();
 });
-    // ログインしている場合のみ、5秒に1回、バックエンドに最新の履歴をコッソリ確認しにいく
-    setInterval(async () => {
-        if (!currentUser) return; // ログインしていなければ何もしない
 
-        try {
-            // 安全な通信ラッパーを使って、現在の履歴だけを軽く取得する
-            const data = await safeFetch({
-                type: 'get_history',
-                lang: CURRENT_LANG,
-                _t: Date.now() // キャッシュ防止
-            });
+// ログインしている場合のみ、5秒に1回、バックエンドに最新の履歴をコッソリ確認しにいく
+setInterval(async () => {
+    if (!currentUser) return; 
 
-            if (data.success && Array.isArray(data.history)) {
-                // ▼ 修正: 履歴の数だけでなく、「ポイントの変動」も検知する！
-                const historyChanged = data.history.length !== currentUser.history.length;
-                const pointsChanged = data.points !== currentUser.points;
+    try {
+        const data = await safeFetch({
+            type: 'get_history',
+            lang: CURRENT_LANG,
+            _t: Date.now() 
+        });
 
-                if (historyChanged || pointsChanged) {
-                    
-                    // 内部データを最新に書き換える
-                    currentUser.history = data.history;
-                    currentUser.points = data.points || 0;
+        if (data.success && Array.isArray(data.history)) {
+            const historyChanged = data.history.length !== currentUser.history.length;
+            const pointsChanged = data.points !== currentUser.points;
 
-                    // 今Heroで表示しているアイテムが消されていたら、Heroをリセットする
-                    if (selectedHeroItem) {
-                        const stillExists = currentUser.history.some(h => h.code === selectedHeroItem.code);
-                        if (!stillExists && currentHeroContext === 'owned') {
-                            selectedHeroItem = null;
-                        }
-                    }
+            if (historyChanged || pointsChanged) {
+                currentUser.history = data.history;
+                currentUser.points = data.points || 0;
 
-                    // 画面のポイント数や履歴を再描画して最新状態にする
-                    updateAccountUI();
-                    
-                    // 履歴の数が変わった（没収された・増えた）時だけストア画面も再構築する
-                    if (historyChanged) {
-                        fetchAvailableContent();
+                if (selectedHeroItem) {
+                    const stillExists = currentUser.history.some(h => h.code === selectedHeroItem.code);
+                    if (!stillExists && currentHeroContext === 'owned') {
+                        selectedHeroItem = null;
                     }
                 }
-            } else if (data.message === "Unauthorized" || data.message === "User not found") {
-                // ▼ 管理者にアカウントを削除された、またはセッションが切れた場合は即座に強制ログアウト
-                logout();
+
+                updateAccountUI();
+                
+                if (historyChanged) {
+                    fetchAvailableContent();
+                }
             }
-        } catch (e) {
-            // エラー時は何もしない（次の5秒後に再トライ）
+        } else if (data.message === "Unauthorized" || data.message === "User not found") {
+            logout();
         }
-    }, 5000);
-  function renderHistoryModal() {
+    } catch (e) {
+    }
+}, 5000);
+
+function renderHistoryModal() {
     const container = els.historyListContainer;
     container.innerHTML = '';
     const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja;
@@ -3898,25 +3649,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const imgUrl = (item.imageUrl && item.imageUrl.startsWith('http')) ? item.imageUrl : 'https://static.wixstatic.com/media/2f0694_38068f106089439b89c7902ef4fb3d2d~mv2.jpg';
         
-        // ==========================================
-        // ★ 修正ポイント：判定ロジックを正確にする
-        // ==========================================
-        // バックエンドがポイント購入時に発行する "STORE-BUY-" が含まれているかで判定
         const isPointPurchase = item.code && item.code.includes('STORE-BUY-');
         
         let priceValue = 0;
         let isCodeRedeemed = false;
 
         if (isPointPurchase) {
-            // ポイント購入の場合：DBの価格を表示、コードは隠す
             priceValue = item.price || 0;
             isCodeRedeemed = false;
         } else if (item.code) {
-            // 通常のコード引き換えの場合：価格を0ptにして、コードを表示
             priceValue = 0;
             isCodeRedeemed = true;
         } else {
-            // その他（コードがない場合など）
             priceValue = item.price || 0;
             isCodeRedeemed = false;
         }
@@ -3953,139 +3697,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
-}
-  function formatRegionalTime(dateObj, lang) {
-    let tz;
-    // 各言語ごとの地域タイムゾーンを設定
-    switch(lang) {
-        case 'ja': tz = 'Asia/Tokyo'; break;
-        case 'zh': tz = 'Asia/Shanghai'; break;
-        case 'zh-TW': tz = 'Asia/Taipei'; break;
-        case 'ko': tz = 'Asia/Seoul'; break;
-        case 'ru': tz = 'Europe/Moscow'; break;
-        case 'en': default: tz = 'America/New_York'; break; // 英語は基準としてニューヨーク時間を採用
-    }
-
-    try {
-        // 指定したタイムゾーンで日時パーツを抽出
-        const formatter = new Intl.DateTimeFormat('en-US', {
-            timeZone: tz,
-            year: 'numeric', month: '2-digit', day: '2-digit',
-            hour: '2-digit', minute: '2-digit', hour12: false
-        });
-        
-        const parts = formatter.formatToParts(dateObj);
-        const p = {};
-        parts.forEach(part => { p[part.type] = part.value; });
-
-        // Intlの仕様上、24時が'24'と返る場合があるため '00' に補正
-        let hr = p.hour;
-        if (hr === '24') hr = '00';
-
-        const mInt = parseInt(p.month, 10) - 1;
-        const enMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        const ruMonths = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
-
-        // 要求されたフォーマットで組み立て
-        switch(lang) {
-            case 'ja':
-            case 'zh':
-            case 'zh-TW':
-                return `${p.year}年${p.month}月${p.day}日 ${hr}:${p.minute}`;
-            case 'ko':
-                return `${p.year}년 ${p.month}월 ${p.day}일 ${hr}:${p.minute}`;
-            case 'ru':
-                return `${p.day} ${ruMonths[mInt]} ${p.year} г. ${hr}:${p.minute}`;
-            case 'en':
-            default:
-                return `${enMonths[mInt]} ${p.day}, ${p.year} ${hr}:${p.minute}`;
-        }
-    } catch (e) {
-        // ブラウザがタイムゾーンに未対応などの場合のフォールバック
-        return dateObj.toLocaleString();
-    }
-}
-
-function formatLocalTime(dateObj, lang) {
-    try {
-        // ★ timeZoneを指定しないことで、自動的に端末のローカルタイムが使われます
-        const formatter = new Intl.DateTimeFormat('en-US', {
-            year: 'numeric', month: '2-digit', day: '2-digit',
-            hour: '2-digit', minute: '2-digit', hour12: false
-        });
-        
-        const parts = formatter.formatToParts(dateObj);
-        const p = {};
-        parts.forEach(part => { p[part.type] = part.value; });
-
-        // 24時表記のブレを補正
-        let hr = p.hour;
-        if (hr === '24') hr = '00';
-
-        const mInt = parseInt(p.month, 10) - 1;
-        const enMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        const ruMonths = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
-
-        // 端末の時間を、選択中の言語フォーマットで出力
-        switch(lang) {
-            case 'ja':
-            case 'zh':
-            case 'zh-TW':
-                return `${p.year}年${p.month}月${p.day}日 ${hr}:${p.minute}`;
-            case 'ko':
-                return `${p.year}년 ${p.month}월 ${p.day}일 ${hr}:${p.minute}`;
-            case 'ru':
-                return `${p.day} ${ruMonths[mInt]} ${p.year} г. ${hr}:${p.minute}`;
-            case 'en':
-            default:
-                return `${enMonths[mInt]} ${p.day}, ${p.year} ${hr}:${p.minute}`;
-        }
-    } catch (e) {
-        return dateObj.toLocaleString();
-    }
-}
-
-function formatLocalTime(dateObj, lang) {
-    try {
-        // ★ timeZoneName: 'short' を追加して、端末のタイムゾーン略称（JST, EST等）を取得します
-        const formatter = new Intl.DateTimeFormat('en-US', {
-            year: 'numeric', month: '2-digit', day: '2-digit',
-            hour: '2-digit', minute: '2-digit', hour12: false,
-            timeZoneName: 'short' 
-        });
-        
-        const parts = formatter.formatToParts(dateObj);
-        const p = {};
-        parts.forEach(part => { p[part.type] = part.value; });
-
-        // 24時表記のブレを補正
-        let hr = p.hour;
-        if (hr === '24') hr = '00';
-
-        const mInt = parseInt(p.month, 10) - 1;
-        const enMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        const ruMonths = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
-
-        // ★ 自動取得したタイムゾーン名（JST, EST, GMT+9 など）
-        const tz = p.timeZoneName ? ` ${p.timeZoneName}` : '';
-
-        // 端末の時間を、選択中の言語フォーマット ＋ タイムゾーン名 で出力
-        switch(lang) {
-            case 'ja':
-            case 'zh':
-            case 'zh-TW':
-                return `${p.year}年${p.month}月${p.day}日 ${hr}:${p.minute}${tz}`;
-            case 'ko':
-                return `${p.year}년 ${p.month}월 ${p.day}일 ${hr}:${p.minute}${tz}`;
-            case 'ru':
-                return `${p.day} ${ruMonths[mInt]} ${p.year} г. ${hr}:${p.minute}${tz}`;
-            case 'en':
-            default:
-                return `${enMonths[mInt]} ${p.day}, ${p.year} ${hr}:${p.minute}${tz}`;
-        }
-    } catch (e) {
-        return dateObj.toLocaleString();
-    }
 }
 </script>
 </body>
