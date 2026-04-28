@@ -919,7 +919,6 @@ button, input, textarea { font-family: var(--font-stack); }
 
     /* スマホメニューなど元々のスマホ用CSS */
     .mobile-menu-trigger { display: none !important; }
-    .rgl-brand { order: 1; margin-left: 12px; }
     .mobile-menu-trigger { order: 1; }
     .mobile-nav-overlay { display: flex; flex-direction: column; position: fixed; inset: 0; background: var(--bg-color); z-index: 10001; padding: 40px; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); visibility: hidden; }
     .mobile-nav-overlay.active { transform: translateX(0); visibility: visible; }
@@ -933,10 +932,45 @@ button, input, textarea { font-family: var(--font-stack); }
     .mobile-nav-overlay.active .mobile-menu-footer { opacity: 1; transform: translateY(0); }
     .mobile-menu-footer .lang-list { position: absolute; bottom: 60px; left: 0; width: 100%; display: none; }
     .mobile-menu-footer .lang-list.open { display: block; animation: fadeInUp 0.3s ease; }
+    .capsule-menu {
+        position: fixed !important;
+        bottom: 30px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        width: 260px !important;
+        margin: 0 !important;
+        z-index: 9999 !important;
+        background: rgba(255, 255, 255, 0.85) !important;
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(128, 128, 128, 0.2) !important;
+        padding: 8px !important;
+        display: flex !important; /* 要素が消えないように念のため追加 */
+    }
+
+    [data-theme="dark"] .capsule-menu {
+        background: rgba(30, 30, 30, 0.85) !important;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .mobile-store-view {
+        padding-bottom: 100px !important; /* メニューにコンテンツが隠れないように余白追加 */
+    }
+  .rgl-brand-area { 
+        padding: 20px 20px 0 20px; /* カプセルメニューの上の行として配置 */
+        display: flex; align-items: center; justify-content: flex-start; gap: 8px; width: 100%; 
+    }
+    .rgl-brand { order: 1; margin-left: 0; }
+    .mobile-menu-trigger { display: none !important; }
     
     .rgl-wrapper { flex-direction: column; }
     .rgl-sidebar { width: 100%; height: auto; padding: 0; border-right: none; border-bottom: 1px solid rgba(128,128,128,0.1); overflow: visible; position: relative; z-index: 100; background-color: var(--sidebar-bg); }
-    .rgl-brand-area { padding: 16px 12px; display: flex; align-items: center; justify-content: flex-start; gap: 8px; width: 100%; padding-right: 120px; }
+    .rgl-brand-area { 
+        padding: 20px 20px 0 20px; /* カプセルメニューの上の行として配置 */
+        display: flex; align-items: center; justify-content: flex-start; gap: 8px; width: 100%; 
+    }
     
     /* サイドバー内のコンテンツ非表示 */
     .rgl-scroll-content, .rgl-bottom-controls { display: none !important; } 
