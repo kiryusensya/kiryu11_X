@@ -1005,6 +1005,13 @@ button, input, textarea { font-family: var(--font-stack); }
     background: rgba(50, 50, 50, 0.8) !important;
 }
 
+/* ★ PC用の購入ボタン等に追加されたスマホ用クラスを無効化（PC版の完全保護） */
+.mobile-store-view { display: none !important; }
+
+/* ★ スマホ用表示のオーバーライド（PC用デザインは一切変えずにスマホだけ変える） */
+.mobile-menu-trigger { display: none; }
+.mobile-nav-overlay { display: none; }
+
 @media (max-width: 768px) {
     /* ========================================= */
     /* 1. 全体レイアウト・ヘッダー・メニュー調整 */
@@ -1080,7 +1087,7 @@ button, input, textarea { font-family: var(--font-stack); }
     /* 2. ログイン状態とストア表示の切り替え */
     /* ========================================= */
     body.is-logged-in .rgl-hero { display: none !important; }
-    body.is-logged-in .mobile-store-view { display: block !important; padding: 20px; position: relative; z-index: 10; }
+    body.is-logged-in .mobile-store-view { display: block !important; padding: 20px; padding-bottom: 100px !important; position: relative; z-index: 10; }
     body:not(.is-logged-in) .rgl-hero { display: flex !important; }
     body:not(.is-logged-in) .mobile-store-view { display: none !important; }
     
@@ -1102,9 +1109,6 @@ button, input, textarea { font-family: var(--font-stack); }
     .mobile-store-btn:active { transform: scale(0.95); }
     .mobile-store-btn.is-owned-download { background: rgba(0, 125, 255, 0.1); color: var(--primary); border: 1px solid rgba(0, 125, 255, 0.3); cursor: pointer; }
     .mobile-store-btn.is-owned-download:active { background: rgba(0, 125, 255, 0.2); }
-
-    /* メニューにコンテンツが隠れないように余白追加 */
-    .mobile-store-view { padding-bottom: 100px !important; }
 
     /* ========================================= */
     /* 4. モーダル画面のスマホ最適化 */
