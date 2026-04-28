@@ -1034,13 +1034,19 @@ button, input, textarea { font-family: var(--font-stack); }
 
     /* 右上のアイコンエリア（テーマ・アカウント） */
     .rgl-header { 
-        position: absolute !important; 
-        top: 10px !important; right: 16px !important; 
-        width: auto; height: 50px !important; 
-        background: transparent !important; padding: 0 !important; 
-        z-index: 200; display: flex !important; 
-        align-items: center; justify-content: flex-end; 
-        gap: 10px; pointer-events: none; 
+        position: fixed !important; 
+        top: 15px !important; 
+        right: 16px !important; 
+        width: auto; 
+        height: 44px !important; 
+        background: transparent !important; 
+        padding: 0 !important; 
+        z-index: 9999 !important; 
+        display: flex !important; 
+        align-items: center; 
+        justify-content: flex-end; 
+        gap: 10px; 
+        pointer-events: none; 
     }
     .rgl-header > * { pointer-events: auto; }
     .rgl-tabs { display: none !important; }
