@@ -3,53 +3,80 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>kiryu10 // Redeem Center</title>
+<title>kiryu10 // Activation Center</title>
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800&family=HarmonyOS+Sans:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
+/* --- FONT FACE DEFINITIONS (from index.html) --- */
+@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Medium.woff') format('woff'); font-weight: 500; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+
 /* --- THEME VARIABLES --- */
 :root {
-  --primary: #007DFF;
-  --bg-color: #F1F3F5;
-  --card-bg: rgba(255, 255, 255, 0.7);
-  --card-border: rgba(255, 255, 255, 0.6);
-  --modal-text-main: #000000;
-  --modal-text-sub: #666666;
-  --dropdown-bg: rgba(255, 255, 255, 0.95);
-  --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
-  --shadow-soft: 0 20px 50px rgba(0,0,0,0.1);
-  --error-color: #FF3B30;
-  --success-color: #04CF22;
-}
-
-[data-theme="dark"] {
-  --bg-color: #121212;
-  --card-bg: rgba(30, 30, 30, 0.6);
-  --card-border: rgba(255, 255, 255, 0.1);
+  --primary: #00E5FF;
+  --primary-glow: rgba(0, 229, 255, 0.6);
+  --bg-color: #0A0A0A;
+  --card-bg: rgba(15, 15, 15, 0.6);
+  --card-border: rgba(0, 229, 255, 0.2);
   --modal-text-main: #FFFFFF;
-  --modal-text-sub: #A0A0A0;
-  --dropdown-bg: rgba(20, 20, 20, 0.98);
-  --shadow-soft: 0 20px 50px rgba(0,0,0,0.5);
-  --error-color: #FF453A;
+  --modal-text-sub: #8892B0;
+  --dropdown-bg: rgba(10, 10, 10, 0.95);
+  --error-color: #FF2D55;
+  --error-glow: rgba(255, 45, 85, 0.6);
+  --success-color: #30D158;
+  --success-glow: rgba(48, 209, 88, 0.6);
+  --spring-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
 }
 
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+:root:lang(ja) { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
+:root:lang(en) { --font-stack: 'HarmonyOS Sans', sans-serif; }
+:root:lang(zh) { --font-stack: 'HarmonyOS Sans SC', 'Microsoft YaHei', sans-serif; }
+:root:lang(zh-TW) { --font-stack: 'HarmonyOS Sans TC', 'Microsoft JhengHei', sans-serif; }
+:root:lang(ko) { --font-stack: 'HarmonyOS Sans', 'Noto Sans KR', sans-serif; }
+:root:lang(ru) { --font-stack: 'HarmonyOS Sans', sans-serif; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
 body {
   margin: 0; padding: 0;
   background-color: var(--bg-color);
   color: var(--modal-text-main);
   font-family: var(--font-stack);
-  height: 100vh; display: flex; flex-direction: column;
-  overflow: hidden; transition: background-color 0.5s ease;
+  height: 100vh; height: 100dvh;
+  display: flex; flex-direction: column;
+  overflow: hidden;
 }
 
-/* Background Particle Effects */
+/* Background Effects */
+.bg-mesh {
+  position: fixed; inset: 0; z-index: 0; opacity: 0.15; pointer-events: none;
+  background-image: 
+    linear-gradient(rgba(0, 229, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 255, 0.1) 1px, transparent 1px);
+  background-size: 30px 30px;
+  transform: perspective(500px) rotateX(60deg) translateY(-100px) translateZ(-200px);
+  animation: meshMove 20s linear infinite;
+}
+@keyframes meshMove { 0% { background-position: 0 0; } 100% { background-position: 0 30px; } }
+
 #particleCanvas {
   position: fixed; inset: 0; width: 100%; height: 100%;
-  z-index: 0; opacity: 0.4; pointer-events: none; filter: blur(60px);
+  z-index: 1; opacity: 0.6; pointer-events: none; filter: blur(4px);
 }
 
 /* --- HEADER --- */
@@ -57,35 +84,38 @@ header {
   position: relative; z-index: 100;
   padding: 20px 40px; display: flex; justify-content: space-between; align-items: center;
 }
-.brand { font-size: 24px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+.brand { 
+  font-size: 24px; font-weight: 800; display: flex; align-items: center; gap: 10px; 
+  text-shadow: 0 0 15px var(--primary-glow); letter-spacing: 1px;
+}
 .header-actions { display: flex; gap: 15px; align-items: center; }
 
 .icon-btn {
   width: 44px; height: 44px; border-radius: 50%;
-  background: var(--card-bg); border: 1px solid var(--card-border);
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; transition: 0.3s; color: var(--modal-text-main);
   backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
 }
-.icon-btn:hover { transform: scale(1.1); }
+.icon-btn:hover { background: rgba(0, 229, 255, 0.1); border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); transform: scale(1.05); }
 
 /* --- DROPDOWNS --- */
 .dropdown-menu {
   position: absolute; top: 75px; right: 40px; width: 300px;
   background: var(--dropdown-bg); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
   border: 1px solid var(--card-border); border-radius: 20px;
-  box-shadow: var(--shadow-soft); padding: 20px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 20px rgba(0, 229, 255, 0.1); padding: 20px;
   z-index: 2000; opacity: 0; transform: translateY(-10px); pointer-events: none;
-  transition: 0.3s cubic-bezier(0.33, 1, 0.68, 1);
+  transition: 0.3s var(--spring-ease);
 }
 .dropdown-menu.open { opacity: 1; transform: translateY(0); pointer-events: auto; }
 .lang-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 5px; }
 .lang-list li { padding: 12px 15px; cursor: pointer; border-radius: 10px; font-weight: 700; font-size: 14px; transition: 0.2s;}
-.lang-list li:hover { background: rgba(128,128,128,0.1); }
+.lang-list li:hover { background: rgba(255,255,255,0.1); color: var(--primary); }
 
-.account-info { border-bottom: 1px solid rgba(128,128,128,0.2); padding-bottom: 15px; margin-bottom: 15px; }
+.account-info { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 15px; }
 .mini-user-id { font-size: 16px; font-weight: 800; word-break: break-all; display: block; margin-bottom: 5px;}
-.pts-display { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 5px; color: var(--primary); }
+.pts-display { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 5px; color: var(--primary); text-shadow: 0 0 10px var(--primary-glow); }
 
 .menu-btn {
   width: 100%; background: transparent; border: none; text-align: left;
@@ -93,8 +123,9 @@ header {
   cursor: pointer; border-radius: 10px; display: flex; justify-content: space-between;
   align-items: center; transition: 0.2s; font-family: var(--font-stack);
 }
-.menu-btn:hover { background: rgba(128,128,128,0.1); }
-.menu-btn.logout { color: var(--error-color); margin-top: 10px; border-top: 1px solid rgba(128,128,128,0.1); border-radius: 0 0 10px 10px; padding-top: 15px;}
+.menu-btn:hover { background: rgba(255,255,255,0.1); }
+.menu-btn.logout { color: var(--error-color); margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); border-radius: 0 0 10px 10px; padding-top: 15px;}
+.menu-btn.logout:hover { background: rgba(255, 45, 85, 0.1); box-shadow: 0 0 10px var(--error-glow); }
 
 /* --- MAIN REDEEM AREA --- */
 main {
@@ -102,121 +133,159 @@ main {
   position: relative; z-index: 10; padding: 20px; overflow-y: auto;
 }
 .redeem-card {
-  background: var(--card-bg); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
+  background: var(--card-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
   border: 1px solid var(--card-border); border-radius: 32px;
-  padding: 50px 40px; width: 100%; max-width: 600px; text-align: center;
-  box-shadow: var(--shadow-soft); position: relative; overflow: hidden;
-  transition: max-width 0.4s ease;
+  padding: 50px 40px; width: 100%; max-width: 550px; text-align: center;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 0 20px rgba(255,255,255,0.05); 
+  position: relative; overflow: hidden;
+  transition: max-width 0.5s var(--spring-ease);
 }
-.redeem-card.is-wide { max-width: 800px; }
+.redeem-card::before {
+  content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+  background: radial-gradient(circle, var(--primary-glow) 0%, transparent 50%);
+  opacity: 0.1; pointer-events: none; z-index: 0;
+}
+.redeem-card.is-wide { max-width: 850px; }
 
 /* Phase Containers */
-.phase-container { display: none; opacity: 0; transition: opacity 0.4s ease; flex-direction: column; }
+.phase-container { display: none; opacity: 0; transition: opacity 0.4s ease; flex-direction: column; position: relative; z-index: 2; }
 .phase-container.active { display: flex; opacity: 1; }
 
-.redeem-title { font-size: 32px; font-weight: 800; margin: 0 0 15px; }
-.redeem-desc { font-size: 15px; color: var(--modal-text-sub); margin: 0 0 40px; line-height: 1.5; }
+.key-icon-wrapper {
+  width: 80px; height: 80px; margin: 0 auto 20px;
+  background: rgba(0, 229, 255, 0.1); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--primary); box-shadow: 0 0 20px var(--primary-glow);
+}
+.key-icon-wrapper i { color: var(--primary); width: 36px; height: 36px; }
 
-/* Input Phase */
+.redeem-title { font-size: 32px; font-weight: 800; margin: 0 0 10px; letter-spacing: 1px; }
+.redeem-desc { font-size: 14px; color: var(--modal-text-sub); margin: 0 0 40px; line-height: 1.6; }
+
+/* Input Group */
+.input-group { position: relative; margin-bottom: 30px; }
 .code-input {
   width: 100%; height: 70px; border-radius: 35px;
-  background: rgba(128,128,128,0.15); border: 2px solid transparent;
-  text-align: center; font-size: 22px; font-weight: 800; letter-spacing: 2px;
-  color: var(--modal-text-main); outline: none; transition: 0.3s; margin-bottom: 20px;
-  font-family: var(--font-stack);
+  background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2);
+  text-align: center; font-size: 24px; font-weight: 800; letter-spacing: 3px;
+  color: var(--primary); outline: none; transition: 0.3s;
+  font-family: var(--font-stack); text-transform: uppercase;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
 }
-.code-input:focus { border-color: var(--primary); background: rgba(0,125,255,0.05); }
+.code-input::placeholder { color: rgba(255,255,255,0.2); font-weight: 500; letter-spacing: 1px; }
+.code-input:focus { 
+  border-color: var(--primary); background: rgba(0, 229, 255, 0.05); 
+  box-shadow: 0 0 20px var(--primary-glow), inset 0 0 10px rgba(0, 229, 255, 0.2); 
+}
 
 .btn-primary {
   width: 100%; height: 60px; border-radius: 30px; border: none;
-  background: var(--modal-text-main); color: var(--bg-color);
+  background: linear-gradient(135deg, var(--primary) 0%, #009DFF 100%); color: #000;
   font-size: 18px; font-weight: 800; cursor: pointer; transition: 0.3s;
   display: flex; align-items: center; justify-content: center; gap: 10px;
-  font-family: var(--font-stack); box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  font-family: var(--font-stack); box-shadow: 0 0 20px var(--primary-glow);
+  letter-spacing: 1px;
 }
-[data-theme="dark"] .btn-primary { background: #fff; color: #000; }
-.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(0,0,0,0.15); }
+.btn-primary:hover { box-shadow: 0 0 30px var(--primary-glow); transform: translateY(-2px); filter: brightness(1.1); }
 .btn-primary:active { transform: translateY(1px); }
-.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.btn-primary:disabled { background: rgba(255,255,255,0.1); color: #666; box-shadow: none; cursor: not-allowed; transform: none; filter: none; border: 1px solid rgba(255,255,255,0.1);}
 
 .btn-outline {
-  width: 100%; height: 60px; border-radius: 30px; border: 2px solid var(--modal-text-main);
-  background: transparent; color: var(--modal-text-main);
+  width: 100%; height: 60px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(0,0,0,0.3); color: var(--modal-text-main);
   font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.3s;
   font-family: var(--font-stack);
 }
-.btn-outline:hover { background: rgba(128,128,128,0.1); }
+.btn-outline:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
 
 /* Split Layout for Preview/Success/Error */
 .split-layout { display: flex; gap: 40px; text-align: left; align-items: stretch; }
-.split-left { width: 320px; flex-shrink: 0; display: flex; flex-direction: column; }
-.split-left img { width: 100%; border-radius: 20px; object-fit: cover; background: rgba(128,128,128,0.2); }
+.split-left { width: 340px; flex-shrink: 0; display: flex; flex-direction: column; position: relative; }
+.split-left img { width: 100%; height: 100%; border-radius: 20px; object-fit: cover; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
 .split-right { flex: 1; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
 
-.content-label { font-size: 14px; font-weight: 700; color: var(--modal-text-sub); margin-bottom: 8px; }
-.content-title { font-size: 28px; font-weight: 800; margin: 0 0 20px; line-height: 1.3; word-break: break-word;}
-.info-box { background: rgba(128,128,128,0.1); border-radius: 16px; padding: 20px; margin-bottom: 24px; font-size: 14px; font-weight: 500; line-height: 1.5; white-space: pre-wrap;}
-.info-box.error { background: rgba(255, 59, 48, 0.1); border: 1px solid rgba(255, 59, 48, 0.3); color: var(--error-color); }
-.time-stamp { font-size: 13px; font-weight: 700; opacity: 0.6; margin-top: 15px; }
+.content-label { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+.content-title { font-size: 26px; font-weight: 800; margin: 0 0 20px; line-height: 1.4; word-break: break-word; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+.info-box { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 20px; margin-bottom: 25px; font-size: 14px; font-weight: 500; line-height: 1.6; white-space: pre-wrap;}
+.info-box.error { background: rgba(255, 45, 85, 0.1); border-color: var(--error-color); color: #fff; box-shadow: inset 0 0 20px rgba(255, 45, 85, 0.2); }
+.time-stamp { font-size: 12px; font-weight: 700; opacity: 0.5; margin-top: 15px; letter-spacing: 1px; }
 
 .action-row { display: flex; gap: 15px; margin-top: auto; }
 .action-row .btn-outline { flex: 1; }
 .action-row .btn-primary { flex: 2; }
 
+/* Status Colors for phases */
+#phaseSuccess .redeem-title { color: var(--success-color); text-shadow: 0 0 20px var(--success-glow); }
+#phaseSuccess .content-label { color: var(--success-color); }
+#phaseError .redeem-title { color: var(--error-color); text-shadow: 0 0 20px var(--error-glow); }
+
+/* Mobile Optimization */
 @media (max-width: 768px) {
   header { padding: 15px 20px; }
-  .redeem-card { padding: 40px 20px; border-radius: 24px; border: none; background: transparent; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none;}
+  .brand { font-size: 20px; }
+  .icon-btn { width: 38px; height: 38px; }
+  main { padding: 15px; align-items: flex-start; }
+  .redeem-card { padding: 30px 20px; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.9); }
+  .key-icon-wrapper { width: 60px; height: 60px; }
+  .key-icon-wrapper i { width: 28px; height: 28px; }
+  .redeem-title { font-size: 24px; }
+  .code-input { height: 60px; font-size: 18px; border-radius: 30px; }
+  .btn-primary, .btn-outline { height: 50px; font-size: 15px; border-radius: 25px; }
+  
   .split-layout { flex-direction: column; gap: 20px; }
   .split-left { width: 100%; }
-  .split-left img { height: 200px; }
-  .redeem-title { font-size: 26px; }
-  .content-title { font-size: 22px; }
+  .split-left img { height: 180px; }
+  .content-title { font-size: 20px; }
   .action-row { flex-direction: column-reverse; }
+  .dropdown-menu { width: 280px; right: 20px; top: 65px; }
 }
 
 /* Modals for Account/History */
 .sys-modal {
-  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(10px);
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
   z-index: 9999; display: flex; justify-content: center; align-items: center;
   opacity: 0; pointer-events: none; transition: 0.4s;
 }
 .sys-modal.active { opacity: 1; pointer-events: auto; }
 .sys-modal-content {
-  background: var(--card-bg); backdrop-filter: blur(40px);
+  background: var(--card-bg); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
   border: 1px solid var(--card-border); border-radius: 24px;
   padding: 40px; width: 90%; max-width: 500px; position: relative;
-  transform: translateY(30px) scale(0.95); transition: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: var(--shadow-soft); max-height: 85vh; display: flex; flex-direction: column;
+  transform: translateY(30px) scale(0.95); transition: 0.4s var(--spring-ease);
+  box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 0 20px rgba(255,255,255,0.05); 
+  max-height: 85vh; display: flex; flex-direction: column;
 }
 .sys-modal.active .sys-modal-content { transform: translateY(0) scale(1); }
-.close-modal { position: absolute; top: 20px; right: 20px; cursor: pointer; opacity: 0.6; transition: 0.2s; }
-.close-modal:hover { opacity: 1; }
+.close-modal { position: absolute; top: 20px; right: 20px; cursor: pointer; opacity: 0.5; transition: 0.2s; }
+.close-modal:hover { opacity: 1; color: var(--primary); }
 
 .form-group { margin-bottom: 15px; text-align: left; }
-.form-input { width: 100%; height: 50px; border-radius: 12px; border: 1px solid rgba(128,128,128,0.3); background: rgba(128,128,128,0.05); padding: 0 15px; color: var(--modal-text-main); font-family: inherit; font-size: 15px; outline: none;}
-.form-input:focus { border-color: var(--primary); }
+.form-input { 
+  width: 100%; height: 50px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); 
+  background: rgba(0,0,0,0.5); padding: 0 15px; color: #fff; font-family: inherit; font-size: 15px; outline: none; transition: 0.3s;
+}
+.form-input:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(0, 229, 255, 0.2); }
 
 .history-list { overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 5px; }
-.history-item { background: rgba(128,128,128,0.05); border: 1px solid rgba(128,128,128,0.1); border-radius: 16px; padding: 15px; display: flex; gap: 15px; align-items: center; }
-.history-item img { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; }
+.history-item { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 15px; display: flex; gap: 15px; align-items: center; transition: 0.2s;}
+.history-item:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); }
+.history-item img { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); }
 .history-info { flex: 1; min-width: 0; }
-.history-title { font-weight: 800; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 5px;}
-.history-meta { font-size: 12px; font-weight: 700; opacity: 0.6; display: flex; justify-content: space-between;}
+.history-title { font-weight: 800; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 5px; color: #fff;}
+.history-meta { font-size: 11px; font-weight: 700; opacity: 0.6; display: flex; justify-content: space-between; letter-spacing: 0.5px;}
 
-.loading-spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(128,128,128,0.2); border-top: 3px solid currentColor; border-radius: 50%; animation: spin 0.8s linear infinite; }
+.loading-spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid rgba(255,255,255,0.2); border-top: 3px solid currentColor; border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 
+<div class="bg-mesh"></div>
 <canvas id="particleCanvas"></canvas>
 
 <header>
-  <div class="brand"><i data-lucide="graduation-cap"></i> kiryu10</div>
+  <div class="brand"><i data-lucide="scan-line"></i> kiryu10</div>
   <div class="header-actions">
-    <button class="icon-btn" id="themeToggle" title="Toggle Theme">
-      <i data-lucide="moon" id="themeIcon"></i>
-    </button>
     <div style="position: relative;">
       <button class="icon-btn" id="langToggle" title="Language">
         <i data-lucide="globe"></i>
@@ -234,17 +303,17 @@ main {
     </div>
     <div style="position: relative;">
       <button class="icon-btn" id="accountToggle" title="Account">
-        <i data-lucide="user"></i>
+        <i data-lucide="fingerprint"></i>
       </button>
       <div class="dropdown-menu" id="accountMenu">
         <div class="account-info">
           <span class="content-label" data-translate="label_logged_in">USER ID</span>
           <span class="mini-user-id" id="dispUserId">-</span>
-          <span class="pts-display"><i data-lucide="coins" style="width:16px;height:16px;"></i> <span id="dispPoints">0</span> pt</span>
+          <span class="pts-display"><i data-lucide="zap" style="width:14px;height:14px;"></i> <span id="dispPoints">0</span> pt</span>
         </div>
-        <button class="menu-btn" id="btnHistory"><span data-translate="btn_history">利用履歴</span> <i data-lucide="history" style="width:18px;"></i></button>
-        <button class="menu-btn" id="btnPassword"><span data-translate="modal_acc_change_pass">パスワード変更</span> <i data-lucide="lock" style="width:18px;"></i></button>
-        <button class="menu-btn logout" id="btnLogout"><span data-translate="btn_logout">ログアウト</span> <i data-lucide="log-out" style="width:18px;"></i></button>
+        <button class="menu-btn" id="btnHistory"><span data-translate="btn_history">利用履歴</span> <i data-lucide="history" style="width:16px;"></i></button>
+        <button class="menu-btn" id="btnPassword"><span data-translate="modal_acc_change_pass">パスワード変更</span> <i data-lucide="key-round" style="width:16px;"></i></button>
+        <button class="menu-btn logout" id="btnLogout"><span data-translate="btn_logout">ログアウト</span> <i data-lucide="power" style="width:16px;"></i></button>
       </div>
     </div>
   </div>
@@ -254,6 +323,7 @@ main {
   <div class="redeem-card" id="mainCard">
     
     <div class="phase-container active" id="phaseInput">
+      <div class="key-icon-wrapper"><i data-lucide="key"></i></div>
       <h1 class="redeem-title" data-translate="modal_title">アクティベーション</h1>
       <p class="redeem-desc" data-translate="modal_sub">コードを利用するには、以下の入力欄に入力してください。</p>
       
@@ -262,9 +332,9 @@ main {
       </div>
       
       <button class="btn-primary" id="btnCheck">
-        <span data-translate="modal_btn_auth">確認</span>
+        <i data-lucide="unlock" style="width:20px;height:20px;"></i> <span data-translate="modal_btn_auth">確認</span>
       </button>
-      <div id="inputErrorMsg" style="color: var(--error-color); font-weight: 700; margin-top: 15px; font-size: 14px; min-height: 20px;"></div>
+      <div id="inputErrorMsg" style="color: var(--error-color); font-weight: 700; margin-top: 20px; font-size: 14px; min-height: 20px; text-shadow: 0 0 10px var(--error-glow);"></div>
     </div>
 
     <div class="phase-container" id="phasePreview">
@@ -274,32 +344,34 @@ main {
           <img id="prevImg" src="" alt="Preview">
         </div>
         <div class="split-right">
-          <p class="content-label" data-translate="preview_desc">続行すると以下のコンテンツを受け取ります:</p>
+          <p class="content-label"><i data-lucide="info" style="width:14px; vertical-align:text-bottom;"></i> <span data-translate="preview_desc">続行すると以下のコンテンツを受け取ります:</span></p>
           <h3 class="content-title" id="prevTitle">Title</h3>
           <div class="info-box" id="prevWarning" style="display:none;"></div>
           <div class="action-row">
             <button class="btn-outline" onclick="resetToInput()" data-translate="btn_close">キャンセル</button>
-            <button class="btn-primary" id="btnRedeem"><span data-translate="btn_continue">認証する</span></button>
+            <button class="btn-primary" id="btnRedeem"><i data-lucide="check-circle" style="width:18px;"></i> <span data-translate="btn_continue">認証する</span></button>
           </div>
         </div>
       </div>
     </div>
 
     <div class="phase-container" id="phaseSuccess">
-      <h2 class="redeem-title" style="color: var(--success-color);" data-translate="success_title_final">認証成功!!</h2>
+      <h2 class="redeem-title" data-translate="success_title_final">認証成功!!</h2>
       <div class="split-layout">
         <div class="split-left">
           <img id="succImg" src="" alt="Success">
         </div>
         <div class="split-right">
-          <p class="content-label" data-translate="success_desc">以下のコンテンツが有効になりました:</p>
+          <p class="content-label"><i data-lucide="check-square" style="width:14px; vertical-align:text-bottom;"></i> <span data-translate="success_desc">以下のコンテンツが有効になりました:</span></p>
           <h3 class="content-title" id="succTitle">Title</h3>
           <div class="info-box">
             <span id="succMsg"></span>
             <div class="time-stamp" id="succTime"></div>
           </div>
           <div class="action-row" style="flex-direction: column;">
-            <a href="#" class="btn-primary" id="btnDownload" target="_blank" style="text-decoration:none;"><span data-translate="btn_download">ダウンロード</span> <i data-lucide="download" style="width:18px;"></i></a>
+            <a href="#" class="btn-primary" id="btnDownload" target="_blank" style="text-decoration:none;">
+              <span data-translate="btn_download">ダウンロード</span> <i data-lucide="download" style="width:18px;"></i>
+            </a>
             <button class="btn-outline" onclick="resetToInput()" data-translate="btn_close">閉じる</button>
           </div>
         </div>
@@ -307,15 +379,16 @@ main {
     </div>
 
     <div class="phase-container" id="phaseError">
-      <h2 class="redeem-title" style="color: var(--error-color);">⚠ <span data-translate="error_title_prefix">エラー</span> <span id="errCode"></span></h2>
+      <h2 class="redeem-title">⚠ <span data-translate="error_title_prefix">エラー</span> <span id="errCode"></span></h2>
       <div class="split-layout">
         <div class="split-right">
+          <p class="content-label" style="color:var(--error-color);"><i data-lucide="alert-triangle" style="width:14px; vertical-align:text-bottom;"></i> ACCESS DENIED</p>
           <h3 class="content-title" id="errTitle">Error Title</h3>
           <div class="info-box error">
             <span id="errMsg"></span>
             <div class="time-stamp" id="errTime" style="color: var(--error-color);"></div>
           </div>
-          <button class="btn-primary" onclick="resetToInput()" style="background: var(--error-color);" data-translate="btn_close">閉じる</button>
+          <button class="btn-primary" onclick="resetToInput()" style="background: var(--error-color); box-shadow: 0 0 20px var(--error-glow); color:#fff;" data-translate="btn_close">閉じる</button>
         </div>
       </div>
     </div>
@@ -326,7 +399,9 @@ main {
 <div class="sys-modal" id="modHistory">
   <div class="sys-modal-content">
     <i data-lucide="x" class="close-modal" onclick="closeModal('modHistory')"></i>
-    <h2 style="margin:0 0 20px; font-size: 22px; font-weight:800;" data-translate="modal_history_title">利用履歴</h2>
+    <h2 style="margin:0 0 20px; font-size: 22px; font-weight:800; display:flex; align-items:center; gap:8px;">
+      <i data-lucide="history"></i> <span data-translate="modal_history_title">利用履歴</span>
+    </h2>
     <div class="history-list" id="historyList"></div>
   </div>
 </div>
@@ -334,7 +409,9 @@ main {
 <div class="sys-modal" id="modPass">
   <div class="sys-modal-content" style="max-width: 400px;">
     <i data-lucide="x" class="close-modal" onclick="closeModal('modPass')"></i>
-    <h2 style="margin:0 0 20px; font-size: 22px; font-weight:800;" data-translate="modal_acc_change_pass">パスワード変更</h2>
+    <h2 style="margin:0 0 20px; font-size: 22px; font-weight:800; display:flex; align-items:center; gap:8px;">
+      <i data-lucide="key-round"></i> <span data-translate="modal_acc_change_pass">パスワード変更</span>
+    </h2>
     <div class="form-group">
       <input type="password" id="passOld" class="form-input" placeholder="現在のパスワード">
     </div>
@@ -355,7 +432,7 @@ let CURRENT_LANG = "ja";
 let currentUser = null; 
 let currentContentData = {};
 
-// Translations Dictionary (Kept intact)
+// Translations Dictionary
 const TRANSLATIONS={
  ja:{
   modal_title:"コード引き換え",modal_sub:"コードを利用するには、以下の入力欄に入力してください。", modal_btn_auth:"確認",
@@ -470,7 +547,7 @@ async function safeFetch(bodyObj) {
 // Initialization
 document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
-    initThemeAndParticles();
+    initCanvasParticles();
     
     // Auth Check: Force Redirect if not logged in
     const sUser = localStorage.getItem('user_session_identity');
@@ -570,7 +647,6 @@ function showPhase(phaseId, isWide = false) {
     setTimeout(() => {
         const target = gId(phaseId);
         target.classList.add('active');
-        // Force reflow
         void target.offsetWidth; 
         target.style.opacity = '1';
         
@@ -584,7 +660,8 @@ function resetToInput() {
     gId('activationCode').value = '';
     gId('activationCode').disabled = false;
     gId('btnCheck').disabled = false;
-    gId('btnCheck').innerHTML = `<span data-translate="modal_btn_auth">${TRANSLATIONS[CURRENT_LANG].modal_btn_auth}</span>`;
+    gId('btnCheck').innerHTML = `<i data-lucide="unlock" style="width:20px;height:20px;"></i> <span data-translate="modal_btn_auth">${TRANSLATIONS[CURRENT_LANG].modal_btn_auth}</span>`;
+    lucide.createIcons();
     gId('inputErrorMsg').textContent = '';
     showPhase('phaseInput', false);
     setTimeout(() => gId('activationCode').focus(), 400);
@@ -618,7 +695,8 @@ async function processCodeCheck(code) {
         showPhase('phasePreview', true);
     } else {
         btn.disabled = false; gId('activationCode').disabled = false;
-        btn.innerHTML = `<span data-translate="modal_btn_auth">${t.modal_btn_auth}</span>`;
+        btn.innerHTML = `<i data-lucide="unlock" style="width:20px;height:20px;"></i> <span data-translate="modal_btn_auth">${t.modal_btn_auth}</span>`;
+        lucide.createIcons();
         
         const msg = (d.message||"").toLowerCase();
         if(msg.includes('used')) errObj.textContent = t.msg_used;
@@ -673,7 +751,8 @@ async function processCodeRedeem() {
         showPhase('phaseError', true);
     }
     btn.disabled = false;
-    btn.innerHTML = `<span data-translate="btn_continue">${t.btn_continue}</span>`;
+    btn.innerHTML = `<i data-lucide="check-circle" style="width:18px;"></i> <span data-translate="btn_continue">${t.btn_continue}</span>`;
+    lucide.createIcons();
 }
 
 // User Data Sync
@@ -746,27 +825,8 @@ async function handlePasswordChange() {
     btn.disabled = false; btn.innerHTML = `<span data-translate="modal_acc_btn_change">${t.modal_acc_btn_change}</span>`;
 }
 
-// Theme
-function initThemeAndParticles() {
-    const htmlEl = document.documentElement;
-    const btn = gId('themeToggle');
-    const icon = gId('themeIcon');
-    let hue = 210;
-    
-    function applyTheme(th) {
-        htmlEl.setAttribute('data-theme', th);
-        icon.setAttribute('data-lucide', th === 'light' ? 'sun' : 'moon');
-        hue = th === 'light' ? 210 : 220;
-        lucide.createIcons();
-    }
-    const saved = localStorage.getItem('user_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    applyTheme(saved);
-    
-    btn.addEventListener('click', () => {
-        const next = htmlEl.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-        applyTheme(next); localStorage.setItem('user_theme', next);
-    });
-
+// Particle Canvas Animation
+function initCanvasParticles() {
     const cvs = gId('particleCanvas'); const ctx = cvs.getContext('2d');
     const resize = () => { cvs.width = innerWidth; cvs.height = innerHeight; };
     window.addEventListener('resize', resize); resize();
@@ -774,9 +834,9 @@ function initThemeAndParticles() {
     class P {
         constructor() { this.x=Math.random()*cvs.width; this.y=Math.random()*cvs.height; this.s=Math.random()*100+50; this.sx=Math.random()*0.2-0.1; this.sy=Math.random()*0.2-0.1; this.o=Math.random()*0.2+0.1; }
         update() { this.x+=this.sx; this.y+=this.sy; if(this.x<0||this.x>cvs.width)this.sx*=-1; if(this.y<0||this.y>cvs.height)this.sy*=-1; }
-        draw() { ctx.fillStyle=`hsla(${hue}, 100%, 50%, ${this.o*0.2})`; ctx.beginPath(); ctx.arc(this.x,this.y,this.s,0,Math.PI*2); ctx.fill(); }
+        draw() { ctx.fillStyle=`hsla(188, 100%, 50%, ${this.o*0.2})`; ctx.beginPath(); ctx.arc(this.x,this.y,this.s,0,Math.PI*2); ctx.fill(); }
     }
-    let pts = []; for(let i=0;i<6;i++) pts.push(new P());
+    let pts = []; for(let i=0;i<8;i++) pts.push(new P());
     function anim() { ctx.clearRect(0,0,cvs.width,cvs.height); pts.forEach(p=>{p.update();p.draw();}); requestAnimationFrame(anim); }
     anim();
 }
