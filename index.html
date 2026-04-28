@@ -113,7 +113,7 @@ button, input, textarea { font-family: var(--font-stack); }
   filter: blur(80px);
 }
 
-/* --- RGL LAYOUT STRUCTURE --- */
+/* --- RGL LAYOUT STRUCTURE (PC Base) --- */
 .rgl-wrapper {
   display: flex;
   width: 100%;
@@ -487,13 +487,6 @@ button, input, textarea { font-family: var(--font-stack); }
 [data-theme="dark"] .lang-name { color: #fff; }
 .lang-card:hover .lang-name { transform: scale(1.05); letter-spacing: 0.5px; }
 
-.font-jp { font-family: 'Noto Sans JP', sans-serif; }
-.font-en { font-family: 'HarmonyOS Sans', sans-serif; }
-.font-cn-s { font-family: 'HarmonyOS Sans SC', sans-serif; }
-.font-cn-t { font-family: 'HarmonyOS Sans TC', sans-serif; }
-.font-kr { font-family: 'Noto Sans KR', sans-serif; }
-.font-ru { font-family: 'HarmonyOS Sans', sans-serif; }
-
 /* ====================================================
    ★ MODAL SYSTEM (Glassmorphism & Dynamic Island)
    ==================================================== */
@@ -600,7 +593,6 @@ button, input, textarea { font-family: var(--font-stack); }
   border-radius: 50px !important;
 }
 .btn-primary:active { transform: scale(0.96); }
-
 
 /* --- 新しいモーダルレイアウト (PC表示) --- */
 .new-modal-layout {
@@ -816,8 +808,9 @@ button, input, textarea { font-family: var(--font-stack); }
     max-width: 980px;
   }
   .modal-sheet.is-input-wide #phase-input {
-    flex-direction: column;
+    flex-direction: row; /* 横並びに変更 */
     align-items: flex-start;
+    gap: 40px; /* 左右の余白を適切に */
   }
   .modal-sheet.is-input-wide .phase-input-title {
     text-align: left;
@@ -832,10 +825,11 @@ button, input, textarea { font-family: var(--font-stack); }
     flex-direction: row;
     gap: 30px;
     align-items: stretch;
+    width: 100%; /* 幅を100%にして右側が空かないようにする */
   }
   .modal-sheet.is-input-wide .phase-input-left {
     display: flex;
-    width: 360px;
+    width: 380px; /* 左カラムの幅を固定 */
     flex-shrink: 0;
   }
   .modal-sheet.is-input-wide .phase-input-left img {
@@ -846,16 +840,18 @@ button, input, textarea { font-family: var(--font-stack); }
     background: rgba(128,128,128,0.2);
   }
   .modal-sheet.is-input-wide .phase-input-right {
-    flex: 1;
+    flex: 1; /* 右カラムは残りの幅をすべて使う */
     display: flex;
     flex-direction: column;
     min-width: 0;
   }
+  /* 入力欄とボタンを横並びにする */
   .modal-sheet.is-input-wide .phase-input-controls {
     flex-direction: row;
     gap: 12px;
     align-items: center;
     margin-bottom: 24px;
+    margin-top: 0; /* 余分な上マージンを消す */
   }
   .modal-sheet.is-input-wide .phase-input-controls .code-field {
     margin-top: 0;
@@ -888,7 +884,7 @@ button, input, textarea { font-family: var(--font-stack); }
 /* =========================================
    Micro-Interactions & Unified Modal UI
    ========================================= */
-/* 1. カプセル型メニュー */
+/* 1. カプセル型メニュー（PC・基本用） */
 .capsule-menu {
     display: flex;
     background: rgba(128, 128, 128, 0.1);
@@ -933,10 +929,8 @@ button, input, textarea { font-family: var(--font-stack); }
 .spotlight-hover > * { position: relative; z-index: 1; }
 
 /* =========================================
-   Heroボタンのカスタムデザイン（各ボタンの役割ごとにカラーを固定）
+   Heroボタンのカスタムデザイン
    ========================================= */
-
-/* ▼ 共通のホバー・フォーカス・クリック時の動き */
 .rgl-cta-btn, .rgl-buy-btn {
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
 }
@@ -951,7 +945,6 @@ button, input, textarea { font-family: var(--font-stack); }
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1) !important;
 }
 
-/* 1. コード引き換えボタン: 常に【ライトモード風の白ガラス ＋ 黒文字】 */
 .rgl-cta-btn:not(.is-download) {
     background: rgba(255, 255, 255, 0.5) !important;
     backdrop-filter: blur(20px);
@@ -966,7 +959,6 @@ button, input, textarea { font-family: var(--font-stack); }
     background: rgba(255, 255, 255, 0.8) !important;
 }
 
-/* 2. 購入するボタン: 常に【ダークモード風の黒ガラス ＋ 白文字】 */
 .rgl-buy-btn {
     background: rgba(30, 30, 30, 0.6) !important;
     backdrop-filter: blur(20px);
@@ -981,8 +973,6 @@ button, input, textarea { font-family: var(--font-stack); }
     background: rgba(50, 50, 50, 0.8) !important;
 }
 
-/* 3. ダウンロードボタン: 【テーマに応じて白黒切り替え】 */
-/* ▼ ライトモード時 */
 .rgl-cta-btn.is-download {
     background: rgba(255, 255, 255, 0.5) !important;
     backdrop-filter: blur(20px);
@@ -997,7 +987,12 @@ button, input, textarea { font-family: var(--font-stack); }
     background: rgba(255, 255, 255, 0.8) !important;
 }
 
-/* ▼ ダークモード時 */
+[data-theme="dark"] .rgl-buy-btn { 
+    background-color: #000000 !important; 
+    color: #FFFFFF !important; 
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
 [data-theme="dark"] .rgl-cta-btn.is-download {
     background: rgba(30, 30, 30, 0.6) !important;
     border: 1px solid rgba(255, 255, 255, 0.15) !important;
@@ -1008,42 +1003,63 @@ button, input, textarea { font-family: var(--font-stack); }
     background: rgba(50, 50, 50, 0.8) !important;
 }
 
+/* スマホ用クラス無効化（PC版の完全保護） */
+.mobile-store-view { display: none !important; }
+.mobile-menu-trigger { display: none; }
+.mobile-nav-overlay { display: none; }
+
+/* ========================================================================= */
+/* ▼▼▼ スマホ最適化メディアクエリ（すべてのスマホ用設定をここに隔離） ▼▼▼ */
+/* ========================================================================= */
 @media (max-width: 768px) {
-    /* ========================================= */
-    /* 1. 全体レイアウト・ヘッダー・メニュー調整 */
-    /* ========================================= */
+    /* 1. 全体レイアウト調整 */
     .rgl-wrapper { flex-direction: column; }
     
-    /* サイドバーを透明にして上部ヘッダーとして機能させる */
-    .rgl-sidebar {
-        background-color: var(--bg-color) !important;
-        border: none !important;
+    /* スマホ用：サイドバーを透明にして上部エリア化 */
+    .rgl-sidebar { 
+        width: 100% !important; 
+        height: auto !important; 
+        padding: 0 !important; 
+        border: none !important; 
+        overflow: visible !important; 
+        position: relative !important; 
+        z-index: 100 !important; 
+        background-color: transparent !important; 
     }
     
-    /* 左上ロゴエリア */
+    /* スマホ用：ロゴエリア調整 */
     .rgl-brand-area { 
         padding: 20px 20px 10px 20px !important; 
-        display: flex; align-items: center; justify-content: flex-start; gap: 8px; width: 100%; 
+        display: flex !important; 
+        align-items: center !important; 
+        justify-content: flex-start !important; 
+        gap: 8px !important; 
+        width: 100% !important; 
     }
     .rgl-brand { order: 1; margin-left: 0; }
-    
-    /* ハンバーガーメニューを無効化 */
     .mobile-menu-trigger { display: none !important; }
 
-    /* 右上のアイコンエリア（テーマ・アカウント） */
+    /* スマホ用：右上のアイコンを固定して切れないようにする */
     .rgl-header { 
         position: fixed !important; 
-        top: 15px !important; right: 16px !important; 
-        width: auto; height: 44px !important; 
-        background: transparent !important; padding: 0 !important; 
-        z-index: 9999 !important; display: flex !important; 
-        align-items: center; justify-content: flex-end; 
-        gap: 10px; pointer-events: none; 
+        top: 15px !important; 
+        right: 16px !important; 
+        width: auto !important; 
+        height: 44px !important; 
+        background: transparent !important; 
+        padding: 0 !important; 
+        z-index: 9999 !important; 
+        display: flex !important; 
+        align-items: center !important; 
+        justify-content: flex-end !important; 
+        gap: 10px !important; 
+        pointer-events: none !important; 
     }
     .rgl-header > * { pointer-events: auto; }
     .rgl-tabs { display: none !important; }
 
-   .capsule-menu {
+    /* スマホ用：カプセルメニューを画面下部に浮かせて固定 */
+    .capsule-menu {
         position: fixed !important;
         bottom: 30px !important;
         top: auto !important;
@@ -1079,7 +1095,7 @@ button, input, textarea { font-family: var(--font-stack); }
     /* 2. ログイン状態とストア表示の切り替え */
     /* ========================================= */
     body.is-logged-in .rgl-hero { display: none !important; }
-    body.is-logged-in .mobile-store-view { display: block !important; padding: 20px; position: relative; z-index: 10; }
+    body.is-logged-in .mobile-store-view { display: block !important; padding: 20px; padding-bottom: 100px !important; position: relative; z-index: 10; }
     body:not(.is-logged-in) .rgl-hero { display: flex !important; }
     body:not(.is-logged-in) .mobile-store-view { display: none !important; }
     
