@@ -809,259 +809,127 @@ button, input, textarea { font-family: var(--font-stack); }
 .mobile-nav-overlay { display: none; }
 
 @media (max-width: 768px) {
-    /* ログイン状態に応じてHero(認証センター)とStore表示を切り替え */
-    body.is-logged-in .rgl-hero { display: none !important; }
-    body.is-logged-in .mobile-store-view { display: block !important; padding: 20px; position: relative; z-index: 10; }
+    /* ========================================= */
+    /* 1. 全体レイアウト・ヘッダー・メニュー調整 */
+    /* ========================================= */
+    .rgl-wrapper { flex-direction: column; }
     
-    body:not(.is-logged-in) .rgl-hero { display: flex !important; }
-    body:not(.is-logged-in) .mobile-store-view { display: none !important; }
+    /* サイドバーを透明にして上部ヘッダーとして機能させる */
+    .rgl-sidebar { 
+        width: 100%; height: auto; padding: 0; 
+        border: none !important; 
+        overflow: visible; position: relative; z-index: 100; 
+        background-color: transparent !important; 
+    }
     
-    /* PC用購入ボタンをスマホ画面では非表示 */
-    .rgl-buy-btn { display: none !important; }
-
-    /* ストア用ヘッダーとコード引き換えボタン */
-    .mobile-store-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-        margin-top: 10px;
-    }
-    .mobile-store-redeem-btn {
-        background: transparent;
-        border: 1px solid var(--modal-text-main);
-        color: var(--modal-text-main);
-        font-size: 11px;
-        font-weight: 700;
-        padding: 6px 12px;
-        border-radius: 20px;
-        cursor: pointer;
-        font-family: var(--font-stack);
-    }
-    #historyModal .modal-sheet {
-        padding: 24px !important; /* スマホの時は余白を狭くする */
-        max-height: 85vh;
-    }
-    .mobile-store-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-        gap: 12px;
-    }
-    .mobile-store-card {
-        background: rgba(30, 30, 30, 0.6);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        padding: 8px;
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    }
-    [data-theme="light"] .mobile-store-card {
-        background: rgba(255, 255, 255, 0.8);
-        border: 1px solid rgba(0, 0, 0, 0.1);
-    }
-   .pc-only-text {
-      display: none !important;
-    }
-    .mobile-store-thumb {
-        width: 100%;
-        aspect-ratio: 21 / 9;
-        object-fit: cover;
-        border-radius: 8px;
-        background: rgba(128,128,128,0.2);
-    }
-    .mobile-store-title {
-        font-size: 12px;
-        font-weight: 800;
-        color: var(--modal-text-main);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        margin-top: 4px;
-        display: flex;
-        align-items: center;
-    }
-    .mobile-store-price {
-        font-size: 10px;
-        color: var(--primary);
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        font-weight: 700;
-    }
-    .mobile-store-btn {
-        width: 100%;
-        height: 26px;
-        border-radius: 6px;
-        background: var(--primary);
-        color: #fff;
-        border: none;
-        font-size: 10px;
-        font-weight: 700;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: 0.2s;
-    }
-    .mobile-store-btn:active { transform: scale(0.95); }
-    
-    /* 所有済みのダウンロードボタン */
-    .mobile-store-btn.is-owned-download {
-        background: rgba(0, 125, 255, 0.1);
-        color: var(--primary);
-        border: 1px solid rgba(0, 125, 255, 0.3);
-        cursor: pointer;
-    }
-    .mobile-store-btn.is-owned-download:active {
-        background: rgba(0, 125, 255, 0.2);
-    }
-
-    /* スマホメニューなど元々のスマホ用CSS */
-    .mobile-menu-trigger { display: none !important; }
-    .mobile-menu-trigger { order: 1; }
-    .mobile-nav-overlay { display: flex; flex-direction: column; position: fixed; inset: 0; background: var(--bg-color); z-index: 10001; padding: 40px; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); visibility: hidden; }
-    .mobile-nav-overlay.active { transform: translateX(0); visibility: visible; }
-    .mobile-menu-close { align-self: flex-end; background: transparent; border: 1px solid var(--btn-close-border); color: var(--modal-text-main); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 40px; }
-    .mobile-nav-content { display: flex; flex-direction: column; gap: 40px; flex: 1; }
-    .mobile-nav-item { font-family: var(--font-stack); font-size: 32px; font-weight: 800; color: var(--modal-text-main); text-decoration: none; text-align: left; opacity: 0; transform: translateX(-20px); transition: opacity 0.3s ease, transform 0.3s ease; }
-    .mobile-nav-overlay.active .mobile-nav-item { opacity: 1; transform: translateX(0); }
-    .mobile-nav-overlay.active .mobile-nav-item:nth-child(1) { transition-delay: 0.1s; }
-    .mobile-nav-overlay.active .mobile-nav-item:nth-child(2) { transition-delay: 0.2s; }
-    .mobile-menu-footer { margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(128,128,128,0.1); opacity: 0; transform: translateY(20px); transition: all 0.3s ease 0.3s; position: relative; }
-    .mobile-nav-overlay.active .mobile-menu-footer { opacity: 1; transform: translateY(0); }
-    .mobile-menu-footer .lang-list { position: absolute; bottom: 60px; left: 0; width: 100%; display: none; }
-    .mobile-menu-footer .lang-list.open { display: block; animation: fadeInUp 0.3s ease; }
-    .capsule-menu {
-        position: fixed !important;
-        bottom: 30px !important;
-        left: 50% !important;
-        transform: translateX(-50%) !important;
-        width: 260px !important;
-        margin: 0 !important;
-        z-index: 9999 !important;
-        background: rgba(255, 255, 255, 0.85) !important;
-        backdrop-filter: blur(25px);
-        -webkit-backdrop-filter: blur(25px);
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
-        border: 1px solid rgba(128, 128, 128, 0.2) !important;
-        padding: 8px !important;
-        display: flex !important; /* 要素が消えないように念のため追加 */
-    }
-
-    [data-theme="dark"] .capsule-menu {
-        background: rgba(30, 30, 30, 0.85) !important;
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    }
-
-    .mobile-store-view {
-        padding-bottom: 100px !important; /* メニューにコンテンツが隠れないように余白追加 */
-    }
-  .rgl-brand-area { 
-        padding: 20px 20px 0 20px; /* カプセルメニューの上の行として配置 */
+    /* 左上ロゴエリア */
+    .rgl-brand-area { 
+        padding: 20px 20px 10px 20px !important; 
         display: flex; align-items: center; justify-content: flex-start; gap: 8px; width: 100%; 
     }
     .rgl-brand { order: 1; margin-left: 0; }
+    
+    /* ハンバーガーメニューを無効化 */
     .mobile-menu-trigger { display: none !important; }
-    
-    .rgl-wrapper { flex-direction: column; }
-    .rgl-sidebar { 
-        width: 100%; height: auto; padding: 0; 
-        border: none !important; /* 線を消す */
-        overflow: visible; position: relative; z-index: 100; 
-        background-color: transparent !important; /* 灰色を消す */
-    }
-    .rgl-brand-area { 
-        padding: 20px 20px 0 20px; /* カプセルメニューの上の行として配置 */
-        display: flex; align-items: center; justify-content: flex-start; gap: 8px; width: 100%; 
-    }
-    
-    /* サイドバー内のコンテンツ非表示 */
-    .rgl-scroll-content, .rgl-bottom-controls { display: none !important; } 
-    .rgl-main { position: static !important; }
 
-    /* ▼ fixed を absolute に変更 ▼ */
+    /* 右上のアイコンエリア（テーマ・アカウント） */
     .rgl-header { 
         position: absolute !important; 
-        top: 0; right: 0; width: auto; height: 70px; 
-        background: transparent !important; padding: 0 16px; 
+        top: 10px !important; right: 16px !important; 
+        width: auto; height: 50px !important; 
+        background: transparent !important; padding: 0 !important; 
         z-index: 200; display: flex !important; 
         align-items: center; justify-content: flex-end; 
         gap: 10px; pointer-events: none; 
     }
     .rgl-header > * { pointer-events: auto; }
     .rgl-tabs { display: none !important; }
-    
-    .rgl-hero { padding: 30px 20px; min-height: 30vh; }
-    .rgl-logo-text { font-size: 32px; }
+
+    /* カプセルメニュー（ロゴの下に自然に配置） */
+    .capsule-menu {
+        position: relative !important;
+        bottom: auto !important;
+        left: auto !important;
+        transform: none !important;
+        width: calc(100% - 40px) !important;
+        margin: 0 20px 20px 20px !important;
+        background: rgba(128, 128, 128, 0.1) !important;
+        border: none !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        z-index: 10;
+        display: flex !important;
+        padding: 6px !important;
+    }
+    [data-theme="dark"] .capsule-menu {
+        background: rgba(255, 255, 255, 0.05) !important;
+    }
+
+    /* アカウントドロップダウンの位置調整 */
     .account-dropdown { position: fixed; top: 70px; right: 5%; width: 90%; left: auto; transform: translateY(-10px); }
     .account-dropdown.open { transform: translateY(0); }
 
-    /* モーダル用スマホ最適化 */
-    .modal-sheet.is-wide {
-        padding: 0 !important;
-        max-width: 92%;
-        border-radius: 24px;
-        height: auto;
-        max-height: 85vh;
-        overflow-y: auto;
-    }
+    /* サイドバー内の不要なコンテンツ非表示 */
+    .rgl-scroll-content, .rgl-bottom-controls { display: none !important; } 
+    .rgl-main { position: static !important; }
+    .rgl-hero { padding: 30px 20px; min-height: 30vh; }
+    .rgl-logo-text { font-size: 32px; }
+
+    /* ========================================= */
+    /* 2. ログイン状態とストア表示の切り替え */
+    /* ========================================= */
+    body.is-logged-in .rgl-hero { display: none !important; }
+    body.is-logged-in .mobile-store-view { display: block !important; padding: 20px; position: relative; z-index: 10; }
+    body:not(.is-logged-in) .rgl-hero { display: flex !important; }
+    body:not(.is-logged-in) .mobile-store-view { display: none !important; }
+    
+    .rgl-buy-btn { display: none !important; }
+
+    /* ========================================= */
+    /* 3. モバイルストアのデザイン */
+    /* ========================================= */
+    .mobile-store-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; margin-top: 10px; }
+    .mobile-store-redeem-btn { background: transparent; border: 1px solid var(--modal-text-main); color: var(--modal-text-main); font-size: 11px; font-weight: 700; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-family: var(--font-stack); }
+    .mobile-store-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; }
+    .mobile-store-card { background: rgba(30, 30, 30, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+    [data-theme="light"] .mobile-store-card { background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(0, 0, 0, 0.1); }
+    .pc-only-text { display: none !important; }
+    .mobile-store-thumb { width: 100%; aspect-ratio: 21 / 9; object-fit: cover; border-radius: 8px; background: rgba(128,128,128,0.2); }
+    .mobile-store-title { font-size: 12px; font-weight: 800; color: var(--modal-text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px; display: flex; align-items: center; }
+    .mobile-store-price { font-size: 10px; color: var(--primary); display: flex; align-items: center; gap: 4px; font-weight: 700; }
+    .mobile-store-btn { width: 100%; height: 26px; border-radius: 6px; background: var(--primary); color: #fff; border: none; font-size: 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+    .mobile-store-btn:active { transform: scale(0.95); }
+    .mobile-store-btn.is-owned-download { background: rgba(0, 125, 255, 0.1); color: var(--primary); border: 1px solid rgba(0, 125, 255, 0.3); cursor: pointer; }
+    .mobile-store-btn.is-owned-download:active { background: rgba(0, 125, 255, 0.2); }
+
+    /* ========================================= */
+    /* 4. モーダル画面のスマホ最適化 */
+    /* ========================================= */
+    .modal-sheet.is-wide { padding: 0 !important; max-width: 92%; border-radius: 24px; height: auto; max-height: 85vh; overflow-y: auto; }
+    #historyModal .modal-sheet { padding: 24px !important; max-height: 85vh; }
     .modal-title-top { display: none !important; }
-    .mobile-title {
-        display: block; 
-        font-size: 22px;
-        font-weight: 800;
-        color: var(--modal-text-main);
-        margin: 0 0 16px 0;
-    }
+    .mobile-title { display: block; font-size: 22px; font-weight: 800; color: var(--modal-text-main); margin: 0 0 16px 0; }
     .modal-body-flex { flex-direction: column; gap: 0; align-items: stretch; }
     .modal-left-col { width: 100%; }
-    .modal-left-col img {
-        border-radius: 24px 24px 0 0;
-        height: 220px;
-        object-fit: cover;
-        flex: none;
-        width: 100%;
-    }
+    .modal-left-col img { border-radius: 24px 24px 0 0; height: 220px; object-fit: cover; flex: none; width: 100%; }
     .modal-thumb-title { display: none !important; }
     .modal-right-col { padding: 24px; }
     .modal-main-title { font-size: 20px; white-space: normal; }
-    .modal-grey-box {
-        background: rgba(128,128,128,0.05) !important; 
-        border: 1px solid rgba(128,128,128,0.1) !important;
-        padding: 16px !important;
-        margin-bottom: 24px;
-        border-radius: 12px;
-        flex: none;
-    }
-    [data-theme="dark"] .modal-grey-box {
-        background: rgba(255,255,255,0.05) !important;
-        border: 1px solid rgba(255,255,255,0.1) !important;
-    }
-    .modal-box-text.is-warning {
-        font-size: 13px;
-        font-weight: 500;
-        color: var(--modal-text-sub);
-        background: transparent; 
-        padding: 0;
-        border: none;
-        opacity: 1;
-    }
+    .modal-grey-box { background: rgba(128,128,128,0.05) !important; border: 1px solid rgba(128,128,128,0.1) !important; padding: 16px !important; margin-bottom: 24px; border-radius: 12px; flex: none; }
+    [data-theme="dark"] .modal-grey-box { background: rgba(255,255,255,0.05) !important; border: 1px solid rgba(255,255,255,0.1) !important; }
+    .modal-box-text.is-warning { font-size: 13px; font-weight: 500; color: var(--modal-text-sub); background: transparent; padding: 0; border: none; opacity: 1; }
     .modal-box-time { margin: 10px 0 0 0; }
     .modal-btn-row { margin-top: 0; height: 50px; }
     .btn-outline, .btn-solid { height: 50px; border-radius: 50px; }
-    #phase-error .modal-title-top {
-        display: block !important;
-        padding: 24px 24px 0 24px;
-        margin: 0;
-        font-size: 20px;
-    }
+    #phase-error .modal-title-top { display: block !important; padding: 24px 24px 0 24px; margin: 0; font-size: 20px; }
     #phase-error .modal-body-error { padding: 24px; }
-}
 
-.loading-spinner { display: inline-block; vertical-align: middle; width: 24px; height: 24px; border: 3px solid rgba(128,128,128,0.2); border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 8px; }
-@keyframes spin { to{transform: rotate(360deg);} }
+    /* ========================================= */
+    /* 5. ハンバーガーメニュー用のオーバーレイ無効化 */
+    /* ========================================= */
+    .mobile-nav-overlay { display: none !important; }
+}
 
 /* --- モーダル入力画面 (PC用2カラムレイアウト) --- */
 .phase-input-left { display: none; }
