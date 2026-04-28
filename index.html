@@ -1015,11 +1015,9 @@ button, input, textarea { font-family: var(--font-stack); }
     .rgl-wrapper { flex-direction: column; }
     
     /* サイドバーを透明にして上部ヘッダーとして機能させる */
-    .rgl-sidebar { 
-        width: 100%; height: auto; padding: 0; 
-        border: none !important; 
-        overflow: visible; position: relative; z-index: 100; 
-        background-color: transparent !important; 
+    .rgl-sidebar {
+        background-color: var(--bg-color) !important;
+        border: none !important;
     }
     
     /* 左上ロゴエリア */
@@ -1035,18 +1033,12 @@ button, input, textarea { font-family: var(--font-stack); }
     /* 右上のアイコンエリア（テーマ・アカウント） */
     .rgl-header { 
         position: fixed !important; 
-        top: 15px !important; 
-        right: 16px !important; 
-        width: auto; 
-        height: 44px !important; 
-        background: transparent !important; 
-        padding: 0 !important; 
-        z-index: 9999 !important; 
-        display: flex !important; 
-        align-items: center; 
-        justify-content: flex-end; 
-        gap: 10px; 
-        pointer-events: none; 
+        top: 15px !important; right: 16px !important; 
+        width: auto; height: 44px !important; 
+        background: transparent !important; padding: 0 !important; 
+        z-index: 9999 !important; display: flex !important; 
+        align-items: center; justify-content: flex-end; 
+        gap: 10px; pointer-events: none; 
     }
     .rgl-header > * { pointer-events: auto; }
     .rgl-tabs { display: none !important; }
