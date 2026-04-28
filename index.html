@@ -966,7 +966,12 @@ button, input, textarea { font-family: var(--font-stack); }
     .mobile-menu-trigger { display: none !important; }
     
     .rgl-wrapper { flex-direction: column; }
-    .rgl-sidebar { width: 100%; height: auto; padding: 0; border-right: none; border-bottom: 1px solid rgba(128,128,128,0.1); overflow: visible; position: relative; z-index: 100; background-color: var(--sidebar-bg); }
+    .rgl-sidebar { 
+        width: 100%; height: auto; padding: 0; 
+        border: none !important; /* 線を消す */
+        overflow: visible; position: relative; z-index: 100; 
+        background-color: transparent !important; /* 灰色を消す */
+    }
     .rgl-brand-area { 
         padding: 20px 20px 0 20px; /* カプセルメニューの上の行として配置 */
         display: flex; align-items: center; justify-content: flex-start; gap: 8px; width: 100%; 
