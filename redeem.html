@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>kiryu10 // Activation Center</title>
+<title>kiryu10 // Secure Activation</title>
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800&family=HarmonyOS+Sans:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
-/* --- FONT FACE DEFINITIONS (from index.html) --- */
+/* --- FONT FACE DEFINITIONS --- */
 @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
 @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Medium.woff') format('woff'); font-weight: 500; font-style: normal; }
 @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
@@ -21,20 +21,25 @@
 
 /* --- THEME VARIABLES --- */
 :root {
-  --primary: #00E5FF;
-  --primary-glow: rgba(0, 229, 255, 0.6);
-  --bg-color: #0A0A0A;
-  --card-bg: rgba(15, 15, 15, 0.6);
-  --card-border: rgba(0, 229, 255, 0.2);
+  --primary: #FFFFFF;
+  --primary-bg: #FFFFFF;
+  --primary-text: #000000;
+  --bg-color: #050505;
+  --card-bg: rgba(18, 18, 18, 0.45);
+  --card-border: rgba(255, 255, 255, 0.1);
   --modal-text-main: #FFFFFF;
-  --modal-text-sub: #8892B0;
-  --dropdown-bg: rgba(10, 10, 10, 0.95);
+  --modal-text-sub: #888888;
+  --dropdown-bg: rgba(15, 15, 15, 0.95);
+  
+  /* Neon Colors (Only for Success/Error) */
   --error-color: #FF2D55;
-  --error-glow: rgba(255, 45, 85, 0.6);
-  --success-color: #30D158;
-  --success-glow: rgba(48, 209, 88, 0.6);
+  --error-glow: rgba(255, 45, 85, 0.4);
+  --success-color: #04CF22;
+  --success-glow: rgba(4, 207, 34, 0.4);
+  
   --spring-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
   --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
+  --shadow-base: 0 30px 60px rgba(0,0,0,0.8);
 }
 
 :root:lang(ja) { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
@@ -48,7 +53,7 @@
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
 
 *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
@@ -62,21 +67,15 @@ body {
   overflow: hidden;
 }
 
-/* Background Effects */
+/* Subdued Background */
 .bg-mesh {
-  position: fixed; inset: 0; z-index: 0; opacity: 0.15; pointer-events: none;
-  background-image: 
-    linear-gradient(rgba(0, 229, 255, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 229, 255, 0.1) 1px, transparent 1px);
-  background-size: 30px 30px;
-  transform: perspective(500px) rotateX(60deg) translateY(-100px) translateZ(-200px);
-  animation: meshMove 20s linear infinite;
+  position: fixed; inset: 0; z-index: 0; opacity: 0.05; pointer-events: none;
+  background-image: radial-gradient(circle at center, #ffffff 1px, transparent 1px);
+  background-size: 40px 40px;
 }
-@keyframes meshMove { 0% { background-position: 0 0; } 100% { background-position: 0 30px; } }
-
 #particleCanvas {
   position: fixed; inset: 0; width: 100%; height: 100%;
-  z-index: 1; opacity: 0.6; pointer-events: none; filter: blur(4px);
+  z-index: 1; opacity: 0.3; pointer-events: none; filter: blur(5px);
 }
 
 /* --- HEADER --- */
@@ -85,37 +84,37 @@ header {
   padding: 20px 40px; display: flex; justify-content: space-between; align-items: center;
 }
 .brand { 
-  font-size: 24px; font-weight: 800; display: flex; align-items: center; gap: 10px; 
-  text-shadow: 0 0 15px var(--primary-glow); letter-spacing: 1px;
+  font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 10px; 
+  letter-spacing: 1px; color: rgba(255,255,255,0.8);
 }
 .header-actions { display: flex; gap: 15px; align-items: center; }
 
 .icon-btn {
   width: 44px; height: 44px; border-radius: 50%;
-  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; transition: 0.3s; color: var(--modal-text-main);
   backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
 }
-.icon-btn:hover { background: rgba(0, 229, 255, 0.1); border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); transform: scale(1.05); }
+.icon-btn:hover { background: rgba(255, 255, 255, 0.1); transform: scale(1.05); }
 
 /* --- DROPDOWNS --- */
 .dropdown-menu {
   position: absolute; top: 75px; right: 40px; width: 300px;
   background: var(--dropdown-bg); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
   border: 1px solid var(--card-border); border-radius: 20px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 20px rgba(0, 229, 255, 0.1); padding: 20px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.8); padding: 20px;
   z-index: 2000; opacity: 0; transform: translateY(-10px); pointer-events: none;
   transition: 0.3s var(--spring-ease);
 }
 .dropdown-menu.open { opacity: 1; transform: translateY(0); pointer-events: auto; }
 .lang-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 5px; }
-.lang-list li { padding: 12px 15px; cursor: pointer; border-radius: 10px; font-weight: 700; font-size: 14px; transition: 0.2s;}
-.lang-list li:hover { background: rgba(255,255,255,0.1); color: var(--primary); }
+.lang-list li { padding: 12px 15px; cursor: pointer; border-radius: 10px; font-weight: 700; font-size: 14px; transition: 0.2s; color: #fff;}
+.lang-list li:hover { background: rgba(255,255,255,0.1); }
 
 .account-info { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 15px; }
 .mini-user-id { font-size: 16px; font-weight: 800; word-break: break-all; display: block; margin-bottom: 5px;}
-.pts-display { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 5px; color: var(--primary); text-shadow: 0 0 10px var(--primary-glow); }
+.pts-display { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 5px; opacity: 0.8; }
 
 .menu-btn {
   width: 100%; background: transparent; border: none; text-align: left;
@@ -125,7 +124,7 @@ header {
 }
 .menu-btn:hover { background: rgba(255,255,255,0.1); }
 .menu-btn.logout { color: var(--error-color); margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); border-radius: 0 0 10px 10px; padding-top: 15px;}
-.menu-btn.logout:hover { background: rgba(255, 45, 85, 0.1); box-shadow: 0 0 10px var(--error-glow); }
+.menu-btn.logout:hover { background: rgba(255, 45, 85, 0.1); }
 
 /* --- MAIN REDEEM AREA --- */
 main {
@@ -133,116 +132,140 @@ main {
   position: relative; z-index: 10; padding: 20px; overflow-y: auto;
 }
 .redeem-card {
-  background: var(--card-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
-  border: 1px solid var(--card-border); border-radius: 32px;
-  padding: 50px 40px; width: 100%; max-width: 550px; text-align: center;
-  box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 0 20px rgba(255,255,255,0.05); 
+  background: var(--card-bg); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255,255,255,0.08); border-radius: 24px;
+  padding: 50px 40px; width: 100%; max-width: 500px;
+  box-shadow: var(--shadow-base), inset 0 0 40px rgba(0,0,0,0.5); 
   position: relative; overflow: hidden;
-  transition: max-width 0.5s var(--spring-ease);
+  transition: max-width 0.5s var(--spring-ease), background 0.4s, border-color 0.4s, box-shadow 0.4s;
 }
-.redeem-card::before {
-  content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-  background: radial-gradient(circle, var(--primary-glow) 0%, transparent 50%);
-  opacity: 0.1; pointer-events: none; z-index: 0;
+.redeem-card.is-wide { max-width: 800px; }
+
+/* Dynamic Card Glows */
+.redeem-card.glow-error {
+  border-color: rgba(255, 45, 85, 0.3);
+  box-shadow: var(--shadow-base), 0 0 40px rgba(255, 45, 85, 0.05), inset 0 0 30px rgba(255, 45, 85, 0.05);
 }
-.redeem-card.is-wide { max-width: 850px; }
+.redeem-card.glow-success {
+  border-color: rgba(4, 207, 34, 0.3);
+  box-shadow: var(--shadow-base), 0 0 40px rgba(4, 207, 34, 0.05), inset 0 0 30px rgba(4, 207, 34, 0.05);
+}
 
 /* Phase Containers */
 .phase-container { display: none; opacity: 0; transition: opacity 0.4s ease; flex-direction: column; position: relative; z-index: 2; }
 .phase-container.active { display: flex; opacity: 1; }
 
-.key-icon-wrapper {
-  width: 80px; height: 80px; margin: 0 auto 20px;
-  background: rgba(0, 229, 255, 0.1); border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  border: 1px solid var(--primary); box-shadow: 0 0 20px var(--primary-glow);
-}
-.key-icon-wrapper i { color: var(--primary); width: 36px; height: 36px; }
+/* 1. Input Phase (Solid, No Neon) */
+.gate-icon { opacity: 0.5; margin: 0 auto 20px; display: flex; justify-content: center; }
+.phase-title { font-size: 24px; font-weight: 800; margin: 0 0 10px; letter-spacing: 2px; text-align: center; text-transform: uppercase; }
+.phase-desc { font-size: 13px; color: var(--modal-text-sub); margin: 0 0 40px; text-align: center; font-weight: 500; }
 
-.redeem-title { font-size: 32px; font-weight: 800; margin: 0 0 10px; letter-spacing: 1px; }
-.redeem-desc { font-size: 14px; color: var(--modal-text-sub); margin: 0 0 40px; line-height: 1.6; }
-
-/* Input Group */
-.input-group { position: relative; margin-bottom: 30px; }
-.code-input {
-  width: 100%; height: 70px; border-radius: 35px;
-  background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2);
-  text-align: center; font-size: 24px; font-weight: 800; letter-spacing: 3px;
-  color: var(--primary); outline: none; transition: 0.3s;
-  font-family: var(--font-stack); text-transform: uppercase;
-  box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+.secure-input-group { position: relative; margin-bottom: 30px; }
+.secure-input {
+  width: 100%; height: 70px; border-radius: 12px;
+  background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.15);
+  text-align: center; font-size: 22px; font-weight: 800; letter-spacing: 4px;
+  color: #fff; outline: none; transition: 0.3s;
+  font-family: monospace, var(--font-stack); text-transform: uppercase;
 }
-.code-input::placeholder { color: rgba(255,255,255,0.2); font-weight: 500; letter-spacing: 1px; }
-.code-input:focus { 
-  border-color: var(--primary); background: rgba(0, 229, 255, 0.05); 
-  box-shadow: 0 0 20px var(--primary-glow), inset 0 0 10px rgba(0, 229, 255, 0.2); 
-}
+.secure-input::placeholder { color: rgba(255,255,255,0.1); font-weight: 500; letter-spacing: 2px; }
+.secure-input:focus { border-color: rgba(255,255,255,0.5); background: rgba(0,0,0,0.8); }
 
-.btn-primary {
-  width: 100%; height: 60px; border-radius: 30px; border: none;
-  background: linear-gradient(135deg, var(--primary) 0%, #009DFF 100%); color: #000;
-  font-size: 18px; font-weight: 800; cursor: pointer; transition: 0.3s;
+/* Standard Buttons */
+.btn-solid {
+  width: 100%; height: 60px; border-radius: 12px; border: none;
+  background: var(--primary-bg); color: var(--primary-text);
+  font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.3s;
   display: flex; align-items: center; justify-content: center; gap: 10px;
-  font-family: var(--font-stack); box-shadow: 0 0 20px var(--primary-glow);
-  letter-spacing: 1px;
+  font-family: var(--font-stack); letter-spacing: 1px;
 }
-.btn-primary:hover { box-shadow: 0 0 30px var(--primary-glow); transform: translateY(-2px); filter: brightness(1.1); }
-.btn-primary:active { transform: translateY(1px); }
-.btn-primary:disabled { background: rgba(255,255,255,0.1); color: #666; box-shadow: none; cursor: not-allowed; transform: none; filter: none; border: 1px solid rgba(255,255,255,0.1);}
+.btn-solid:hover { opacity: 0.8; transform: translateY(-2px); }
+.btn-solid:active { transform: translateY(1px); }
+.btn-solid:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
 
 .btn-outline {
-  width: 100%; height: 60px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.3);
-  background: rgba(0,0,0,0.3); color: var(--modal-text-main);
+  width: 100%; height: 60px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);
+  background: transparent; color: var(--modal-text-main);
   font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.3s;
   font-family: var(--font-stack);
 }
-.btn-outline:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
+.btn-outline:hover { background: rgba(255,255,255,0.1); }
 
-/* Split Layout for Preview/Success/Error */
+/* Split Layout */
 .split-layout { display: flex; gap: 40px; text-align: left; align-items: stretch; }
 .split-left { width: 340px; flex-shrink: 0; display: flex; flex-direction: column; position: relative; }
-.split-left img { width: 100%; height: 100%; border-radius: 20px; object-fit: cover; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
+.split-left img { width: 100%; height: 100%; border-radius: 12px; object-fit: cover; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
 .split-right { flex: 1; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
 
-.content-label { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
-.content-title { font-size: 26px; font-weight: 800; margin: 0 0 20px; line-height: 1.4; word-break: break-word; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-.info-box { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 20px; margin-bottom: 25px; font-size: 14px; font-weight: 500; line-height: 1.6; white-space: pre-wrap;}
-.info-box.error { background: rgba(255, 45, 85, 0.1); border-color: var(--error-color); color: #fff; box-shadow: inset 0 0 20px rgba(255, 45, 85, 0.2); }
-.time-stamp { font-size: 12px; font-weight: 700; opacity: 0.5; margin-top: 15px; letter-spacing: 1px; }
+.content-label { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.5); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+.content-title { font-size: 26px; font-weight: 800; margin: 0 0 20px; line-height: 1.4; word-break: break-word; }
 
 .action-row { display: flex; gap: 15px; margin-top: auto; }
 .action-row .btn-outline { flex: 1; }
-.action-row .btn-primary { flex: 2; }
+.action-row .btn-solid { flex: 1; }
 
-/* Status Colors for phases */
-#phaseSuccess .redeem-title { color: var(--success-color); text-shadow: 0 0 20px var(--success-glow); }
-#phaseSuccess .content-label { color: var(--success-color); }
-#phaseError .redeem-title { color: var(--error-color); text-shadow: 0 0 20px var(--error-glow); }
+/* 2. Error Phase (Screenshot matching) */
+#phaseError { text-align: center; }
+.error-neon-text {
+  font-size: 26px; font-weight: 800; margin-bottom: 20px;
+  color: var(--error-color); text-shadow: 0 0 15px var(--error-glow);
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.error-denied-text {
+  color: var(--error-color); font-size: 12px; font-weight: 700; letter-spacing: 1px;
+  margin-bottom: 8px; text-align: left; display: flex; align-items: center; gap: 6px;
+}
+.error-main-title { font-size: 24px; font-weight: 800; margin-bottom: 20px; text-align: left; }
+.error-info-box {
+  background: rgba(255, 45, 85, 0.05);
+  border: 1px solid rgba(255, 45, 85, 0.3);
+  border-radius: 12px; padding: 25px; margin-bottom: 30px;
+  text-align: left;
+}
+.error-info-msg { font-size: 14px; margin-bottom: 30px; font-weight: 500; }
+.error-info-time { font-size: 12px; color: var(--error-color); font-weight: 700; opacity: 0.8;}
+
+.btn-error-primary {
+  width: 100%; height: 60px; border-radius: 12px; border: none;
+  background: var(--error-color); color: #fff;
+  font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.3s;
+  box-shadow: 0 0 20px var(--error-glow); font-family: var(--font-stack);
+}
+.btn-error-primary:hover { filter: brightness(1.2); box-shadow: 0 0 30px var(--error-glow); transform: translateY(-2px); }
+
+/* 3. Success Phase */
+.success-neon-text {
+  font-size: 26px; font-weight: 800; margin-bottom: 20px; text-align: left;
+  color: var(--success-color); text-shadow: 0 0 15px var(--success-glow);
+}
+.success-info-box {
+  background: rgba(4, 207, 34, 0.05); border: 1px solid rgba(4, 207, 34, 0.3);
+  border-radius: 12px; padding: 20px; margin-bottom: 25px; font-size: 14px;
+}
 
 /* Mobile Optimization */
 @media (max-width: 768px) {
   header { padding: 15px 20px; }
-  .brand { font-size: 20px; }
-  .icon-btn { width: 38px; height: 38px; }
+  .brand { font-size: 18px; }
   main { padding: 15px; align-items: flex-start; }
-  .redeem-card { padding: 30px 20px; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.9); }
-  .key-icon-wrapper { width: 60px; height: 60px; }
-  .key-icon-wrapper i { width: 28px; height: 28px; }
-  .redeem-title { font-size: 24px; }
-  .code-input { height: 60px; font-size: 18px; border-radius: 30px; }
-  .btn-primary, .btn-outline { height: 50px; font-size: 15px; border-radius: 25px; }
+  .redeem-card { padding: 30px 20px; border-radius: 20px; border: none; background: transparent; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+  
+  .secure-input { height: 60px; font-size: 18px; }
+  .btn-solid, .btn-outline, .btn-error-primary { height: 50px; font-size: 14px; }
   
   .split-layout { flex-direction: column; gap: 20px; }
   .split-left { width: 100%; }
-  .split-left img { height: 180px; }
+  .split-left img { height: 200px; }
   .content-title { font-size: 20px; }
-  .action-row { flex-direction: column-reverse; }
-  .dropdown-menu { width: 280px; right: 20px; top: 65px; }
+  .dropdown-menu { width: 260px; right: 20px; top: 65px; }
+  
+  .error-neon-text { font-size: 22px; }
+  .error-main-title { font-size: 20px; }
 }
 
 /* Modals for Account/History */
 .sys-modal {
-  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   z-index: 9999; display: flex; justify-content: center; align-items: center;
   opacity: 0; pointer-events: none; transition: 0.4s;
 }
@@ -252,29 +275,28 @@ main {
   border: 1px solid var(--card-border); border-radius: 24px;
   padding: 40px; width: 90%; max-width: 500px; position: relative;
   transform: translateY(30px) scale(0.95); transition: 0.4s var(--spring-ease);
-  box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 0 20px rgba(255,255,255,0.05); 
-  max-height: 85vh; display: flex; flex-direction: column;
+  box-shadow: var(--shadow-base); max-height: 85vh; display: flex; flex-direction: column;
 }
 .sys-modal.active .sys-modal-content { transform: translateY(0) scale(1); }
 .close-modal { position: absolute; top: 20px; right: 20px; cursor: pointer; opacity: 0.5; transition: 0.2s; }
-.close-modal:hover { opacity: 1; color: var(--primary); }
+.close-modal:hover { opacity: 1; color: #fff; }
 
 .form-group { margin-bottom: 15px; text-align: left; }
 .form-input { 
   width: 100%; height: 50px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); 
-  background: rgba(0,0,0,0.5); padding: 0 15px; color: #fff; font-family: inherit; font-size: 15px; outline: none; transition: 0.3s;
+  background: rgba(0,0,0,0.5); padding: 0 15px; color: #fff; font-family: inherit; font-size: 14px; outline: none; transition: 0.3s;
 }
-.form-input:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(0, 229, 255, 0.2); }
+.form-input:focus { border-color: rgba(255,255,255,0.5); }
 
 .history-list { overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 5px; }
-.history-item { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 15px; display: flex; gap: 15px; align-items: center; transition: 0.2s;}
-.history-item:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); }
-.history-item img { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); }
+.history-item { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 15px; display: flex; gap: 15px; align-items: center; transition: 0.2s;}
+.history-item:hover { border-color: rgba(255,255,255,0.2); }
+.history-item img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); }
 .history-info { flex: 1; min-width: 0; }
-.history-title { font-weight: 800; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 5px; color: #fff;}
-.history-meta { font-size: 11px; font-weight: 700; opacity: 0.6; display: flex; justify-content: space-between; letter-spacing: 0.5px;}
+.history-title { font-weight: 800; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 5px;}
+.history-meta { font-size: 11px; font-weight: 700; opacity: 0.6; display: flex; justify-content: space-between;}
 
-.loading-spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid rgba(255,255,255,0.2); border-top: 3px solid currentColor; border-radius: 50%; animation: spin 0.8s linear infinite; }
+.loading-spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.2); border-top: 3px solid currentColor; border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
@@ -307,13 +329,13 @@ main {
       </button>
       <div class="dropdown-menu" id="accountMenu">
         <div class="account-info">
-          <span class="content-label" data-translate="label_logged_in">USER ID</span>
+          <span style="font-size:11px; font-weight:700; opacity:0.5; margin-bottom:4px; display:block;" data-translate="label_logged_in">USER ID</span>
           <span class="mini-user-id" id="dispUserId">-</span>
           <span class="pts-display"><i data-lucide="zap" style="width:14px;height:14px;"></i> <span id="dispPoints">0</span> pt</span>
         </div>
-        <button class="menu-btn" id="btnHistory"><span data-translate="btn_history">利用履歴</span> <i data-lucide="history" style="width:16px;"></i></button>
-        <button class="menu-btn" id="btnPassword"><span data-translate="modal_acc_change_pass">パスワード変更</span> <i data-lucide="key-round" style="width:16px;"></i></button>
-        <button class="menu-btn logout" id="btnLogout"><span data-translate="btn_logout">ログアウト</span> <i data-lucide="power" style="width:16px;"></i></button>
+        <button class="menu-btn" id="btnHistory"><span data-translate="btn_history">利用履歴</span> <i data-lucide="history" style="width:16px; opacity:0.5;"></i></button>
+        <button class="menu-btn" id="btnPassword"><span data-translate="modal_acc_change_pass">パスワード変更</span> <i data-lucide="key-round" style="width:16px; opacity:0.5;"></i></button>
+        <button class="menu-btn logout" id="btnLogout"><span data-translate="btn_logout">ログアウト</span> <i data-lucide="power" style="width:16px; opacity:0.5;"></i></button>
       </div>
     </div>
   </div>
@@ -323,73 +345,75 @@ main {
   <div class="redeem-card" id="mainCard">
     
     <div class="phase-container active" id="phaseInput">
-      <div class="key-icon-wrapper"><i data-lucide="key"></i></div>
-      <h1 class="redeem-title" data-translate="modal_title">アクティベーション</h1>
-      <p class="redeem-desc" data-translate="modal_sub">コードを利用するには、以下の入力欄に入力してください。</p>
+      <div class="gate-icon"><i data-lucide="lock" style="width:32px;height:32px;color:#fff;"></i></div>
+      <h1 class="phase-title" data-translate="modal_title">コード引き換え</h1>
+      <p class="phase-desc" data-translate="modal_sub">認証キーを入力してゲートを解除してください。</p>
       
-      <div class="input-group">
-        <input type="text" id="activationCode" class="code-input" placeholder="XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false">
+      <div class="secure-input-group">
+        <input type="text" id="activationCode" class="secure-input" placeholder="XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false">
       </div>
       
-      <button class="btn-primary" id="btnCheck">
-        <i data-lucide="unlock" style="width:20px;height:20px;"></i> <span data-translate="modal_btn_auth">確認</span>
+      <button class="btn-solid" id="btnCheck">
+        <span data-translate="modal_btn_auth">確認</span>
       </button>
-      <div id="inputErrorMsg" style="color: var(--error-color); font-weight: 700; margin-top: 20px; font-size: 14px; min-height: 20px; text-shadow: 0 0 10px var(--error-glow);"></div>
     </div>
 
     <div class="phase-container" id="phasePreview">
-      <h2 class="redeem-title" data-translate="preview_title">コンテンツ確認</h2>
+      <h2 class="phase-title" style="text-align:left; font-size:22px; margin-bottom:20px;" data-translate="preview_title">引き換えの確認</h2>
       <div class="split-layout">
         <div class="split-left">
           <img id="prevImg" src="" alt="Preview">
         </div>
         <div class="split-right">
-          <p class="content-label"><i data-lucide="info" style="width:14px; vertical-align:text-bottom;"></i> <span data-translate="preview_desc">続行すると以下のコンテンツを受け取ります:</span></p>
+          <p class="content-label"><i data-lucide="info" style="width:12px; vertical-align:text-bottom;"></i> <span data-translate="preview_desc">続行すると以下のコンテンツを受け取ります:</span></p>
           <h3 class="content-title" id="prevTitle">Title</h3>
-          <div class="info-box" id="prevWarning" style="display:none;"></div>
+          <div class="info-box" id="prevWarning" style="display:none; padding:15px; background:rgba(255,255,255,0.05); border:none;"></div>
           <div class="action-row">
             <button class="btn-outline" onclick="resetToInput()" data-translate="btn_close">キャンセル</button>
-            <button class="btn-primary" id="btnRedeem"><i data-lucide="check-circle" style="width:18px;"></i> <span data-translate="btn_continue">認証する</span></button>
+            <button class="btn-solid" id="btnRedeem"><span data-translate="btn_continue">認証する</span></button>
           </div>
         </div>
       </div>
     </div>
 
     <div class="phase-container" id="phaseSuccess">
-      <h2 class="redeem-title" data-translate="success_title_final">認証成功!!</h2>
+      <h2 class="success-neon-text"><i data-lucide="check-circle" style="width:28px;height:28px; vertical-align:bottom;"></i> <span data-translate="success_title_final">認証成功!!</span></h2>
       <div class="split-layout">
         <div class="split-left">
           <img id="succImg" src="" alt="Success">
         </div>
         <div class="split-right">
-          <p class="content-label"><i data-lucide="check-square" style="width:14px; vertical-align:text-bottom;"></i> <span data-translate="success_desc">以下のコンテンツが有効になりました:</span></p>
+          <p class="content-label" style="color:var(--success-color);"><span data-translate="success_desc">以下のコンテンツが有効になりました:</span></p>
           <h3 class="content-title" id="succTitle">Title</h3>
-          <div class="info-box">
+          <div class="success-info-box">
             <span id="succMsg"></span>
-            <div class="time-stamp" id="succTime"></div>
+            <div class="time-stamp" id="succTime" style="color:var(--success-color);"></div>
           </div>
-          <div class="action-row" style="flex-direction: column;">
-            <a href="#" class="btn-primary" id="btnDownload" target="_blank" style="text-decoration:none;">
-              <span data-translate="btn_download">ダウンロード</span> <i data-lucide="download" style="width:18px;"></i>
-            </a>
+          <div class="action-row">
             <button class="btn-outline" onclick="resetToInput()" data-translate="btn_close">閉じる</button>
+            <a href="#" class="btn-solid" id="btnDownload" target="_blank" style="text-decoration:none;">
+              <span data-translate="btn_download">ダウンロード</span>
+            </a>
           </div>
         </div>
       </div>
     </div>
 
     <div class="phase-container" id="phaseError">
-      <h2 class="redeem-title">⚠ <span data-translate="error_title_prefix">エラー</span> <span id="errCode"></span></h2>
-      <div class="split-layout">
-        <div class="split-right">
-          <p class="content-label" style="color:var(--error-color);"><i data-lucide="alert-triangle" style="width:14px; vertical-align:text-bottom;"></i> ACCESS DENIED</p>
-          <h3 class="content-title" id="errTitle">Error Title</h3>
-          <div class="info-box error">
-            <span id="errMsg"></span>
-            <div class="time-stamp" id="errTime" style="color: var(--error-color);"></div>
-          </div>
-          <button class="btn-primary" onclick="resetToInput()" style="background: var(--error-color); box-shadow: 0 0 20px var(--error-glow); color:#fff;" data-translate="btn_close">閉じる</button>
+      <h2 class="error-neon-text">
+        ⚠ <span data-translate="error_title_prefix">エラー</span> <span id="errCode"></span>
+      </h2>
+      <div style="width:100%;">
+        <p class="error-denied-text">⚠ ACCESS DENIED</p>
+        <h3 class="error-main-title" id="errTitle">Error Title</h3>
+        
+        <div class="error-info-box">
+          <div class="error-info-msg" id="errMsg"></div>
+          <div class="error-info-time" id="errTime"></div>
         </div>
+        
+        <div class="action-row" id="errorBtnRow">
+          </div>
       </div>
     </div>
 
@@ -399,7 +423,7 @@ main {
 <div class="sys-modal" id="modHistory">
   <div class="sys-modal-content">
     <i data-lucide="x" class="close-modal" onclick="closeModal('modHistory')"></i>
-    <h2 style="margin:0 0 20px; font-size: 22px; font-weight:800; display:flex; align-items:center; gap:8px;">
+    <h2 style="margin:0 0 20px; font-size: 20px; font-weight:800; display:flex; align-items:center; gap:8px;">
       <i data-lucide="history"></i> <span data-translate="modal_history_title">利用履歴</span>
     </h2>
     <div class="history-list" id="historyList"></div>
@@ -409,7 +433,7 @@ main {
 <div class="sys-modal" id="modPass">
   <div class="sys-modal-content" style="max-width: 400px;">
     <i data-lucide="x" class="close-modal" onclick="closeModal('modPass')"></i>
-    <h2 style="margin:0 0 20px; font-size: 22px; font-weight:800; display:flex; align-items:center; gap:8px;">
+    <h2 style="margin:0 0 20px; font-size: 20px; font-weight:800; display:flex; align-items:center; gap:8px;">
       <i data-lucide="key-round"></i> <span data-translate="modal_acc_change_pass">パスワード変更</span>
     </h2>
     <div class="form-group">
@@ -422,7 +446,7 @@ main {
       <input type="password" id="passConf" class="form-input" placeholder="新しいパスワード (確認用)">
     </div>
     <div id="passMsg" style="color:var(--error-color); font-size:13px; font-weight:700; margin-bottom:15px; min-height: 18px; text-align:center;"></div>
-    <button class="btn-primary" id="btnSubmitPass" style="height: 50px;" data-translate="modal_acc_btn_change">変更を保存</button>
+    <button class="btn-solid" id="btnSubmitPass" style="height: 50px;" data-translate="modal_acc_btn_change">変更を保存</button>
   </div>
 </div>
 
@@ -435,70 +459,70 @@ let currentContentData = {};
 // Translations Dictionary
 const TRANSLATIONS={
  ja:{
-  modal_title:"コード引き換え",modal_sub:"コードを利用するには、以下の入力欄に入力してください。", modal_btn_auth:"確認",
+  modal_title:"コード引き換え",modal_sub:"認証キーを入力してゲートを解除してください。", modal_btn_auth:"確認",
   msg_verifying:"確認中",msg_success_btn:"成功", msg_invalid:"コードが無効です",msg_used:"このコードは使用済みです",msg_error:"エラーが発生しました", 
   preview_title: "引き換えの確認", preview_desc: "続行すると以下のコンテンツを受け取ります:",
   success_title_final: "認証成功!!", success_desc: "以下のコンテンツが有効になりました:",
   success_msg_box: "コードが正常に認証されました。",
   error_title_prefix: "エラー", error_used_msg: "コードが使用済みです", error_locked_msg: "このコンテンツは解禁していません。", error_owned_msg: "既に所有しているようです。",
-  btn_close:"閉じる",btn_continue:"認証する",btn_download:"ダウンロード",
-  label_logged_in: "ユーザーID", btn_logout: "ログアウト", btn_history: "利用履歴",
+  btn_close:"閉じる",btn_continue:"認証する",btn_download:"ダウンロード", btn_retry:"再度入力する", btn_go_home:"ホームへ移動",
+  label_logged_in: "USER ID", btn_logout: "ログアウト", btn_history: "利用履歴",
   modal_acc_change_pass:"パスワード変更", modal_acc_btn_change:"変更を保存", history_empty: "履歴がありません。",
   msg_acc_err_empty:"すべての項目を入力してください", msg_acc_err_len:"パスワードは6文字以上にしてください", msg_acc_err_match:"パスワードが一致しません", msg_acc_changing:"変更中...", msg_acc_success:"パスワードを変更しました！"
  },
  en:{
-  modal_title:"Redeem Code",modal_sub:"Enter your activation code below to proceed.", modal_btn_auth:"CHECK",
+  modal_title:"Redeem Code",modal_sub:"Enter your activation key to unlock the gate.", modal_btn_auth:"AUTHORIZE",
   msg_verifying:"Checking",msg_success_btn:"Success", msg_invalid:"This code is invalid.",msg_used:"This code has already been used.",msg_error:"Error occurred", 
   preview_title: "Confirm Redemption", preview_desc: "If you continue, you will receive the following content:",
   success_title_final: "Redeem Successful!!", success_desc: "The following content has been activated:",
   success_msg_box: "Redeem Code successfully verified.",
   error_title_prefix: "Error", error_used_msg: "This code has already been used.", error_locked_msg: "This content is not yet unlocked.", error_owned_msg: "You already own it.",
-  btn_close:"Close",btn_continue:"Redeem",btn_download:"Download",
+  btn_close:"Close",btn_continue:"Confirm",btn_download:"Download", btn_retry:"Try Again", btn_go_home:"Go to Home",
   label_logged_in: "USER ID", btn_logout: "Log Out", btn_history: "Usage History",
   modal_acc_change_pass:"Change Password", modal_acc_btn_change:"Save Changes", history_empty: "No history found.",
   msg_acc_err_empty:"Please fill in all fields", msg_acc_err_len:"Password must be at least 6 characters", msg_acc_err_match:"Passwords do not match", msg_acc_changing:"Updating...", msg_acc_success:"Password changed successfully!"
  },
  zh:{ 
-  modal_title:"兑換代码",modal_sub:"请输入您的激活码以继续。", modal_btn_auth:"检查", 
+  modal_title:"兑換代码",modal_sub:"请输入激活密钥以解除网关。", modal_btn_auth:"检查", 
   msg_verifying:"正在检查",msg_success_btn:"成功", msg_invalid:"该代码无效。",msg_used:"该代码已被使用。",msg_error:"错误", 
   preview_title: "确认内容", preview_desc: "如果您继续，您将收到以下内容:",
   success_title_final: "激活成功!!", success_desc: "该代码已兑换以下内容:", success_msg_box: "代码已成功兑换。",
   error_title_prefix: "错误", error_used_msg: "该代码已被使用。", error_locked_msg: "此内容尚未解锁。", error_owned_msg: "您已经有了。",
-  btn_close:"关闭",btn_continue:"兑換",btn_download:"下载", 
-  label_logged_in: "用户ID", btn_logout: "退出", btn_history: "使用记录",
+  btn_close:"关闭",btn_continue:"兑換",btn_download:"下载", btn_retry:"再试一次", btn_go_home:"移至主页",
+  label_logged_in: "USER ID", btn_logout: "退出", btn_history: "使用记录",
   modal_acc_change_pass:"修改密码", modal_acc_btn_change:"保存更改", history_empty: "没有记录。",
   msg_acc_err_empty:"请填写所有字段", msg_acc_err_len:"密码长度至少为6个字符", msg_acc_err_match:"两次输入的新密码不一致", msg_acc_changing:"正在修改...", msg_acc_success:"密码修改成功！"
  },
  "zh-TW":{ 
-  modal_title:"兌換代碼",modal_sub:"請輸入您的啟用碼以繼續。", modal_btn_auth:"檢查", 
+  modal_title:"兌換代碼",modal_sub:"請輸入啟用密鑰以解除網關。", modal_btn_auth:"檢查", 
   msg_verifying:"正在檢查",msg_success_btn:"成功", msg_invalid:"該代碼無效",msg_used:"該代碼已被使用",msg_error:"錯誤", 
   preview_title: "確認內容", preview_desc: "如果您繼續，您將收到以下內容:",
   success_title_final: "兌換成功!!", success_desc: "該代碼已兌換以下內容:", success_msg_box: "代碼已成功兌換。",
   error_title_prefix: "錯誤", error_used_msg: "該代碼已被使用。", error_locked_msg: "此內容尚未解鎖。", error_owned_msg: "你已經擁有了。",
-  btn_close:"關閉",btn_continue:"兌換",btn_download:"下載", 
-  label_logged_in: "用戶ID", btn_logout: "登出", btn_history: "使用紀錄",
+  btn_close:"關閉",btn_continue:"兌換",btn_download:"下載", btn_retry:"再試一次", btn_go_home:"移至首頁",
+  label_logged_in: "USER ID", btn_logout: "登出", btn_history: "使用紀錄",
   modal_acc_change_pass:"修改密碼", modal_acc_btn_change:"保存更改", history_empty: "沒有紀錄。",
   msg_acc_err_empty:"請填寫所有欄位", msg_acc_err_len:"密碼長度至少為6個字符", msg_acc_err_match:"兩次輸入的新密碼不一致", msg_acc_changing:"正在修改...", msg_acc_success:"密碼修改成功！"
  },
  ko:{ 
-  modal_title:"교환 코드",modal_sub:"계속하려면 아래에 활성화 코드를 입력하세요.", modal_btn_auth:"확인", 
+  modal_title:"교환 코드",modal_sub:"게이트를 해제하려면 인증 키를 입력하세요.", modal_btn_auth:"확인", 
   msg_verifying:"확인 중",msg_success_btn:"성공", msg_invalid:"유효하지 않은 코드입니다.",msg_used:"이미 사용된 코드입니다.",msg_error:"오류", 
   preview_title: "콘텐츠 확인", preview_desc: "계속하면 다음 콘텐츠를 받게됩니다:",
   success_title_final: "활성화 완료!!", success_desc: "다음 콘텐츠가 활성화되었습니다:", success_msg_box: "코드가 성공적으로 인증되었습니다.",
   error_title_prefix: "오류", error_used_msg: "이미 사용된 코드입니다.", error_locked_msg: "이 콘텐츠는 아직 해제되지 않았습니다.", error_owned_msg: "이미 가지고 있습니다.",
-  btn_close:"닫기",btn_continue:"사용",btn_download:"다운로드",
-  label_logged_in: "사용자 ID", btn_logout: "로그아웃", btn_history: "이용 내역",
+  btn_close:"닫기",btn_continue:"사용",btn_download:"다운로드", btn_retry:"다시 입력", btn_go_home:"홈으로 이동",
+  label_logged_in: "USER ID", btn_logout: "로그아웃", btn_history: "이용 내역",
   modal_acc_change_pass:"비밀번호 변경", modal_acc_btn_change:"변경 사항 저장", history_empty: "내역이 없습니다.",
   msg_acc_err_empty:"모든 항목을 입력해주세요", msg_acc_err_len:"비밀번호는 6자 이상이어야 합니다", msg_acc_err_match:"새 비밀번호가 일치하지 않습니다", msg_acc_changing:"변경 중...", msg_acc_success:"비밀번호가 변경되었습니다!"
  },
  ru:{ 
-  modal_title:"Активация кода",modal_sub:"Введите код активации ниже, чтобы продолжить.", modal_btn_auth:"проверить", 
+  modal_title:"Активация кода",modal_sub:"Введите ключ активации, чтобы разблокировать.", modal_btn_auth:"проверить", 
   msg_verifying:"Подтверждение",msg_success_btn:"Успех", msg_invalid:"Неверный код",msg_used:"Этот код уже был использован.",msg_error:"Ошибка", 
   preview_title: "Подтверждение", preview_desc: "Вы получите следующее содержимое:",
-  success_title_final: "Успешно!!", success_desc: "Если вы продолжите, вы получите следующий контент:", success_msg_box: "Код успешно проверен.",
+  success_title_final: "Успешно!!", success_desc: "Вы получите следующий контент:", success_msg_box: "Код успешно проверен.",
   error_title_prefix: "Ошибка", error_used_msg: "Этот код уже был использован.", error_locked_msg: "Этот контент еще не разблокирован.", error_owned_msg: "Оно у вас уже есть.",
-  btn_close:"Закрыть",btn_continue:"Погасить",btn_download:"Скачать",
-  label_logged_in: "ID пользователя", btn_logout: "Выйти", btn_history: "История",
+  btn_close:"Закрыть",btn_continue:"Погасить",btn_download:"Скачать", btn_retry:"Попробовать еще", btn_go_home:"На главную",
+  label_logged_in: "USER ID", btn_logout: "Выйти", btn_history: "История",
   modal_acc_change_pass:"Изменить пароль", modal_acc_btn_change:"Сохранить", history_empty: "История пуста.",
   msg_acc_err_empty:"Пожалуйста, заполните все поля", msg_acc_err_len:"Пароль должен содержать не менее 6 символов", msg_acc_err_match:"Пароли не совпадают", msg_acc_changing:"Сохранение...", msg_acc_success:"Пароль успешно изменен!"
  }
@@ -644,27 +668,56 @@ function showPhase(phaseId, isWide = false) {
         el.style.opacity = '0';
         setTimeout(() => { el.classList.remove('active'); }, 200);
     });
+    
+    // Clear Glows
+    const card = gId('mainCard');
+    card.classList.remove('glow-error', 'glow-success');
+    
     setTimeout(() => {
         const target = gId(phaseId);
         target.classList.add('active');
         void target.offsetWidth; 
         target.style.opacity = '1';
         
-        const card = gId('mainCard');
         if(isWide) card.classList.add('is-wide');
         else card.classList.remove('is-wide');
+        
+        if(phaseId === 'phaseError') card.classList.add('glow-error');
+        if(phaseId === 'phaseSuccess') card.classList.add('glow-success');
     }, 200);
 }
 
-function resetToInput() {
-    gId('activationCode').value = '';
+function resetToInput(clearCode = false) {
+    if(clearCode) {
+        gId('activationCode').value = '';
+    }
     gId('activationCode').disabled = false;
     gId('btnCheck').disabled = false;
-    gId('btnCheck').innerHTML = `<i data-lucide="unlock" style="width:20px;height:20px;"></i> <span data-translate="modal_btn_auth">${TRANSLATIONS[CURRENT_LANG].modal_btn_auth}</span>`;
-    lucide.createIcons();
-    gId('inputErrorMsg').textContent = '';
+    gId('btnCheck').innerHTML = `<span data-translate="modal_btn_auth">${TRANSLATIONS[CURRENT_LANG].modal_btn_auth}</span>`;
     showPhase('phaseInput', false);
     setTimeout(() => gId('activationCode').focus(), 400);
+}
+
+function renderErrorScreen(codeNum, title, message, isOwned) {
+    const t = TRANSLATIONS[CURRENT_LANG];
+    gId('errCode').textContent = codeNum;
+    gId('errTitle').textContent = title;
+    gId('errMsg').textContent = message || "Access Denied";
+    gId('errTime').textContent = formatLocalTime(new Date());
+    
+    const btnRow = gId('errorBtnRow');
+    if (isOwned) {
+        btnRow.innerHTML = `
+            <button class="btn-outline" onclick="resetToInput(true)">${t.btn_close || '閉じる'}</button>
+            <button class="btn-solid" onclick="window.location.href='index.html'">${t.btn_go_home || 'ホームへ移動'}</button>
+        `;
+    } else {
+        btnRow.innerHTML = `
+            <button class="btn-outline" onclick="resetToInput(false)">${t.btn_close || '閉じる'}</button>
+            <button class="btn-error-primary" onclick="resetToInput(true)">${t.btn_retry || '再度入力する'}</button>
+        `;
+    }
+    showPhase('phaseError', true);
 }
 
 // API Interactions
@@ -674,11 +727,9 @@ async function processCodeCheck(code) {
     
     const t = TRANSLATIONS[CURRENT_LANG];
     const btn = gId('btnCheck');
-    const errObj = gId('inputErrorMsg');
     
     btn.disabled = true; gId('activationCode').disabled = true;
     btn.innerHTML = `<div class="loading-spinner"></div>`;
-    errObj.textContent = '';
 
     const d = await safeFetch({ type: 'check', userId: currentUser.userId, code: safeCode, lang: CURRENT_LANG });
     
@@ -694,14 +745,17 @@ async function processCodeCheck(code) {
         }
         showPhase('phasePreview', true);
     } else {
-        btn.disabled = false; gId('activationCode').disabled = false;
-        btn.innerHTML = `<i data-lucide="unlock" style="width:20px;height:20px;"></i> <span data-translate="modal_btn_auth">${t.modal_btn_auth}</span>`;
-        lucide.createIcons();
-        
+        // Direct to Error Phase instead of inline
         const msg = (d.message||"").toLowerCase();
-        if(msg.includes('used')) errObj.textContent = t.msg_used;
-        else if(msg.includes('owned')) errObj.textContent = t.error_owned_msg;
-        else errObj.textContent = t.msg_invalid;
+        let errTitle = t.msg_error;
+        let errCodeNum = "1000";
+        let isOwned = false;
+        
+        if(msg.includes('used')) { errTitle = t.error_used_msg; errCodeNum = "1013"; }
+        else if(msg.includes('owned')) { errTitle = t.error_owned_msg; errCodeNum = "1011"; isOwned = true; }
+        else if(msg.includes('invalid') || msg.includes('not found')) { errTitle = t.msg_invalid; errCodeNum = "1012"; }
+        
+        renderErrorScreen(errCodeNum, errTitle, d.message, isOwned);
     }
 }
 
@@ -725,8 +779,7 @@ async function processCodeRedeem() {
             const dlBtn = gId('btnDownload');
             dlBtn.href = d.actionUrl;
             dlBtn.style.display = 'flex';
-            dlBtn.innerHTML = `<span>${currentContentData.btnLabel || t.btn_download}</span> <i data-lucide="download" style="width:18px;"></i>`;
-            lucide.createIcons();
+            dlBtn.innerHTML = `<span>${currentContentData.btnLabel || t.btn_download}</span>`;
         } else {
             gId('btnDownload').style.display = 'none';
         }
@@ -738,21 +791,16 @@ async function processCodeRedeem() {
         const msg = (d.message||"").toLowerCase();
         let errTitle = t.msg_error;
         let errCodeNum = "1000";
+        let isOwned = false;
         
         if(msg.includes('used')) { errTitle = t.error_used_msg; errCodeNum = "1013"; }
-        else if(msg.includes('owned')) { errTitle = t.error_owned_msg; errCodeNum = "1011"; }
-        else if(msg.includes('invalid')) { errTitle = t.msg_invalid; errCodeNum = "1012"; }
+        else if(msg.includes('owned')) { errTitle = t.error_owned_msg; errCodeNum = "1011"; isOwned = true; }
+        else if(msg.includes('invalid') || msg.includes('not found')) { errTitle = t.msg_invalid; errCodeNum = "1012"; }
         
-        gId('errCode').textContent = errCodeNum;
-        gId('errTitle').textContent = errTitle;
-        gId('errMsg').textContent = d.message || "";
-        gId('errTime').textContent = formatLocalTime(new Date());
-        
-        showPhase('phaseError', true);
+        renderErrorScreen(errCodeNum, errTitle, d.message, isOwned);
     }
     btn.disabled = false;
-    btn.innerHTML = `<i data-lucide="check-circle" style="width:18px;"></i> <span data-translate="btn_continue">${t.btn_continue}</span>`;
-    lucide.createIcons();
+    btn.innerHTML = `<span data-translate="btn_continue">${t.btn_continue}</span>`;
 }
 
 // User Data Sync
@@ -832,11 +880,11 @@ function initCanvasParticles() {
     window.addEventListener('resize', resize); resize();
     
     class P {
-        constructor() { this.x=Math.random()*cvs.width; this.y=Math.random()*cvs.height; this.s=Math.random()*100+50; this.sx=Math.random()*0.2-0.1; this.sy=Math.random()*0.2-0.1; this.o=Math.random()*0.2+0.1; }
+        constructor() { this.x=Math.random()*cvs.width; this.y=Math.random()*cvs.height; this.s=Math.random()*150+50; this.sx=Math.random()*0.1-0.05; this.sy=Math.random()*0.1-0.05; this.o=Math.random()*0.1+0.05; }
         update() { this.x+=this.sx; this.y+=this.sy; if(this.x<0||this.x>cvs.width)this.sx*=-1; if(this.y<0||this.y>cvs.height)this.sy*=-1; }
-        draw() { ctx.fillStyle=`hsla(188, 100%, 50%, ${this.o*0.2})`; ctx.beginPath(); ctx.arc(this.x,this.y,this.s,0,Math.PI*2); ctx.fill(); }
+        draw() { ctx.fillStyle=`rgba(255, 255, 255, ${this.o*0.5})`; ctx.beginPath(); ctx.arc(this.x,this.y,this.s,0,Math.PI*2); ctx.fill(); }
     }
-    let pts = []; for(let i=0;i<8;i++) pts.push(new P());
+    let pts = []; for(let i=0;i<5;i++) pts.push(new P());
     function anim() { ctx.clearRect(0,0,cvs.width,cvs.height); pts.forEach(p=>{p.update();p.draw();}); requestAnimationFrame(anim); }
     anim();
 }
