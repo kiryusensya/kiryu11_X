@@ -1103,39 +1103,6 @@ button, input, textarea { font-family: var(--font-stack); }
     margin: 0;        /* ★追加 */
   }
 }
-@keyframes flashEffect {
-    0% { background-color: rgba(255, 255, 255, 0); }
-    10% { background-color: rgba(255, 255, 255, 0.9); }
-    100% { background-color: rgba(255, 255, 255, 0); }
-}
-.screen-flash {
-    position: fixed; inset: 0; pointer-events: none; z-index: 100000;
-    animation: flashEffect 0.6s ease-out forwards;
-}
-
-@keyframes stampDrop {
-    0% { transform: scale(4) rotate(-20deg); opacity: 0; }
-    50% { transform: scale(0.8) rotate(-5deg); opacity: 1; }
-    70% { transform: scale(1.1) rotate(-5deg); }
-    100% { transform: scale(1) rotate(-5deg); opacity: 1; }
-}
-.stamp-owned {
-    position: absolute; top: 50%; left: 50%; 
-    margin-top: -30px; margin-left: -80px; /* 位置調整 */
-    font-size: 36px; font-weight: 900; color: #E74C3C;
-    border: 6px solid #E74C3C; border-radius: 8px; padding: 5px 15px;
-    text-transform: uppercase; letter-spacing: 2px;
-    transform-origin: center; opacity: 0;
-    text-shadow: 0 0 10px rgba(231, 76, 60, 0.4);
-    box-shadow: 0 0 15px rgba(231, 76, 60, 0.3), inset 0 0 10px rgba(231, 76, 60, 0.2);
-    z-index: 10; pointer-events: none;
-}
-.animate-stamp {
-    animation: stampDrop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s forwards;
-}
-.modal-left-col {
-    position: relative; overflow: hidden; /* スタンプのはみ出しを防ぐ */
-}
 /* =========================================
    Micro-Interactions & Unified Modal UI
    ========================================= */
@@ -2425,21 +2392,6 @@ async function buyItemWithPoints(contentId, price) { // ⭕ 引数を変更
             
             // ★サーバーから最新の履歴を取得（今買ったアイテムが history[0] に入ります）
             await fetchUserHistory(); 
-            
-            // --- アニメーション処理 ---
-            const flash = document.createElement('div');
-            flash.className = 'screen-flash';
-            document.body.appendChild(flash);
-            setTimeout(() => flash.remove(), 1000);
-
-            const oldStamp = els.successImage.parentElement.querySelector('.stamp-owned');
-            if (oldStamp) oldStamp.remove();
-
-            const stamp = document.createElement('div');
-            stamp.className = 'stamp-owned animate-stamp';
-            stamp.textContent = 'OWNED';
-            els.successImage.parentElement.appendChild(stamp);
-            // -----------------------------
 
             // ★ スマホ版とPC版で表示を分ける＆UIの更新
             if (window.innerWidth <= 768) {
