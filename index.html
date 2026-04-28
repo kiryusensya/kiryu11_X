@@ -1051,25 +1051,26 @@ button, input, textarea { font-family: var(--font-stack); }
     .rgl-header > * { pointer-events: auto; }
     .rgl-tabs { display: none !important; }
 
-    /* カプセルメニュー（ロゴの下に配置） */
-    .capsule-menu {
-        position: relative !important;
-        bottom: auto !important;
-        left: auto !important;
-        transform: none !important;
-        width: calc(100% - 40px) !important;
-        margin: 0 20px 20px 20px !important;
-        background: rgba(128, 128, 128, 0.1) !important;
-        border: none !important;
-        box-shadow: none !important;
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
-        z-index: 10;
+   .capsule-menu {
+        position: fixed !important;
+        bottom: 30px !important;
+        top: auto !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        width: 260px !important;
+        margin: 0 !important;
+        background: rgba(255, 255, 255, 0.85) !important;
+        border: 1px solid rgba(128, 128, 128, 0.2) !important;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2) !important;
+        backdrop-filter: blur(25px) !important;
+        -webkit-backdrop-filter: blur(25px) !important;
+        z-index: 9999 !important;
         display: flex !important;
         padding: 6px !important;
     }
     [data-theme="dark"] .capsule-menu {
-        background: rgba(255, 255, 255, 0.05) !important;
+        background: rgba(30, 30, 30, 0.85) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
     }
 
     /* アカウントドロップダウンの位置調整 */
