@@ -2684,14 +2684,12 @@ function showMobileItemDetail(item, isNewRedeem = false) {
         const releaseDate = item.releaseDateIso ? new Date(item.releaseDateIso) : null;
         const expireDate = item.expireDateIso ? new Date(item.expireDateIso) : null;
 
-        // ★追加: 期限切れチェック
+        // ★ 期限切れならモーダルを強制的に閉じて画面リフレッシュ
         if (expireDate && expireDate < now) {
-            if(modalDownloadTimer) clearInterval(modalDownloadTimer);
-            els.btnSuccessDownload.style.pointerEvents = 'none';
-            els.btnSuccessDownload.style.opacity = '0.5';
-            els.btnSuccessDownload.removeAttribute('href');
-            els.btnSuccessDownload.onclick = (e) => { e.preventDefault(); };
-            els.btnSuccessDownload.innerHTML = `<span>期限切れ</span>`;
+            if (modalDownloadTimer) clearInterval(modalDownloadTimer);
+            closeAuthModal();
+            updateAccountUI();
+            fetchAvailableContent();
             return;
         }
 
@@ -3009,17 +3007,6 @@ function setHeroButtonState(state, forceUnlock = false) {
 
         const now = new Date();
         const releaseDate = selectedHeroItem.releaseDateIso ? new Date(selectedHeroItem.releaseDateIso) : null;
-        const expireDate = selectedHeroItem.expireDateIso ? new Date(selectedHeroItem.expireDateIso) : null;
-
-        // ★追加: 期限切れの場合はボタンを無効化
-        if (expireDate && now > expireDate) {
-            if(heroTimer) { clearInterval(heroTimer); heroTimer = null; }
-            btn.innerHTML = `<span>期限切れ</span>`;
-            btn.style.opacity = '0.5';
-            btn.style.cursor = 'not-allowed';
-            btn.classList.remove('is-download');
-            return;
-        }
 
         if (!forceUnlock && releaseDate && releaseDate > now) {
             startHeroCountdown(releaseDate);
@@ -3184,22 +3171,37 @@ function startLibraryTimer() {
     if (libraryTimerId) clearInterval(libraryTimerId);
     libraryTimerId = setInterval(() => {
         const now = Date.now();
+        
+        // ★ 1. 履歴の中の期限切れをリアルタイムで監視し、配列から消し去る
+        if (currentUser && currentUser.history) {
+            const originalLen = currentUser.history.length;
+            currentUser.history = currentUser.history.filter(item => {
+                // 期限を過ぎていたら false を返して配列から除外
+                return !(item.expireDateIso && new Date(item.expireDateIso).getTime() <= now);
+            });
+            
+            // もし期限切れが発生して数が減ったら、サイドバーとストアを再描画
+            if (currentUser.history.length !== originalLen) {
+                updateAccountUI();
+                fetchAvailableContent();
+            }
+        }
+
+        // ★ 2. 現在選択中（画面中央に表示中）のコンテンツが期限切れになったら強制リセット
+        if (selectedHeroItem && selectedHeroItem.expireDateIso) {
+            if (new Date(selectedHeroItem.expireDateIso).getTime() <= now) {
+                resetHeroToDefault();
+                return;
+            }
+        }
+
+        // 3. 解禁時間の監視（既存の処理）
         if (window.innerWidth > 768 && selectedHeroItem) {
              const isOwnedContext = currentHeroContext === 'owned';
-             
-             // ★解禁時間のチェック
              if (selectedHeroItem.releaseDateIso) {
                  const releaseTime = new Date(selectedHeroItem.releaseDateIso).getTime();
-                 if (releaseTime <= now && isOwnedContext && !els.heroActionBtn.classList.contains('is-download') && els.heroActionBtn.innerHTML.indexOf('期限切れ') === -1) {
+                 if (releaseTime <= now && isOwnedContext && !els.heroActionBtn.classList.contains('is-download')) {
                      setHeroButtonState('owned', true);
-                 }
-             }
-             
-             // ★有効期限のリアルタイムチェック
-             if (selectedHeroItem.expireDateIso) {
-                 const expireTime = new Date(selectedHeroItem.expireDateIso).getTime();
-                 if (expireTime <= now && isOwnedContext && els.heroActionBtn.innerHTML.indexOf('期限切れ') === -1) {
-                     setHeroButtonState('owned', true); 
                  }
              }
         }
@@ -3293,16 +3295,7 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
     if (treatAsOwned) {
         const dlBtn = mDiv.querySelector('.is-owned-download');
         if (dlBtn) {
-            // ★追加: 期限切れの場合
-            if (isExpired) {
-                dlBtn.style.background = 'rgba(128, 128, 128, 0.2)';
-                dlBtn.style.color = 'var(--modal-text-main)';
-                dlBtn.style.border = '1px solid transparent';
-                dlBtn.style.cursor = 'not-allowed';
-                dlBtn.innerHTML = `<span>期限切れ</span>`;
-                dlBtn.onclick = (e) => { e.stopPropagation(); };
-            }
-            else if (isLocked) {
+            if (isLocked) {
                 dlBtn.style.background = 'rgba(128, 128, 128, 0.2)';
                 dlBtn.style.color = 'var(--modal-text-main)';
                 dlBtn.style.border = '1px solid transparent';
@@ -3317,18 +3310,6 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                 const updateMobileCountdown = () => {
                     if (!document.body.contains(dlBtn)) return true;
                     const currentNow = new Date();
-                    
-                    // ★追加: カウントダウン中にも期限切れを監視
-                    if (expireDate && expireDate < currentNow) {
-                        dlBtn.style.background = 'rgba(128, 128, 128, 0.2)';
-                        dlBtn.style.color = 'var(--modal-text-main)';
-                        dlBtn.style.border = '1px solid transparent';
-                        dlBtn.style.cursor = 'not-allowed';
-                        dlBtn.style.pointerEvents = 'none';
-                        dlBtn.innerHTML = `<span>期限切れ</span>`;
-                        return true; 
-                    }
-
                     const diff = releaseDate - currentNow;
 
                     if (diff <= 0) {
@@ -3368,9 +3349,7 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
 
                 updateMobileCountdown();
                 const timerId = setInterval(() => {
-                    if (updateMobileCountdown()) {
-                        clearInterval(timerId);
-                    }
+                    if (updateMobileCountdown()) clearInterval(timerId);
                 }, 1000);
 
             } else {
