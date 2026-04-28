@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>kiryu10 // Secure Activation</title>
+<title>kiryu10 // Secure Gateway</title>
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800&family=HarmonyOS+Sans:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
@@ -22,24 +22,21 @@
 /* --- THEME VARIABLES --- */
 :root {
   --primary: #FFFFFF;
-  --primary-bg: #FFFFFF;
-  --primary-text: #000000;
-  --bg-color: #050505;
-  --card-bg: rgba(18, 18, 18, 0.45);
+  --bg-color: #050505; /* より深い黒へ */
+  --card-bg: rgba(15, 15, 15, 0.4);
   --card-border: rgba(255, 255, 255, 0.1);
   --modal-text-main: #FFFFFF;
-  --modal-text-sub: #888888;
+  --modal-text-sub: #A0A0A0;
   --dropdown-bg: rgba(15, 15, 15, 0.95);
   
-  /* Neon Colors (Only for Success/Error) */
+  /* Neon Colors */
   --error-color: #FF2D55;
-  --error-glow: rgba(255, 45, 85, 0.4);
+  --error-glow: rgba(255, 45, 85, 0.5);
   --success-color: #04CF22;
-  --success-glow: rgba(4, 207, 34, 0.4);
+  --success-glow: rgba(4, 207, 34, 0.5);
   
   --spring-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
   --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
-  --shadow-base: 0 30px 60px rgba(0,0,0,0.8);
 }
 
 :root:lang(ja) { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
@@ -49,7 +46,6 @@
 :root:lang(ko) { --font-stack: 'HarmonyOS Sans', 'Noto Sans KR', sans-serif; }
 :root:lang(ru) { --font-stack: 'HarmonyOS Sans', sans-serif; }
 
-/* Scrollbar */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
@@ -67,15 +63,12 @@ body {
   overflow: hidden;
 }
 
-/* Subdued Background */
-.bg-mesh {
-  position: fixed; inset: 0; z-index: 0; opacity: 0.05; pointer-events: none;
-  background-image: radial-gradient(circle at center, #ffffff 1px, transparent 1px);
-  background-size: 40px 40px;
-}
-#particleCanvas {
-  position: fixed; inset: 0; width: 100%; height: 100%;
-  z-index: 1; opacity: 0.3; pointer-events: none; filter: blur(5px);
+/* Background Blurs */
+.bg-blobs {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: 
+    radial-gradient(circle at 15% 50%, rgba(255,255,255,0.03) 0%, transparent 40%),
+    radial-gradient(circle at 85% 30%, rgba(255,255,255,0.02) 0%, transparent 40%);
 }
 
 /* --- HEADER --- */
@@ -85,13 +78,13 @@ header {
 }
 .brand { 
   font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 10px; 
-  letter-spacing: 1px; color: rgba(255,255,255,0.8);
+  letter-spacing: 1px; color: #FFFFFF;
 }
 .header-actions { display: flex; gap: 15px; align-items: center; }
 
 .icon-btn {
   width: 44px; height: 44px; border-radius: 50%;
-  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; transition: 0.3s; color: var(--modal-text-main);
   backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
@@ -102,14 +95,14 @@ header {
 .dropdown-menu {
   position: absolute; top: 75px; right: 40px; width: 300px;
   background: var(--dropdown-bg); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
-  border: 1px solid var(--card-border); border-radius: 20px;
+  border: 1px solid var(--card-border); border-radius: 16px;
   box-shadow: 0 20px 50px rgba(0,0,0,0.8); padding: 20px;
   z-index: 2000; opacity: 0; transform: translateY(-10px); pointer-events: none;
   transition: 0.3s var(--spring-ease);
 }
 .dropdown-menu.open { opacity: 1; transform: translateY(0); pointer-events: auto; }
-.lang-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 5px; }
-.lang-list li { padding: 12px 15px; cursor: pointer; border-radius: 10px; font-weight: 700; font-size: 14px; transition: 0.2s; color: #fff;}
+.lang-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.lang-list li { padding: 12px 15px; cursor: pointer; border-radius: 8px; font-weight: 700; font-size: 14px; transition: 0.2s; color: #fff;}
 .lang-list li:hover { background: rgba(255,255,255,0.1); }
 
 .account-info { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 15px; }
@@ -119,11 +112,11 @@ header {
 .menu-btn {
   width: 100%; background: transparent; border: none; text-align: left;
   padding: 12px; font-size: 15px; font-weight: 700; color: var(--modal-text-main);
-  cursor: pointer; border-radius: 10px; display: flex; justify-content: space-between;
+  cursor: pointer; border-radius: 8px; display: flex; justify-content: space-between;
   align-items: center; transition: 0.2s; font-family: var(--font-stack);
 }
 .menu-btn:hover { background: rgba(255,255,255,0.1); }
-.menu-btn.logout { color: var(--error-color); margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); border-radius: 0 0 10px 10px; padding-top: 15px;}
+.menu-btn.logout { color: var(--error-color); margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); border-radius: 0 0 8px 8px; padding-top: 15px;}
 .menu-btn.logout:hover { background: rgba(255, 45, 85, 0.1); }
 
 /* --- MAIN REDEEM AREA --- */
@@ -131,136 +124,119 @@ main {
   flex: 1; display: flex; align-items: center; justify-content: center;
   position: relative; z-index: 10; padding: 20px; overflow-y: auto;
 }
+
+/* Base Card (Frosted Glass, No Neon) */
 .redeem-card {
   background: var(--card-bg); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
-  border: 1px solid rgba(255,255,255,0.08); border-radius: 24px;
-  padding: 50px 40px; width: 100%; max-width: 500px;
-  box-shadow: var(--shadow-base), inset 0 0 40px rgba(0,0,0,0.5); 
+  border: 1px solid var(--card-border); border-radius: 20px;
+  padding: 50px; width: 100%; max-width: 550px;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 0 20px rgba(255,255,255,0.02); 
   position: relative; overflow: hidden;
-  transition: max-width 0.5s var(--spring-ease), background 0.4s, border-color 0.4s, box-shadow 0.4s;
+  transition: max-width 0.4s var(--spring-ease), border-color 0.4s, box-shadow 0.4s;
 }
-.redeem-card.is-wide { max-width: 800px; }
+.redeem-card.is-wide { max-width: 750px; }
 
-/* Dynamic Card Glows */
+/* Dynamic Glow States (Triggered via JS) */
 .redeem-card.glow-error {
-  border-color: rgba(255, 45, 85, 0.3);
-  box-shadow: var(--shadow-base), 0 0 40px rgba(255, 45, 85, 0.05), inset 0 0 30px rgba(255, 45, 85, 0.05);
+  border-color: rgba(255, 45, 85, 0.5);
+  box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 30px rgba(255, 45, 85, 0.1), inset 0 0 20px rgba(255, 45, 85, 0.1);
 }
 .redeem-card.glow-success {
-  border-color: rgba(4, 207, 34, 0.3);
-  box-shadow: var(--shadow-base), 0 0 40px rgba(4, 207, 34, 0.05), inset 0 0 30px rgba(4, 207, 34, 0.05);
+  border-color: rgba(4, 207, 34, 0.5);
+  box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 30px rgba(4, 207, 34, 0.1), inset 0 0 20px rgba(4, 207, 34, 0.1);
 }
 
 /* Phase Containers */
-.phase-container { display: none; opacity: 0; transition: opacity 0.4s ease; flex-direction: column; position: relative; z-index: 2; }
+.phase-container { display: none; opacity: 0; transition: opacity 0.3s ease; flex-direction: column; position: relative; z-index: 2; }
 .phase-container.active { display: flex; opacity: 1; }
 
-/* 1. Input Phase (Solid, No Neon) */
-.gate-icon { opacity: 0.5; margin: 0 auto 20px; display: flex; justify-content: center; }
-.phase-title { font-size: 24px; font-weight: 800; margin: 0 0 10px; letter-spacing: 2px; text-align: center; text-transform: uppercase; }
+/* 1. Input Phase (Strict & Solid) */
+.keyhole-icon { text-align: center; margin-bottom: 20px; opacity: 0.8; }
+.phase-title { font-size: 24px; font-weight: 800; margin: 0 0 10px; text-align: center; letter-spacing: 2px; }
 .phase-desc { font-size: 13px; color: var(--modal-text-sub); margin: 0 0 40px; text-align: center; font-weight: 500; }
 
-.secure-input-group { position: relative; margin-bottom: 30px; }
+.secure-input-group { margin-bottom: 30px; }
 .secure-input {
   width: 100%; height: 70px; border-radius: 12px;
-  background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.15);
-  text-align: center; font-size: 22px; font-weight: 800; letter-spacing: 4px;
+  background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15);
+  text-align: center; font-size: 24px; font-weight: 800; letter-spacing: 4px;
   color: #fff; outline: none; transition: 0.3s;
   font-family: monospace, var(--font-stack); text-transform: uppercase;
 }
-.secure-input::placeholder { color: rgba(255,255,255,0.1); font-weight: 500; letter-spacing: 2px; }
-.secure-input:focus { border-color: rgba(255,255,255,0.5); background: rgba(0,0,0,0.8); }
+.secure-input::placeholder { color: rgba(255,255,255,0.2); font-weight: 500; letter-spacing: 2px; }
+.secure-input:focus { border-color: rgba(255,255,255,0.6); background: rgba(0,0,0,0.8); }
 
-/* Standard Buttons */
-.btn-solid {
-  width: 100%; height: 60px; border-radius: 12px; border: none;
-  background: var(--primary-bg); color: var(--primary-text);
-  font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.3s;
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-  font-family: var(--font-stack); letter-spacing: 1px;
+/* Buttons */
+.action-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  height: 56px; border-radius: 12px; font-size: 16px; font-weight: 800;
+  cursor: pointer; transition: 0.3s; font-family: var(--font-stack); text-decoration: none;
+  flex: 1; /* バグ修正: 全てのボタンの幅を均等に */
 }
-.btn-solid:hover { opacity: 0.8; transform: translateY(-2px); }
-.btn-solid:active { transform: translateY(1px); }
-.btn-solid:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+.action-btn:active { transform: translateY(1px); }
+.action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-.btn-outline {
-  width: 100%; height: 60px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);
-  background: transparent; color: var(--modal-text-main);
-  font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.3s;
-  font-family: var(--font-stack);
-}
-.btn-outline:hover { background: rgba(255,255,255,0.1); }
+.btn-solid-white { background: #FFFFFF; color: #000000; border: none; }
+.btn-solid-white:hover { background: #E0E0E0; transform: translateY(-2px); }
 
-/* Split Layout */
+.btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.3); color: #FFFFFF; }
+.btn-outline:hover { background: rgba(255,255,255,0.1); border-color: #FFFFFF; }
+
+/* Neon Buttons (For Error/Success) */
+.btn-neon-red { background: var(--error-color); color: #FFFFFF; border: none; box-shadow: 0 0 20px var(--error-glow); }
+.btn-neon-red:hover { filter: brightness(1.2); box-shadow: 0 0 30px var(--error-glow); transform: translateY(-2px); }
+
+/* Split Layout (For Preview, Success, Error) */
 .split-layout { display: flex; gap: 40px; text-align: left; align-items: stretch; }
-.split-left { width: 340px; flex-shrink: 0; display: flex; flex-direction: column; position: relative; }
+.split-left { width: 320px; flex-shrink: 0; display: flex; flex-direction: column; }
 .split-left img { width: 100%; height: 100%; border-radius: 12px; object-fit: cover; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
 .split-right { flex: 1; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
 
-.content-label { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.5); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
-.content-title { font-size: 26px; font-weight: 800; margin: 0 0 20px; line-height: 1.4; word-break: break-word; }
+.content-label { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.5); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+.content-title { font-size: 24px; font-weight: 800; margin: 0 0 20px; line-height: 1.4; word-break: break-word; }
 
-.action-row { display: flex; gap: 15px; margin-top: auto; }
-.action-row .btn-outline { flex: 1; }
-.action-row .btn-solid { flex: 1; }
+/* Info Boxes */
+.info-box { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; margin-bottom: 25px; font-size: 14px; font-weight: 500; line-height: 1.6; white-space: pre-wrap; }
+.info-box.error { background: rgba(255, 45, 85, 0.05); border-color: rgba(255, 45, 85, 0.3); color: #FFFFFF; }
+.time-stamp { font-size: 12px; font-weight: 700; margin-top: 15px; letter-spacing: 1px; }
 
-/* 2. Error Phase (Screenshot matching) */
-#phaseError { text-align: center; }
-.error-neon-text {
-  font-size: 26px; font-weight: 800; margin-bottom: 20px;
+.action-row { display: flex; gap: 15px; width: 100%; margin-top: auto; }
+
+/* 2. Error Phase (Matches Screenshot) */
+.error-neon-title {
+  font-size: 26px; font-weight: 800; margin-bottom: 25px;
   color: var(--error-color); text-shadow: 0 0 15px var(--error-glow);
   display: flex; align-items: center; justify-content: center; gap: 10px;
 }
-.error-denied-text {
-  color: var(--error-color); font-size: 12px; font-weight: 700; letter-spacing: 1px;
-  margin-bottom: 8px; text-align: left; display: flex; align-items: center; gap: 6px;
-}
-.error-main-title { font-size: 24px; font-weight: 800; margin-bottom: 20px; text-align: left; }
-.error-info-box {
-  background: rgba(255, 45, 85, 0.05);
-  border: 1px solid rgba(255, 45, 85, 0.3);
-  border-radius: 12px; padding: 25px; margin-bottom: 30px;
-  text-align: left;
-}
-.error-info-msg { font-size: 14px; margin-bottom: 30px; font-weight: 500; }
-.error-info-time { font-size: 12px; color: var(--error-color); font-weight: 700; opacity: 0.8;}
-
-.btn-error-primary {
-  width: 100%; height: 60px; border-radius: 12px; border: none;
-  background: var(--error-color); color: #fff;
-  font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.3s;
-  box-shadow: 0 0 20px var(--error-glow); font-family: var(--font-stack);
-}
-.btn-error-primary:hover { filter: brightness(1.2); box-shadow: 0 0 30px var(--error-glow); transform: translateY(-2px); }
+.error-denied-label { color: var(--error-color); font-size: 12px; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
 
 /* 3. Success Phase */
-.success-neon-text {
+.success-neon-title {
   font-size: 26px; font-weight: 800; margin-bottom: 20px; text-align: left;
   color: var(--success-color); text-shadow: 0 0 15px var(--success-glow);
+  display: flex; align-items: center; gap: 10px;
 }
-.success-info-box {
-  background: rgba(4, 207, 34, 0.05); border: 1px solid rgba(4, 207, 34, 0.3);
-  border-radius: 12px; padding: 20px; margin-bottom: 25px; font-size: 14px;
-}
+.success-info-box { background: rgba(4, 207, 34, 0.05); border: 1px solid rgba(4, 207, 34, 0.3); border-radius: 12px; padding: 20px; margin-bottom: 25px; font-size: 14px; }
 
 /* Mobile Optimization */
 @media (max-width: 768px) {
   header { padding: 15px 20px; }
   .brand { font-size: 18px; }
   main { padding: 15px; align-items: flex-start; }
-  .redeem-card { padding: 30px 20px; border-radius: 20px; border: none; background: transparent; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .redeem-card { padding: 30px 20px; border-radius: 16px; border: none; background: transparent; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
   
-  .secure-input { height: 60px; font-size: 18px; }
-  .btn-solid, .btn-outline, .btn-error-primary { height: 50px; font-size: 14px; }
+  .secure-input { height: 60px; font-size: 20px; letter-spacing: 2px; }
+  .action-btn { height: 50px; font-size: 14px; }
   
   .split-layout { flex-direction: column; gap: 20px; }
   .split-left { width: 100%; }
-  .split-left img { height: 200px; }
+  .split-left img { height: 180px; }
   .content-title { font-size: 20px; }
-  .dropdown-menu { width: 260px; right: 20px; top: 65px; }
   
-  .error-neon-text { font-size: 22px; }
-  .error-main-title { font-size: 20px; }
+  /* スマホ時はボタンを縦並びに（バグ修正） */
+  .action-row { flex-direction: column-reverse; gap: 10px; }
+  .dropdown-menu { width: 260px; right: 20px; top: 65px; }
+  .error-neon-title { font-size: 22px; }
 }
 
 /* Modals for Account/History */
@@ -272,7 +248,7 @@ main {
 .sys-modal.active { opacity: 1; pointer-events: auto; }
 .sys-modal-content {
   background: var(--card-bg); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
-  border: 1px solid var(--card-border); border-radius: 24px;
+  border: 1px solid var(--card-border); border-radius: 20px;
   padding: 40px; width: 90%; max-width: 500px; position: relative;
   transform: translateY(30px) scale(0.95); transition: 0.4s var(--spring-ease);
   box-shadow: var(--shadow-base); max-height: 85vh; display: flex; flex-direction: column;
@@ -283,7 +259,7 @@ main {
 
 .form-group { margin-bottom: 15px; text-align: left; }
 .form-input { 
-  width: 100%; height: 50px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); 
+  width: 100%; height: 50px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); 
   background: rgba(0,0,0,0.5); padding: 0 15px; color: #fff; font-family: inherit; font-size: 14px; outline: none; transition: 0.3s;
 }
 .form-input:focus { border-color: rgba(255,255,255,0.5); }
@@ -302,8 +278,7 @@ main {
 </head>
 <body>
 
-<div class="bg-mesh"></div>
-<canvas id="particleCanvas"></canvas>
+<div class="bg-blobs"></div>
 
 <header>
   <div class="brand"><i data-lucide="scan-line"></i> kiryu10</div>
@@ -345,16 +320,16 @@ main {
   <div class="redeem-card" id="mainCard">
     
     <div class="phase-container active" id="phaseInput">
-      <div class="gate-icon"><i data-lucide="lock" style="width:32px;height:32px;color:#fff;"></i></div>
+      <div class="keyhole-icon"><i data-lucide="key-round" style="width:40px;height:40px;color:#fff;"></i></div>
       <h1 class="phase-title" data-translate="modal_title">コード引き換え</h1>
-      <p class="phase-desc" data-translate="modal_sub">認証キーを入力してゲートを解除してください。</p>
+      <p class="phase-desc" data-translate="modal_sub">プロダクトキーを入力してアクセス権限を証明してください。</p>
       
       <div class="secure-input-group">
         <input type="text" id="activationCode" class="secure-input" placeholder="XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false">
       </div>
       
-      <button class="btn-solid" id="btnCheck">
-        <span data-translate="modal_btn_auth">確認</span>
+      <button class="action-btn btn-solid-white" id="btnCheck">
+        <i data-lucide="unlock" style="width:18px;height:18px;"></i> <span data-translate="modal_btn_auth">確認</span>
       </button>
     </div>
 
@@ -367,17 +342,17 @@ main {
         <div class="split-right">
           <p class="content-label"><i data-lucide="info" style="width:12px; vertical-align:text-bottom;"></i> <span data-translate="preview_desc">続行すると以下のコンテンツを受け取ります:</span></p>
           <h3 class="content-title" id="prevTitle">Title</h3>
-          <div class="info-box" id="prevWarning" style="display:none; padding:15px; background:rgba(255,255,255,0.05); border:none;"></div>
+          <div class="info-box" id="prevWarning" style="display:none; padding:15px; border:none;"></div>
           <div class="action-row">
-            <button class="btn-outline" onclick="resetToInput()" data-translate="btn_close">キャンセル</button>
-            <button class="btn-solid" id="btnRedeem"><span data-translate="btn_continue">認証する</span></button>
+            <button class="action-btn btn-outline" onclick="resetToInput(false)" data-translate="btn_close">キャンセル</button>
+            <button class="action-btn btn-solid-white" id="btnRedeem"><span data-translate="btn_continue">認証する</span></button>
           </div>
         </div>
       </div>
     </div>
 
     <div class="phase-container" id="phaseSuccess">
-      <h2 class="success-neon-text"><i data-lucide="check-circle" style="width:28px;height:28px; vertical-align:bottom;"></i> <span data-translate="success_title_final">認証成功!!</span></h2>
+      <h2 class="success-neon-title"><i data-lucide="check-circle" style="width:28px;height:28px;"></i> <span data-translate="success_title_final">認証成功!!</span></h2>
       <div class="split-layout">
         <div class="split-left">
           <img id="succImg" src="" alt="Success">
@@ -390,9 +365,9 @@ main {
             <div class="time-stamp" id="succTime" style="color:var(--success-color);"></div>
           </div>
           <div class="action-row">
-            <button class="btn-outline" onclick="resetToInput()" data-translate="btn_close">閉じる</button>
-            <a href="#" class="btn-solid" id="btnDownload" target="_blank" style="text-decoration:none;">
-              <span data-translate="btn_download">ダウンロード</span>
+            <button class="action-btn btn-outline" onclick="resetToInput(true)" data-translate="btn_close">閉じる</button>
+            <a href="#" class="action-btn btn-solid-white" id="btnDownload" target="_blank">
+              <span data-translate="btn_download">ダウンロード</span> <i data-lucide="download" style="width:18px;"></i>
             </a>
           </div>
         </div>
@@ -400,20 +375,19 @@ main {
     </div>
 
     <div class="phase-container" id="phaseError">
-      <h2 class="error-neon-text">
+      <h2 class="error-neon-title">
         ⚠ <span data-translate="error_title_prefix">エラー</span> <span id="errCode"></span>
       </h2>
-      <div style="width:100%;">
-        <p class="error-denied-text">⚠ ACCESS DENIED</p>
-        <h3 class="error-main-title" id="errTitle">Error Title</h3>
+      <div style="width:100%; text-align:left;">
+        <p class="error-denied-label">⚠ ACCESS DENIED</p>
+        <h3 class="content-title" id="errTitle">Error Title</h3>
         
-        <div class="error-info-box">
-          <div class="error-info-msg" id="errMsg"></div>
-          <div class="error-info-time" id="errTime"></div>
+        <div class="info-box error">
+          <div id="errMsg" style="margin-bottom: 20px;"></div>
+          <div class="time-stamp" id="errTime" style="color: var(--error-color); margin-top:0;"></div>
         </div>
         
-        <div class="action-row" id="errorBtnRow">
-          </div>
+        <div class="action-row" id="errorBtnRow"></div>
       </div>
     </div>
 
@@ -446,7 +420,7 @@ main {
       <input type="password" id="passConf" class="form-input" placeholder="新しいパスワード (確認用)">
     </div>
     <div id="passMsg" style="color:var(--error-color); font-size:13px; font-weight:700; margin-bottom:15px; min-height: 18px; text-align:center;"></div>
-    <button class="btn-solid" id="btnSubmitPass" style="height: 50px;" data-translate="modal_acc_btn_change">変更を保存</button>
+    <button class="action-btn btn-solid-white" id="btnSubmitPass" style="width:100%;" data-translate="modal_acc_btn_change">変更を保存</button>
   </div>
 </div>
 
@@ -459,7 +433,7 @@ let currentContentData = {};
 // Translations Dictionary
 const TRANSLATIONS={
  ja:{
-  modal_title:"コード引き換え",modal_sub:"認証キーを入力してゲートを解除してください。", modal_btn_auth:"確認",
+  modal_title:"コード引き換え",modal_sub:"プロダクトキーを入力してアクセス権限を証明してください。", modal_btn_auth:"確認",
   msg_verifying:"確認中",msg_success_btn:"成功", msg_invalid:"コードが無効です",msg_used:"このコードは使用済みです",msg_error:"エラーが発生しました", 
   preview_title: "引き換えの確認", preview_desc: "続行すると以下のコンテンツを受け取ります:",
   success_title_final: "認証成功!!", success_desc: "以下のコンテンツが有効になりました:",
@@ -471,19 +445,19 @@ const TRANSLATIONS={
   msg_acc_err_empty:"すべての項目を入力してください", msg_acc_err_len:"パスワードは6文字以上にしてください", msg_acc_err_match:"パスワードが一致しません", msg_acc_changing:"変更中...", msg_acc_success:"パスワードを変更しました！"
  },
  en:{
-  modal_title:"Redeem Code",modal_sub:"Enter your activation key to unlock the gate.", modal_btn_auth:"AUTHORIZE",
+  modal_title:"Redeem Code",modal_sub:"Enter your activation key to verify access.", modal_btn_auth:"CHECK",
   msg_verifying:"Checking",msg_success_btn:"Success", msg_invalid:"This code is invalid.",msg_used:"This code has already been used.",msg_error:"Error occurred", 
   preview_title: "Confirm Redemption", preview_desc: "If you continue, you will receive the following content:",
   success_title_final: "Redeem Successful!!", success_desc: "The following content has been activated:",
   success_msg_box: "Redeem Code successfully verified.",
   error_title_prefix: "Error", error_used_msg: "This code has already been used.", error_locked_msg: "This content is not yet unlocked.", error_owned_msg: "You already own it.",
-  btn_close:"Close",btn_continue:"Confirm",btn_download:"Download", btn_retry:"Try Again", btn_go_home:"Go to Home",
+  btn_close:"Close",btn_continue:"Redeem",btn_download:"Download", btn_retry:"Try Again", btn_go_home:"Go to Home",
   label_logged_in: "USER ID", btn_logout: "Log Out", btn_history: "Usage History",
   modal_acc_change_pass:"Change Password", modal_acc_btn_change:"Save Changes", history_empty: "No history found.",
   msg_acc_err_empty:"Please fill in all fields", msg_acc_err_len:"Password must be at least 6 characters", msg_acc_err_match:"Passwords do not match", msg_acc_changing:"Updating...", msg_acc_success:"Password changed successfully!"
  },
  zh:{ 
-  modal_title:"兑換代码",modal_sub:"请输入激活密钥以解除网关。", modal_btn_auth:"检查", 
+  modal_title:"兑換代码",modal_sub:"请输入激活密钥以证明您的访问权限。", modal_btn_auth:"检查", 
   msg_verifying:"正在检查",msg_success_btn:"成功", msg_invalid:"该代码无效。",msg_used:"该代码已被使用。",msg_error:"错误", 
   preview_title: "确认内容", preview_desc: "如果您继续，您将收到以下内容:",
   success_title_final: "激活成功!!", success_desc: "该代码已兑换以下内容:", success_msg_box: "代码已成功兑换。",
@@ -494,7 +468,7 @@ const TRANSLATIONS={
   msg_acc_err_empty:"请填写所有字段", msg_acc_err_len:"密码长度至少为6个字符", msg_acc_err_match:"两次输入的新密码不一致", msg_acc_changing:"正在修改...", msg_acc_success:"密码修改成功！"
  },
  "zh-TW":{ 
-  modal_title:"兌換代碼",modal_sub:"請輸入啟用密鑰以解除網關。", modal_btn_auth:"檢查", 
+  modal_title:"兌換代碼",modal_sub:"請輸入啟用密鑰以證明您的存取權限。", modal_btn_auth:"檢查", 
   msg_verifying:"正在檢查",msg_success_btn:"成功", msg_invalid:"該代碼無效",msg_used:"該代碼已被使用",msg_error:"錯誤", 
   preview_title: "確認內容", preview_desc: "如果您繼續，您將收到以下內容:",
   success_title_final: "兌換成功!!", success_desc: "該代碼已兌換以下內容:", success_msg_box: "代碼已成功兌換。",
@@ -505,7 +479,7 @@ const TRANSLATIONS={
   msg_acc_err_empty:"請填寫所有欄位", msg_acc_err_len:"密碼長度至少為6個字符", msg_acc_err_match:"兩次輸入的新密碼不一致", msg_acc_changing:"正在修改...", msg_acc_success:"密碼修改成功！"
  },
  ko:{ 
-  modal_title:"교환 코드",modal_sub:"게이트를 해제하려면 인증 키를 입력하세요.", modal_btn_auth:"확인", 
+  modal_title:"교환 코드",modal_sub:"접근 권한을 증명하려면 인증 키를 입력하세요.", modal_btn_auth:"확인", 
   msg_verifying:"확인 중",msg_success_btn:"성공", msg_invalid:"유효하지 않은 코드입니다.",msg_used:"이미 사용된 코드입니다.",msg_error:"오류", 
   preview_title: "콘텐츠 확인", preview_desc: "계속하면 다음 콘텐츠를 받게됩니다:",
   success_title_final: "활성화 완료!!", success_desc: "다음 콘텐츠가 활성화되었습니다:", success_msg_box: "코드가 성공적으로 인증되었습니다.",
@@ -516,12 +490,12 @@ const TRANSLATIONS={
   msg_acc_err_empty:"모든 항목을 입력해주세요", msg_acc_err_len:"비밀번호는 6자 이상이어야 합니다", msg_acc_err_match:"새 비밀번호가 일치하지 않습니다", msg_acc_changing:"변경 중...", msg_acc_success:"비밀번호가 변경되었습니다!"
  },
  ru:{ 
-  modal_title:"Активация кода",modal_sub:"Введите ключ активации, чтобы разблокировать.", modal_btn_auth:"проверить", 
+  modal_title:"Активация кода",modal_sub:"Введите ключ активации, чтобы подтвердить доступ.", modal_btn_auth:"проверить", 
   msg_verifying:"Подтверждение",msg_success_btn:"Успех", msg_invalid:"Неверный код",msg_used:"Этот код уже был использован.",msg_error:"Ошибка", 
   preview_title: "Подтверждение", preview_desc: "Вы получите следующее содержимое:",
   success_title_final: "Успешно!!", success_desc: "Вы получите следующий контент:", success_msg_box: "Код успешно проверен.",
   error_title_prefix: "Ошибка", error_used_msg: "Этот код уже был использован.", error_locked_msg: "Этот контент еще не разблокирован.", error_owned_msg: "Оно у вас уже есть.",
-  btn_close:"Закрыть",btn_continue:"Погасить",btn_download:"Скачать", btn_retry:"Попробовать еще", btn_go_home:"На главную",
+  btn_close:"Закрыть",btn_continue:"Погасить",btn_download:"Скачать", btn_retry:"Повторить", btn_go_home:"На главную",
   label_logged_in: "USER ID", btn_logout: "Выйти", btn_history: "История",
   modal_acc_change_pass:"Изменить пароль", modal_acc_btn_change:"Сохранить", history_empty: "История пуста.",
   msg_acc_err_empty:"Пожалуйста, заполните все поля", msg_acc_err_len:"Пароль должен содержать не менее 6 символов", msg_acc_err_match:"Пароли не совпадают", msg_acc_changing:"Сохранение...", msg_acc_success:"Пароль успешно изменен!"
@@ -571,7 +545,6 @@ async function safeFetch(bodyObj) {
 // Initialization
 document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
-    initCanvasParticles();
     
     // Auth Check: Force Redirect if not logged in
     const sUser = localStorage.getItem('user_session_identity');
@@ -682,6 +655,7 @@ function showPhase(phaseId, isWide = false) {
         if(isWide) card.classList.add('is-wide');
         else card.classList.remove('is-wide');
         
+        // Add neon glow only for Error / Success
         if(phaseId === 'phaseError') card.classList.add('glow-error');
         if(phaseId === 'phaseSuccess') card.classList.add('glow-success');
     }, 200);
@@ -693,7 +667,8 @@ function resetToInput(clearCode = false) {
     }
     gId('activationCode').disabled = false;
     gId('btnCheck').disabled = false;
-    gId('btnCheck').innerHTML = `<span data-translate="modal_btn_auth">${TRANSLATIONS[CURRENT_LANG].modal_btn_auth}</span>`;
+    gId('btnCheck').innerHTML = `<i data-lucide="unlock" style="width:18px;height:18px;"></i> <span data-translate="modal_btn_auth">${TRANSLATIONS[CURRENT_LANG].modal_btn_auth}</span>`;
+    lucide.createIcons();
     showPhase('phaseInput', false);
     setTimeout(() => gId('activationCode').focus(), 400);
 }
@@ -706,18 +681,19 @@ function renderErrorScreen(codeNum, title, message, isOwned) {
     gId('errTime').textContent = formatLocalTime(new Date());
     
     const btnRow = gId('errorBtnRow');
+    // エラー時のボタン分岐 (使用済み・無効 vs 所有済み)
     if (isOwned) {
         btnRow.innerHTML = `
-            <button class="btn-outline" onclick="resetToInput(true)">${t.btn_close || '閉じる'}</button>
-            <button class="btn-solid" onclick="window.location.href='index.html'">${t.btn_go_home || 'ホームへ移動'}</button>
+            <button class="action-btn btn-outline" onclick="resetToInput(true)">${t.btn_close}</button>
+            <button class="action-btn btn-solid-white" onclick="window.location.href='index.html'">${t.btn_go_home}</button>
         `;
     } else {
         btnRow.innerHTML = `
-            <button class="btn-outline" onclick="resetToInput(false)">${t.btn_close || '閉じる'}</button>
-            <button class="btn-error-primary" onclick="resetToInput(true)">${t.btn_retry || '再度入力する'}</button>
+            <button class="action-btn btn-outline" onclick="resetToInput(false)">${t.btn_close}</button>
+            <button class="action-btn btn-neon-red" onclick="resetToInput(true)">${t.btn_retry}</button>
         `;
     }
-    showPhase('phaseError', true);
+    showPhase('phaseError', false); // Error phase is not wide
 }
 
 // API Interactions
@@ -751,9 +727,9 @@ async function processCodeCheck(code) {
         let errCodeNum = "1000";
         let isOwned = false;
         
-        if(msg.includes('used')) { errTitle = t.error_used_msg; errCodeNum = "1013"; }
-        else if(msg.includes('owned')) { errTitle = t.error_owned_msg; errCodeNum = "1011"; isOwned = true; }
-        else if(msg.includes('invalid') || msg.includes('not found')) { errTitle = t.msg_invalid; errCodeNum = "1012"; }
+        if(msg.includes('used') || msg.includes('使用済')) { errTitle = t.error_used_msg; errCodeNum = "1013"; }
+        else if(msg.includes('owned') || msg.includes('所有')) { errTitle = t.error_owned_msg; errCodeNum = "1011"; isOwned = true; }
+        else if(msg.includes('invalid') || msg.includes('not found') || msg.includes('無効')) { errTitle = t.msg_invalid; errCodeNum = "1012"; }
         
         renderErrorScreen(errCodeNum, errTitle, d.message, isOwned);
     }
@@ -779,7 +755,8 @@ async function processCodeRedeem() {
             const dlBtn = gId('btnDownload');
             dlBtn.href = d.actionUrl;
             dlBtn.style.display = 'flex';
-            dlBtn.innerHTML = `<span>${currentContentData.btnLabel || t.btn_download}</span>`;
+            dlBtn.innerHTML = `<span>${currentContentData.btnLabel || t.btn_download}</span> <i data-lucide="download" style="width:18px;"></i>`;
+            lucide.createIcons();
         } else {
             gId('btnDownload').style.display = 'none';
         }
@@ -793,9 +770,9 @@ async function processCodeRedeem() {
         let errCodeNum = "1000";
         let isOwned = false;
         
-        if(msg.includes('used')) { errTitle = t.error_used_msg; errCodeNum = "1013"; }
-        else if(msg.includes('owned')) { errTitle = t.error_owned_msg; errCodeNum = "1011"; isOwned = true; }
-        else if(msg.includes('invalid') || msg.includes('not found')) { errTitle = t.msg_invalid; errCodeNum = "1012"; }
+        if(msg.includes('used') || msg.includes('使用済')) { errTitle = t.error_used_msg; errCodeNum = "1013"; }
+        else if(msg.includes('owned') || msg.includes('所有')) { errTitle = t.error_owned_msg; errCodeNum = "1011"; isOwned = true; }
+        else if(msg.includes('invalid') || msg.includes('not found') || msg.includes('無効')) { errTitle = t.msg_invalid; errCodeNum = "1012"; }
         
         renderErrorScreen(errCodeNum, errTitle, d.message, isOwned);
     }
@@ -838,7 +815,7 @@ function renderHistory() {
             <div class="history-info">
                 <div class="history-title">${escapeHTML(item.title || item.message)}</div>
                 <div class="history-meta">
-                    <span style="color: var(--primary);">${displayCode}</span>
+                    <span style="color: #fff;">${displayCode}</span>
                     <span>${dateStr}</span>
                 </div>
             </div>
@@ -859,7 +836,7 @@ async function handlePasswordChange() {
     if(newP.length < 6) { msgEl.textContent = t.msg_acc_err_len; return; }
     if(newP !== confP) { msgEl.textContent = t.msg_acc_err_match; return; }
 
-    btn.disabled = true; btn.textContent = t.msg_acc_changing;
+    btn.disabled = true; btn.innerHTML = `<div class="loading-spinner" style="width:16px;height:16px;"></div>`;
     const d = await safeFetch({ type: 'change_password', userId: currentUser.userId, oldPassword: oldP, newPassword: newP });
     
     if(d.success) {
@@ -871,22 +848,6 @@ async function handlePasswordChange() {
         msgEl.textContent = d.message || "Error";
     }
     btn.disabled = false; btn.innerHTML = `<span data-translate="modal_acc_btn_change">${t.modal_acc_btn_change}</span>`;
-}
-
-// Particle Canvas Animation
-function initCanvasParticles() {
-    const cvs = gId('particleCanvas'); const ctx = cvs.getContext('2d');
-    const resize = () => { cvs.width = innerWidth; cvs.height = innerHeight; };
-    window.addEventListener('resize', resize); resize();
-    
-    class P {
-        constructor() { this.x=Math.random()*cvs.width; this.y=Math.random()*cvs.height; this.s=Math.random()*150+50; this.sx=Math.random()*0.1-0.05; this.sy=Math.random()*0.1-0.05; this.o=Math.random()*0.1+0.05; }
-        update() { this.x+=this.sx; this.y+=this.sy; if(this.x<0||this.x>cvs.width)this.sx*=-1; if(this.y<0||this.y>cvs.height)this.sy*=-1; }
-        draw() { ctx.fillStyle=`rgba(255, 255, 255, ${this.o*0.5})`; ctx.beginPath(); ctx.arc(this.x,this.y,this.s,0,Math.PI*2); ctx.fill(); }
-    }
-    let pts = []; for(let i=0;i<5;i++) pts.push(new P());
-    function anim() { ctx.clearRect(0,0,cvs.width,cvs.height); pts.forEach(p=>{p.update();p.draw();}); requestAnimationFrame(anim); }
-    anim();
 }
 </script>
 </body>
