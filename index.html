@@ -2682,7 +2682,19 @@ function showMobileItemDetail(item, isNewRedeem = false) {
     const startModalTimer = () => {
         const now = new Date();
         const releaseDate = item.releaseDateIso ? new Date(item.releaseDateIso) : null;
-        
+        const expireDate = item.expireDateIso ? new Date(item.expireDateIso) : null;
+
+        // ★追加: 期限切れチェック
+        if (expireDate && expireDate < now) {
+            if(modalDownloadTimer) clearInterval(modalDownloadTimer);
+            els.btnSuccessDownload.style.pointerEvents = 'none';
+            els.btnSuccessDownload.style.opacity = '0.5';
+            els.btnSuccessDownload.removeAttribute('href');
+            els.btnSuccessDownload.onclick = (e) => { e.preventDefault(); };
+            els.btnSuccessDownload.innerHTML = `<span>期限切れ</span>`;
+            return;
+        }
+
         if (releaseDate && releaseDate > now) {
             const diff = releaseDate - now;
             const oneDay = 24 * 60 * 60 * 1000;
@@ -2992,11 +3004,22 @@ function setHeroButtonState(state, forceUnlock = false) {
     btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer'; btn.classList.remove('is-download'); 
 
     if (state === 'owned') {
-        currentHeroContext = 'owned'; // ★修正：カウントダウン中かどうかにかかわらず所有済みとして扱う
+        currentHeroContext = 'owned';
         if(buyBtn) buyBtn.style.display = 'none';
 
         const now = new Date();
         const releaseDate = selectedHeroItem.releaseDateIso ? new Date(selectedHeroItem.releaseDateIso) : null;
+        const expireDate = selectedHeroItem.expireDateIso ? new Date(selectedHeroItem.expireDateIso) : null;
+
+        // ★追加: 期限切れの場合はボタンを無効化
+        if (expireDate && now > expireDate) {
+            if(heroTimer) { clearInterval(heroTimer); heroTimer = null; }
+            btn.innerHTML = `<span>期限切れ</span>`;
+            btn.style.opacity = '0.5';
+            btn.style.cursor = 'not-allowed';
+            btn.classList.remove('is-download');
+            return;
+        }
 
         if (!forceUnlock && releaseDate && releaseDate > now) {
             startHeroCountdown(releaseDate);
@@ -3161,10 +3184,23 @@ function startLibraryTimer() {
     if (libraryTimerId) clearInterval(libraryTimerId);
     libraryTimerId = setInterval(() => {
         const now = Date.now();
-        if (window.innerWidth > 768 && selectedHeroItem && selectedHeroItem.releaseDateIso) {
-             const releaseTime = new Date(selectedHeroItem.releaseDateIso).getTime();
-             if (releaseTime <= now && currentHeroContext === 'owned' && !els.heroActionBtn.classList.contains('is-download')) {
-                  setHeroButtonState('owned', true);
+        if (window.innerWidth > 768 && selectedHeroItem) {
+             const isOwnedContext = currentHeroContext === 'owned';
+             
+             // ★解禁時間のチェック
+             if (selectedHeroItem.releaseDateIso) {
+                 const releaseTime = new Date(selectedHeroItem.releaseDateIso).getTime();
+                 if (releaseTime <= now && isOwnedContext && !els.heroActionBtn.classList.contains('is-download') && els.heroActionBtn.innerHTML.indexOf('期限切れ') === -1) {
+                     setHeroButtonState('owned', true);
+                 }
+             }
+             
+             // ★有効期限のリアルタイムチェック
+             if (selectedHeroItem.expireDateIso) {
+                 const expireTime = new Date(selectedHeroItem.expireDateIso).getTime();
+                 if (expireTime <= now && isOwnedContext && els.heroActionBtn.innerHTML.indexOf('期限切れ') === -1) {
+                     setHeroButtonState('owned', true); 
+                 }
              }
         }
     }, 1000);
@@ -3185,6 +3221,7 @@ async function saveUnlockedItemLocal(data, code) {
     lang: CURRENT_LANG,
     imageUrl: data.imageUrl, 
     releaseDateIso: data.releaseDateIso || null,
+    expireDateIso: data.expireDateIso || null,
     groupId: data.groupId,
     buttonLabel: data.Button_Label || null 
   };
@@ -3256,13 +3293,21 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
     if (treatAsOwned) {
         const dlBtn = mDiv.querySelector('.is-owned-download');
         if (dlBtn) {
-            if (isLocked) {
+            // ★追加: 期限切れの場合
+            if (isExpired) {
                 dlBtn.style.background = 'rgba(128, 128, 128, 0.2)';
                 dlBtn.style.color = 'var(--modal-text-main)';
                 dlBtn.style.border = '1px solid transparent';
-                dlBtn.style.cursor = 'pointer'; // ★追加
+                dlBtn.style.cursor = 'not-allowed';
+                dlBtn.innerHTML = `<span>期限切れ</span>`;
+                dlBtn.onclick = (e) => { e.stopPropagation(); };
+            }
+            else if (isLocked) {
+                dlBtn.style.background = 'rgba(128, 128, 128, 0.2)';
+                dlBtn.style.color = 'var(--modal-text-main)';
+                dlBtn.style.border = '1px solid transparent';
+                dlBtn.style.cursor = 'pointer';
 
-                // ★追加：カウントダウン中のクリックイベント
                 dlBtn.onclick = (e) => {
                     e.stopPropagation();
                     if (!currentUser) { toggleDropdown(true); return; }
@@ -3272,6 +3317,18 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                 const updateMobileCountdown = () => {
                     if (!document.body.contains(dlBtn)) return true;
                     const currentNow = new Date();
+                    
+                    // ★追加: カウントダウン中にも期限切れを監視
+                    if (expireDate && expireDate < currentNow) {
+                        dlBtn.style.background = 'rgba(128, 128, 128, 0.2)';
+                        dlBtn.style.color = 'var(--modal-text-main)';
+                        dlBtn.style.border = '1px solid transparent';
+                        dlBtn.style.cursor = 'not-allowed';
+                        dlBtn.style.pointerEvents = 'none';
+                        dlBtn.innerHTML = `<span>期限切れ</span>`;
+                        return true; 
+                    }
+
                     const diff = releaseDate - currentNow;
 
                     if (diff <= 0) {
