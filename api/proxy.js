@@ -454,7 +454,7 @@ export default async function handler(req, res) {
           title: content[`タイトル(${suffix})`] || content["タイトル(jp)"],
           message: content[`メッセージ(${suffix})`] || content["メッセージ(jp)"], 
           extraInfo: content[`詳細(${suffix})`] || content["詳細(jp)"],
-          imageUrl: content.Imag_Url, url: content.Action_url, releaseDateIso: content["解禁時間"], icon: content.アイコン || 'download',
+          imageUrl: content.Imag_Url, url: content.Action_url, releaseDateIso: content["解禁時間"], expireDateIso: content["有効時間"], icon: content.アイコン || 'download',
           groupId: content["重複"], buttonLabel: content[`ボタン(${suffix})`] || content["ボタン(jp)"], price: content["価格"] || 0, isOwned: isOwned
         };
       });
@@ -501,7 +501,7 @@ export default async function handler(req, res) {
         return {
           code: codeRec["アクティベーションコード"], date: h.created_at, title: c[`タイトル(${suffix})`] || c["タイトル(jp)"],
           message: c[`メッセージ(${suffix})`] || c["メッセージ(jp)"], url: c.Action_url, imageUrl: c.Imag_Url,
-          icon: c.アイコン || 'download', releaseDateIso: c["解禁時間"], extraInfo: c[`詳細(${suffix})`] || c["詳細(jp)"],
+          icon: c.アイコン || 'download', releaseDateIso: c["解禁時間"], expireDateIso: c["有効時間"], extraInfo: c[`詳細(${suffix})`]
           groupId: c["重複"], buttonLabel: c[`ボタン(${suffix})`] || c["ボタン(jp)"],
           price: c["価格"] || 0
         };
@@ -633,7 +633,7 @@ export default async function handler(req, res) {
         if (isOwned) return res.status(200).json({ success: false, isAlreadyOwned: true, message: "Already owned" });
 
         const isRelease = !content["解禁時間"] || (now >= new Date(content["解禁時間"]));
-        const retUrl = isRelease ? content.Action_url : "";
+        const retUrl = content.Action_url;
 
         if (targetId) {
            await supabase.from('histories').insert([{ user_id: targetId, code_id: master.id }]);
@@ -646,6 +646,7 @@ export default async function handler(req, res) {
           success: true, actionUrl: retUrl, bundleLabel: txt.bundle, message: txt.message,         
           detailedTitle: txt.title, detailedDesc: txt.desc, buttonLabel: txt.btnLabel,
           imageUrl: content.Imag_Url, isReleaseDateReached: isRelease, releaseDateIso: content["解禁時間"],
+          expireDateIso: content["有効時間"],
           btnIcon: content.アイコン || 'download', groupId: content["重複"]
         });
       }
