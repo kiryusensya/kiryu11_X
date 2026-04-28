@@ -1213,30 +1213,6 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
     position: fixed; inset: 0; pointer-events: none; z-index: 100000;
     animation: flashEffect 0.6s ease-out forwards;
 }
-
-@keyframes stampDrop {
-    0% { transform: scale(4) rotate(-20deg); opacity: 0; }
-    50% { transform: scale(0.8) rotate(-5deg); opacity: 1; }
-    70% { transform: scale(1.1) rotate(-5deg); }
-    100% { transform: scale(1) rotate(-5deg); opacity: 1; }
-}
-.stamp-owned {
-    position: absolute; top: 50%; left: 50%; 
-    margin-top: -30px; margin-left: -80px; /* 位置調整 */
-    font-size: 36px; font-weight: 900; color: #E74C3C;
-    border: 6px solid #E74C3C; border-radius: 8px; padding: 5px 15px;
-    text-transform: uppercase; letter-spacing: 2px;
-    transform-origin: center; opacity: 0;
-    text-shadow: 0 0 10px rgba(231, 76, 60, 0.4);
-    box-shadow: 0 0 15px rgba(231, 76, 60, 0.3), inset 0 0 10px rgba(231, 76, 60, 0.2);
-    z-index: 10; pointer-events: none;
-}
-.animate-stamp {
-    animation: stampDrop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s forwards;
-}
-.modal-left-col {
-    position: relative; overflow: hidden; /* スタンプのはみ出しを防ぐ */
-}
 /* =========================================
    Micro-Interactions & Unified Modal UI
    ========================================= */
