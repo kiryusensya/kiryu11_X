@@ -1378,65 +1378,6 @@ footer { padding: 40px 0; text-align: center; color: var(--modal-text-sub); font
 [data-theme="dark"] .rgl-cta-btn.is-download:focus {
     background: rgba(50, 50, 50, 0.8) !important;
 }
-/* =========================================
-   エラー画面（ネオン＆ACCESS DENIED仕様）
-   ========================================= */
-/* エラー時のモーダル本体をダーク化 */
-.modal-sheet.is-error-mode {
-    background: rgba(15, 0, 0, 0.85) !important;
-    border: 1px solid rgba(255, 59, 48, 0.3) !important;
-    box-shadow: 0 20px 60px rgba(255, 59, 48, 0.2), inset 0 0 40px rgba(255, 59, 48, 0.1) !important;
-}
-
-/* ⚠ エラー XXXX のタイトル発光 */
-.error-layout .error-title-color {
-    color: #FF3B30 !important;
-    text-shadow: 0 0 10px rgba(255, 59, 48, 0.8), 0 0 20px rgba(255, 59, 48, 0.4);
-    text-align: center;
-}
-
-/* ⚠ ACCESS DENIED の追加とメインメッセージ */
-#phase-error .modal-error-main-msg {
-    color: #FFFFFF;
-    font-size: 20px;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-}
-#phase-error .modal-error-main-msg::before {
-    content: '⚠ ACCESS DENIED';
-    display: block;
-    font-size: 11px;
-    font-weight: 800;
-    color: #FF3B30;
-    letter-spacing: 2px;
-    margin-bottom: 8px;
-    text-shadow: 0 0 8px rgba(255, 59, 48, 0.6);
-}
-
-/* 内部の詳細ボックスのネオン化 */
-#phase-error .modal-grey-box {
-    background: rgba(255, 59, 48, 0.05) !important;
-    border: 1px solid rgba(255, 59, 48, 0.4) !important;
-    box-shadow: inset 0 0 15px rgba(255, 59, 48, 0.1) !important;
-}
-#phase-error .modal-box-text,
-#phase-error .modal-box-time {
-    color: #FFB3B0 !important;
-}
-
-/* 閉じるボタンの光彩エフェクト */
-#phase-error #btnErrorClose {
-    background: #FF3B30 !important;
-    color: #FFFFFF !important;
-    border: none !important;
-    box-shadow: 0 0 20px rgba(255, 59, 48, 0.5), 0 5px 15px rgba(255, 59, 48, 0.3) !important;
-    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
-    transition: all 0.3s ease;
-}
-#phase-error #btnErrorClose:hover {
-    background: #FF453A !important;
-    box-shadow: 0 0 30px rgba(255, 59, 48, 0.8), 0 5px 20px rgba(255, 59, 48, 0.4) !important;
-    transform: translateY(-2px);
-}
 </style>
 </head>
 <body>
@@ -2872,7 +2813,6 @@ function resetAuthModal(){
   els.phaseSuccess.style.display = 'none'; els.phaseSuccess.style.opacity = '0';
   els.phaseError.style.display = 'none'; els.phaseError.style.opacity = '0';
   els.modalCon.classList.remove('is-wide');
-  els.modalCon.classList.remove('is-error-mode');
 
   els.code.value=""; els.code.disabled=false; els.confirm.disabled=false;
   els.confirm.textContent=TRANSLATIONS[CURRENT_LANG].modal_btn_auth;
@@ -3188,52 +3128,57 @@ async function performAuth(code, mode = 'check') {
     if (thisRequestId !== currentAuthRequestId) return;
 
     let serverMessage = e.message || "";
-    let errorDisplay = t.msg_error;
-    let specificErrorCode = generateErrorCode();
+    
+    if (mode === 'check') {
+       els.code.disabled = false; 
+       els.confirm.disabled = false; 
+       els.confirm.textContent = t.modal_btn_auth;
+       
+       let errorDisplay = t.msg_error; 
+       const lowMsg = serverMessage.toLowerCase();
+       if (lowMsg.includes("used")) {
+           errorDisplay = t.msg_used;
+       } else if (lowMsg.includes("invalid") || lowMsg.includes("not found") || lowMsg.includes("code is required")) {
+           errorDisplay = t.msg_invalid;
+       }
 
-    const lowMsg = serverMessage.toLowerCase();
-    // すべてのエラーを判定
-    if (lowMsg.includes("invalid") || lowMsg.includes("not found") || lowMsg.includes("code is required") || lowMsg.includes("無効")) {
-        errorDisplay = t.msg_invalid || "コードが無効です";
-        specificErrorCode = "1012";
-    } else if (lowMsg.includes("already owned") || lowMsg.includes("owned") || lowMsg.includes("所有")) {
-        errorDisplay = t.error_owned_msg || "既に所有しているようです。";
-        specificErrorCode = "1011";
-    } else if (lowMsg.includes("used") || lowMsg.includes("使用済")) {
-        errorDisplay = t.error_used_msg || t.msg_used || "このコードは使用済みです";
-        specificErrorCode = "1013";
+       const errorHtml = `<span style="color:#FF3B30; font-size:14px; font-weight:700;">${errorDisplay}</span>`;
+       if (els.pcInputDesc) els.pcInputDesc.innerHTML = errorHtml;
+       if (els.mobileInputDesc) els.mobileInputDesc.innerHTML = errorHtml;
+       
+    } else {
+       els.btnPreviewRedeem.disabled = false;
+       els.btnPreviewRedeem.innerHTML = t.btn_continue;
+       
+       const lowMsg = serverMessage.toLowerCase();
+       let specificErrorCode = generateErrorCode();
+       if (lowMsg.includes("invalid") || lowMsg.includes("not found")) {
+           specificErrorCode = "1012";
+       } else if (lowMsg.includes("already owned") || lowMsg.includes("owned")) {
+           specificErrorCode = "1011";
+       } else if (lowMsg.includes("used")) {
+           specificErrorCode = "1013";
+       }
+       
+       els.errorCodeText.textContent = specificErrorCode;
+       els.errorTime.textContent = currentAuthTime;
+       
+       els.errorMessage.textContent = t.msg_invalid;
+       els.errorSubMessage.textContent = serverMessage;
+       els.errorInfoBox.style.display = 'block';
+       
+       els.btnErrorClose.style.flex = "none";
+       els.btnErrorClose.style.width = "100%";
+       
+       els.phasePreview.style.opacity = '0';
+       setTimeout(() => {
+         els.phasePreview.style.display = 'none';
+         els.phaseError.style.display = 'flex';
+         setTimeout(() => els.phaseError.style.opacity = '1', 50);
+       }, 400);
     }
-
-    // ボタンの状態を元に戻す
-    els.code.disabled = false;
-    els.confirm.disabled = false;
-    els.confirm.textContent = t.modal_btn_auth;
-    els.btnPreviewRedeem.disabled = false;
-    els.btnPreviewRedeem.innerHTML = t.btn_continue;
-
-    // 情報をエラー画面にセット
-    els.errorCodeText.textContent = specificErrorCode;
-    els.errorTime.textContent = currentAuthTime || getFormattedCurrentTime(CURRENT_LANG);
-    els.errorMessage.textContent = errorDisplay;
-    els.errorSubMessage.textContent = serverMessage;
-    els.errorInfoBox.style.display = 'flex';
-
-    els.btnErrorClose.style.flex = "none";
-    els.btnErrorClose.style.width = "100%";
-
-    // ★ モーダルにエラースタイル（ネオン赤）を適用
-    els.modalCon.classList.add('is-error-mode');
-
-    // 画面遷移アニメーション
-    els.phaseInput.style.opacity = '0';
-    els.phasePreview.style.opacity = '0';
-    setTimeout(() => {
-      els.phaseInput.style.display = 'none';
-      els.phasePreview.style.display = 'none';
-      els.phaseError.style.display = 'flex';
-      setTimeout(() => els.phaseError.style.opacity = '1', 50);
-    }, 400);
   }
+}
 
 async function performAuthAction() {
   const email = els.email.value.trim();
