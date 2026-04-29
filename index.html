@@ -3889,39 +3889,6 @@ function renderHistoryModal() {
     
     try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
 }
-function renderManageContent(subItems, parentItem) {
-    els.phaseSuccess.style.opacity = '0';
-    setTimeout(() => {
-        els.phaseSuccess.style.display = 'none';
-        els.phaseManage.style.display = 'flex';
-        
-        const list = els.manageContentList;
-        list.innerHTML = '';
-        
-        subItems.forEach(sub => {
-            const row = document.createElement('div');
-            row.className = 'manage-item-row';
-            
-            // アイコンの切り替え（本編かDLCか）
-            const typeIcon = sub.type && sub.type.includes('ゲーム') 
-                ? '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>'
-                : '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>';
-
-            row.innerHTML = `
-                <div class="manage-item-info">
-                    <span class="manage-item-title">${escapeHTML(sub.title || parentItem.title)}</span>
-                    <span class="manage-item-type">${typeIcon} ${escapeHTML(sub.type || 'アドオン')}</span>
-                </div>
-                <a href="${escapeHTML(sub.url)}" target="_blank" class="btn-download-small">
-                    ダウンロード
-                </a>
-            `;
-            list.appendChild(row);
-        });
-        
-        setTimeout(() => els.phaseManage.style.opacity = '1', 50);
-    }, 400);
-}
 </script>
 </body>
 </html>
