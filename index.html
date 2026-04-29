@@ -2728,21 +2728,38 @@ function openManageModal(item) {
     const targetUrl = item.url || item.actionUrl;
     try { subItems = JSON.parse(targetUrl); } catch(e) { return; }
     
+    // ★現在の言語の翻訳データを取得
+    const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja; 
+
+    // ★言語判定用のヘルパー関数（文字列とオブジェクトの両方に対応）
+    const getLocalizedText = (fieldData, fallback) => {
+        if (!fieldData) return escapeHTML(fallback);
+        if (typeof fieldData === 'string') return escapeHTML(fieldData); // 従来通りの単なる文字列の場合
+        return escapeHTML(fieldData[CURRENT_LANG] || fieldData['ja'] || fieldData['en'] || fallback);
+    };
+    
     subItems.forEach(sub => {
         const row = document.createElement('div');
         row.className = 'manage-item-row';
         
-        const typeIcon = sub.type && sub.type.includes('ゲーム') 
+        // ★ 言語に応じたタイトルとタイプを取得
+        const localizedTitle = getLocalizedText(sub.title, item.title);
+        const localizedType = getLocalizedText(sub.type, 'アドオン');
+        
+        // アイコン判定用（日本語か英語のテキストの中に "ゲーム" か "Game" が含まれているかチェック）
+        const typeStrForIcon = typeof sub.type === 'string' ? sub.type : (sub.type ? (sub.type['ja'] || sub.type['en'] || '') : '');
+        const typeIcon = (typeStrForIcon.includes('ゲーム') || typeStrForIcon.includes('Game'))
             ? '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>'
             : '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>';
 
+        // リストアイテムの描画
         row.innerHTML = `
             <div class="manage-item-info">
-                <span class="manage-item-title">${escapeHTML(sub.title || item.title)}</span>
-                <span class="manage-item-type">${typeIcon} ${escapeHTML(sub.type || 'アドオン')}</span>
+                <span class="manage-item-title">${localizedTitle}</span>
+                <span class="manage-item-type">${typeIcon} ${localizedType}</span>
             </div>
             <a href="${escapeHTML(sub.url)}" target="_blank" class="btn-download-small">
-                ダウンロード
+                ${t.btn_download || "ダウンロード"}
             </a>
         `;
         list.appendChild(row);
