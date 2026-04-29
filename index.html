@@ -2164,11 +2164,17 @@ function setupEventListeners() {
       });
   }
   if (els.closeManageModalBtn) {
-        els.closeManageModalBtn.addEventListener('click', () => els.manageModal.classList.remove('active'));
+        els.closeManageModalBtn.addEventListener('click', () => {
+            els.manageModal.classList.remove('active');
+            if (window.manageModalTimer) clearInterval(window.manageModalTimer);
+        });
     }
     if (els.manageModal) {
         els.manageModal.addEventListener('click', (e) => {
-            if (e.target === els.manageModal) els.manageModal.classList.remove('active');
+            if (e.target === els.manageModal) {
+                els.manageModal.classList.remove('active');
+                if (window.manageModalTimer) clearInterval(window.manageModalTimer);
+            }
         });
     }
 
@@ -2740,6 +2746,7 @@ function resetAuthModal(){
   try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
 }
 function openManageModal(item) {
+    if (window.manageModalTimer) clearInterval(window.manageModalTimer);
     const list = els.manageContentList;
     list.innerHTML = '';
     
@@ -2747,66 +2754,104 @@ function openManageModal(item) {
     const targetUrl = item.url || item.actionUrl;
     try { subItems = JSON.parse(targetUrl); } catch(e) { return; }
     
-    // ★現在の言語の翻訳データを取得
     const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja; 
 
-    // ★言語判定用のヘルパー関数
     const getLocalizedText = (fieldData, fallback) => {
         if (!fieldData) return escapeHTML(fallback);
         if (typeof fieldData === 'string') return escapeHTML(fieldData);
         return escapeHTML(fieldData[CURRENT_LANG] || fieldData['ja'] || fieldData['en'] || fallback);
     };
     
-    const now = new Date(); // 現在時刻を取得
+    const timers = []; // タイマー更新用の配列
 
     subItems.forEach(sub => {
         const row = document.createElement('div');
         row.className = 'manage-item-row';
         
-        // 言語に応じたタイトルとタイプを取得
         const localizedTitle = getLocalizedText(sub.title, item.title);
         const localizedType = getLocalizedText(sub.type, 'アドオン');
-        
-        // アイコン判定用
         const typeStrForIcon = typeof sub.type === 'string' ? sub.type : (sub.type ? (sub.type['ja'] || sub.type['en'] || '') : '');
-        const typeIcon = (typeStrForIcon.includes('ゲーム') || typeStrForIcon.includes('Game'))
+        const typeIcon = (typeStrForIcon.includes('ゲーム') || typeStrForIcon.includes('Game')) 
             ? '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>'
             : '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>';
 
-        // ★ ここから個別時間ロックの判定
-        let buttonHtml = '';
+        // タイトルなどのテキストエリア
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'manage-item-info';
+        infoDiv.innerHTML = `
+            <span class="manage-item-title">${localizedTitle}</span>
+            <span class="manage-item-type">${typeIcon} ${localizedType}</span>
+        `;
+
+        // 動的に書き換えるためのボタン要素
+        const actionBtn = document.createElement('button');
+        actionBtn.className = 'btn-download-small';
+
         const subReleaseDate = sub.releaseDateIso ? new Date(sub.releaseDateIso) : null;
 
-        if (subReleaseDate && subReleaseDate > now) {
-            // まだ解禁されていない場合（ボタンをグレーアウトし、鍵アイコンと日付を表示）
-            const y = subReleaseDate.getFullYear();
-            const m = String(subReleaseDate.getMonth() + 1).padStart(2, '0');
-            const d = String(subReleaseDate.getDate()).padStart(2, '0');
-            
-            buttonHtml = `
-            <button class="btn-download-small" style="background: rgba(128,128,128,0.2); color: var(--modal-text-main); cursor: default; pointer-events: none;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                ${y}/${m}/${d}
-            </button>`;
+        if (subReleaseDate) {
+            // 時間設定がある場合は監視リストに登録
+            timers.push({ btn: actionBtn, date: subReleaseDate, url: sub.url });
         } else {
-            // 解禁済み、または時間が設定されていない場合（通常のダウンロードボタン）
-            buttonHtml = `
-            <a href="${escapeHTML(sub.url)}" target="_blank" class="btn-download-small">
-                ${t.btn_download || "ダウンロード"}
-            </a>`;
+            // 時間設定がない場合は常にダウンロード可能
+            actionBtn.innerHTML = t.btn_download || "ダウンロード";
+            actionBtn.onclick = () => window.open(sub.url, '_blank');
         }
 
-        row.innerHTML = `
-            <div class="manage-item-info">
-                <span class="manage-item-title">${localizedTitle}</span>
-                <span class="manage-item-type">${typeIcon} ${localizedType}</span>
-            </div>
-            ${buttonHtml}
-        `;
+        row.appendChild(infoDiv);
+        row.appendChild(actionBtn);
         list.appendChild(row);
     });
     
-    // 他のモーダルが開いていれば隠して、管理モーダルを開く
+    // リアルタイム更新用関数
+    const updateManageTimers = () => {
+        const now = new Date();
+        timers.forEach(tData => {
+            const diff = tData.date - now;
+            if (diff <= 0) {
+                // 解禁完了
+                tData.btn.style.background = '';
+                tData.btn.style.color = '';
+                tData.btn.style.cursor = 'pointer';
+                tData.btn.innerHTML = t.btn_download || "ダウンロード";
+                tData.btn.onclick = () => window.open(tData.url, '_blank');
+            } else {
+                // 解禁前（ボタンをグレー化してクリック時にエラー3001を出す）
+                tData.btn.style.background = 'rgba(128,128,128,0.2)';
+                tData.btn.style.color = 'var(--modal-text-main)';
+                tData.btn.style.cursor = 'pointer'; // エラー画面を出すためクリックは許可する
+                
+                tData.btn.onclick = (e) => {
+                    e.stopPropagation();
+                    els.manageModal.classList.remove('active'); // 管理画面を閉じる
+                    if (window.manageModalTimer) clearInterval(window.manageModalTimer);
+                    showLockedError(); // エラー3001を呼び出す
+                };
+
+                const oneDay = 24 * 60 * 60 * 1000;
+                if (diff > oneDay) {
+                    const y = tData.date.getFullYear();
+                    const m = String(tData.date.getMonth() + 1).padStart(2, '0');
+                    const d = String(tData.date.getDate()).padStart(2, '0');
+                    tData.btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> ${y}/${m}/${d}`;
+                } else {
+                    const h = Math.floor(diff / (1000 * 60 * 60));
+                    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const s = Math.floor((diff % (1000 * 60)) / 1000);
+                    const hh = String(h).padStart(2, '0');
+                    const mm = String(m).padStart(2, '0');
+                    const ss = String(s).padStart(2, '0');
+                    tData.btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> ${hh}:${mm}:${ss}`;
+                }
+            }
+        });
+    };
+
+    if (timers.length > 0) {
+        updateManageTimers(); // 開いた瞬間に1回実行
+        window.manageModalTimer = setInterval(updateManageTimers, 1000); // 1秒ごとに更新
+    }
+
     if(els.authModal) els.authModal.classList.remove('active');
     els.manageModal.classList.add('active');
 }
