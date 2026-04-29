@@ -2828,39 +2828,29 @@ function showMobileItemDetail(item, isNewRedeem = false) {
             if(modalDownloadTimer) clearInterval(modalDownloadTimer);
             els.btnSuccessDownload.style.pointerEvents = 'auto';
             els.btnSuccessDownload.style.opacity = '1';
-            
-            // ▼ ここから複数コンテンツ判定 ▼
-            let subItems = [];
-            try {
-                // Action_url が JSON配列 (例: [{"title":"Base","url":"..."},{"title":"DLC","url":"..."}]) の場合
-                if (item.url && item.url.trim().startsWith('[')) {
-                    subItems = JSON.parse(item.url);
-                }
-            } catch(e) {}
+
+            const targetUrl = item.url || item.actionUrl;
+            let isMulti = false;
+            try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
+
+            if (isMulti) {
+                // 複数ある場合、ボタンを押すと独立モーダルが開く
+                els.btnSuccessDownload.removeAttribute('href');
+                els.btnSuccessDownload.onclick = (e) => {
+                    e.preventDefault();
+                    openManageModal(item);
+                };
+            } else {
+                // 単一の場合、今まで通り直接URLを開く
+                els.btnSuccessDownload.href = targetUrl;
+                els.btnSuccessDownload.onclick = null; 
+                els.btnSuccessDownload.target = "_blank";
+            }
 
             const btnLabel = item.buttonLabel || t.btn_download || "ダウンロード";
             const btnIcon = item.icon || "download";
-
-            if (subItems.length > 1) {
-                // 複数コンテンツがある場合
-                els.btnSuccessDownload.removeAttribute('href');
-                els.btnSuccessDownload.innerHTML = `<span>${btnLabel} (複数)</span>`;
-                els.btnSuccessMore.style.display = 'flex';
-                
-                const openManage = (e) => {
-                    e.preventDefault();
-                    renderManageContent(subItems, item);
-                };
-                els.btnSuccessDownload.onclick = openManage;
-                els.btnSuccessMore.onclick = openManage;
-            } else {
-                // 単一コンテンツの場合
-                els.btnSuccessMore.style.display = 'none';
-                els.btnSuccessDownload.href = subItems.length === 1 ? subItems[0].url : item.url;
-                els.btnSuccessDownload.onclick = null; 
-                els.btnSuccessDownload.target = "_blank";
-                els.btnSuccessDownload.innerHTML = `<span>${btnLabel}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="${btnIcon}" aria-hidden="true" size="18" class="lucide lucide-${btnIcon}"></svg>`;
-            }
+            els.btnSuccessDownload.innerHTML = `<span>${btnLabel}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="${btnIcon}" aria-hidden="true" size="18" class="lucide lucide-${btnIcon}"></svg>`;
+            
             try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
         }
     };
