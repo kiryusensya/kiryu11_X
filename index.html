@@ -1523,6 +1523,19 @@ button, input, textarea { font-family: var(--font-stack); }
           </div>
       </div>
     </div>
+    <div id="manageModal" class="modal-overlay" style="z-index: 10006;">
+    <div class="modal-sheet" style="max-width: 600px; width: 90%; text-align: left; padding: 40px; display: flex; flex-direction: column; max-height: 80vh;">
+        <div style="position:absolute; top:20px; right:20px; cursor:pointer; opacity:0.6; z-index:10;" id="closeManageModalBtn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+        </div>
+        
+        <h2 style="font-size:24px; font-weight:800; margin: 0 0 20px 0; color: var(--modal-text-main);">ダウンロード管理</h2>
+        <p style="font-size:14px; font-weight:700; color:var(--modal-text-main); margin: 0 0 16px 0;">インストールするアイテムを選択してください:</p>
+        
+        <div id="manageContentList" style="overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; padding-right: 4px;">
+            </div>
+    </div>
+</div>
 
     <div id="phase-preview" style="display: none; opacity: 0;" class="new-modal-layout">
         <h2 class="modal-title-top" data-translate="preview_title">コンテンツ確認</h2>
@@ -1562,22 +1575,9 @@ button, input, textarea { font-family: var(--font-stack); }
                     <p class="modal-box-time" id="successTime"></p>
                 </div>
                 <div class="modal-btn-row" id="successBtnRow">
-                <button class="btn-outline" style="width: auto; flex: 2;" id="btnSuccessClose" data-translate="btn_close">閉じる</button>
-                <a class="btn-solid" style="flex: 6; display: none; align-items:center; justify-content:center; text-decoration:none;" id="btnSuccessDownload" target="_blank"></a>
-                <button class="btn-outline" style="flex: 1; display: none; align-items:center; justify-content:center; padding: 0;" id="btnSuccessMore">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-more-horizontal"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-              </button>
-             </div>
-              <div id="phase-manage" style="display: none; opacity: 0;" class="new-modal-layout">
-    <h2 class="modal-title-top" style="margin-bottom: 16px;">コンテンツの管理</h2>
-    <div class="modal-body-flex">
-        <div class="modal-right-col" style="width: 100%; padding: 0;">
-            <p class="modal-label" style="margin-bottom: 16px;">インストールするアイテムを選択してください:</p>
-            <div id="manageContentList" style="display: flex; flex-direction: column; gap: 12px; max-height: 50vh; overflow-y: auto; padding-right: 8px;">
+                    <button class="btn-outline" style="width: 100%; flex: none;" id="btnSuccessClose" data-translate="btn_close">閉じる</button>
+                    <a class="btn-solid" style="flex: 7; display: none; align-items:center; justify-content:center; text-decoration:none;" id="btnSuccessDownload" target="_blank"></a>
                 </div>
-            <div class="modal-btn-row" style="margin-top: 24px;">
-                <button class="btn-outline" style="width: 100%; flex: none;" id="btnManageClose">戻る</button>
-            </div>
         </div>
     </div>
 </div>
@@ -2083,10 +2083,9 @@ document.addEventListener('DOMContentLoaded', () => {
     historyModal: gId('historyModal'),
     closeHistoryModalBtn: gId('closeHistoryModalBtn'),
     historyListContainer: gId('historyListContainer'),
-    btnSuccessMore: gId('btnSuccessMore'),
-    phaseManage: gId('phase-manage'),
+    manageModal: gId('manageModal'),
+    closeManageModalBtn: gId('closeManageModalBtn'),
     manageContentList: gId('manageContentList'),
-    btnManageClose: gId('btnManageClose'),
   };
 
   try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
@@ -2144,16 +2143,14 @@ function setupEventListeners() {
         logout();
       });
   }
-  if (els.btnManageClose) {
-      els.btnManageClose.addEventListener('click', () => {
-          els.phaseManage.style.opacity = '0';
-          setTimeout(() => {
-              els.phaseManage.style.display = 'none';
-              els.phaseSuccess.style.display = 'flex';
-              setTimeout(() => els.phaseSuccess.style.opacity = '1', 50);
-          }, 400);
-      });
-  }
+  if (els.closeManageModalBtn) {
+        els.closeManageModalBtn.addEventListener('click', () => els.manageModal.classList.remove('active'));
+    }
+    if (els.manageModal) {
+        els.manageModal.addEventListener('click', (e) => {
+            if (e.target === els.manageModal) els.manageModal.classList.remove('active');
+        });
+    }
 
   const accountModal = document.getElementById('accountModal');
   const closeAccountModalBtn = document.getElementById('closeAccountModalBtn');
@@ -2284,9 +2281,10 @@ function setupEventListeners() {
         let isMulti = false;
         try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
 
-        if (targetUrl && !isMulti) {
-            // 単一のURLならそのまま開く
-            window.open(targetUrl, '_blank');
+        if (isMulti) {
+            openManageModal(selectedHeroItem); // 複数なら独立モーダルを開く
+        } else if (targetUrl) {
+            window.open(targetUrl, '_blank'); // 単体ならそのまま開く
         } else {
             // 複数コンテンツ(JSON)なら詳細モーダルを開く
             showMobileItemDetail(selectedHeroItem, false);
@@ -2720,6 +2718,38 @@ function resetAuthModal(){
   if(successLabel) successLabel.textContent = t.success_desc;
   
   try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+}
+function openManageModal(item) {
+    const list = els.manageContentList;
+    list.innerHTML = '';
+    
+    let subItems = [];
+    const targetUrl = item.url || item.actionUrl;
+    try { subItems = JSON.parse(targetUrl); } catch(e) { return; }
+    
+    subItems.forEach(sub => {
+        const row = document.createElement('div');
+        row.className = 'manage-item-row';
+        
+        const typeIcon = sub.type && sub.type.includes('ゲーム') 
+            ? '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>'
+            : '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>';
+
+        row.innerHTML = `
+            <div class="manage-item-info">
+                <span class="manage-item-title">${escapeHTML(sub.title || item.title)}</span>
+                <span class="manage-item-type">${typeIcon} ${escapeHTML(sub.type || 'アドオン')}</span>
+            </div>
+            <a href="${escapeHTML(sub.url)}" target="_blank" class="btn-download-small">
+                ダウンロード
+            </a>
+        `;
+        list.appendChild(row);
+    });
+    
+    // 他のモーダルが開いていれば隠して、管理モーダルを開く
+    if(els.authModal) els.authModal.classList.remove('active');
+    els.manageModal.classList.add('active');
 }
 
 function showMobileItemDetail(item, isNewRedeem = false) {
@@ -3428,12 +3458,16 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                             e.stopPropagation();
                             if (!currentUser) { toggleDropdown(true); return; }
                             const targetUrl = item.url || item.actionUrl;
-                            let isMulti = false;
-                            try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
+                        let isMulti = false;
+                        try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
 
-                            if (targetUrl && !isMulti) window.open(targetUrl, '_blank');
-                            else showMobileItemDetail(item, false);
-                        };
+                        if (isMulti) {
+                            openManageModal(item);
+                        } else if (targetUrl) {
+                            window.open(targetUrl, '_blank');
+                        } else {
+                            showMobileItemDetail(item, false);
+                        }
                         return true; 
                     }
 
@@ -3465,12 +3499,16 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                     e.stopPropagation();
                     if (!currentUser) { toggleDropdown(true); return; }
                     const targetUrl = item.url || item.actionUrl;
-                    let isMulti = false;
-                    try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
+                        let isMulti = false;
+                        try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
 
-                    if (targetUrl && !isMulti) window.open(targetUrl, '_blank');
-                    else showMobileItemDetail(item, false);
-                };
+                        if (isMulti) {
+                            openManageModal(item);
+                        } else if (targetUrl) {
+                            window.open(targetUrl, '_blank');
+                        } else {
+                            showMobileItemDetail(item, false);
+                        };
             }
         }
     } else {
