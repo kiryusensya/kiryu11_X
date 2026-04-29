@@ -2281,8 +2281,15 @@ function setupEventListeners() {
         }
         
         const targetUrl = selectedHeroItem.url || selectedHeroItem.actionUrl;
-        if(targetUrl) {
+        let isMulti = false;
+        try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
+
+        if (targetUrl && !isMulti) {
+            // 単一のURLならそのまま開く
             window.open(targetUrl, '_blank');
+        } else {
+            // 複数コンテンツ(JSON)なら詳細モーダルを開く
+            showMobileItemDetail(selectedHeroItem, false);
         }
      } else {
         if (!currentUser) {
@@ -3421,7 +3428,10 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                             e.stopPropagation();
                             if (!currentUser) { toggleDropdown(true); return; }
                             const targetUrl = item.url || item.actionUrl;
-                            if (targetUrl) window.open(targetUrl, '_blank');
+                            let isMulti = false;
+                            try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
+
+                            if (targetUrl && !isMulti) window.open(targetUrl, '_blank');
                             else showMobileItemDetail(item, false);
                         };
                         return true; 
@@ -3455,7 +3465,10 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                     e.stopPropagation();
                     if (!currentUser) { toggleDropdown(true); return; }
                     const targetUrl = item.url || item.actionUrl;
-                    if (targetUrl) window.open(targetUrl, '_blank');
+                    let isMulti = false;
+                    try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
+
+                    if (targetUrl && !isMulti) window.open(targetUrl, '_blank');
                     else showMobileItemDetail(item, false);
                 };
             }
