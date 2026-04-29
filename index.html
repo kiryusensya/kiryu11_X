@@ -2750,6 +2750,9 @@ function openManageModal(item) {
     const list = els.manageContentList;
     list.innerHTML = '';
     
+    // ★ 親アイテムの有効期限を取得
+    const parentExpireDate = item.expireDateIso ? new Date(item.expireDateIso) : null;
+    
     let subItems = [];
     const targetUrl = item.url || item.actionUrl;
     try { subItems = JSON.parse(targetUrl); } catch(e) { return; }
@@ -2762,7 +2765,7 @@ function openManageModal(item) {
         return escapeHTML(fieldData[CURRENT_LANG] || fieldData['ja'] || fieldData['en'] || fallback);
     };
     
-    const timers = []; // タイマー更新用の配列
+    const timers = []; // 個別カウントダウン用
 
     subItems.forEach(sub => {
         const row = document.createElement('div');
@@ -2775,7 +2778,6 @@ function openManageModal(item) {
             ? '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>'
             : '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>';
 
-        // タイトルなどのテキストエリア
         const infoDiv = document.createElement('div');
         infoDiv.className = 'manage-item-info';
         infoDiv.innerHTML = `
@@ -2783,17 +2785,14 @@ function openManageModal(item) {
             <span class="manage-item-type">${typeIcon} ${localizedType}</span>
         `;
 
-        // 動的に書き換えるためのボタン要素
         const actionBtn = document.createElement('button');
         actionBtn.className = 'btn-download-small';
 
         const subReleaseDate = sub.releaseDateIso ? new Date(sub.releaseDateIso) : null;
 
         if (subReleaseDate) {
-            // 時間設定がある場合は監視リストに登録
             timers.push({ btn: actionBtn, date: subReleaseDate, url: sub.url });
         } else {
-            // 時間設定がない場合は常にダウンロード可能
             actionBtn.innerHTML = t.btn_download || "ダウンロード";
             actionBtn.onclick = () => window.open(sub.url, '_blank');
         }
@@ -2806,26 +2805,34 @@ function openManageModal(item) {
     // リアルタイム更新用関数
     const updateManageTimers = () => {
         const now = new Date();
+
+        // ★ 追加ロジック: 親アイテムの有効期限が切れたら管理画面を閉じてリフレッシュ
+        if (parentExpireDate && now >= parentExpireDate) {
+            if (window.manageModalTimer) clearInterval(window.manageModalTimer);
+            els.manageModal.classList.remove('active');
+            updateAccountUI();
+            fetchAvailableContent();
+            return;
+        }
+
         timers.forEach(tData => {
             const diff = tData.date - now;
             if (diff <= 0) {
-                // 解禁完了
                 tData.btn.style.background = '';
                 tData.btn.style.color = '';
                 tData.btn.style.cursor = 'pointer';
                 tData.btn.innerHTML = t.btn_download || "ダウンロード";
                 tData.btn.onclick = () => window.open(tData.url, '_blank');
             } else {
-                // 解禁前（ボタンをグレー化してクリック時にエラー3001を出す）
                 tData.btn.style.background = 'rgba(128,128,128,0.2)';
                 tData.btn.style.color = 'var(--modal-text-main)';
-                tData.btn.style.cursor = 'pointer'; // エラー画面を出すためクリックは許可する
+                tData.btn.style.cursor = 'pointer';
                 
                 tData.btn.onclick = (e) => {
                     e.stopPropagation();
-                    els.manageModal.classList.remove('active'); // 管理画面を閉じる
+                    els.manageModal.classList.remove('active'); 
                     if (window.manageModalTimer) clearInterval(window.manageModalTimer);
-                    showLockedError(); // エラー3001を呼び出す
+                    showLockedError(); // エラー3001（解禁前）
                 };
 
                 const oneDay = 24 * 60 * 60 * 1000;
@@ -2847,15 +2854,12 @@ function openManageModal(item) {
         });
     };
 
-    if (timers.length > 0) {
-        updateManageTimers(); // 開いた瞬間に1回実行
-        window.manageModalTimer = setInterval(updateManageTimers, 1000); // 1秒ごとに更新
-    }
+    updateManageTimers(); 
+    window.manageModalTimer = setInterval(updateManageTimers, 1000);
 
     if(els.authModal) els.authModal.classList.remove('active');
     els.manageModal.classList.add('active');
 }
-
 function showMobileItemDetail(item, isNewRedeem = false) {
     if(modalDownloadTimer) clearInterval(modalDownloadTimer); 
     
