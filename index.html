@@ -2750,36 +2750,58 @@ function openManageModal(item) {
     // ★現在の言語の翻訳データを取得
     const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja; 
 
-    // ★言語判定用のヘルパー関数（文字列とオブジェクトの両方に対応）
+    // ★言語判定用のヘルパー関数
     const getLocalizedText = (fieldData, fallback) => {
         if (!fieldData) return escapeHTML(fallback);
-        if (typeof fieldData === 'string') return escapeHTML(fieldData); // 従来通りの単なる文字列の場合
+        if (typeof fieldData === 'string') return escapeHTML(fieldData);
         return escapeHTML(fieldData[CURRENT_LANG] || fieldData['ja'] || fieldData['en'] || fallback);
     };
     
+    const now = new Date(); // 現在時刻を取得
+
     subItems.forEach(sub => {
         const row = document.createElement('div');
         row.className = 'manage-item-row';
         
-        // ★ 言語に応じたタイトルとタイプを取得
+        // 言語に応じたタイトルとタイプを取得
         const localizedTitle = getLocalizedText(sub.title, item.title);
         const localizedType = getLocalizedText(sub.type, 'アドオン');
         
-        // アイコン判定用（日本語か英語のテキストの中に "ゲーム" か "Game" が含まれているかチェック）
+        // アイコン判定用
         const typeStrForIcon = typeof sub.type === 'string' ? sub.type : (sub.type ? (sub.type['ja'] || sub.type['en'] || '') : '');
         const typeIcon = (typeStrForIcon.includes('ゲーム') || typeStrForIcon.includes('Game'))
             ? '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>'
             : '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>';
 
-        // リストアイテムの描画
+        // ★ ここから個別時間ロックの判定
+        let buttonHtml = '';
+        const subReleaseDate = sub.releaseDateIso ? new Date(sub.releaseDateIso) : null;
+
+        if (subReleaseDate && subReleaseDate > now) {
+            // まだ解禁されていない場合（ボタンをグレーアウトし、鍵アイコンと日付を表示）
+            const y = subReleaseDate.getFullYear();
+            const m = String(subReleaseDate.getMonth() + 1).padStart(2, '0');
+            const d = String(subReleaseDate.getDate()).padStart(2, '0');
+            
+            buttonHtml = `
+            <button class="btn-download-small" style="background: rgba(128,128,128,0.2); color: var(--modal-text-main); cursor: default; pointer-events: none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                ${y}/${m}/${d}
+            </button>`;
+        } else {
+            // 解禁済み、または時間が設定されていない場合（通常のダウンロードボタン）
+            buttonHtml = `
+            <a href="${escapeHTML(sub.url)}" target="_blank" class="btn-download-small">
+                ${t.btn_download || "ダウンロード"}
+            </a>`;
+        }
+
         row.innerHTML = `
             <div class="manage-item-info">
                 <span class="manage-item-title">${localizedTitle}</span>
                 <span class="manage-item-type">${typeIcon} ${localizedType}</span>
             </div>
-            <a href="${escapeHTML(sub.url)}" target="_blank" class="btn-download-small">
-                ${t.btn_download || "ダウンロード"}
-            </a>
+            ${buttonHtml}
         `;
         list.appendChild(row);
     });
