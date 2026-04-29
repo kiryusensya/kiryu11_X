@@ -1598,67 +1598,6 @@ button, input, textarea { font-family: var(--font-stack); }
         </div>
     </div>
 </div>
-
-    <div id="phase-preview" style="display: none; opacity: 0;" class="new-modal-layout">
-        <h2 class="modal-title-top" data-translate="preview_title">コンテンツ確認</h2>
-        <div class="modal-body-flex">
-            <div class="modal-left-col">
-                <img id="previewImage" src="" alt="Thumbnail">
-                <div id="previewTitleUnderImg" class="modal-thumb-title"></div>
-            </div>
-            <div class="modal-right-col">
-                <h2 class="mobile-title" data-translate="preview_title">コンテンツ確認</h2>
-                <p class="modal-label" data-translate="preview_desc">続行すると以下のコンテンツを受け取ります:</p>
-                <h3 id="previewTitle" class="modal-main-title"></h3>
-                <div class="modal-grey-box" id="previewWarningBox">
-                    <p class="modal-box-text is-warning" id="previewWarningText"></p>
-                </div>
-                <div class="modal-btn-row">
-                    <button class="btn-outline" id="btnPreviewClose" style="flex: 3;" data-translate="btn_close">閉じる</button>
-                    <button class="btn-solid" id="btnPreviewRedeem" style="flex: 7;" data-translate="btn_continue">認証する</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="phase-success" style="display: none; opacity: 0;" class="new-modal-layout">
-        <h2 class="modal-title-top" data-translate="success_title_final">認証成功!!</h2>
-        <div class="modal-body-flex">
-            <div class="modal-left-col">
-                <img id="successImage2" src="" alt="Thumbnail">
-                <div id="successTitleUnderImg" class="modal-thumb-title"></div>
-            </div>
-            <div class="modal-right-col">
-                <h2 class="mobile-title" data-translate="success_title_final">認証成功!!</h2>
-                <p class="modal-label" data-translate="success_desc">このコードで以下のコンテンツが認証されました:</p>
-                <h3 id="successBundleName" class="modal-main-title"></h3>
-                <div class="modal-grey-box">
-                    <p class="modal-box-text" id="successMessageText"></p>
-                    <p class="modal-box-time" id="successTime"></p>
-                </div>
-                <div class="modal-btn-row" id="successBtnRow">
-                    <button class="btn-outline" style="width: 100%; flex: none;" id="btnSuccessClose" data-translate="btn_close">閉じる</button>
-                    <a class="btn-solid" style="flex: 7; display: none; align-items:center; justify-content:center; text-decoration:none;" id="btnSuccessDownload" target="_blank"></a>
-                </div>
-        </div>
-    </div>
-</div>
-
-    <div id="phase-error" style="display: none; opacity: 0;" class="new-modal-layout error-layout">
-        <h2 class="modal-title-top error-title-color">⚠ <span data-translate="error_title_prefix">エラー</span> <span id="errorCodeText"></span></h2>
-        <div class="modal-body-error">
-            <h3 id="errorMessage" class="modal-error-main-msg"></h3>
-            <div class="modal-grey-box" id="errorInfoBox" style="margin-bottom: 24px;">
-                <p class="modal-box-text" id="errorSubMessage"></p>
-                <p class="modal-box-time" id="errorTime"></p>
-            </div>
-            <div class="modal-btn-row" id="errorBtnRow">
-                <button class="btn-outline" style="width: 100%; flex: none;" id="btnErrorClose" data-translate="btn_close">閉じる</button>
-            </div>
-        </div>
-    </div>
-  </div>
-</div>
 <script>
 const GAS_API_URL="api/proxy"; 
 
@@ -3510,16 +3449,17 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                             e.stopPropagation();
                             if (!currentUser) { toggleDropdown(true); return; }
                             const targetUrl = item.url || item.actionUrl;
-                        let isMulti = false;
-                        try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
+                            let isMulti = false;
+                            try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
 
-                        if (isMulti) {
-                            openManageModal(item);
-                        } else if (targetUrl) {
-                            window.open(targetUrl, '_blank');
-                        } else {
-                            showMobileItemDetail(item, false);
-                        }
+                            if (isMulti) {
+                                openManageModal(item);
+                            } else if (targetUrl) {
+                                window.open(targetUrl, '_blank');
+                            } else {
+                                showMobileItemDetail(item, false);
+                            }
+                        };
                         return true; 
                     }
 
@@ -3551,16 +3491,17 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                     e.stopPropagation();
                     if (!currentUser) { toggleDropdown(true); return; }
                     const targetUrl = item.url || item.actionUrl;
-                        let isMulti = false;
-                        try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
+                    let isMulti = false;
+                    try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
 
-                        if (isMulti) {
-                            openManageModal(item);
-                        } else if (targetUrl) {
-                            window.open(targetUrl, '_blank');
-                        } else {
-                            showMobileItemDetail(item, false);
-                        };
+                    if (isMulti) {
+                        openManageModal(item);
+                    } else if (targetUrl) {
+                        window.open(targetUrl, '_blank');
+                    } else {
+                        showMobileItemDetail(item, false);
+                    }
+                };
             }
         }
     } else {
@@ -3575,7 +3516,6 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
     }
     mobileList.appendChild(mDiv);
 }
-
 async function fetchAvailableContent() {
     const list = els.availableListSidebar;
     const t = TRANSLATIONS[CURRENT_LANG];
