@@ -841,9 +841,20 @@ button, input, textarea { font-family: var(--font-stack); }
         cursor: pointer;
         font-family: var(--font-stack);
     }
-    #historyModal .modal-sheet {
-        padding: 24px !important; /* スマホの時は余白を狭くする */
+    #historyModal .modal-sheet,
+    #manageModal .modal-sheet {
+        padding: 20px !important; /* ★余白をさらに狭くして中身を広くする */
+        width: 95% !important;    /* ★画面いっぱいに横幅を広げる */
         max-height: 85vh;
+    }
+    
+    /* スマホ画面でのボックス内の微調整 */
+    .manage-item-row {
+        padding: 16px 12px;
+        gap: 8px;
+    }
+    .manage-item-info {
+        min-width: 0; /* ★タイトルが長すぎる場合にレイアウト崩れを防ぐ */
     }
     .mobile-store-grid {
         display: grid;
@@ -1266,6 +1277,8 @@ button, input, textarea { font-family: var(--font-stack); }
     display: flex;
     align-items: center;
     gap: 6px;
+    white-space: nowrap; /* ★追加: テキストの改行を防ぐ */
+    flex-shrink: 0;      /* ★追加: ボタン自体が縮まないようにする */
 }
 .btn-download-small:active { transform: scale(0.95); }
 </style>
