@@ -1227,6 +1227,47 @@ button, input, textarea { font-family: var(--font-stack); }
 [data-theme="dark"] .rgl-cta-btn.is-download:focus {
     background: rgba(50, 50, 50, 0.8) !important;
 }
+/* --- Content Management UI --- */
+.manage-item-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background: rgba(128,128,128,0.1);
+    border-radius: 12px;
+    border: 1px solid rgba(128,128,128,0.2);
+    transition: background 0.2s, transform 0.1s;
+}
+[data-theme="dark"] .manage-item-row {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.manage-item-row:hover { 
+    background: rgba(128,128,128,0.15); 
+    transform: translateY(-2px);
+}
+[data-theme="dark"] .manage-item-row:hover {
+    background: rgba(255,255,255,0.1);
+}
+.manage-item-info { display: flex; flex-direction: column; gap: 6px; }
+.manage-item-title { font-weight: 800; font-size: 16px; color: var(--modal-text-main); }
+.manage-item-type { font-size: 12px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 4px; }
+.btn-download-small {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    text-decoration: none;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.btn-download-small:active { transform: scale(0.95); }
 </style>
 </head>
 <body>
@@ -1521,12 +1562,25 @@ button, input, textarea { font-family: var(--font-stack); }
                     <p class="modal-box-time" id="successTime"></p>
                 </div>
                 <div class="modal-btn-row" id="successBtnRow">
-                    <button class="btn-outline" style="width: 100%; flex: none;" id="btnSuccessClose" data-translate="btn_close">閉じる</button>
-                    <a class="btn-solid" style="flex: 7; display: none; align-items:center; justify-content:center; text-decoration:none;" id="btnSuccessDownload" target="_blank"></a>
+                <button class="btn-outline" style="width: auto; flex: 2;" id="btnSuccessClose" data-translate="btn_close">閉じる</button>
+                <a class="btn-solid" style="flex: 6; display: none; align-items:center; justify-content:center; text-decoration:none;" id="btnSuccessDownload" target="_blank"></a>
+                <button class="btn-outline" style="flex: 1; display: none; align-items:center; justify-content:center; padding: 0;" id="btnSuccessMore">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-more-horizontal"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+              </button>
+             </div>
+              <div id="phase-manage" style="display: none; opacity: 0;" class="new-modal-layout">
+    <h2 class="modal-title-top" style="margin-bottom: 16px;">コンテンツの管理</h2>
+    <div class="modal-body-flex">
+        <div class="modal-right-col" style="width: 100%; padding: 0;">
+            <p class="modal-label" style="margin-bottom: 16px;">インストールするアイテムを選択してください:</p>
+            <div id="manageContentList" style="display: flex; flex-direction: column; gap: 12px; max-height: 50vh; overflow-y: auto; padding-right: 8px;">
                 </div>
+            <div class="modal-btn-row" style="margin-top: 24px;">
+                <button class="btn-outline" style="width: 100%; flex: none;" id="btnManageClose">戻る</button>
             </div>
         </div>
     </div>
+</div>
 
     <div id="phase-error" style="display: none; opacity: 0;" class="new-modal-layout error-layout">
         <h2 class="modal-title-top error-title-color">⚠ <span data-translate="error_title_prefix">エラー</span> <span id="errorCodeText"></span></h2>
@@ -2029,6 +2083,10 @@ document.addEventListener('DOMContentLoaded', () => {
     historyModal: gId('historyModal'),
     closeHistoryModalBtn: gId('closeHistoryModalBtn'),
     historyListContainer: gId('historyListContainer'),
+    btnSuccessMore: gId('btnSuccessMore'),
+    phaseManage: gId('phase-manage'),
+    manageContentList: gId('manageContentList'),
+    btnManageClose: gId('btnManageClose'),
   };
 
   try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
@@ -2084,6 +2142,16 @@ function setupEventListeners() {
         if(e) e.preventDefault();
         e.stopPropagation();
         logout();
+      });
+  }
+  if (els.btnManageClose) {
+      els.btnManageClose.addEventListener('click', () => {
+          els.phaseManage.style.opacity = '0';
+          setTimeout(() => {
+              els.phaseManage.style.display = 'none';
+              els.phaseSuccess.style.display = 'flex';
+              setTimeout(() => els.phaseSuccess.style.opacity = '1', 50);
+          }, 400);
       });
   }
 
@@ -2723,12 +2791,39 @@ function showMobileItemDetail(item, isNewRedeem = false) {
             if(modalDownloadTimer) clearInterval(modalDownloadTimer);
             els.btnSuccessDownload.style.pointerEvents = 'auto';
             els.btnSuccessDownload.style.opacity = '1';
-            els.btnSuccessDownload.href = item.url;
-            els.btnSuccessDownload.onclick = null; 
-            els.btnSuccessDownload.target = "_blank";
+            
+            // ▼ ここから複数コンテンツ判定 ▼
+            let subItems = [];
+            try {
+                // Action_url が JSON配列 (例: [{"title":"Base","url":"..."},{"title":"DLC","url":"..."}]) の場合
+                if (item.url && item.url.trim().startsWith('[')) {
+                    subItems = JSON.parse(item.url);
+                }
+            } catch(e) {}
+
             const btnLabel = item.buttonLabel || t.btn_download || "ダウンロード";
             const btnIcon = item.icon || "download";
-            els.btnSuccessDownload.innerHTML = `<span>${btnLabel}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="${btnIcon}" aria-hidden="true" size="18" class="lucide lucide-${btnIcon}"></svg>`;
+
+            if (subItems.length > 1) {
+                // 複数コンテンツがある場合
+                els.btnSuccessDownload.removeAttribute('href');
+                els.btnSuccessDownload.innerHTML = `<span>${btnLabel} (複数)</span>`;
+                els.btnSuccessMore.style.display = 'flex';
+                
+                const openManage = (e) => {
+                    e.preventDefault();
+                    renderManageContent(subItems, item);
+                };
+                els.btnSuccessDownload.onclick = openManage;
+                els.btnSuccessMore.onclick = openManage;
+            } else {
+                // 単一コンテンツの場合
+                els.btnSuccessMore.style.display = 'none';
+                els.btnSuccessDownload.href = subItems.length === 1 ? subItems[0].url : item.url;
+                els.btnSuccessDownload.onclick = null; 
+                els.btnSuccessDownload.target = "_blank";
+                els.btnSuccessDownload.innerHTML = `<span>${btnLabel}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="${btnIcon}" aria-hidden="true" size="18" class="lucide lucide-${btnIcon}"></svg>`;
+            }
             try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
         }
     };
@@ -3690,6 +3785,39 @@ function renderHistoryModal() {
     });
     
     try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+}
+function renderManageContent(subItems, parentItem) {
+    els.phaseSuccess.style.opacity = '0';
+    setTimeout(() => {
+        els.phaseSuccess.style.display = 'none';
+        els.phaseManage.style.display = 'flex';
+        
+        const list = els.manageContentList;
+        list.innerHTML = '';
+        
+        subItems.forEach(sub => {
+            const row = document.createElement('div');
+            row.className = 'manage-item-row';
+            
+            // アイコンの切り替え（本編かDLCか）
+            const typeIcon = sub.type && sub.type.includes('ゲーム') 
+                ? '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>'
+                : '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>';
+
+            row.innerHTML = `
+                <div class="manage-item-info">
+                    <span class="manage-item-title">${escapeHTML(sub.title || parentItem.title)}</span>
+                    <span class="manage-item-type">${typeIcon} ${escapeHTML(sub.type || 'アドオン')}</span>
+                </div>
+                <a href="${escapeHTML(sub.url)}" target="_blank" class="btn-download-small">
+                    ダウンロード
+                </a>
+            `;
+            list.appendChild(row);
+        });
+        
+        setTimeout(() => els.phaseManage.style.opacity = '1', 50);
+    }, 400);
 }
 </script>
 </body>
