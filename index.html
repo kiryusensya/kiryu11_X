@@ -3408,7 +3408,8 @@ function updateAccountUI() {
       
       const now = Date.now();
       let hasLockedItems = currentUser.history.some(item => {
-          return item.releaseDateIso && (new Date(item.releaseDateIso).getTime() > now);
+          return (item.releaseDateIso && new Date(item.releaseDateIso).getTime() > now)
+    || (item.expireDateIso && new Date(item.expireDateIso).getTime() > now);
       });
       if(hasLockedItems) startLibraryTimer();
 
