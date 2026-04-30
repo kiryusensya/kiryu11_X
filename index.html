@@ -3238,7 +3238,7 @@ async function performAuth(code, mode = 'check') {
                 showInfoBox = errorSubText ? true : false;
             }
             
-            els.errorCodeText.textContent = specificErrorCode;
+            els.errorCodeText.innerHTML = `<a href="error.html?code=${specificErrorCode}" target="_blank" style="color: inherit; text-decoration: underline;">${specificErrorCode}</a>`;
             els.errorTime.textContent = currentAuthTime;
             
             els.errorMessage.textContent = errorMainText;
