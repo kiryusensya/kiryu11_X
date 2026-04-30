@@ -2316,11 +2316,13 @@ function setupEventListeners() {
   els.updateSpinner = gId('updateSpinner');
   els.updateMessageText = gId('updateMessageText');
 
-  if (els.btnUpdateCheck) {
+ if (els.btnUpdateCheck) {
       els.btnUpdateCheck.addEventListener('click', (e) => {
           e.stopPropagation();
           els.heroOptionsDropdown.classList.remove('open');
           
+          if (!selectedHeroItem) return;
+
           const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja;
           
           // モーダルを開き、初期状態（EMUI風クルクル確認中）にセット
@@ -2329,18 +2331,35 @@ function setupEventListeners() {
           els.btnUpdateExecute.style.display = 'none'; // アップデートボタンは隠す
           els.updateModal.classList.add('active');
           
-          // 2.5秒後に確認が終わった演出（結果を表示）
+          // 2.5秒後にデータベースの「Update_URL」の有無を判定して結果を表示
           setTimeout(() => {
               if (!els.updateModal.classList.contains('active')) return; // 途中で閉じられたら中止
               
-              // クルクルを止める
               els.updateSpinner.style.display = 'none';
               
-              // 結果を「更新あり」に変更
-              els.updateMessageText.textContent = t.msg_update_available || "利用可能な更新データがあります。";
-              
-              // 右下にアップデートボタンを出現させる
-              els.btnUpdateExecute.style.display = 'flex';
+              // ★ Supabaseに Update_URL が入力されているかチェック
+              if (selectedHeroItem.updateUrl && selectedHeroItem.updateUrl.trim() !== "") {
+                  // URLがある場合 ＝ アップデートあり！
+                  els.updateMessageText.textContent = t.msg_update_available || "利用可能な更新データがあります。";
+                  els.btnUpdateExecute.style.display = 'flex';
+                  
+                  // アップデートボタンを押したときの処理（ここで初めて定義する）
+                  els.btnUpdateExecute.onclick = () => {
+                      els.updateSpinner.style.display = 'block';
+                      els.btnUpdateExecute.style.display = 'none';
+                      els.updateMessageText.textContent = (CURRENT_LANG === 'ja') ? "ダウンロード中..." : "Downloading..."; 
+                      
+                      // 1.5秒後に指定されたアップデート用URLを開く
+                      setTimeout(() => {
+                         els.updateSpinner.style.display = 'none'; 
+                         els.updateMessageText.textContent = t.msg_update_latest || "ご利用のソフトウェアは最新です";
+                         window.open(selectedHeroItem.updateUrl, '_blank'); // ★ ここで更新データをダウンロード！
+                      }, 1500);
+                  };
+              } else {
+                  // URLが空欄の場合 ＝ 最新バージョン！
+                  els.updateMessageText.textContent = t.msg_update_latest || "ご利用のソフトウェアは最新です";
+              }
           }, 2500);
       });
   }
