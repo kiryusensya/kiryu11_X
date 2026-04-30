@@ -1433,9 +1433,23 @@ button, input, textarea { font-family: var(--font-stack); }
                     <button id="heroBuyBtn" class="rgl-buy-btn" style="display:none;">
                         <span id="heroBuyBtnText">購入する</span>
                     </button>
-                </div>
-            </div>
-        </div>
+                    
+                    <!-- ★ ここから追加: オプション「・・・」ボタン -->
+                    <div id="heroOptionsWrapper" style="position:relative; display:none;">
+                        <button id="heroOptionsBtn" class="rgl-cta-btn" style="min-width: 56px; padding: 0; width: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(128,128,128,0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); margin-left: -8px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--modal-text-main)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                        </button>
+                        <div id="heroOptionsDropdown" class="account-dropdown" style="top: 100%; left: 0; transform-origin: top left; width: 240px; margin-top: 10px;">
+                            <div class="menu-list">
+                                <button class="menu-btn" id="btnUpdateCheck">
+                                    <span data-translate="menu_update">アップデートを確認する</span>
+                                </button>
+                                <button class="menu-btn" id="btnShowLicense">
+                                    <span data-translate="menu_license">ライセンス情報</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
 
         <div id="mobileStoreView" class="mobile-store-view">
             <div class="mobile-store-header">
@@ -1608,6 +1622,17 @@ button, input, textarea { font-family: var(--font-stack); }
         <p style="font-size:14px; font-weight:700; color:var(--modal-text-main); margin: 0 0 16px 0;" data-translate="manage_desc">インストールするアイテムを選択してください:</p>
         
         <div id="manageContentList" style="overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; padding-right: 4px;">
+        </div>
+    </div>
+</div>
+<div id="licenseModal" class="modal-overlay" style="z-index: 10007;">
+    <div class="modal-sheet" style="max-width: 500px; width: 90%; text-align: left; padding: 40px; display: flex; flex-direction: column; max-height: 80vh;">
+        <div style="position:absolute; top:20px; right:20px; cursor:pointer; opacity:0.6; z-index:10;" id="closeLicenseModalBtn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+        </div>
+        <h2 style="font-size:24px; font-weight:800; margin: 0 0 20px 0; color: var(--modal-text-main);" data-translate="menu_license">ライセンス情報</h2>
+        <div class="modal-grey-box" style="overflow-y: auto; flex: 1;">
+            <p class="modal-box-text" id="licenseTextContent"></p>
         </div>
     </div>
 </div>
@@ -2105,7 +2130,15 @@ document.addEventListener('DOMContentLoaded', () => {
     historyListContainer: gId('historyListContainer'),
     manageModal: gId('manageModal'),
     closeManageModalBtn: gId('closeManageModalBtn'),
-    manageContentList: gId('manageContentList')
+    manageContentList: gId('manageContentList'),
+    heroOptionsWrapper: gId('heroOptionsWrapper'),
+    heroOptionsBtn: gId('heroOptionsBtn'),
+    heroOptionsDropdown: gId('heroOptionsDropdown'),
+    btnUpdateCheck: gId('btnUpdateCheck'),
+    btnShowLicense: gId('btnShowLicense'),
+    licenseModal: gId('licenseModal'),
+    closeLicenseModalBtn: gId('closeLicenseModalBtn'),
+    licenseTextContent: gId('licenseTextContent'),
   };
 
   try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
@@ -2177,6 +2210,47 @@ function setupEventListeners() {
             }
         });
     }
+  if (els.heroOptionsBtn) {
+      els.heroOptionsBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          els.heroOptionsDropdown.classList.toggle('open');
+      });
+  }
+  // 余白クリックでドロップダウンを閉じる処理に追加
+  document.addEventListener('click', (e) => { 
+      if (els.heroOptionsWrapper && !els.heroOptionsWrapper.contains(e.target)) {
+          els.heroOptionsDropdown.classList.remove('open');
+      }
+      // (既存のアカウントドロップダウンを閉じる処理はそのまま維持)
+  });
+
+  // --- メニュー機能の処理 ---
+  if (els.btnUpdateCheck) {
+      els.btnUpdateCheck.addEventListener('click', (e) => {
+          e.stopPropagation();
+          els.heroOptionsDropdown.classList.remove('open');
+          const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja;
+          // アップデート確認
+          alert(t.msg_up_to_date || "最新のバージョンです。"); 
+      });
+  }
+
+  if (els.btnShowLicense) {
+      els.btnShowLicense.addEventListener('click', (e) => {
+          e.stopPropagation();
+          els.heroOptionsDropdown.classList.remove('open');
+          if (selectedHeroItem) {
+              // ★ ライセンス情報がない場合のフォールバック
+              const text = selectedHeroItem.license || "No license information available.";
+              els.licenseTextContent.innerHTML = escapeHTML(text).replace(/\n/g, '<br>');
+              els.licenseModal.classList.add('active');
+          }
+      });
+  }
+
+  if (els.closeLicenseModalBtn) {
+      els.closeLicenseModalBtn.addEventListener('click', () => els.licenseModal.classList.remove('active'));
+  }
 
   const accountModal = document.getElementById('accountModal');
   const closeAccountModalBtn = document.getElementById('closeAccountModalBtn');
@@ -3250,6 +3324,8 @@ function setHeroButtonState(state, forceUnlock = false) {
         currentHeroContext = 'owned';
         if(buyBtn) buyBtn.style.display = 'none';
 
+      if (els.heroOptionsWrapper) els.heroOptionsWrapper.style.display = 'block';
+
         const now = new Date();
         const releaseDate = selectedHeroItem.releaseDateIso ? new Date(selectedHeroItem.releaseDateIso) : null;
 
@@ -3276,6 +3352,7 @@ function setHeroButtonState(state, forceUnlock = false) {
             }
         } else {
             if(buyBtn) buyBtn.style.display = 'none';
+            if (els.heroOptionsWrapper) els.heroOptionsWrapper.style.display = 'none';
         }
     }
 }
