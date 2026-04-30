@@ -330,7 +330,7 @@ button, input, textarea, a { font-family: var(--font-stack); }
                     <p class="search-sub" data-translate="error_modal_sub">サポートが必要なエラーコードを入力してください。</p>
 
                     <div class="search-input-group">
-                        <input type="text" id="errorCodeInput" class="code-search-field" placeholder="" autocomplete="off">
+                        <input type="text" id="errorCodeInput" class="code-search-field" placeholder="" autocomplete="off" inputmode="numeric">
                         <button id="btnErrorCheck" class="btn-search-code" onclick="searchErrorCode()"><span data-translate="btn_search">検索する</span></button>
                         <div id="errorSearchStatus" style="color:#FF3B30; font-size:13px; min-height:20px; text-align:center;"></div>
                     </div>
@@ -530,6 +530,33 @@ button, input, textarea, a { font-family: var(--font-stack); }
                 applyTheme(next);
                 localStorage.setItem('user_theme', next);
             });
+        }
+      const errorCodeInput = document.getElementById('errorCodeInput');
+
+        // 1. 入力欄を半角数字のみに制限（全角数字は半角に自動変換）
+        errorCodeInput.addEventListener('input', function() {
+            this.value = this.value
+                .replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)) // 全角数字を半角に
+                .replace(/[^0-9]/g, ''); // 半角数字以外を削除
+        });
+
+        // 2. URLパラメータ (?code=XXXX) の取得と自動検索
+        const urlParams = new URLSearchParams(window.location.search);
+        const codeParam = urlParams.get('code');
+        
+        if (codeParam) {
+            // パラメータの値も念のため半角数字のみにクレンジングしてセット
+            errorCodeInput.value = codeParam
+                .replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0))
+                .replace(/[^0-9]/g, '');
+            
+            // 値が正しくセットされていれば自動で検索を実行
+            if (errorCodeInput.value !== '') {
+                // UIや翻訳の初期化が完了するのを待つため、わずかに遅延させて実行
+                setTimeout(() => {
+                    searchErrorCode();
+                }, 100);
+            }
         }
     });
 
