@@ -2308,13 +2308,10 @@ function setupEventListeners() {
         try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
 
         if (isMulti) {
-            openManageModal(selectedHeroItem); // 複数なら独立モーダルを開く
-        } else if (targetUrl) {
-            window.open(targetUrl, '_blank'); // 単体ならそのまま開く
-        } else {
-            // 複数コンテンツ(JSON)なら詳細モーダルを開く
-            showMobileItemDetail(selectedHeroItem, false);
-        }
+                    openManageModal(selectedHeroItem); // 複数なら独立モーダルを開く
+                } else if (targetUrl) {
+                    window.open(targetUrl, '_blank'); // 単体ならそのまま開く
+                }
      } else {
         if (!currentUser) {
             toggleDropdown(true);
@@ -3612,8 +3609,6 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                                 openManageModal(item);
                             } else if (targetUrl) {
                                 window.open(targetUrl, '_blank');
-                            } else {
-                                showMobileItemDetail(item, false);
                             }
                         };
                         return true; 
@@ -3654,8 +3649,6 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                         openManageModal(item);
                     } else if (targetUrl) {
                         window.open(targetUrl, '_blank');
-                    } else {
-                        showMobileItemDetail(item, false);
                     }
                 };
             }
