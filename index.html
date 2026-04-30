@@ -2337,11 +2337,9 @@ function setupEventListeners() {
           if (!els.updateModal.classList.contains('active')) return;
           
           try {
-              // ★ 修正: supabaseではなく、安全なAPI経由で最新ストアデータを取得する
               const res = await safeFetch({ type: 'get_available', lang: CURRENT_LANG });
               let currentUpdateUrl = selectedHeroItem.updateUrl;
               
-              // 取得した最新データの中から、今開いているアイテムのURLを探す
               if (res.success && res.items) {
                   const updatedItem = res.items.find(i => i.code === selectedHeroItem.code);
                   if (updatedItem) currentUpdateUrl = updatedItem.updateUrl;
@@ -2352,7 +2350,6 @@ function setupEventListeners() {
               
               // 3. 判定とUIの切り替え
               if (currentUpdateUrl && currentUpdateUrl.trim() !== "") {
-                  // ▼ アップデートがある場合
                   els.updateMessageText.textContent = t.msg_update_available || "利用可能な更新データがあります。";
                   els.btnUpdateExecute.style.display = 'flex';
                   els.btnUpdateRecheck.style.display = 'none'; // 更新があるなら再確認ボタンは隠す
@@ -2363,13 +2360,11 @@ function setupEventListeners() {
                       els.btnUpdateExecute.style.display = 'none';
                       els.updateMessageText.textContent = (CURRENT_LANG === 'ja') ? "ダウンロード中..." : "Downloading..."; 
                       
-                      // 1.5秒後にダウンロード完了の演出
                       setTimeout(() => {
                          els.updateSpinner.style.display = 'none'; 
                          els.updateMessageText.textContent = t.msg_update_latest || "ご利用のソフトウェアは最新です";
                          els.btnUpdateRecheck.style.display = 'flex'; // 完了したので再確認ボタンを戻す
                          
-                         // 指定URLを開く
                          window.open(currentUpdateUrl, '_blank'); 
 
                          // ★ 裏画面（Heroエリア）のメインボタンを即座に「最新版」に変更
@@ -2386,11 +2381,9 @@ function setupEventListeners() {
                       }, 1500);
                   };
               } else {
-                  // ▼ 最新バージョンの場合（URLがない）
                   els.updateMessageText.textContent = t.msg_update_latest || "ご利用のソフトウェアは最新です";
-                  els.btnUpdateRecheck.style.display = 'flex'; // 最新なら再確認ボタンを常に出しておく
+                  els.btnUpdateRecheck.style.display = 'flex'; 
               }
-
           } catch (e) {
               console.error("Update check failed:", e);
               els.updateSpinner.style.display = 'none';
@@ -2424,6 +2417,20 @@ function setupEventListeners() {
       });
   });
 
+  // ★ 復活: メニューから「ライセンス情報」を押したとき
+  if (els.btnShowLicense) {
+      els.btnShowLicense.addEventListener('click', (e) => {
+          e.stopPropagation();
+          els.heroOptionsDropdown.classList.remove('open');
+          if (selectedHeroItem) {
+              const text = selectedHeroItem.license || "No license information available.";
+              els.licenseTextContent.innerHTML = escapeHTML(text).replace(/\n/g, '<br>');
+              els.licenseModal.classList.add('active');
+          }
+      });
+  }
+
+  // ★ 復活: ライセンスモーダルを閉じる処理
   if (els.closeLicenseModalBtn) {
       els.closeLicenseModalBtn.addEventListener('click', () => els.licenseModal.classList.remove('active'));
   }
