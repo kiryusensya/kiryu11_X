@@ -3035,6 +3035,39 @@ async function performAuth(code, mode = 'check') {
   const safeCode = formatCodeInput(code);
   const spinnerHtml = `<span class="loading-spinner" style="border-top-color:currentColor; width:18px; height:18px; border-width:2px; margin:0;"></span>`;
 
+  // ★ 追加：フロントエンド側での重複チェック
+  // 履歴に残っている（所有済み）コードを再入力されたら、APIに送る前に即座に「所有済み」としてはじく
+  if (mode === 'check' && currentUser && currentUser.history) {
+      const alreadyOwns = currentUser.history.find(h => h.code === safeCode);
+      if (alreadyOwns) {
+          els.errorCodeText.textContent = "1011";
+          els.errorTime.textContent = getFormattedCurrentTime(CURRENT_LANG);
+          const titlePrefix = els.phaseError.querySelector('[data-translate="error_title_prefix"]');
+          if (titlePrefix) titlePrefix.textContent = t.error_title_prefix || "エラー";
+
+          els.errorMessage.textContent = t.error_owned_msg || "既に所有しているようです。";
+          const subTxt = window.innerWidth <= 768 ? (t.msg_already_owned_mobile || "ストアからコンテンツを選択してダウンロードしてください。") : (t.error_owned_sub || "左ライブラリメニューからコンテンツを選択してダウンロードしてください。");
+          
+          els.errorSubMessage.innerHTML = escapeHTML(subTxt).replace(/\n/g, '<br>');
+          els.errorInfoBox.style.display = 'flex';
+          
+          els.btnErrorClose.style.flex = "none";
+          els.btnErrorClose.style.width = "100%";
+
+          els.modalCon.classList.add('is-wide');
+          els.phaseInput.style.opacity = '0';
+          setTimeout(() => {
+              if (thisRequestId !== currentAuthRequestId) return;
+              els.phaseInput.style.display = 'none';
+              els.phaseError.style.display = 'flex';
+              setTimeout(() => els.phaseError.style.opacity = '1', 50);
+          }, 400);
+          
+          try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+          return; 
+      }
+  }
+
   if (mode === 'check') {
     if(!safeCode) return;
     els.code.disabled = true; els.confirm.disabled = true;
@@ -3046,7 +3079,6 @@ async function performAuth(code, mode = 'check') {
   }
 
   try {
-    // 修正：code と userId を正しくバックエンドに送信します
     const d = await safeFetch({
         type: mode === 'check' ? 'check' : 'redeem',
         userId: currentUser ? currentUser.userId : null,
@@ -3174,7 +3206,7 @@ async function performAuth(code, mode = 'check') {
             let specificErrorCode = generateErrorCode(); 
             
             const msg = d.message || "";
-            // 修正：使用済み判定を所有判定より先に持ってきて正しく振り分ける
+            // 使用済み判定を所有判定より先に持ってきて正しく振り分ける
             if (msg === "This code has already been used." || msg.includes("使用済") || msg.includes("used")) {
                 errorMainText = t.error_used_msg || t.msg_used;
                 errorSubText = "";
@@ -3486,10 +3518,10 @@ function startLibraryTimer() {
     libraryTimerId = setInterval(() => {
         const now = Date.now();
         
-        // ★ 履歴から削除する処理を撤廃しました。
-        // 期限が切れても currentUser.history に残り続けます。
+        // ★ 注意: ここにあった currentUser.history.filter(...) (削除処理) を完全に消しました
+        // これで期限が切れても履歴一覧には表示され続けます。
 
-        // ★ 現在選択中（画面中央のHeroエリア）のコンテンツが期限切れになったらボタンを更新
+        // ★ 現在選択中（画面中央のHeroエリア）のコンテンツが期限切れになったらボタンの表示を更新
         if (selectedHeroItem && selectedHeroItem.expireDateIso) {
             if (new Date(selectedHeroItem.expireDateIso).getTime() <= now) {
                 if (currentHeroContext === 'owned') {
