@@ -1764,6 +1764,7 @@ const TRANSLATIONS={
   error_title_prefix: "エラー",
   error_used_msg: "コードが使用済みです",
   error_locked_msg: "このコンテンツは解禁していません。",
+  error_expired_msg: "このコンテンツは有効期限が切れています。", btn_expired: "期限切れ",
   error_owned_msg: "既に所有しているようです。",
   error_owned_sub: "左ライブラリメニューからコンテンツを選択してダウンロードしてください。",
   btn_close:"閉じる",btn_continue:"認証する",btn_download:"ダウンロード", btn_buy:"購入する", 
@@ -1812,6 +1813,7 @@ const TRANSLATIONS={
   error_title_prefix: "Error",
   error_used_msg: "This code has already been used.",
   error_locked_msg: "This content is not yet unlocked.",
+  error_expired_msg: "This content has expired.", btn_expired: "Expired",
   error_owned_msg: "You already own it.",
   error_owned_sub: "Please select the content from the left library menu to download.",
   btn_close:"Close",btn_continue:"Redeem",btn_download:"Download", btn_buy:"Buy",
@@ -1860,6 +1862,7 @@ const TRANSLATIONS={
   error_title_prefix: "错误",
   error_used_msg: "该代码已被使用。",
   error_locked_msg: "此内容尚未解锁。",
+  error_expired_msg: "此内容已过期。", btn_expired: "已过期",
   error_owned_msg: "您已经有了。",
   error_owned_sub: "请从左侧库菜单中选择要下载的内容。",
   btn_close:"关闭",btn_continue:"兑換",btn_download:"下载", btn_buy:"购买", 
@@ -1908,6 +1911,7 @@ const TRANSLATIONS={
   error_title_prefix: "錯誤",
   error_used_msg: "該代碼已被使用。",
   error_locked_msg: "此內容尚未解鎖。",
+  error_expired_msg: "此內容已過期。", btn_expired: "已過期",
   error_owned_msg: "你已經擁有了。",
   error_owned_sub: "請從左側庫菜單中選擇要下載的內容。",
   btn_close:"關閉",btn_continue:"兌換",btn_download:"下載", btn_buy:"購買", 
@@ -1956,6 +1960,7 @@ const TRANSLATIONS={
   error_title_prefix: "오류",
   error_used_msg: "이미 사용된 코드입니다.",
   error_locked_msg: "이 콘텐츠는 아직 해제되지 않았습니다.",
+  error_expired_msg: "이 콘텐츠는 만료되었습니다.", btn_expired: "만료됨",
   error_owned_msg: "이미 가지고 있습니다.",
   error_owned_sub: "왼쪽 라이브러리 메뉴에서 다운로드할 콘텐츠를 선택하세요.",
   btn_close:"닫기",btn_continue:"사용",btn_download:"다운로드", btn_buy:"구매", 
@@ -2004,6 +2009,7 @@ const TRANSLATIONS={
   error_title_prefix: "Ошибка",
   error_used_msg: "Этот код уже был использован.",
   error_locked_msg: "Этот контент еще не разблокирован.",
+  error_expired_msg: "Срок действия этого контента истек.", btn_expired: "Истек срок",
   error_owned_msg: "Оно у вас уже есть.",
   error_owned_sub: "Пожалуйста, выберите контент из левого меню библиотеки для загрузки.",
   btn_close:"Закрыть",btn_continue:"Погасить",btn_download:"Скачать", btn_buy:"Купить", 
@@ -2295,6 +2301,13 @@ function setupEventListeners() {
      e.stopPropagation(); 
      
      if(window.innerWidth > 768 && currentHeroContext === 'owned' && selectedHeroItem) {
+       if (selectedHeroItem.expireDateIso) {
+            const expireDate = new Date(selectedHeroItem.expireDateIso);
+            if (expireDate <= new Date()) {
+                showExpiredError();
+                return; 
+            }
+        }
         if (selectedHeroItem.releaseDateIso) {
             const releaseDate = new Date(selectedHeroItem.releaseDateIso);
             if (releaseDate > new Date()) {
@@ -2358,6 +2371,34 @@ function showLockedError() {
     els.errorCodeText.textContent = "3001";
     els.errorTime.textContent = getFormattedCurrentTime(CURRENT_LANG);
     els.errorMessage.textContent = t.error_locked_msg || "このコンテンツは解禁していません。";
+    
+    els.errorSubMessage.innerHTML = "";
+    els.errorInfoBox.style.display = 'none';
+    
+    els.btnErrorClose.style.flex = "none";
+    els.btnErrorClose.style.width = "100%";
+    
+    els.phaseInput.style.display = 'none';
+    els.phasePreview.style.display = 'none';
+    els.phaseSuccess.style.display = 'none';
+
+    els.authModal.classList.add('active');
+    els.modalCon.classList.add('is-wide');
+    
+    els.phaseError.style.opacity = '0';
+    els.phaseError.style.display = 'flex';
+    setTimeout(() => els.phaseError.style.opacity = '1', 50);
+    
+    try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+}
+
+function showExpiredError() {
+    const t = TRANSLATIONS[CURRENT_LANG];
+    currentAuthRequestId++; // 他のアニメーションをキャンセル
+
+    els.errorCodeText.textContent = "3002";
+    els.errorTime.textContent = getFormattedCurrentTime(CURRENT_LANG);
+    els.errorMessage.textContent = t.error_expired_msg || "このコンテンツは有効期限が切れています。";
     
     els.errorSubMessage.innerHTML = "";
     els.errorInfoBox.style.display = 'none';
@@ -2945,12 +2986,21 @@ function showMobileItemDetail(item, isNewRedeem = false) {
         const releaseDate = item.releaseDateIso ? new Date(item.releaseDateIso) : null;
         const expireDate = item.expireDateIso ? new Date(item.expireDateIso) : null;
 
-        // ★ 期限切れならモーダルを強制的に閉じて画面リフレッシュ
-        if (expireDate && expireDate < now) {
+        // ★ 期限切れなら「期限切れ」ボタンに変更し、エラー3002を出す
+        if (expireDate && expireDate <= now) {
             if (modalDownloadTimer) clearInterval(modalDownloadTimer);
-            closeAuthModal();
-            updateAccountUI();
-            fetchAvailableContent();
+            
+            els.btnSuccessDownload.style.pointerEvents = 'auto'; // クリック可能に
+            els.btnSuccessDownload.style.opacity = '0.6';
+            els.btnSuccessDownload.style.background = 'rgba(128,128,128,0.2)';
+            els.btnSuccessDownload.style.color = 'var(--modal-text-main)';
+            els.btnSuccessDownload.removeAttribute('href');
+            els.btnSuccessDownload.innerHTML = `<span>${t.btn_expired || "期限切れ"}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-circle" size="18"></svg>`;
+
+            els.btnSuccessDownload.onclick = (e) => {
+                e.preventDefault();
+                showExpiredError(); // クリックでエラー3002を表示
+            };
             return;
         }
 
@@ -3285,16 +3335,27 @@ function setHeroButtonState(state, forceUnlock = false) {
 
         const now = new Date();
         const releaseDate = selectedHeroItem.releaseDateIso ? new Date(selectedHeroItem.releaseDateIso) : null;
+        const expireDate = selectedHeroItem.expireDateIso ? new Date(selectedHeroItem.expireDateIso) : null;
 
-        if (!forceUnlock && releaseDate && releaseDate > now) {
-            startHeroCountdown(releaseDate);
+        // 既に期限切れの場合
+        if (expireDate && expireDate <= now) {
+            btn.classList.add('is-download');
+            btn.style.opacity = '0.5';
+            btn.style.cursor = 'not-allowed';
+            btn.style.background = 'rgba(128,128,128,0.2)';
+            btn.style.color = 'var(--modal-text-main)';
+            btn.innerHTML = `<span>${t.btn_expired || "期限切れ"}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-circle"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>`;
+        }
+        // 解禁待ち または 期限切れ待ち（タイマー起動）
+        else if (!forceUnlock && ((releaseDate && releaseDate > now) || (expireDate && expireDate > now))) {
+            startHeroCountdown(releaseDate, expireDate);
         } else {
+            // 通常のダウンロード状態
             let iconName = selectedHeroItem.icon || 'download';
             const displayLabel = selectedHeroItem.buttonLabel || t.btn_hero_download;
-
+            btn.style.background = ''; btn.style.color = ''; // リセット
             btn.innerHTML = `<span>${displayLabel}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="${iconName}" aria-hidden="true" size="20" class="lucide lucide-${iconName}"></svg>`;
             btn.classList.add('is-download');
-            
             try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
         }
     } else {
@@ -3313,38 +3374,56 @@ function setHeroButtonState(state, forceUnlock = false) {
     }
 }
 
-function startHeroCountdown(targetDate) {
+function startHeroCountdown(releaseDate, expireDate) {
     const btn = els.heroActionBtn;
-    btn.classList.add('is-download'); btn.style.opacity = '0.7'; btn.style.cursor = 'default';
+    const t = TRANSLATIONS[CURRENT_LANG];
+    btn.classList.add('is-download'); 
+    
+    // 期限切れか解禁前かで初期スタイルを変える
+    if (expireDate && (!releaseDate || releaseDate <= new Date())) {
+        btn.style.opacity = '1'; btn.style.cursor = 'pointer';
+    } else {
+        btn.style.opacity = '0.7'; btn.style.cursor = 'default';
+    }
+
     const enMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const ruMonths = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
 
     const update = () => {
         const now = new Date();
-        const diff = targetDate - now;
 
-        if (diff <= 0) {
+        // 1. 期限切れリアルタイムチェック
+        if (expireDate && expireDate <= now) {
             if(heroTimer) clearInterval(heroTimer);
-            setHeroButtonState('owned', true); 
+            setHeroButtonState('owned', true); // 期限切れUIの再描画に投げる
             return;
         }
 
-        const oneDay = 24 * 60 * 60 * 1000;
-        if (diff > oneDay) {
-            const y = targetDate.getFullYear(); const m = targetDate.getMonth(); const d = targetDate.getDate();
-            const mm = String(m + 1).padStart(2, '0'); const dd = String(d).padStart(2, '0');
-            let dateString = "";
-            switch (CURRENT_LANG) {
-                case 'ja': case 'zh': case 'zh-TW': dateString = `${y}年${mm}月${dd}日`; break;
-                case 'ko': dateString = `${y}년 ${mm}월 ${dd}일`; break;
-                case 'ru': dateString = `${dd} ${ruMonths[m]} ${y}`; break;
-                case 'en': default: dateString = `${enMonths[m]} ${dd}, ${y}`; break;
+        // 2. 解禁待ちリアルタイムチェック
+        if (releaseDate && releaseDate > now) {
+            const diff = releaseDate - now;
+            const oneDay = 24 * 60 * 60 * 1000;
+            if (diff > oneDay) {
+                const y = releaseDate.getFullYear(); const m = releaseDate.getMonth(); const d = releaseDate.getDate();
+                const mm = String(m + 1).padStart(2, '0'); const dd = String(d).padStart(2, '0');
+                let dateString = "";
+                switch (CURRENT_LANG) {
+                    case 'ja': case 'zh': case 'zh-TW': dateString = `${y}年${mm}月${dd}日`; break;
+                    case 'ko': dateString = `${y}년 ${mm}월 ${dd}일`; break;
+                    case 'ru': dateString = `${dd} ${ruMonths[m]} ${y}`; break;
+                    case 'en': default: dateString = `${enMonths[m]} ${dd}, ${y}`; break;
+                }
+                btn.innerHTML = `<span>${dateString}</span>`;
+            } else {
+                const h = Math.floor(diff / (1000 * 60 * 60)); const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)); const s = Math.floor((diff % (1000 * 60)) / 1000);
+                const hh = String(h).padStart(2, '0'); const mm = String(m).padStart(2, '0'); const ss = String(s).padStart(2, '0');
+                btn.innerHTML = `<span>${hh}:${mm}:${ss}</span>`;
             }
-            btn.innerHTML = `<span>${dateString}</span>`;
-        } else {
-            const h = Math.floor(diff / (1000 * 60 * 60)); const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)); const s = Math.floor((diff % (1000 * 60)) / 1000);
-            const hh = String(h).padStart(2, '0'); const mm = String(m).padStart(2, '0'); const ss = String(s).padStart(2, '0');
-            btn.innerHTML = `<span>${hh}:${mm}:${ss}</span>`;
+        } 
+        // 3. 解禁完了（再描画）
+        else if (releaseDate && releaseDate <= now) {
+            if(heroTimer) clearInterval(heroTimer);
+            setHeroButtonState('owned', true);
         }
     };
     update(); heroTimer = setInterval(update, 1000);
@@ -3450,31 +3529,7 @@ function startLibraryTimer() {
     if (libraryTimerId) clearInterval(libraryTimerId);
     libraryTimerId = setInterval(() => {
         const now = Date.now();
-        
-        // ★ 1. 履歴の中の期限切れをリアルタイムで監視し、配列から消し去る
-        if (currentUser && currentUser.history) {
-            const originalLen = currentUser.history.length;
-            currentUser.history = currentUser.history.filter(item => {
-                // 期限を過ぎていたら false を返して配列から除外
-                return !(item.expireDateIso && new Date(item.expireDateIso).getTime() <= now);
-            });
-            
-            // もし期限切れが発生して数が減ったら、サイドバーとストアを再描画
-            if (currentUser.history.length !== originalLen) {
-                updateAccountUI();
-                fetchAvailableContent();
-            }
-        }
-
-        // ★ 2. 現在選択中（画面中央に表示中）のコンテンツが期限切れになったら強制リセット
-        if (selectedHeroItem && selectedHeroItem.expireDateIso) {
-            if (new Date(selectedHeroItem.expireDateIso).getTime() <= now) {
-                resetHeroToDefault();
-                return;
-            }
-        }
-
-        // 3. 解禁時間の監視（既存の処理）
+  // 3. 解禁時間の監視（既存の処理）
         if (window.innerWidth > 768 && selectedHeroItem) {
              const isOwnedContext = currentHeroContext === 'owned';
              if (selectedHeroItem.releaseDateIso) {
@@ -3571,72 +3626,83 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
         ${btnHtml}
     `;
     
-    if (treatAsOwned) {
+   if (treatAsOwned) {
         const dlBtn = mDiv.querySelector('.is-owned-download');
         if (dlBtn) {
-            if (isLocked) {
+            const setExpiredStyle = () => {
                 dlBtn.style.background = 'rgba(128, 128, 128, 0.2)';
                 dlBtn.style.color = 'var(--modal-text-main)';
                 dlBtn.style.border = '1px solid transparent';
-                dlBtn.style.cursor = 'pointer';
-
+                dlBtn.style.cursor = 'not-allowed';
+                dlBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-circle" style="margin-right: 4px;"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>${t.btn_expired || "期限切れ"}`;
                 dlBtn.onclick = (e) => {
                     e.stopPropagation();
                     if (!currentUser) { toggleDropdown(true); return; }
-                    showLockedError(); 
+                    showExpiredError(); // エラー3002
                 };
+            };
 
-                const updateMobileCountdown = () => {
-                    if (!document.body.contains(dlBtn)) return true;
-                    const currentNow = new Date();
-                    const diff = releaseDate - currentNow;
+            const updateMobileCountdown = () => {
+                if (!document.body.contains(dlBtn)) return true;
+                const currentNow = new Date();
+                const diffExpire = expireDate ? expireDate - currentNow : 1;
+                const diffRelease = releaseDate ? releaseDate - currentNow : -1;
 
-                    if (diff <= 0) {
-                        dlBtn.style.pointerEvents = 'auto';
-                        dlBtn.style.background = 'rgba(0, 125, 255, 0.1)';
-                        dlBtn.style.color = 'var(--primary)';
-                        dlBtn.style.border = '1px solid rgba(0, 125, 255, 0.3)';
-                        dlBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>${t.btn_download || "ダウンロード"}`;
-                        
-                        dlBtn.onclick = (e) => {
-                            e.stopPropagation();
-                            if (!currentUser) { toggleDropdown(true); return; }
-                            const targetUrl = item.url || item.actionUrl;
-                            let isMulti = false;
-                            try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
+                // 期限切れ
+                if (expireDate && diffExpire <= 0) {
+                    setExpiredStyle();
+                    return true; // 停止
+                }
 
-                            if (isMulti) {
-                                openManageModal(item);
-                            } else if (targetUrl) {
-                                window.open(targetUrl, '_blank');
-                            }
-                        };
-                        return true; 
-                    }
+                // 解禁前
+                if (releaseDate && diffRelease > 0) {
+                    dlBtn.style.background = 'rgba(128, 128, 128, 0.2)';
+                    dlBtn.style.color = 'var(--modal-text-main)';
+                    dlBtn.style.border = '1px solid transparent';
+                    dlBtn.style.cursor = 'pointer';
+                    dlBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        if (!currentUser) { toggleDropdown(true); return; }
+                        showLockedError(); // エラー3001
+                    };
 
                     const oneDay = 24 * 60 * 60 * 1000;
-                    if (diff > oneDay) {
-                        const y = releaseDate.getFullYear();
-                        const m = releaseDate.getMonth() + 1;
-                        const d = releaseDate.getDate();
+                    if (diffRelease > oneDay) {
+                        const y = releaseDate.getFullYear(); const m = releaseDate.getMonth() + 1; const d = releaseDate.getDate();
                         dlBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> <span>${y}/${String(m).padStart(2,'0')}/${String(d).padStart(2,'0')}</span>`;
                     } else {
-                        const h = Math.floor(diff / (1000 * 60 * 60));
-                        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                        const s = Math.floor((diff % (1000 * 60)) / 1000);
-                        const hh = String(h).padStart(2, '0');
-                        const mm = String(m).padStart(2, '0');
-                        const ss = String(s).padStart(2, '0');
-                        dlBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> <span>${hh}:${mm}:${ss}</span>`;
+                        const h = Math.floor(diffRelease / (1000 * 60 * 60)); const m = Math.floor((diffRelease % (1000 * 60 * 60)) / (1000 * 60)); const s = Math.floor((diffRelease % (1000 * 60)) / 1000);
+                        dlBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> <span>${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span>`;
                     }
-                    return false;
-                };
+                    return false; // 継続
+                } 
+                // ダウンロード可能状態
+                else {
+                    dlBtn.style.pointerEvents = 'auto';
+                    dlBtn.style.background = 'rgba(0, 125, 255, 0.1)';
+                    dlBtn.style.color = 'var(--primary)';
+                    dlBtn.style.border = '1px solid rgba(0, 125, 255, 0.3)';
+                    dlBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>${t.btn_download || "ダウンロード"}`;
+                    
+                    dlBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        if (!currentUser) { toggleDropdown(true); return; }
+                        const targetUrl = item.url || item.actionUrl;
+                        let isMulti = false;
+                        try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(err){}
+                        if (isMulti) { openManageModal(item); } else if (targetUrl) { window.open(targetUrl, '_blank'); }
+                    };
+                    return expireDate ? false : true; // 期限があるならタイマー継続
+                }
+            };
 
-                updateMobileCountdown();
+            if (!updateMobileCountdown()) {
                 const timerId = setInterval(() => {
                     if (updateMobileCountdown()) clearInterval(timerId);
                 }, 1000);
-
+            }
+        }
+    }
             } else {
                 dlBtn.onclick = (e) => {
                     e.stopPropagation();
