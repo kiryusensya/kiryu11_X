@@ -1763,7 +1763,7 @@ const TRANSLATIONS={
   success_msg_box: "コードが正常に認証されました。\n左ライブラリメニューからコンテンツを選択してダウンロードしてください。",
   error_title_prefix: "エラー",
   error_used_msg: "コードが使用済みです",
-  error_locked_msg: "このコンテンツは解禁していません。", error_expired_msg: "このコンテンツの有効期限は切れています。",
+  error_locked_msg: "このコンテンツは解禁していません。",
   error_owned_msg: "既に所有しているようです。",
   error_owned_sub: "左ライブラリメニューからコンテンツを選択してダウンロードしてください。",
   btn_close:"閉じる",btn_continue:"認証する",btn_download:"ダウンロード", btn_buy:"購入する", 
@@ -1811,7 +1811,7 @@ const TRANSLATIONS={
   success_msg_box: "Redeem Code successfully verified.\nPlease select the content from the left library menu to download.",
   error_title_prefix: "Error",
   error_used_msg: "This code has already been used.",
-  error_locked_msg: "This content is not yet unlocked.", error_expired_msg: "The expiration date for this content has passed.",
+  error_locked_msg: "This content is not yet unlocked.",
   error_owned_msg: "You already own it.",
   error_owned_sub: "Please select the content from the left library menu to download.",
   btn_close:"Close",btn_continue:"Redeem",btn_download:"Download", btn_buy:"Buy",
@@ -1859,7 +1859,7 @@ const TRANSLATIONS={
   success_msg_box: "代码已成功兑换。\n请从左侧库菜单中选择要下载的内容。",
   error_title_prefix: "错误",
   error_used_msg: "该代码已被使用。",
-  error_locked_msg: "此内容尚未解锁。", error_expired_msg: "此内容的有效期已过。",
+  error_locked_msg: "此内容尚未解锁。",
   error_owned_msg: "您已经有了。",
   error_owned_sub: "请从左侧库菜单中选择要下载的内容。",
   btn_close:"关闭",btn_continue:"兑換",btn_download:"下载", btn_buy:"购买", 
@@ -1907,7 +1907,7 @@ const TRANSLATIONS={
   success_msg_box: "代碼已成功兌換。\n請從左側庫菜單中選擇要下載的內容。",
   error_title_prefix: "錯誤",
   error_used_msg: "該代碼已被使用。",
-  error_locked_msg: "此內容尚未解鎖。", error_expired_msg: "此內容的有效期限已過。",
+  error_locked_msg: "此內容尚未解鎖。",
   error_owned_msg: "你已經擁有了。",
   error_owned_sub: "請從左側庫菜單中選擇要下載的內容。",
   btn_close:"關閉",btn_continue:"兌換",btn_download:"下載", btn_buy:"購買", 
@@ -1955,7 +1955,7 @@ const TRANSLATIONS={
   success_msg_box: "코드가 성공적으로 인증되었습니다.\n왼쪽 라이브러리 메뉴에서 다운로드할 콘텐츠를 선택하세요.",
   error_title_prefix: "오류",
   error_used_msg: "이미 사용된 코드입니다.",
-  error_locked_msg: "이 콘텐츠는 아직 해제되지 않았습니다.", error_expired_msg: "이 콘텐츠의 유효 기간이 만료되었습니다.",
+  error_locked_msg: "이 콘텐츠는 아직 해제되지 않았습니다.",
   error_owned_msg: "이미 가지고 있습니다.",
   error_owned_sub: "왼쪽 라이브러리 메뉴에서 다운로드할 콘텐츠를 선택하세요.",
   btn_close:"닫기",btn_continue:"사용",btn_download:"다운로드", btn_buy:"구매", 
@@ -2003,7 +2003,7 @@ const TRANSLATIONS={
   success_msg_box: "Код успешно проверен.\nПожалуйста, выберите контент из левого меню библиотеки для загрузки.",
   error_title_prefix: "Ошибка",
   error_used_msg: "Этот код уже был использован.",
-  error_locked_msg: "Этот контент еще не разблокирован.", error_expired_msg: "Срок действия этого контента истек.",
+  error_locked_msg: "Этот контент еще не разблокирован.",
   error_owned_msg: "Оно у вас уже есть.",
   error_owned_sub: "Пожалуйста, выберите контент из левого меню библиотеки для загрузки.",
   btn_close:"Закрыть",btn_continue:"Погасить",btn_download:"Скачать", btn_buy:"Купить", 
@@ -2295,21 +2295,10 @@ function setupEventListeners() {
      e.stopPropagation(); 
      
      if(window.innerWidth > 768 && currentHeroContext === 'owned' && selectedHeroItem) {
-        const now = new Date();
-        
-        // ★追加：まず最初に期限切れ(expireDate)をチェック！
-        if (selectedHeroItem.expireDateIso) {
-            const expireDate = new Date(selectedHeroItem.expireDateIso);
-            if (expireDate <= now) {
-                showExpiredError(); // エラー3002を出す
-                return; 
-            }
-        }
-
         if (selectedHeroItem.releaseDateIso) {
             const releaseDate = new Date(selectedHeroItem.releaseDateIso);
-            if (releaseDate > now) {
-                showLockedError(); // エラー3001を出す
+            if (releaseDate > new Date()) {
+                showLockedError(); // ★修正：エラー3001を表示させる
                 return; 
             }
         }
@@ -2323,6 +2312,7 @@ function setupEventListeners() {
         } else if (targetUrl) {
             window.open(targetUrl, '_blank'); // 単体ならそのまま開く
         } else {
+            // 複数コンテンツ(JSON)なら詳細モーダルを開く
             showMobileItemDetail(selectedHeroItem, false);
         }
      } else {
@@ -2391,43 +2381,7 @@ function showLockedError() {
     
     try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
 }
-function showExpiredError() {
-    const t = TRANSLATIONS[CURRENT_LANG];
-    currentAuthRequestId++; // 他のモーダルアニメーションをキャンセル
 
-    els.errorCodeText.textContent = "3002";
-    els.errorTime.textContent = getFormattedCurrentTime(CURRENT_LANG);
-    
-    // 辞書から取得するか、直接指定
-    const expiredMsgs = {
-        ja: "このコンテンツの有効期限は切れています。",
-        en: "The expiration date for this content has passed.",
-        zh: "此内容的有效期已过。",
-        'zh-TW': "此內容的有效期限已過。",
-        ko: "이 콘텐츠의 유효 기간이 만료되었습니다.",
-        ru: "Срок действия этого контента истек."
-    };
-    els.errorMessage.textContent = t.error_expired_msg || expiredMsgs[CURRENT_LANG] || expiredMsgs.ja;
-    
-    els.errorSubMessage.innerHTML = "";
-    els.errorInfoBox.style.display = 'none';
-    
-    els.btnErrorClose.style.flex = "none";
-    els.btnErrorClose.style.width = "100%";
-    
-    els.phaseInput.style.display = 'none';
-    els.phasePreview.style.display = 'none';
-    els.phaseSuccess.style.display = 'none';
-
-    els.authModal.classList.add('active');
-    els.modalCon.classList.add('is-wide');
-    
-    els.phaseError.style.opacity = '0';
-    els.phaseError.style.display = 'flex';
-    setTimeout(() => els.phaseError.style.opacity = '1', 50);
-    
-    try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
-}
 function showPurchaseError(userPts, price) {
     const t = TRANSLATIONS[CURRENT_LANG];
     const thisRequestId = ++currentAuthRequestId; 
@@ -2893,7 +2847,7 @@ function openManageModal(item) {
                 tData.btn.style.cursor = 'not-allowed';
                 // バツ印アイコン + 期限切れテキスト
                 tData.btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> ${expiredLabel}`;
-                tData.btn.onclick = (e) => { e.preventDefault(); e.stopPropagation(); showExpiredError(); };
+                tData.btn.onclick = (e) => { e.preventDefault(); };
             
             // まだ期限内、かつ「解禁日(releaseDate)」が設定されている場合
             } else if (tData.releaseDate) {
@@ -2969,10 +2923,6 @@ function showMobileItemDetail(item, isNewRedeem = false) {
     
     const t = TRANSLATIONS[CURRENT_LANG];
     
-    // ★ 期限切れ用の多言語辞書
-    const expiredTextMap = { ja: "期限切れ", en: "Expired", zh: "已过期", 'zh-TW': "已過期", ko: "만료됨", ru: "Истек срок" };
-    const expiredLabel = expiredTextMap[CURRENT_LANG] || "Expired";
-    
     els.successBundleName.textContent = item.bundleLabel || item.title;
     els.successTitleUnderImg.textContent = item.message || item.title;
     
@@ -2993,33 +2943,17 @@ function showMobileItemDetail(item, isNewRedeem = false) {
     els.btnSuccessClose.style.width = "auto";
     els.btnSuccessDownload.style.display = "flex";
     
-    // ボタンのスタイルをリセット
-    els.btnSuccessDownload.style.background = '';
-    els.btnSuccessDownload.style.color = '';
-    els.btnSuccessDownload.style.border = '';
-
     const startModalTimer = () => {
         const now = new Date();
         const releaseDate = item.releaseDateIso ? new Date(item.releaseDateIso) : null;
         const expireDate = item.expireDateIso ? new Date(item.expireDateIso) : null;
 
-        // ★ 期限切れならボタンを「期限切れ」にしてクリック不可にする
-        if (expireDate && expireDate <= now) {
+        // ★ 期限切れならモーダルを強制的に閉じて画面リフレッシュ
+        if (expireDate && expireDate < now) {
             if (modalDownloadTimer) clearInterval(modalDownloadTimer);
-            
-            els.btnSuccessDownload.style.pointerEvents = 'auto'; // クリック自体は許可する
-            els.btnSuccessDownload.style.background = 'rgba(128, 128, 128, 0.2)';
-            els.btnSuccessDownload.style.color = 'var(--modal-text-main)';
-            els.btnSuccessDownload.style.opacity = '0.5';
-            els.btnSuccessDownload.removeAttribute('href'); 
-            els.btnSuccessDownload.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> <span>${expiredLabel}</span>`;
-            
-            // ★クリックでエラー3002を出す
-            els.btnSuccessDownload.onclick = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                showExpiredError();
-            };
+            closeAuthModal();
+            updateAccountUI();
+            fetchAvailableContent();
             return;
         }
 
@@ -3030,7 +2964,7 @@ function showMobileItemDetail(item, isNewRedeem = false) {
             els.btnSuccessDownload.style.pointerEvents = 'none';
             els.btnSuccessDownload.style.opacity = '0.6';
             els.btnSuccessDownload.removeAttribute('href'); 
-            els.btnSuccessDownload.onclick = (e) => { e.preventDefault(); e.stopPropagation(); showExpiredError(); };
+            els.btnSuccessDownload.onclick = (e) => { e.preventDefault(); };
 
             if (diff > oneDay) {
                const y = releaseDate.getFullYear();
@@ -3056,12 +2990,14 @@ function showMobileItemDetail(item, isNewRedeem = false) {
             try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
 
             if (isMulti) {
+                // 複数ある場合、ボタンを押すと独立モーダルが開く
                 els.btnSuccessDownload.removeAttribute('href');
                 els.btnSuccessDownload.onclick = (e) => {
                     e.preventDefault();
                     openManageModal(item);
                 };
             } else {
+                // 単一の場合、今まで通り直接URLを開く
                 els.btnSuccessDownload.href = targetUrl;
                 els.btnSuccessDownload.onclick = null; 
                 els.btnSuccessDownload.target = "_blank";
@@ -3088,39 +3024,6 @@ async function performAuth(code, mode = 'check') {
   const safeCode = formatCodeInput(code);
   const spinnerHtml = `<span class="loading-spinner" style="border-top-color:currentColor; width:18px; height:18px; border-width:2px; margin:0;"></span>`;
 
-  // ★ 追加：フロントエンド側での重複チェック
-  // 履歴に残っている（所有済み）コードを再入力されたら、APIに送る前に即座に「所有済み」としてはじく
-  if (mode === 'check' && currentUser && currentUser.history) {
-      const alreadyOwns = currentUser.history.find(h => h.code === safeCode);
-      if (alreadyOwns) {
-          els.errorCodeText.textContent = "1011";
-          els.errorTime.textContent = getFormattedCurrentTime(CURRENT_LANG);
-          const titlePrefix = els.phaseError.querySelector('[data-translate="error_title_prefix"]');
-          if (titlePrefix) titlePrefix.textContent = t.error_title_prefix || "エラー";
-
-          els.errorMessage.textContent = t.error_owned_msg || "既に所有しているようです。";
-          const subTxt = window.innerWidth <= 768 ? (t.msg_already_owned_mobile || "ストアからコンテンツを選択してダウンロードしてください。") : (t.error_owned_sub || "左ライブラリメニューからコンテンツを選択してダウンロードしてください。");
-          
-          els.errorSubMessage.innerHTML = escapeHTML(subTxt).replace(/\n/g, '<br>');
-          els.errorInfoBox.style.display = 'flex';
-          
-          els.btnErrorClose.style.flex = "none";
-          els.btnErrorClose.style.width = "100%";
-
-          els.modalCon.classList.add('is-wide');
-          els.phaseInput.style.opacity = '0';
-          setTimeout(() => {
-              if (thisRequestId !== currentAuthRequestId) return;
-              els.phaseInput.style.display = 'none';
-              els.phaseError.style.display = 'flex';
-              setTimeout(() => els.phaseError.style.opacity = '1', 50);
-          }, 400);
-          
-          try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
-          return; 
-      }
-  }
-
   if (mode === 'check') {
     if(!safeCode) return;
     els.code.disabled = true; els.confirm.disabled = true;
@@ -3132,6 +3035,7 @@ async function performAuth(code, mode = 'check') {
   }
 
   try {
+    // 修正：code と userId を正しくバックエンドに送信します
     const d = await safeFetch({
         type: mode === 'check' ? 'check' : 'redeem',
         userId: currentUser ? currentUser.userId : null,
@@ -3259,7 +3163,7 @@ async function performAuth(code, mode = 'check') {
             let specificErrorCode = generateErrorCode(); 
             
             const msg = d.message || "";
-            // 使用済み判定を所有判定より先に持ってきて正しく振り分ける
+            // 修正：使用済み判定を所有判定より先に持ってきて正しく振り分ける
             if (msg === "This code has already been used." || msg.includes("使用済") || msg.includes("used")) {
                 errorMainText = t.error_used_msg || t.msg_used;
                 errorSubText = "";
@@ -3376,99 +3280,27 @@ function setHeroButtonState(state, forceUnlock = false) {
     const buyBtn = els.heroBuyBtn;
     const t = TRANSLATIONS[CURRENT_LANG];
     
-    // ★ 期限切れ用の多言語辞書
-    const expiredTextMap = { ja: "期限切れ", en: "Expired", zh: "已过期", 'zh-TW': "已過期", ko: "만료됨", ru: "Истек срок" };
-    const expiredLabel = expiredTextMap[CURRENT_LANG] || "Expired";
-
     btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer'; btn.classList.remove('is-download'); 
-    
-    // スタイルとイベントのリセット
-    btn.style.background = '';
-    btn.style.color = '';
-    btn.style.border = '';
-    btn.onclick = null;
 
     if (state === 'owned') {
         currentHeroContext = 'owned';
         if(buyBtn) buyBtn.style.display = 'none';
 
+        const now = new Date();
         const releaseDate = selectedHeroItem.releaseDateIso ? new Date(selectedHeroItem.releaseDateIso) : null;
-        const expireDate = selectedHeroItem.expireDateIso ? new Date(selectedHeroItem.expireDateIso) : null;
 
-        // ★ リアルタイム監視用の関数を作成
-        const updateHeroState = () => {
-            const now = new Date();
+        if (!forceUnlock && releaseDate && releaseDate > now) {
+            startHeroCountdown(releaseDate);
+        } else {
+            let iconName = selectedHeroItem.icon || 'download';
+            const displayLabel = selectedHeroItem.buttonLabel || t.btn_hero_download;
 
-            if (expireDate && expireDate <= now) {
-                // 期限切れになった場合
-                if(heroTimer) { clearInterval(heroTimer); heroTimer = null; }
-                btn.innerHTML = `<span>${expiredLabel}</span> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:8px;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`;
-                btn.style.background = 'rgba(128,128,128,0.2)';
-                btn.style.color = 'var(--modal-text-main)';
-                btn.style.opacity = '0.5';
-                btn.style.cursor = 'not-allowed';
-                btn.classList.remove('is-download');
-                btn.onclick = (e) => { e.preventDefault(); e.stopPropagation(); showExpiredError(); };
-                return true; // 監視終了
-            } else if (!forceUnlock && releaseDate && releaseDate > now) {
-                // 解禁前の場合（カウントダウン処理へ）
-                if(heroTimer) { clearInterval(heroTimer); heroTimer = null; }
-                startHeroCountdown(releaseDate);
-                return true; // カウントダウン側で監視するのでここでは終了
-            } else {
-                // ダウンロード可能な場合
-                let iconName = selectedHeroItem.icon || 'download';
-                const displayLabel = selectedHeroItem.buttonLabel || t.btn_hero_download;
-
-                btn.innerHTML = `<span>${displayLabel}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="${iconName}" aria-hidden="true" size="20" class="lucide lucide-${iconName}"></svg>`;
-                btn.classList.add('is-download');
-                btn.style.background = '';
-                btn.style.color = '';
-                btn.style.opacity = '1';
-                btn.style.cursor = 'pointer';
-
-                btn.onclick = (e) => {
-                    e.stopPropagation();
-                    // ★ クリックした瞬間にもう一度期限を確認
-                    if (expireDate && new Date() >= expireDate) {
-                        showExpiredError();
-                        return;
-                    }
-                    const targetUrl = selectedHeroItem.url || selectedHeroItem.actionUrl;
-                    let isMulti = false;
-                    try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(err){}
-
-                    if (window.innerWidth <= 768 && isMulti) {
-                        openManageModal(selectedHeroItem);
-                    } else if (targetUrl && !isMulti) {
-                        window.open(targetUrl, '_blank');
-                    } else {
-                        showMobileItemDetail(selectedHeroItem, false);
-                    }
-                };
-
-                try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
-
-                // ★ 有効期限があるなら監視を継続する（falseを返す）
-                if (expireDate) {
-                    return false;
-                } else {
-                    return true; // 期限なしなら監視不要
-                }
-            }
-        };
-
-        // ★ 監視タイマーの起動
-        if (!updateHeroState()) {
-            if(heroTimer) clearInterval(heroTimer);
-            heroTimer = setInterval(() => {
-                if (updateHeroState()) clearInterval(heroTimer);
-            }, 1000);
+            btn.innerHTML = `<span>${displayLabel}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="${iconName}" aria-hidden="true" size="20" class="lucide lucide-${iconName}"></svg>`;
+            btn.classList.add('is-download');
+            
+            try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
         }
-
     } else {
-        // 未所有（購入・引き換え）の場合
-        if(heroTimer) { clearInterval(heroTimer); heroTimer = null; }
         btn.innerHTML = `<span data-translate="btn_redeem_code">${t.btn_redeem_code}</span>`;
         btn.classList.remove('is-download');
         currentHeroContext = 'available';
@@ -3483,6 +3315,7 @@ function setHeroButtonState(state, forceUnlock = false) {
         }
     }
 }
+
 function startHeroCountdown(targetDate) {
     const btn = els.heroActionBtn;
     btn.classList.add('is-download'); btn.style.opacity = '0.7'; btn.style.cursor = 'default';
@@ -3621,28 +3454,36 @@ function startLibraryTimer() {
     libraryTimerId = setInterval(() => {
         const now = Date.now();
         
-        // ★ 注意: ここにあった currentUser.history.filter(...) (削除処理) を完全に消しました
-        // これで期限が切れても履歴一覧には表示され続けます。
-
-        // ★ 現在選択中（画面中央のHeroエリア）のコンテンツが期限切れになったらボタンの表示を更新
-        if (selectedHeroItem && selectedHeroItem.expireDateIso) {
-            if (new Date(selectedHeroItem.expireDateIso).getTime() <= now) {
-                if (currentHeroContext === 'owned') {
-                    setHeroButtonState('owned', true);
-                }
+        // ★ 1. 履歴の中の期限切れをリアルタイムで監視し、配列から消し去る
+        if (currentUser && currentUser.history) {
+            const originalLen = currentUser.history.length;
+            currentUser.history = currentUser.history.filter(item => {
+                // 期限を過ぎていたら false を返して配列から除外
+                return !(item.expireDateIso && new Date(item.expireDateIso).getTime() <= now);
+            });
+            
+            // もし期限切れが発生して数が減ったら、サイドバーとストアを再描画
+            if (currentUser.history.length !== originalLen) {
+                updateAccountUI();
+                fetchAvailableContent();
             }
         }
 
-        // 解禁時間の監視
+        // ★ 2. 現在選択中（画面中央に表示中）のコンテンツが期限切れになったら強制リセット
+        if (selectedHeroItem && selectedHeroItem.expireDateIso) {
+            if (new Date(selectedHeroItem.expireDateIso).getTime() <= now) {
+                resetHeroToDefault();
+                return;
+            }
+        }
+
+        // 3. 解禁時間の監視（既存の処理）
         if (window.innerWidth > 768 && selectedHeroItem) {
              const isOwnedContext = currentHeroContext === 'owned';
              if (selectedHeroItem.releaseDateIso) {
                  const releaseTime = new Date(selectedHeroItem.releaseDateIso).getTime();
                  if (releaseTime <= now && isOwnedContext && !els.heroActionBtn.classList.contains('is-download')) {
-                     // 期限切れでなければ解禁状態へ
-                     if (!selectedHeroItem.expireDateIso || new Date(selectedHeroItem.expireDateIso).getTime() > now) {
-                         setHeroButtonState('owned', true);
-                     }
+                     setHeroButtonState('owned', true);
                  }
              }
         }
@@ -3705,10 +3546,6 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
 
     const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja;
     
-    // ★ 期限切れ用の多言語辞書
-    const expiredTextMap = { ja: "期限切れ", en: "Expired", zh: "已过期", 'zh-TW': "已過期", ko: "만료됨", ru: "Истек срок" };
-    const expiredLabel = expiredTextMap[CURRENT_LANG] || "Expired";
-    
     const mDiv = document.createElement('div');
     mDiv.className = 'mobile-store-card';
     
@@ -3717,7 +3554,8 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
     let priceText = item.price > 0 ? `${item.price} pt` : (t.status_owned || `所有済み`);
 
     const releaseDate = item.releaseDateIso ? new Date(item.releaseDateIso) : null;
-    const expireDate = item.expireDateIso ? new Date(item.expireDateIso) : null;
+    const now = new Date();
+    const isLocked = releaseDate && releaseDate > now;
 
     if (treatAsOwned) {
         checkMarkHtml = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px; vertical-align:middle; flex-shrink:0;"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
@@ -3739,40 +3577,47 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
     if (treatAsOwned) {
         const dlBtn = mDiv.querySelector('.is-owned-download');
         if (dlBtn) {
-            // ★ スマホのボタンを「毎秒」状態チェックする関数にまとめました
-            const updateMobileState = () => {
-                if (!document.body.contains(dlBtn)) return true; // タイマー停止
-                
-                const now = new Date();
-                const isLocked = releaseDate && releaseDate > now;
-                const isExpired = expireDate && expireDate <= now;
+            if (isLocked) {
+                dlBtn.style.background = 'rgba(128, 128, 128, 0.2)';
+                dlBtn.style.color = 'var(--modal-text-main)';
+                dlBtn.style.border = '1px solid transparent';
+                dlBtn.style.cursor = 'pointer';
 
-                if (isExpired) {
-                    dlBtn.style.background = 'rgba(128, 128, 128, 0.2)';
-                    dlBtn.style.color = 'var(--modal-text-main)';
-                    dlBtn.style.border = '1px solid transparent';
-                    dlBtn.style.opacity = '0.5';
-                    dlBtn.style.cursor = 'not-allowed';
-                    dlBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> ${expiredLabel}`;
-                    
-                    // ★ 期限切れになったらクリックイベントを上書きしてエラー3002を出す！
-                    dlBtn.onclick = (e) => { 
-                        e.stopPropagation(); e.preventDefault(); 
-                        showExpiredError(); 
-                    };
-                    return true; // 期限切れになったらタイマー停止
-                } else if (isLocked) {
-                    const diff = releaseDate - now;
-                    dlBtn.style.background = 'rgba(128, 128, 128, 0.2)';
-                    dlBtn.style.color = 'var(--modal-text-main)';
-                    dlBtn.style.border = '1px solid transparent';
-                    dlBtn.style.cursor = 'pointer';
+                dlBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    if (!currentUser) { toggleDropdown(true); return; }
+                    showLockedError(); 
+                };
 
-                    dlBtn.onclick = (e) => {
-                        e.stopPropagation();
-                        if (!currentUser) { toggleDropdown(true); return; }
-                        showLockedError(); 
-                    };
+                const updateMobileCountdown = () => {
+                    if (!document.body.contains(dlBtn)) return true;
+                    const currentNow = new Date();
+                    const diff = releaseDate - currentNow;
+
+                    if (diff <= 0) {
+                        dlBtn.style.pointerEvents = 'auto';
+                        dlBtn.style.background = 'rgba(0, 125, 255, 0.1)';
+                        dlBtn.style.color = 'var(--primary)';
+                        dlBtn.style.border = '1px solid rgba(0, 125, 255, 0.3)';
+                        dlBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>${t.btn_download || "ダウンロード"}`;
+                        
+                        dlBtn.onclick = (e) => {
+                            e.stopPropagation();
+                            if (!currentUser) { toggleDropdown(true); return; }
+                            const targetUrl = item.url || item.actionUrl;
+                            let isMulti = false;
+                            try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
+
+                            if (isMulti) {
+                                openManageModal(item);
+                            } else if (targetUrl) {
+                                window.open(targetUrl, '_blank');
+                            } else {
+                                showMobileItemDetail(item, false);
+                            }
+                        };
+                        return true; 
+                    }
 
                     const oneDay = 24 * 60 * 60 * 1000;
                     if (diff > oneDay) {
@@ -3789,40 +3634,30 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                         const ss = String(s).padStart(2, '0');
                         dlBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> <span>${hh}:${mm}:${ss}</span>`;
                     }
-                    return false; // タイマー継続
-                } else {
-                    // ダウンロード可能な状態
-                    dlBtn.style.background = 'rgba(0, 125, 255, 0.1)';
-                    dlBtn.style.color = 'var(--primary)';
-                    dlBtn.style.border = '1px solid rgba(0, 125, 255, 0.3)';
-                    dlBtn.style.opacity = '1';
-                    dlBtn.style.cursor = 'pointer';
-                    dlBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>${t.btn_download || "ダウンロード"}`;
+                    return false;
+                };
 
-                    dlBtn.onclick = (e) => {
-                        e.stopPropagation();
-                        if (!currentUser) { toggleDropdown(true); return; }
-                        const targetUrl = item.url || item.actionUrl;
-                        let isMulti = false;
-                        try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
-
-                        if (isMulti) {
-                            openManageModal(item);
-                        } else if (targetUrl) {
-                            window.open(targetUrl, '_blank');
-                        } else {
-                            showMobileItemDetail(item, false);
-                        }
-                    };
-                    return false; // 有効期限が切れるのを監視し続けるためタイマー継続！
-                }
-            };
-
-            // 初回実行して、タイマー停止条件に合致しなければ1秒ごとの監視をスタート
-            if (!updateMobileState()) {
+                updateMobileCountdown();
                 const timerId = setInterval(() => {
-                    if (updateMobileState()) clearInterval(timerId);
+                    if (updateMobileCountdown()) clearInterval(timerId);
                 }, 1000);
+
+            } else {
+                dlBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    if (!currentUser) { toggleDropdown(true); return; }
+                    const targetUrl = item.url || item.actionUrl;
+                    let isMulti = false;
+                    try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
+
+                    if (isMulti) {
+                        openManageModal(item);
+                    } else if (targetUrl) {
+                        window.open(targetUrl, '_blank');
+                    } else {
+                        showMobileItemDetail(item, false);
+                    }
+                };
             }
         }
     } else {
