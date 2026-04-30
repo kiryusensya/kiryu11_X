@@ -1596,8 +1596,11 @@ button, input, textarea { font-family: var(--font-stack); }
                     <p class="modal-box-text is-warning" id="previewWarningText"></p>
                 </div>
                 <div class="modal-btn-row">
-                    <button class="btn-outline" id="btnPreviewClose" style="flex: 3;" data-translate="btn_close">閉じる</button>
-                    <button class="btn-solid" id="btnPreviewRedeem" style="flex: 7;" data-translate="btn_continue">認証する</button>
+                    <!-- ★ 変更: キャンセルボタンと再確認ボタンを配置 -->
+                    <button class="btn-outline" id="btnUpdateCancel" style="flex: 1;" data-translate="btn_close">閉じる</button>
+                    <button class="btn-outline" id="btnUpdateRecheck" style="flex: 1;" data-translate="btn_recheck">再確認</button>
+                    <!-- ★ アップデート実行ボタンはそのまま -->
+                    <button class="btn-solid" id="btnUpdateExecute" style="flex: 2; display: none;" data-translate="btn_update">アップデート</button>
                 </div>
             </div>
         </div>
@@ -1890,7 +1893,7 @@ const TRANSLATIONS={
   manage_title: "ダウンロード管理", manage_desc: "インストールするアイテムを選択してください:", btn_open: "開く",
   
   menu_update: "アップデートを確認する", menu_license: "ライセンス情報", msg_up_to_date: "インストールされているアプリケーションは最新のバージョンです。",
-  update_title: "アップデートの確認", msg_checking_update: "確認中...", msg_update_available: "利用可能な更新データがあります。", msg_update_latest: "ご利用のソフトウェアは最新です", btn_update: "アップデート"
+  update_title: "アップデートの確認", msg_checking_update: "確認中...", msg_update_available: "利用可能な更新データがあります。", msg_update_latest: "ご利用のコンテンツは最新です", btn_update: "アップデート", btn_recheck: "再確認"
  },
  en:{
   header_brand:"kiryu10", hero_title:"Personal Activation Center", hero_sub:"Manage your access and resources. Redeem your code to unlock exclusive content.",
@@ -1941,7 +1944,7 @@ const TRANSLATIONS={
   manage_title: "Manage Downloads", manage_desc: "Select items to install:", btn_open: "Open",
   
   menu_update: "Check for Update", menu_license: "License Info", msg_up_to_date: "The installed application is the latest version.",
-  update_title: "Check for Update", msg_checking_update: "Checking...", msg_update_available: "An update is available.", msg_update_latest: "Your software is up to date.", btn_update: "Update"
+  update_title: "Check for Update", msg_checking_update: "Checking...", msg_update_available: "An update is available.", msg_update_latest: "Your contents is up to date.", btn_update: "Update", btn_recheck: "Recheck"
  },
  zh:{ 
   header_brand:"kiryu10", hero_title:"个人代码检查中心", hero_sub:"管理您的访问权限和资源。兑換产品代码以解锁独家内容。", 
@@ -1992,7 +1995,7 @@ const TRANSLATIONS={
   manage_title: "下载管理", manage_desc: "选择要安装的项目:", btn_open: "打开",
   
   menu_update: "检查更新", menu_license: "许可信息", msg_up_to_date: "已安装的应用程序是最新版本。",
-  update_title: "检查更新", msg_checking_update: "正在检查...", msg_update_available: "有可用的更新数据。", msg_update_latest: "您的软件是最新的。", btn_update: "更新"
+  update_title: "检查更新", msg_checking_update: "正在检查...", msg_update_available: "有可用的更新数据。", msg_update_latest: "您的软件是最新的。", btn_update: "更新", btn_recheck: "重新检查"
  },
  "zh-TW":{ 
   header_brand:"kiryu10", hero_title:"個人代碼檢查中心", hero_sub:"管理您的存取權限與資源。兌換產品代碼以解鎖獨家內容。", 
@@ -2043,7 +2046,7 @@ const TRANSLATIONS={
   manage_title: "下載管理", manage_desc: "選擇要安裝的項目:", btn_open: "開啟",
   
   menu_update: "檢查更新", menu_license: "許可資訊", msg_up_to_date: "已安裝的應用程式是最新版本。",
-  update_title: "檢查更新", msg_checking_update: "正在檢查...", msg_update_available: "有可用的更新資料。", msg_update_latest: "您的軟體是最新的。", btn_update: "更新"
+  update_title: "檢查更新", msg_checking_update: "正在檢查...", msg_update_available: "有可用的更新資料。", msg_update_latest: "您的軟體是最新的。", btn_update: "更新", btn_recheck: "重新檢查"
  },
  ko:{ 
   header_brand:"kiryu10", hero_title:"개인 코드 검사 센터", hero_sub:"액세스 권한 및 리소스 관리. 제품 코드를 사용하여 콘텐츠 잠금을 해제하세요.", 
@@ -2094,7 +2097,7 @@ const TRANSLATIONS={
   manage_title: "다운로드 관리", manage_desc: "설치할 항목을 선택하세요:", btn_open: "열기",
   
   menu_update: "업데이트 확인", menu_license: "라이센스 정보", msg_up_to_date: "설치된 애플리케이션은 최신 버전입니다.",
-  update_title: "업데이트 확인", msg_checking_update: "확인 중...", msg_update_available: "사용 가능한 업데이트 데이터가 있습니다.", msg_update_latest: "현재 소프트웨어는 최신 상태입니다.", btn_update: "업데이트"
+  update_title: "업데이트 확인", msg_checking_update: "확인 중...", msg_update_available: "사용 가능한 업데이트 데이터가 있습니다.", msg_update_latest: "현재 소프트웨어는 최신 상태입니다.", btn_update: "업데이트", btn_recheck: "다시 확인"
  },
  ru:{ 
   header_brand:"kiryu10", hero_title:"Центр личной активации", hero_sub:"Управление доступом и ресурсами. Активируйте код продукта для разблокировки.", 
@@ -2145,7 +2148,7 @@ const TRANSLATIONS={
   manage_title: "Управление загрузками", manage_desc: "Выберите элементы для установки:", btn_open: "Открыть",
   
   menu_update: "Проверка обновлений", menu_license: "Лицензия", msg_up_to_date: "Установлено новейшее ПО.",
-  update_title: "Проверка обновлений", msg_checking_update: "Проверка...", msg_update_available: "Доступно обновление.", msg_update_latest: "Установлена последняя версия ПО.", btn_update: "Обновить"
+  update_title: "Проверка обновлений", msg_checking_update: "Проверка...", msg_update_available: "Доступно обновление.", msg_update_latest: "Установлена последняя версия ПО.", btn_update: "Обновить", btn_recheck: "Проверить снова"
  }
 };
 document.addEventListener('DOMContentLoaded', () => {
@@ -2312,55 +2315,105 @@ function setupEventListeners() {
   els.updateModal = gId('updateModal');
   els.closeUpdateModalBtn = gId('closeUpdateModalBtn');
   els.btnUpdateCancel = gId('btnUpdateCancel');
+  els.btnUpdateRecheck = gId('btnUpdateRecheck'); // ★ 追加: 再確認ボタン
   els.btnUpdateExecute = gId('btnUpdateExecute');
   els.updateSpinner = gId('updateSpinner');
   els.updateMessageText = gId('updateMessageText');
 
- if (els.btnUpdateCheck) {
-      els.btnUpdateCheck.addEventListener('click', (e) => {
-          e.stopPropagation();
-          els.heroOptionsDropdown.classList.remove('open');
+  // ★ 追加: アップデート確認ロジックを再利用可能な関数化
+  const performUpdateCheck = () => {
+      if (!selectedHeroItem) return;
+      const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja;
+      
+      // 1. 初期状態（確認中）にセット
+      els.updateMessageText.textContent = t.msg_checking_update || "確認中...";
+      els.updateSpinner.style.display = 'block'; // クルクル開始
+      els.btnUpdateExecute.style.display = 'none'; // アップデートボタンは隠す
+      els.btnUpdateRecheck.disabled = true; // 確認中は再確認ボタンを無効化
+      els.updateModal.classList.add('active');
+      
+      // 2. 2.5秒後にサーバー（Supabase）から最新の情報を取ってくるシミュレーション
+      setTimeout(async () => {
+          if (!els.updateModal.classList.contains('active')) return;
           
-          if (!selectedHeroItem) return;
+          try {
+              // ★ 実際にSupabaseからこのアイテムの最新情報を取得（リアルタイム反映のため）
+              const { data: latestData } = await supabase
+                  .from('contents')
+                  .select('Update_URL')
+                  .eq('id', selectedHeroItem.code) // itemのID(code)で検索
+                  .maybeSingle();
 
-          const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja;
-          
-          // モーダルを開き、初期状態（EMUI風クルクル確認中）にセット
-          els.updateMessageText.textContent = t.msg_checking_update || "確認中...";
-          els.updateSpinner.style.display = 'block'; // クルクル開始
-          els.btnUpdateExecute.style.display = 'none'; // アップデートボタンは隠す
-          els.updateModal.classList.add('active');
-          
-          // 2.5秒後にデータベースの「Update_URL」の有無を判定して結果を表示
-          setTimeout(() => {
-              if (!els.updateModal.classList.contains('active')) return; // 途中で閉じられたら中止
-              
               els.updateSpinner.style.display = 'none';
+              els.btnUpdateRecheck.disabled = false; // 再確認ボタンを復活
               
-              // ★ Supabaseに Update_URL が入力されているかチェック
-              if (selectedHeroItem.updateUrl && selectedHeroItem.updateUrl.trim() !== "") {
-                  // URLがある場合 ＝ アップデートあり！
+              // 取得したURLを変数に格納（無い場合は元のオブジェクトから取得）
+              const currentUpdateUrl = (latestData && latestData.Update_URL) ? latestData.Update_URL : selectedHeroItem.updateUrl;
+
+              // 3. 判定とUIの切り替え
+              if (currentUpdateUrl && currentUpdateUrl.trim() !== "") {
+                  // ▼ アップデートがある場合
                   els.updateMessageText.textContent = t.msg_update_available || "利用可能な更新データがあります。";
                   els.btnUpdateExecute.style.display = 'flex';
+                  els.btnUpdateRecheck.style.display = 'none'; // 更新があるなら再確認ボタンは隠す
                   
-                  // アップデートボタンを押したときの処理（ここで初めて定義する）
+                  // アップデートボタンの処理
                   els.btnUpdateExecute.onclick = () => {
                       els.updateSpinner.style.display = 'block';
                       els.btnUpdateExecute.style.display = 'none';
                       els.updateMessageText.textContent = (CURRENT_LANG === 'ja') ? "ダウンロード中..." : "Downloading..."; 
                       
-                      // 1.5秒後に指定されたアップデート用URLを開く
+                      // 1.5秒後にダウンロード完了の演出
                       setTimeout(() => {
                          els.updateSpinner.style.display = 'none'; 
                          els.updateMessageText.textContent = t.msg_update_latest || "ご利用のソフトウェアは最新です";
-                         window.open(selectedHeroItem.updateUrl, '_blank'); // ★ ここで更新データをダウンロード！
+                         els.btnUpdateRecheck.style.display = 'flex'; // 完了したので再確認ボタンを戻す
+                         
+                         // 指定URLを開く
+                         window.open(currentUpdateUrl, '_blank'); 
+
+                         // ★ 重要: 裏画面（Heroエリア）のメインボタンを即座に変更！
+                         if (els.heroActionBtn) {
+                             const btnIcon = 'check'; // チェックマークアイコンに変更
+                             const doneText = (CURRENT_LANG === 'ja') ? '最新版' : 'Up to Date';
+                             els.heroActionBtn.innerHTML = `<span>${doneText}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="${btnIcon}" aria-hidden="true" size="20" class="lucide lucide-${btnIcon}"></svg>`;
+                             els.heroActionBtn.classList.add('is-download');
+                             els.heroActionBtn.style.background = 'rgba(0, 125, 255, 0.1)';
+                             els.heroActionBtn.style.color = 'var(--primary)';
+                             els.heroActionBtn.style.border = '1px solid rgba(0, 125, 255, 0.3)';
+                             try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+                         }
                       }, 1500);
                   };
               } else {
-                  // URLが空欄の場合 ＝ 最新バージョン！
+                  // ▼ 最新バージョンの場合（URLがない）
                   els.updateMessageText.textContent = t.msg_update_latest || "ご利用のソフトウェアは最新です";
+                  els.btnUpdateRecheck.style.display = 'flex'; // 最新なら再確認ボタンを常に出しておく
               }
-          }, 2500);
+
+          } catch (e) {
+              console.error("Update check failed:", e);
+              els.updateSpinner.style.display = 'none';
+              els.btnUpdateRecheck.disabled = false;
+              els.updateMessageText.textContent = "エラーが発生しました";
+          }
+      }, 2500);
+  };
+
+  // メニューから「アップデート確認」を押したとき
+  if (els.btnUpdateCheck) {
+      els.btnUpdateCheck.addEventListener('click', (e) => {
+          e.stopPropagation();
+          els.heroOptionsDropdown.classList.remove('open');
+          els.btnUpdateRecheck.style.display = 'flex'; // 初期状態で再確認ボタンは表示
+          performUpdateCheck();
+      });
+  }
+
+  // ★ 追加: 「再確認」ボタンを押したとき
+  if (els.btnUpdateRecheck) {
+      els.btnUpdateRecheck.addEventListener('click', () => {
+          performUpdateCheck();
       });
   }
 
@@ -2370,36 +2423,6 @@ function setupEventListeners() {
           if(els.updateModal) els.updateModal.classList.remove('active');
       });
   });
-
-  // アップデートボタンを押したときの処理
-  if (els.btnUpdateExecute) {
-      els.btnUpdateExecute.addEventListener('click', () => {
-          const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja;
-          
-          // 再びクルクル回してインストール中のような演出
-          els.updateSpinner.style.display = 'block';
-          els.btnUpdateExecute.style.display = 'none';
-          els.updateMessageText.textContent = "インストール中..."; 
-          
-          // 1.5秒後に完了
-          setTimeout(() => {
-             els.updateSpinner.style.display = 'none'; 
-             els.updateMessageText.textContent = t.msg_update_latest || "ご利用のソフトウェアは最新です";
-          }, 1500);
-      });
-  }
-
-  if (els.btnShowLicense) {
-      els.btnShowLicense.addEventListener('click', (e) => {
-          e.stopPropagation();
-          els.heroOptionsDropdown.classList.remove('open');
-          if (selectedHeroItem) {
-              // ★ ライセンス情報がない場合のフォールバック
-              const text = selectedHeroItem.license || "No license information available.";
-              els.licenseTextContent.innerHTML = escapeHTML(text).replace(/\n/g, '<br>');
-              els.licenseModal.classList.add('active');
-          }
-      });
   }
 
   if (els.closeLicenseModalBtn) {
