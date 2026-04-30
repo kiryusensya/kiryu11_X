@@ -1281,9 +1281,6 @@ button, input, textarea { font-family: var(--font-stack); }
     flex-shrink: 0;      /* ★追加: ボタン自体が縮まないようにする */
 }
 .btn-download-small:active { transform: scale(0.95); }
-#authModal {
-    z-index: 10007 !important;
-}
 </style>
 </head>
 <body>
@@ -1516,7 +1513,7 @@ button, input, textarea { font-family: var(--font-stack); }
   <div class="loading-spinner"></div>
 </div>
 
-<div id="authModal" class="modal-overlay" style="z-index: 10007;">
+<div id="authModal" class="modal-overlay">
   <div class="modal-sheet" id="modalContainer">
     <div style="position:absolute; top:20px; right:20px; cursor:pointer; z-index:10;" id="modalCloseBtn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" size="24" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></div>
     
@@ -2860,8 +2857,7 @@ function openManageModal(item) {
         const subReleaseDate = sub.releaseDateIso ? new Date(sub.releaseDateIso) : null;
         const subExpireDate = sub.expireDateIso ? new Date(sub.expireDateIso) : null;
 
-        // ★ 解禁日、または親・子の有効期限のいずれかが設定されていれば監視対象に入れる
-        // （以前はここで subReleaseDate しか判定しておらず、期限切れが監視されていませんでした）
+        // 解禁日、または親・子の有効期限のいずれかが設定されていれば監視対象に入れる
         if (subReleaseDate || subExpireDate || parentExpireDate) {
             timers.push({ 
                 btn: actionBtn, 
@@ -2894,17 +2890,10 @@ function openManageModal(item) {
                 tData.btn.style.background = 'rgba(128,128,128,0.2)';
                 tData.btn.style.color = 'var(--modal-text-main)';
                 tData.btn.style.opacity = '0.5';
-                tData.btn.style.cursor = 'pointer'; // クリックさせるため pointer に戻す
+                tData.btn.style.cursor = 'not-allowed';
+                // バツ印アイコン + 期限切れテキスト
                 tData.btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> ${expiredLabel}`;
-                
-                // ★ クリックしたらダウンロード管理を閉じて、エラー3002を出す！
-                tData.btn.onclick = (e) => { 
-                    e.preventDefault(); 
-                    e.stopPropagation(); 
-                    els.manageModal.classList.remove('active'); 
-                    if (window.manageModalTimer) clearInterval(window.manageModalTimer);
-                    showExpiredError(); 
-                };
+                tData.btn.onclick = (e) => { e.preventDefault(); e.stopPropagation(); showExpiredError(); };
             
             // まだ期限内、かつ「解禁日(releaseDate)」が設定されている場合
             } else if (tData.releaseDate) {
@@ -3406,31 +3395,41 @@ function setHeroButtonState(state, forceUnlock = false) {
         const releaseDate = selectedHeroItem.releaseDateIso ? new Date(selectedHeroItem.releaseDateIso) : null;
         const expireDate = selectedHeroItem.expireDateIso ? new Date(selectedHeroItem.expireDateIso) : null;
 
-        // ★ 毎秒監視する関数を作成
+        // ★ リアルタイム監視用の関数を作成
         const updateHeroState = () => {
             const now = new Date();
 
             if (expireDate && expireDate <= now) {
+                // 期限切れになった場合
                 if(heroTimer) { clearInterval(heroTimer); heroTimer = null; }
                 btn.innerHTML = `<span>${expiredLabel}</span> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:8px;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`;
                 btn.style.background = 'rgba(128,128,128,0.2)';
                 btn.style.color = 'var(--modal-text-main)';
                 btn.style.opacity = '0.5';
-                btn.style.cursor = 'pointer';
+                btn.style.cursor = 'not-allowed';
+                btn.classList.remove('is-download');
                 btn.onclick = (e) => { e.preventDefault(); e.stopPropagation(); showExpiredError(); };
-                return true; // タイマー停止
+                return true; // 監視終了
             } else if (!forceUnlock && releaseDate && releaseDate > now) {
-                startHeroCountdown(releaseDate); // これは内部でタイマーを回すのでここではreturn true
-                return true; 
+                // 解禁前の場合（カウントダウン処理へ）
+                if(heroTimer) { clearInterval(heroTimer); heroTimer = null; }
+                startHeroCountdown(releaseDate);
+                return true; // カウントダウン側で監視するのでここでは終了
             } else {
+                // ダウンロード可能な場合
                 let iconName = selectedHeroItem.icon || 'download';
                 const displayLabel = selectedHeroItem.buttonLabel || t.btn_hero_download;
+
                 btn.innerHTML = `<span>${displayLabel}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="${iconName}" aria-hidden="true" size="20" class="lucide lucide-${iconName}"></svg>`;
                 btn.classList.add('is-download');
-                
-                // クリック時にもう一度時間をチェック
+                btn.style.background = '';
+                btn.style.color = '';
+                btn.style.opacity = '1';
+                btn.style.cursor = 'pointer';
+
                 btn.onclick = (e) => {
                     e.stopPropagation();
+                    // ★ クリックした瞬間にもう一度期限を確認
                     if (expireDate && new Date() >= expireDate) {
                         showExpiredError();
                         return;
@@ -3447,20 +3446,29 @@ function setHeroButtonState(state, forceUnlock = false) {
                         showMobileItemDetail(selectedHeroItem, false);
                     }
                 };
+
                 try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
-                
-                return !expireDate; // expireDateがある場合は監視を続けるため false を返す
+
+                // ★ 有効期限があるなら監視を継続する（falseを返す）
+                if (expireDate) {
+                    return false;
+                } else {
+                    return true; // 期限なしなら監視不要
+                }
             }
         };
 
+        // ★ 監視タイマーの起動
         if (!updateHeroState()) {
-            if (heroTimer) clearInterval(heroTimer);
+            if(heroTimer) clearInterval(heroTimer);
             heroTimer = setInterval(() => {
                 if (updateHeroState()) clearInterval(heroTimer);
             }, 1000);
         }
 
     } else {
+        // 未所有（購入・引き換え）の場合
+        if(heroTimer) { clearInterval(heroTimer); heroTimer = null; }
         btn.innerHTML = `<span data-translate="btn_redeem_code">${t.btn_redeem_code}</span>`;
         btn.classList.remove('is-download');
         currentHeroContext = 'available';
@@ -3475,7 +3483,6 @@ function setHeroButtonState(state, forceUnlock = false) {
         }
     }
 }
-
 function startHeroCountdown(targetDate) {
     const btn = els.heroActionBtn;
     btn.classList.add('is-download'); btn.style.opacity = '0.7'; btn.style.cursor = 'default';
@@ -3729,27 +3736,26 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
         ${btnHtml}
     `;
     
-    mobileList.appendChild(mDiv);
-    
     if (treatAsOwned) {
         const dlBtn = mDiv.querySelector('.is-owned-download');
         if (dlBtn) {
+            // ★ スマホのボタンを「毎秒」状態チェックする関数にまとめました
             const updateMobileState = () => {
-                if (!document.body.contains(dlBtn)) return true; // 要素が消えたらタイマー停止
+                if (!document.body.contains(dlBtn)) return true; // タイマー停止
                 
                 const now = new Date();
                 const isLocked = releaseDate && releaseDate > now;
                 const isExpired = expireDate && expireDate <= now;
 
                 if (isExpired) {
-                    dlBtn.style.pointerEvents = 'auto';
                     dlBtn.style.background = 'rgba(128, 128, 128, 0.2)';
                     dlBtn.style.color = 'var(--modal-text-main)';
                     dlBtn.style.border = '1px solid transparent';
                     dlBtn.style.opacity = '0.5';
-                    dlBtn.style.cursor = 'pointer';
+                    dlBtn.style.cursor = 'not-allowed';
                     dlBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> ${expiredLabel}`;
                     
+                    // ★ 期限切れになったらクリックイベントを上書きしてエラー3002を出す！
                     dlBtn.onclick = (e) => { 
                         e.stopPropagation(); e.preventDefault(); 
                         showExpiredError(); 
@@ -3757,15 +3763,13 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                     return true; // 期限切れになったらタイマー停止
                 } else if (isLocked) {
                     const diff = releaseDate - now;
-                    dlBtn.style.pointerEvents = 'auto';
                     dlBtn.style.background = 'rgba(128, 128, 128, 0.2)';
                     dlBtn.style.color = 'var(--modal-text-main)';
                     dlBtn.style.border = '1px solid transparent';
                     dlBtn.style.cursor = 'pointer';
-                    dlBtn.style.opacity = '1';
 
                     dlBtn.onclick = (e) => {
-                        e.stopPropagation(); e.preventDefault();
+                        e.stopPropagation();
                         if (!currentUser) { toggleDropdown(true); return; }
                         showLockedError(); 
                     };
@@ -3785,10 +3789,9 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                         const ss = String(s).padStart(2, '0');
                         dlBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> <span>${hh}:${mm}:${ss}</span>`;
                     }
-                    return false; 
+                    return false; // タイマー継続
                 } else {
-                    // ダウンロード可能状態
-                    dlBtn.style.pointerEvents = 'auto';
+                    // ダウンロード可能な状態
                     dlBtn.style.background = 'rgba(0, 125, 255, 0.1)';
                     dlBtn.style.color = 'var(--primary)';
                     dlBtn.style.border = '1px solid rgba(0, 125, 255, 0.3)';
@@ -3797,33 +3800,25 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                     dlBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>${t.btn_download || "ダウンロード"}`;
 
                     dlBtn.onclick = (e) => {
-                        e.stopPropagation(); e.preventDefault();
-                        
-                        // ★ クリックした瞬間にもう一度期限切れかチェックし、切れていればエラー3002！
-                        if (expireDate && new Date() >= expireDate) {
-                            showExpiredError();
-                            return;
-                        }
-                        
+                        e.stopPropagation();
                         if (!currentUser) { toggleDropdown(true); return; }
                         const targetUrl = item.url || item.actionUrl;
                         let isMulti = false;
-                        try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(err){}
+                        try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
 
-                        if (window.innerWidth <= 768 && isMulti) {
+                        if (isMulti) {
                             openManageModal(item);
-                        } else if (targetUrl && !isMulti) {
+                        } else if (targetUrl) {
                             window.open(targetUrl, '_blank');
                         } else {
                             showMobileItemDetail(item, false);
                         }
                     };
-                    
-                    // ★ ダウンロード可能でも、expireDateが設定されていれば監視を継続させる（falseを返す）
-                    return !expireDate; 
+                    return false; // 有効期限が切れるのを監視し続けるためタイマー継続！
                 }
             };
 
+            // 初回実行して、タイマー停止条件に合致しなければ1秒ごとの監視をスタート
             if (!updateMobileState()) {
                 const timerId = setInterval(() => {
                     if (updateMobileState()) clearInterval(timerId);
@@ -3840,6 +3835,7 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
             };
         }
     }
+    mobileList.appendChild(mDiv);
 }
 async function fetchAvailableContent() {
     const list = els.availableListSidebar;
