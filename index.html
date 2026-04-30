@@ -2368,7 +2368,7 @@ function showLockedError() {
     const t = TRANSLATIONS[CURRENT_LANG];
     currentAuthRequestId++; // 他のモーダルアニメーションをキャンセル
 
-    els.errorCodeText.textContent = "3001";
+    els.errorCodeText.innerHTML = `<a href="error.html?code=3001" target="_blank" style="color: inherit; text-decoration: underline;">3001</a>`;
     els.errorTime.textContent = getFormattedCurrentTime(CURRENT_LANG);
     els.errorMessage.textContent = t.error_locked_msg || "このコンテンツは解禁していません。";
     
@@ -2396,7 +2396,7 @@ function showExpiredError() {
     const t = TRANSLATIONS[CURRENT_LANG];
     currentAuthRequestId++; // 他のアニメーションをキャンセル
 
-    els.errorCodeText.textContent = "3002";
+    els.errorCodeText.innerHTML = `<a href="error.html?code=3002" target="_blank" style="color: inherit; text-decoration: underline;">3002</a>`;
     els.errorTime.textContent = getFormattedCurrentTime(CURRENT_LANG);
     els.errorMessage.textContent = t.error_expired_msg || "このコンテンツは有効期限が切れています。";
     
@@ -2424,7 +2424,7 @@ function showPurchaseError(userPts, price) {
     const t = TRANSLATIONS[CURRENT_LANG];
     const thisRequestId = ++currentAuthRequestId; 
     
-    els.errorCodeText.textContent = "2011";
+    els.errorCodeText.innerHTML = `<a href="error.html?code=2011" target="_blank" style="color: inherit; text-decoration: underline;">2011</a>`;
     els.errorTime.textContent = getFormattedCurrentTime(CURRENT_LANG);
     els.errorMessage.textContent = t.error_points_msg || "ポイントが不足しています。";
     
@@ -3292,15 +3292,17 @@ async function performAuth(code, mode = 'check') {
        
        const lowMsg = serverMessage.toLowerCase();
        let specificErrorCode = generateErrorCode();
-       if (lowMsg.includes("invalid") || lowMsg.includes("not found")) {
-           specificErrorCode = "1012";
-       } else if (lowMsg.includes("already owned") || lowMsg.includes("owned")) {
-           specificErrorCode = "1011";
-       } else if (lowMsg.includes("used")) {
-           specificErrorCode = "1013";
-       }
-       
-       els.errorCodeText.textContent = specificErrorCode;
+       let specificErrorCode = generateErrorCode();
+        if (lowMsg.includes("invalid") || lowMsg.includes("not found")) {
+            specificErrorCode = "1012";
+        } else if (lowMsg.includes("already owned") || lowMsg.includes("owned")) {
+            specificErrorCode = "1011";
+        } else if (lowMsg.includes("used")) {
+            specificErrorCode = "1013";
+        }
+        
+        // ★修正: エラーコードをリンク化
+       els.errorCodeText.innerHTML = `<a href="error.html?code=${specificErrorCode}" target="_blank" style="color: inherit; text-decoration: underline;">${specificErrorCode}</a>`;
        els.errorTime.textContent = currentAuthTime;
        
        els.errorMessage.textContent = t.msg_invalid;
