@@ -1559,7 +1559,7 @@ button, input, textarea { font-family: var(--font-stack); }
 
 <div id="authModal" class="modal-overlay">
   <div class="modal-sheet" id="modalContainer">
-    <div style="position:absolute; top:20px; right:20px; cursor:pointer; z-index:10;" id="modalCloseBtn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" size="24" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></div>
+    <div style="position:absolute; top:20px; right:20px; cursor:pointer; z-index:10;" id="modalCloseBtn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" size="24" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12"></path></svg></div>
     
     <div id="phase-input" style="display: flex; opacity: 1;">
       <h2 class="modal-title phase-input-title" data-translate="modal_title">アクティベーション</h2>
@@ -2617,7 +2617,7 @@ function showLockedError() {
 
     els.errorCodeText.textContent = "3001";
     els.errorTime.textContent = getFormattedCurrentTime(CURRENT_LANG);
-    els.errorMessage.textContent = t.error_locked_msg || "このコンテンツは解禁していません。";
+    els.errorMessage.textContent = t.error_locked_msg || "このコンテンツ는 해제되지 않았습니다.";
     
     els.errorSubMessage.innerHTML = "";
     els.errorInfoBox.style.display = 'none';
@@ -2645,9 +2645,9 @@ function showPurchaseError(userPts, price) {
     
     els.errorCodeText.textContent = "2011";
     els.errorTime.textContent = getFormattedCurrentTime(CURRENT_LANG);
-    els.errorMessage.textContent = t.error_points_msg || "ポイントが不足しています。";
+    els.errorMessage.textContent = t.error_points_msg || "포인트가 부족합니다.";
     
-    const subStr = t.error_points_sub || `現在: ${userPts} pt / 必要: ${price} pt`;
+    const subStr = t.error_points_sub || `현재: ${userPts} pt / 필요: ${price} pt`;
     els.errorSubMessage.innerHTML = escapeHTML(subStr.replace('%1', userPts).replace('%2', price));
     els.errorInfoBox.style.display = 'flex';
     
@@ -2678,10 +2678,10 @@ function showPurchasePreview(item, price) {
     els.phaseSuccess.style.display = 'none';
     els.phaseError.style.display = 'none';
     
-    const ptDesc = (t.preview_buy_desc || "以下のコンテンツを %s pt で購入します:").replace('%s', price);
+    const ptDesc = (t.preview_buy_desc || "이 콘텐츠를 %s pt로 구매합니다:").replace('%s', price);
     
     const titleTops = els.phasePreview.querySelectorAll('.modal-title-top, .mobile-title');
-    titleTops.forEach(el => el.textContent = t.preview_buy_title || "購入確認");
+    titleTops.forEach(el => el.textContent = t.preview_buy_title || "구매 확인");
     
     const label = els.phasePreview.querySelector('.modal-label');
     if(label) label.textContent = ptDesc;
@@ -2699,7 +2699,7 @@ function showPurchasePreview(item, price) {
     }
     
     els.btnPreviewRedeem.disabled = false;
-    els.btnPreviewRedeem.innerHTML = t.btn_buy_confirm || "購入確定";
+    els.btnPreviewRedeem.innerHTML = t.btn_buy_confirm || "구매 확정";
     
     const newBtn = els.btnPreviewRedeem.cloneNode(true);
     els.btnPreviewRedeem.parentNode.replaceChild(newBtn, els.btnPreviewRedeem);
@@ -2724,7 +2724,7 @@ function showPurchasePreview(item, price) {
     setTimeout(() => els.phasePreview.style.opacity = '1', 50);
 }
   
-async function buyItemWithPoints(contentId, price) { // ⭕ 引数を変更
+async function buyItemWithPoints(contentId, price) { // ⭕ 引수를 변경
     const thisRequestId = currentAuthRequestId;
     const t = TRANSLATIONS[CURRENT_LANG];
     const spinnerHtml = `<span class="loading-spinner" style="border-top-color:currentColor; width:18px; height:18px; border-width:2px; margin:0;"></span>`;
@@ -2758,19 +2758,19 @@ async function buyItemWithPoints(contentId, price) { // ⭕ 引数を変更
                 const boughtItem = currentUser.history.length > 0 ? currentUser.history[0] : currentContentData;
                 showMobileItemDetail(boughtItem, true);
                 
-                // タイトルや文言を購入完了用に上書き
+                // 타이틀이나 문구를 구매 완료용으로 덮어쓰기
                 const successTops = els.phaseSuccess.querySelectorAll('.modal-title-top, .mobile-title');
-                successTops.forEach(el => el.textContent = t.success_buy_title || "購入完了");
+                successTops.forEach(el => el.textContent = t.success_buy_title || "구매 완료");
                 const label = els.phaseSuccess.querySelector('.modal-label');
-                if(label) label.textContent = t.success_buy_desc || "以下のコンテンツが正常に処理されました。";
+                if(label) label.textContent = t.success_buy_desc || "다음 콘텐츠가 성공적으로 처리되었습니다.";
                 els.successMessageText.innerHTML = t.success_msg_box.replace(/\n/g, '<br>');
                 
             } else {
                 // PC版：モーダルを更新しつつ、背景のHeroエリアも更新
                 const successTops = els.phaseSuccess.querySelectorAll('.modal-title-top, .mobile-title');
-                successTops.forEach(el => el.textContent = t.success_buy_title || "購入完了");
+                successTops.forEach(el => el.textContent = t.success_buy_title || "구매 완료");
                 const label = els.phaseSuccess.querySelector('.modal-label');
-                if(label) label.textContent = t.success_buy_desc || "以下のコンテンツが正常に処理されました。";
+                if(label) label.textContent = t.success_buy_desc || "다음 콘텐츠가 성공적으로 처리되었습니다.";
                 
                 els.successImage.src = currentContentData.imageUrl || "https://via.placeholder.com/300";
                 els.successTitleUnderImg.textContent = currentContentData.title;
@@ -2802,15 +2802,15 @@ async function buyItemWithPoints(contentId, price) { // ⭕ 引数を変更
             els.errorCodeText.textContent = specificErrorCode;
             els.errorTime.textContent = currentAuthTime;
             const titlePrefix = els.phaseError.querySelector('[data-translate="error_title_prefix"]');
-            if (titlePrefix) titlePrefix.textContent = t.error_title_prefix || "エラー";
+            if (titlePrefix) titlePrefix.textContent = t.error_title_prefix || "에러";
 
             let errorMainText = "";
             let errorSubText = data.message;
             let showInfoBox = true;
             
             if (data.message === "Already owned") {
-                errorMainText = t.error_owned_msg || "既に所有しているようです。";
-                errorSubText = window.innerWidth <= 768 ? (t.msg_already_owned_mobile || "ストアからコンテンツを選択してダウンロードしてください。") : (t.error_owned_sub || "左ライブラリメニューからコンテンツを選択してダウンロードしてください。");
+                errorMainText = t.error_owned_msg || "이미 소유하고 있는 것 같습니다.";
+                errorSubText = window.innerWidth <= 768 ? (t.msg_already_owned_mobile || "스토어에서 콘텐츠를 선택하여 다운로드하세요.") : (t.error_owned_sub || "왼쪽 라이브러리 메뉴에서 콘텐츠를 선택하여 다운로드하세요.");
             }
             els.btnErrorClose.style.flex = "none";
             els.btnErrorClose.style.width = "100%";
@@ -2835,7 +2835,7 @@ async function buyItemWithPoints(contentId, price) { // ⭕ 引数を変更
     } catch(e) {
         if (thisRequestId !== currentAuthRequestId) return;
         els.btnPreviewRedeem.disabled = false;
-        els.btnPreviewRedeem.innerHTML = t.btn_buy_confirm || "購入確定";
+        els.btnPreviewRedeem.innerHTML = t.btn_buy_confirm || "구매 확정";
         alert("Network Error");
     } 
 }
@@ -3033,15 +3033,15 @@ function openManageModal(item) {
         const localizedType = getLocalizedText(sub.type, 'アドオン');
         const typeStrForIcon = typeof sub.type === 'string' ? sub.type : (sub.type ? (sub.type['ja'] || sub.type['en'] || '') : '');
         
-        // ★ アイコンの判定 兼 デフォルトボタン名の判定（「ゲーム」か「Game」が含まれているか）
-        const isGame = (typeStrForIcon.includes('ゲーム') || typeStrForIcon.includes('Game'));
+        // ★ 아이콘 판정 및 기본 버튼명 판정('게임' 또는 'Game' 포함 여부)
+        const isGame = (typeStrForIcon.includes('게임') || typeStrForIcon.includes('Game'));
         
         const typeIcon = isGame 
             ? '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>'
             : '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>';
 
-        // ★ JSONに「buttonLabel」が指定されていれば優先。なければ自動判定（ダウンロード or 開く）
-        const defaultBtnLabel = isGame ? (t.btn_download || "ダウンロード") : (t.btn_open || "開く");
+        // ★ JSON에 'buttonLabel'이 지정되어 있으면 우선, 없으면 자동 판정(다운로드 또는 열기)
+        const defaultBtnLabel = isGame ? (t.btn_download || "다운로드") : (t.btn_open || "열기");
         const btnLabel = sub.buttonLabel ? getLocalizedText(sub.buttonLabel, defaultBtnLabel) : defaultBtnLabel;
 
         const infoDiv = document.createElement('div');
@@ -3057,7 +3057,7 @@ function openManageModal(item) {
         const subReleaseDate = sub.releaseDateIso ? new Date(sub.releaseDateIso) : null;
 
         if (subReleaseDate) {
-            // タイマー監視用配列に btnLabel（インストールやプレイなど）を一緒に保存
+            // 타이머 감시용 배열에 btnLabel(설치나 플레이 등)을 함께 저장
             timers.push({ btn: actionBtn, date: subReleaseDate, url: sub.url, label: btnLabel });
         } else {
             actionBtn.innerHTML = btnLabel;
@@ -3085,14 +3085,14 @@ function openManageModal(item) {
         timers.forEach(tData => {
             const diff = tData.date - now;
             if (diff <= 0) {
-                // 解禁完了
+                // 해제 완료
                 tData.btn.style.background = '';
                 tData.btn.style.color = '';
                 tData.btn.style.cursor = 'pointer';
-                tData.btn.innerHTML = tData.label; // ★ 解禁時に保存しておいた動的ラベルを表示
+                tData.btn.innerHTML = tData.label; // ★ 해제 시 저장해둔 동적 라벨 표시
                 tData.btn.onclick = () => window.open(tData.url, '_blank');
             } else {
-                // 解禁前
+                // 해제 전
                 tData.btn.style.background = 'rgba(128,128,128,0.2)';
                 tData.btn.style.color = 'var(--modal-text-main)';
                 tData.btn.style.cursor = 'pointer';
@@ -3101,7 +3101,7 @@ function openManageModal(item) {
                     e.stopPropagation();
                     els.manageModal.classList.remove('active'); 
                     if (window.manageModalTimer) clearInterval(window.manageModalTimer);
-                    showLockedError(); // エラー3001（解禁前）
+                    showLockedError(); // 에러 3001(해제 전)
                 };
 
                 const oneDay = 24 * 60 * 60 * 1000;
@@ -3224,7 +3224,7 @@ function showMobileItemDetail(item, isNewRedeem = false) {
                 els.btnSuccessDownload.target = "_blank";
             }
 
-            const btnLabel = item.buttonLabel || t.btn_download || "ダウンロード";
+            const btnLabel = item.buttonLabel || t.btn_download || "다운로드";
             const btnIcon = item.icon || "download";
             els.btnSuccessDownload.innerHTML = `<span>${btnLabel}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="${btnIcon}" aria-hidden="true" size="18" class="lucide lucide-${btnIcon}"></svg>`;
             
@@ -3319,9 +3319,9 @@ async function performAuth(code, mode = 'check') {
         if (d.isPointMode) {
             fetchUserHistory();
             const successTops = els.phaseSuccess.querySelectorAll('.modal-title-top, .mobile-title');
-            successTops.forEach(el => el.textContent = t.success_pt_title || "ポイントチャージ完了");
+            successTops.forEach(el => el.textContent = t.success_pt_title || "포인트 충전 완료");
             const label = els.phaseSuccess.querySelector('.modal-label');
-            if(label) label.textContent = (t.success_pt_msg || "追加されました。").replace('%s', d.message);
+            if(label) label.textContent = (t.success_pt_msg || "추가되었습니다.").replace('%s', d.message);
             
             els.successImage.src = escapeHTML(currentContentData.imageUrl) || "https://static.wixstatic.com/media/2f0694_38068f106089439b89c7902ef4fb3d2d~mv2.jpg";
             els.successTitleUnderImg.textContent = d.message;
@@ -3385,21 +3385,21 @@ async function performAuth(code, mode = 'check') {
             
             const msg = d.message || "";
             // 修正：使用済み判定を所有判定より先に持ってきて正しく振り分ける
-            if (msg === "This code has already been used." || msg.includes("使用済") || msg.includes("used")) {
+            if (msg === "This code has already been used." || msg.includes("사용") || msg.includes("used")) {
                 errorMainText = t.error_used_msg || t.msg_used;
                 errorSubText = "";
                 specificErrorCode = "1013"; 
                 els.btnErrorClose.style.flex = "none";
                 els.btnErrorClose.style.width = "100%";
                 showInfoBox = false;
-            } else if (d.isAlreadyOwned || msg === "Already owned" || msg.includes("所有") || msg.includes("owned")) {
-                errorMainText = t.error_owned_msg || "既に所有しているようです。";
-                errorSubText = window.innerWidth <= 768 ? (t.msg_already_owned_mobile || "ストアからコンテンツを選択してダウンロードしてください。") : (t.error_owned_sub || "左ライブラリメニューからコンテンツを選択してダウンロードしてください。");
+            } else if (d.isAlreadyOwned || msg === "Already owned" || msg.includes("소유") || msg.includes("owned")) {
+                errorMainText = t.error_owned_msg || "이미 소유하고 있는 것 같습니다.";
+                errorSubText = window.innerWidth <= 768 ? (t.msg_already_owned_mobile || "스토어에서 콘텐츠를 선택하여 다운로드하세요.") : (t.error_owned_sub || "왼쪽 라이브러리 메뉴에서 콘텐츠를 선택하여 다운로드하세요.");
                 specificErrorCode = "1011"; 
                 els.btnErrorClose.style.flex = "none";
                 els.btnErrorClose.style.width = "100%";
             } else if (msg.toLowerCase().includes("invalid") || msg.toLowerCase().includes("not found")) {
-                errorMainText = t.msg_invalid || "コードが無効です";
+                errorMainText = t.msg_invalid || "코드가 유효하지 않습니다.";
                 errorSubText = msg;
                 specificErrorCode = "1012"; 
                 els.btnErrorClose.style.flex = "none";
@@ -3562,7 +3562,7 @@ function startHeroCountdown(targetDate) {
             const mm = String(m + 1).padStart(2, '0'); const dd = String(d).padStart(2, '0');
             let dateString = "";
             switch (CURRENT_LANG) {
-                case 'ja': case 'zh': case 'zh-TW': dateString = `${y}年${mm}月${dd}日`; break;
+                case 'ja': case 'zh': case 'zh-TW': dateString = `${y}年${mm}月${dd}일`; break;
                 case 'ko': dateString = `${y}년 ${mm}월 ${dd}일`; break;
                 case 'ru': dateString = `${dd} ${ruMonths[m]} ${y}`; break;
                 case 'en': default: dateString = `${enMonths[m]} ${dd}, ${y}`; break;
@@ -3598,11 +3598,11 @@ function resetHeroToDefault() {
     selectedHeroItem = null;
     if(heroTimer) { clearInterval(heroTimer); heroTimer = null; }
     
-    els.heroTitle.textContent = t.hero_title || "個人認証センター";
+    els.heroTitle.textContent = t.hero_title || "개인 인증 센터";
     els.heroDesc.style.display = 'none';
     els.heroBgImage.style.backgroundImage = 'none';
     
-    // コード引き換えボタンのみ表示、購入ボタンは隠す
+    // 코드 교환 버튼만 표시, 구매 버튼 숨김
     els.heroActionBtn.innerHTML = `<span data-translate="btn_redeem_code">${t.btn_redeem_code}</span>`;
     els.heroActionBtn.classList.remove('is-download');
     els.heroActionBtn.disabled = false;
@@ -3611,7 +3611,7 @@ function resetHeroToDefault() {
     if (els.heroBuyBtn) els.heroBuyBtn.style.display = 'none';
     currentHeroContext = 'default';
     
-    // サイドバーの選択状態を解除
+    // 사이드바 선택 상태 해제
     document.querySelectorAll('.sidebar-game-item').forEach(el => el.classList.remove('active'));
 }
 
@@ -3662,7 +3662,7 @@ function updateAccountUI() {
     document.querySelector('.rgl-hero-content').style.display = 'block';
     selectedHeroItem = null;
     if(heroTimer) { clearInterval(heroTimer); heroTimer = null; }
-    els.heroTitle.textContent = t.hero_title || "個人認証センター";
+    els.heroTitle.textContent = t.hero_title || "개인 인증 센터";
     els.heroBgImage.style.backgroundImage = 'none';
     setHeroButtonState('available');
 
@@ -3774,7 +3774,7 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
     
     let btnHtml = '';
     let checkMarkHtml = '';
-    let priceText = item.price > 0 ? `${item.price} pt` : (t.status_owned || `所有済み`);
+    let priceText = item.price > 0 ? `${item.price} pt` : (t.status_owned || `소유됨`);
 
     const releaseDate = item.releaseDateIso ? new Date(item.releaseDateIso) : null;
     const now = new Date();
@@ -3782,7 +3782,7 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
 
     if (treatAsOwned) {
         checkMarkHtml = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px; vertical-align:middle; flex-shrink:0;"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-        btnHtml = `<button class="mobile-store-btn is-owned-download"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>${t.btn_download || "ダウンロード"}</button>`;
+        btnHtml = `<button class="mobile-store-btn is-owned-download"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>${t.btn_download || "다운로드"}</button>`;
     } else {
         btnHtml = `<button class="mobile-store-btn">${item.price} pt</button>`;
     }
@@ -3822,7 +3822,7 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                         dlBtn.style.background = 'rgba(0, 125, 255, 0.1)';
                         dlBtn.style.color = 'var(--primary)';
                         dlBtn.style.border = '1px solid rgba(0, 125, 255, 0.3)';
-                        dlBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>${t.btn_download || "ダウンロード"}`;
+                        dlBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>${t.btn_download || "다운로드"}`;
                         
                         dlBtn.onclick = (e) => {
                             e.stopPropagation();
