@@ -2315,12 +2315,12 @@ function setupEventListeners() {
   els.updateModal = gId('updateModal');
   els.closeUpdateModalBtn = gId('closeUpdateModalBtn');
   els.btnUpdateCancel = gId('btnUpdateCancel');
-  els.btnUpdateRecheck = gId('btnUpdateRecheck'); // ★ 追加: 再確認ボタン
+  els.btnUpdateRecheck = gId('btnUpdateRecheck'); 
   els.btnUpdateExecute = gId('btnUpdateExecute');
   els.updateSpinner = gId('updateSpinner');
   els.updateMessageText = gId('updateMessageText');
 
-  // ★ 追加: アップデート確認ロジックを再利用可能な関数化
+  // ★ 修正: アップデート確認ロジック
   const performUpdateCheck = () => {
       if (!selectedHeroItem) return;
       const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja;
@@ -2332,24 +2332,24 @@ function setupEventListeners() {
       els.btnUpdateRecheck.disabled = true; // 確認中は再確認ボタンを無効化
       els.updateModal.classList.add('active');
       
-      // 2. 2.5秒後にサーバー（Supabase）から最新の情報を取ってくるシミュレーション
+      // 2. 2.5秒後にサーバーから最新の情報を取ってくる
       setTimeout(async () => {
           if (!els.updateModal.classList.contains('active')) return;
           
           try {
-              // ★ 実際にSupabaseからこのアイテムの最新情報を取得（リアルタイム反映のため）
-              const { data: latestData } = await supabase
-                  .from('contents')
-                  .select('Update_URL')
-                  .eq('id', selectedHeroItem.code) // itemのID(code)で検索
-                  .maybeSingle();
+              // ★ 修正: supabaseではなく、安全なAPI経由で最新ストアデータを取得する
+              const res = await safeFetch({ type: 'get_available', lang: CURRENT_LANG });
+              let currentUpdateUrl = selectedHeroItem.updateUrl;
+              
+              // 取得した最新データの中から、今開いているアイテムのURLを探す
+              if (res.success && res.items) {
+                  const updatedItem = res.items.find(i => i.code === selectedHeroItem.code);
+                  if (updatedItem) currentUpdateUrl = updatedItem.updateUrl;
+              }
 
               els.updateSpinner.style.display = 'none';
               els.btnUpdateRecheck.disabled = false; // 再確認ボタンを復活
               
-              // 取得したURLを変数に格納（無い場合は元のオブジェクトから取得）
-              const currentUpdateUrl = (latestData && latestData.Update_URL) ? latestData.Update_URL : selectedHeroItem.updateUrl;
-
               // 3. 判定とUIの切り替え
               if (currentUpdateUrl && currentUpdateUrl.trim() !== "") {
                   // ▼ アップデートがある場合
@@ -2372,9 +2372,9 @@ function setupEventListeners() {
                          // 指定URLを開く
                          window.open(currentUpdateUrl, '_blank'); 
 
-                         // ★ 重要: 裏画面（Heroエリア）のメインボタンを即座に変更！
+                         // ★ 裏画面（Heroエリア）のメインボタンを即座に「最新版」に変更
                          if (els.heroActionBtn) {
-                             const btnIcon = 'check'; // チェックマークアイコンに変更
+                             const btnIcon = 'check'; // チェックマーク
                              const doneText = (CURRENT_LANG === 'ja') ? '最新版' : 'Up to Date';
                              els.heroActionBtn.innerHTML = `<span>${doneText}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="${btnIcon}" aria-hidden="true" size="20" class="lucide lucide-${btnIcon}"></svg>`;
                              els.heroActionBtn.classList.add('is-download');
@@ -2405,12 +2405,12 @@ function setupEventListeners() {
       els.btnUpdateCheck.addEventListener('click', (e) => {
           e.stopPropagation();
           els.heroOptionsDropdown.classList.remove('open');
-          els.btnUpdateRecheck.style.display = 'flex'; // 初期状態で再確認ボタンは表示
+          els.btnUpdateRecheck.style.display = 'flex'; 
           performUpdateCheck();
       });
   }
 
-  // ★ 追加: 「再確認」ボタンを押したとき
+  // 「再確認」ボタンを押したとき
   if (els.btnUpdateRecheck) {
       els.btnUpdateRecheck.addEventListener('click', () => {
           performUpdateCheck();
@@ -2423,7 +2423,6 @@ function setupEventListeners() {
           if(els.updateModal) els.updateModal.classList.remove('active');
       });
   });
-  }
 
   if (els.closeLicenseModalBtn) {
       els.closeLicenseModalBtn.addEventListener('click', () => els.licenseModal.classList.remove('active'));
