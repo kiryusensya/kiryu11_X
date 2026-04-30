@@ -281,58 +281,6 @@ button, input, textarea, a { font-family: var(--font-stack); }
 .bento-card:hover .card-icon { transform: scale(1.1) rotate(3deg); }
 .bento-card .card-title { font-size: 28px; font-weight: 800; text-align: center; }
 .bento-card .card-desc { font-size: 15px; margin-top: 12px; opacity: 0.6; font-weight: 500; text-align: center; }
-.detail-modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-    z-index: 9999;
-    display: flex; justify-content: center; align-items: center;
-    opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
-}
-.detail-modal-overlay.active { opacity: 1; pointer-events: auto; }
-
-.detail-modal {
-    background: var(--bg-color);
-    width: 850px; max-width: 90%;
-    border-radius: 32px;
-    border: 1px solid rgba(128,128,128,0.2);
-    box-shadow: 0 30px 80px rgba(0,0,0,0.3);
-    display: flex;
-    overflow: hidden;
-    transform: scale(0.95) translateY(20px);
-    transition: transform 0.5s var(--spring-ease);
-    position: relative;
-}
-.detail-modal-overlay.active .detail-modal { transform: scale(1) translateY(0); }
-[data-theme="dark"] .detail-modal { background: #1a1a1a; box-shadow: 0 30px 80px rgba(0,0,0,0.6); }
-
-.detail-visual {
-    flex: 1; background: #000; position: relative; min-height: 400px;
-    display: flex; align-items: center; justify-content: center;
-}
-.detail-visual svg { color: rgba(255,255,255,0.3); width: 120px; height: 120px; }
-
-.detail-content {
-    flex: 1.2; padding: 50px 40px; display: flex; flex-direction: column; justify-content: center; position: relative;
-}
-.detail-title { font-size: 28px; font-weight: 800; margin-bottom: 16px; color: var(--modal-text-main); }
-.detail-text { font-size: 15px; opacity: 0.7; line-height: 1.6; margin-bottom: 40px; color: var(--modal-text-main); white-space: pre-wrap; font-weight: 500; }
-.btn-inquiry {
-    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-    height: 54px; padding: 0 40px; background: var(--modal-text-main); color: var(--bg-color);
-    border-radius: 50px; font-weight: 800; font-size: 16px; cursor: pointer; text-decoration: none;
-    transition: transform 0.2s, box-shadow 0.2s; width: fit-content;
-}
-.btn-inquiry:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
-[data-theme="dark"] .btn-inquiry { background: #fff; color: #000; }
-
-.close-btn {
-    position: absolute; top: 20px; right: 20px; width: 44px; height: 44px; border-radius: 50%;
-    background: rgba(128,128,128,0.1); display: flex; align-items: center; justify-content: center;
-    cursor: pointer; border: none; color: var(--modal-text-main); transition: 0.2s;
-    z-index: 10;
-}
-.close-btn:hover { background: rgba(128,128,128,0.2); }
 .mobile-menu-trigger { display: none; }
 .mobile-nav-overlay { display: none; }
 
@@ -371,12 +319,6 @@ button, input, textarea, a { font-family: var(--font-stack); }
     .support-content { padding: 30px 20px; display: block; }
     .bento-grid { grid-template-columns: 1fr; gap: 20px; margin-top: 20px; }
     .bento-card { min-height: 200px; padding: 30px 20px; }
-    
-    .detail-modal { flex-direction: column; border-radius: 24px; max-height: 90vh; overflow-y: auto; }
-    .detail-visual { min-height: 200px; flex: none; }
-    .detail-content { padding: 30px 24px; flex: none; }
-    .detail-title { font-size: 24px; }
-    .btn-inquiry { width: 100%; }
 }
 
 @keyframes popIn { 0% { opacity: 0; transform: scale(0.95) translateY(10px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
@@ -503,24 +445,6 @@ button, input, textarea, a { font-family: var(--font-stack); }
 
 </div>
 
-<div class="detail-modal-overlay" id="detailOverlay">
-    <div class="detail-modal">
-        <button class="close-btn" onclick="closeDetail()">
-            <i data-lucide="x"></i>
-        </button>
-        <div class="detail-visual" id="modalVisual">
-            </div>
-        <div class="detail-content">
-            <div class="detail-title" id="modalTitle">Title</div>
-            <div class="detail-text" id="modalDesc">Desc</div>
-            <a href="#" class="btn-inquiry" id="modalBtn">
-                <span data-translate="btn_inquiry">Search</span>
-                <i data-lucide="arrow-right"></i>
-            </a>
-        </div>
-    </div>
-</div>
-
 <script>
     // Spotlight Effect Setup
     const setupHoverEffects = () => {
@@ -532,16 +456,6 @@ button, input, textarea, a { font-family: var(--font-stack); }
                 el.style.setProperty('--y', `${e.clientY - rect.top}px`);
             });
         });
-    };
-
-    const supportData = {
-        web: {
-            titleKey: "card_web_title",
-            descKey: "desc_web",
-            iconHtml: `<i data-lucide="search"></i>`, 
-            color: "#007DFF",
-            url: "error.html"
-        }
     };
 
     const TRANSLATIONS = {
@@ -729,32 +643,6 @@ button, input, textarea, a { font-family: var(--font-stack); }
             });
         }
     });
-    const overlay = document.getElementById('detailOverlay');
-    const mTitle = document.getElementById('modalTitle');
-    const mDesc = document.getElementById('modalDesc');
-    const mBtn = document.getElementById('modalBtn');
-    const mVisual = document.getElementById('modalVisual');
-
-    window.openDetail = function(key) {
-        const data = supportData[key];
-        const lang = localStorage.getItem('user_lang') || 'ja';
-        const t = TRANSLATIONS[lang] || TRANSLATIONS.ja;
-        
-        if(!data) return;
-        mTitle.textContent = t[data.titleKey] || data.titleKey;
-        mDesc.innerText = t[data.descKey] || data.descKey;
-        mBtn.href = data.url;
-        mVisual.innerHTML = data.iconHtml;
-        mVisual.style.background = `linear-gradient(135deg, ${data.color} 0%, #000000 100%)`;
-
-        overlay.classList.add('active');
-        try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
-    }
-
-    window.closeDetail = function() { overlay.classList.remove('active'); }
-    if (overlay) {
-        overlay.addEventListener('click', (e) => { if(e.target === overlay) closeDetail(); });
-    }
 </script>
 </body>
 </html>
