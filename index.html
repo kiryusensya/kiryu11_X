@@ -3346,8 +3346,8 @@ function setHeroButtonState(state, forceUnlock = false) {
             btn.style.color = 'var(--modal-text-main)';
             btn.innerHTML = `<span>${t.btn_expired || "期限切れ"}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-circle"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>`;
         }
-        // 解禁待ち または 期限切れ待ち（タイマー起動）
-        else if (!forceUnlock && ((releaseDate && releaseDate > now) || (expireDate && expireDate > now))) {
+        // ★ 修正2: 「解禁待ち」の条件だけを独立させる
+        else if (!forceUnlock && releaseDate && releaseDate > now) {
             startHeroCountdown(releaseDate, expireDate);
         } else {
             // 通常のダウンロード状態
@@ -3357,7 +3357,10 @@ function setHeroButtonState(state, forceUnlock = false) {
             btn.innerHTML = `<span>${displayLabel}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="${iconName}" aria-hidden="true" size="20" class="lucide lucide-${iconName}"></svg>`;
             btn.classList.add('is-download');
             try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+          if (!forceUnlock && expireDate && expireDate > now) {
+                startHeroCountdown(null, expireDate);
         }
+      }
     } else {
         btn.innerHTML = `<span data-translate="btn_redeem_code">${t.btn_redeem_code}</span>`;
         btn.classList.remove('is-download');
@@ -3627,6 +3630,9 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
         ${btnHtml}
     `;
     
+    // ★ 修正1: 要素を先にDOMに追加する。これでタイマー内の contains(dlBtn) が正常に true になります。
+    mobileList.appendChild(mDiv);
+
     if (treatAsOwned) {
         const dlBtn = mDiv.querySelector('.is-owned-download');
         if (dlBtn) {
@@ -3638,6 +3644,7 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                 dlBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-circle" style="margin-right: 4px;"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>${t.btn_expired || "期限切れ"}`;
                 dlBtn.onclick = (e) => {
                     e.stopPropagation();
+                    e.preventDefault(); // ★ 追加: 念のためデフォルトのリンク遷移をブロック
                     if (!currentUser) { toggleDropdown(true); return; }
                     showExpiredError(); // エラー3002
                 };
@@ -3713,7 +3720,6 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
             };
         }
     }
-    mobileList.appendChild(mDiv);
 }
 
 async function fetchAvailableContent() {
