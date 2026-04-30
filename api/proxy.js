@@ -488,6 +488,7 @@ export default async function handler(req, res) {
     }
 
     // get_history：履歴取得
+    // get_history：履歴取得
     if (type === 'get_history') {
       if (!authUserId) return res.status(401).json({ success: false, message: "Unauthorized" });
       const { data: user } = await supabase.from('users').select('points').eq('id', authUserId).maybeSingle();
@@ -503,9 +504,8 @@ export default async function handler(req, res) {
         const c = codeRec.contents; 
         if(!c) return null;
 
-        if (c["有効時間"] && new Date(c["有効時間"]).getTime() <= Date.now()) {
-            return null;
-        }
+        // ★ 削除：ここにあった「有効期限が切れていたら null を返して履歴から消す」処理を完全に削除しました！
+        // これにより、期限切れであっても堂々とフロントエンドに送信され、履歴に残り続けます。
 
         return {
           code: codeRec["アクティベーションコード"], date: h.created_at, title: c[`タイトル(${suffix})`] || c["タイトル(jp)"],
