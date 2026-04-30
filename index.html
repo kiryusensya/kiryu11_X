@@ -3689,16 +3689,15 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
         ${btnHtml}
     `;
     
-    // ★★★ 修正箇所：タイマーが「画面上にボタンがある」と正しく認識できるように、ここで先に画面へ追加（appendChild）します ★★★
+    // 要素を画面に追加
     mobileList.appendChild(mDiv);
     
     if (treatAsOwned) {
         const dlBtn = mDiv.querySelector('.is-owned-download');
         if (dlBtn) {
-            // スマホのボタンを「毎秒」状態チェックする関数
+            // ★ スマホのボタン状態をリアルタイム判定する関数
             const updateMobileState = () => {
-                // 上で appendChild されているので、ここは false にならずタイマーが継続します
-                if (!document.body.contains(dlBtn)) return true; 
+                if (!document.body.contains(dlBtn)) return true; // 要素が消えたらタイマー停止
                 
                 const now = new Date();
                 const isLocked = releaseDate && releaseDate > now;
@@ -3719,7 +3718,7 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                         e.stopPropagation(); e.preventDefault(); 
                         showExpiredError(); 
                     };
-                    return true; // 期限切れになったらタイマー停止
+                    return true; // 期限切れになったのでタイマー停止
                 } else if (isLocked) {
                     // 解禁待ち状態
                     const diff = releaseDate - now;
@@ -3751,7 +3750,7 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                         const ss = String(s).padStart(2, '0');
                         dlBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> <span>${hh}:${mm}:${ss}</span>`;
                     }
-                    return false; // タイマー継続
+                    return false; // まだ解禁前なのでタイマー継続
                 } else {
                     // ダウンロード可能状態
                     dlBtn.style.pointerEvents = 'auto';
@@ -3778,15 +3777,16 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                         }
                     };
                     
+                    // ★ ここが一番の修正ポイント！
                     if (expireDate) {
-                        return false; // 期限切れを監視するため継続
+                        return false; // 有効期限が設定されている場合は、期限切れを監視するためタイマーを継続！
                     } else {
-                        return true; // 有効期限なし（無期限）ならタイマー終了
+                        return true;  // 有効期限なし（無期限）ならタイマー終了でOK
                     }
                 }
             };
 
-            // 初回実行。もしタイマー継続(false)ならsetIntervalで毎秒監視する
+            // 初回実行して、もしタイマー継続(false)ならsetIntervalで毎秒監視する
             if (!updateMobileState()) {
                 const timerId = setInterval(() => {
                     if (updateMobileState()) clearInterval(timerId);
@@ -3803,7 +3803,6 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
             };
         }
     }
-    // ★★★ 最後の appendChild は不要なので削除しました ★★★
 }
 async function fetchAvailableContent() {
     const list = els.availableListSidebar;
