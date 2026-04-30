@@ -3689,15 +3689,17 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
     if (treatAsOwned) {
         const dlBtn = mDiv.querySelector('.is-owned-download');
         if (dlBtn) {
-            // ★ スマホのボタンを「毎秒」状態チェックする関数にまとめました
+            // ★ スマホのボタンを「毎秒」状態チェックする関数
             const updateMobileState = () => {
-                if (!document.body.contains(dlBtn)) return true; // タイマー停止
+                if (!document.body.contains(dlBtn)) return true; // 要素が画面から消えたらタイマー停止
                 
                 const now = new Date();
                 const isLocked = releaseDate && releaseDate > now;
                 const isExpired = expireDate && expireDate <= now;
 
                 if (isExpired) {
+                    // 期限切れ状態
+                    dlBtn.style.pointerEvents = 'auto';
                     dlBtn.style.background = 'rgba(128, 128, 128, 0.2)';
                     dlBtn.style.color = 'var(--modal-text-main)';
                     dlBtn.style.border = '1px solid transparent';
@@ -3705,21 +3707,24 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                     dlBtn.style.cursor = 'not-allowed';
                     dlBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> ${expiredLabel}`;
                     
-                    // ★ 期限切れになったらクリックイベントを上書きしてエラー3002を出す！
+                    // クリックイベントを上書きしてエラー3002を出す！
                     dlBtn.onclick = (e) => { 
                         e.stopPropagation(); e.preventDefault(); 
                         showExpiredError(); 
                     };
-                    return true; // 期限切れになったらタイマー停止
+                    return true; // 期限切れになったらもう監視は不要なのでタイマー停止
                 } else if (isLocked) {
+                    // 解禁待ち状態
                     const diff = releaseDate - now;
+                    dlBtn.style.pointerEvents = 'auto';
                     dlBtn.style.background = 'rgba(128, 128, 128, 0.2)';
                     dlBtn.style.color = 'var(--modal-text-main)';
                     dlBtn.style.border = '1px solid transparent';
                     dlBtn.style.cursor = 'pointer';
+                    dlBtn.style.opacity = '1';
 
                     dlBtn.onclick = (e) => {
-                        e.stopPropagation();
+                        e.stopPropagation(); e.preventDefault();
                         if (!currentUser) { toggleDropdown(true); return; }
                         showLockedError(); 
                     };
@@ -3741,7 +3746,8 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                     }
                     return false; // タイマー継続
                 } else {
-                    // ダウンロード可能な状態
+                    // ダウンロード可能状態
+                    dlBtn.style.pointerEvents = 'auto';
                     dlBtn.style.background = 'rgba(0, 125, 255, 0.1)';
                     dlBtn.style.color = 'var(--primary)';
                     dlBtn.style.border = '1px solid rgba(0, 125, 255, 0.3)';
@@ -3750,25 +3756,31 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                     dlBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>${t.btn_download || "ダウンロード"}`;
 
                     dlBtn.onclick = (e) => {
-                        e.stopPropagation();
+                        e.stopPropagation(); e.preventDefault();
                         if (!currentUser) { toggleDropdown(true); return; }
                         const targetUrl = item.url || item.actionUrl;
                         let isMulti = false;
                         try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
 
-                        if (isMulti) {
+                        if (window.innerWidth <= 768 && isMulti) {
                             openManageModal(item);
-                        } else if (targetUrl) {
+                        } else if (targetUrl && !isMulti) {
                             window.open(targetUrl, '_blank');
                         } else {
                             showMobileItemDetail(item, false);
                         }
                     };
-                    return false; // 有効期限が切れるのを監視し続けるためタイマー継続！
+                    
+                    // ★ 有効期限が設定されていれば、期限切れを監視するためにタイマーを継続させる
+                    if (expireDate) {
+                        return false; 
+                    } else {
+                        return true; // 有効期限なし（無期限）ならタイマー終了
+                    }
                 }
             };
 
-            // 初回実行して、タイマー停止条件に合致しなければ1秒ごとの監視をスタート
+            // 初回実行。もしタイマー継続(false)ならsetIntervalで毎秒監視する
             if (!updateMobileState()) {
                 const timerId = setInterval(() => {
                     if (updateMobileState()) clearInterval(timerId);
