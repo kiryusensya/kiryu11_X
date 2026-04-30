@@ -2759,6 +2759,7 @@ function openManageModal(item) {
     
     const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja; 
 
+    // 言語判定用ヘルパー関数
     const getLocalizedText = (fieldData, fallback) => {
         if (!fieldData) return escapeHTML(fallback);
         if (typeof fieldData === 'string') return escapeHTML(fieldData);
@@ -2775,13 +2776,14 @@ function openManageModal(item) {
         const localizedType = getLocalizedText(sub.type, 'アドオン');
         const typeStrForIcon = typeof sub.type === 'string' ? sub.type : (sub.type ? (sub.type['ja'] || sub.type['en'] || '') : '');
         
+        // ★ アイコンの判定 兼 デフォルトボタン名の判定（「ゲーム」か「Game」が含まれているか）
         const isGame = (typeStrForIcon.includes('ゲーム') || typeStrForIcon.includes('Game'));
         
         const typeIcon = isGame 
             ? '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>'
             : '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>';
 
-        // ★ JSONに「buttonLabel」が指定されていればそれを優先。なければ自動判定（ダウンロード or 開く）
+        // ★ JSONに「buttonLabel」が指定されていれば優先。なければ自動判定（ダウンロード or 開く）
         const defaultBtnLabel = isGame ? (t.btn_download || "ダウンロード") : (t.btn_open || "開く");
         const btnLabel = sub.buttonLabel ? getLocalizedText(sub.buttonLabel, defaultBtnLabel) : defaultBtnLabel;
 
@@ -2798,7 +2800,7 @@ function openManageModal(item) {
         const subReleaseDate = sub.releaseDateIso ? new Date(sub.releaseDateIso) : null;
 
         if (subReleaseDate) {
-            // タイマー監視用配列に btnLabel を一緒に保存しておく
+            // タイマー監視用配列に btnLabel（インストールやプレイなど）を一緒に保存
             timers.push({ btn: actionBtn, date: subReleaseDate, url: sub.url, label: btnLabel });
         } else {
             actionBtn.innerHTML = btnLabel;
@@ -2826,12 +2828,14 @@ function openManageModal(item) {
         timers.forEach(tData => {
             const diff = tData.date - now;
             if (diff <= 0) {
+                // 解禁完了
                 tData.btn.style.background = '';
                 tData.btn.style.color = '';
                 tData.btn.style.cursor = 'pointer';
                 tData.btn.innerHTML = tData.label; // ★ 解禁時に保存しておいた動的ラベルを表示
                 tData.btn.onclick = () => window.open(tData.url, '_blank');
             } else {
+                // 解禁前
                 tData.btn.style.background = 'rgba(128,128,128,0.2)';
                 tData.btn.style.color = 'var(--modal-text-main)';
                 tData.btn.style.cursor = 'pointer';
