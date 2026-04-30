@@ -2750,7 +2750,7 @@ function openManageModal(item) {
     const list = els.manageContentList;
     list.innerHTML = '';
     
-    // ★ 親アイテムの有効期限を取得
+    // 親アイテムの有効期限を取得
     const parentExpireDate = item.expireDateIso ? new Date(item.expireDateIso) : null;
     
     let subItems = [];
@@ -2774,9 +2774,16 @@ function openManageModal(item) {
         const localizedTitle = getLocalizedText(sub.title, item.title);
         const localizedType = getLocalizedText(sub.type, 'アドオン');
         const typeStrForIcon = typeof sub.type === 'string' ? sub.type : (sub.type ? (sub.type['ja'] || sub.type['en'] || '') : '');
-        const typeIcon = (typeStrForIcon.includes('ゲーム') || typeStrForIcon.includes('Game')) 
+        
+        const isGame = (typeStrForIcon.includes('ゲーム') || typeStrForIcon.includes('Game'));
+        
+        const typeIcon = isGame 
             ? '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>'
             : '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>';
+
+        // ★ JSONに「buttonLabel」が指定されていればそれを優先。なければ自動判定（ダウンロード or 開く）
+        const defaultBtnLabel = isGame ? (t.btn_download || "ダウンロード") : (t.btn_open || "開く");
+        const btnLabel = sub.buttonLabel ? getLocalizedText(sub.buttonLabel, defaultBtnLabel) : defaultBtnLabel;
 
         const infoDiv = document.createElement('div');
         infoDiv.className = 'manage-item-info';
@@ -2791,9 +2798,10 @@ function openManageModal(item) {
         const subReleaseDate = sub.releaseDateIso ? new Date(sub.releaseDateIso) : null;
 
         if (subReleaseDate) {
-            timers.push({ btn: actionBtn, date: subReleaseDate, url: sub.url });
+            // タイマー監視用配列に btnLabel を一緒に保存しておく
+            timers.push({ btn: actionBtn, date: subReleaseDate, url: sub.url, label: btnLabel });
         } else {
-            actionBtn.innerHTML = t.btn_download || "ダウンロード";
+            actionBtn.innerHTML = btnLabel;
             actionBtn.onclick = () => window.open(sub.url, '_blank');
         }
 
@@ -2806,7 +2814,7 @@ function openManageModal(item) {
     const updateManageTimers = () => {
         const now = new Date();
 
-        // ★ 追加ロジック: 親アイテムの有効期限が切れたら管理画面を閉じてリフレッシュ
+        // 親アイテムの有効期限が切れたら管理画面を閉じてリフレッシュ
         if (parentExpireDate && now >= parentExpireDate) {
             if (window.manageModalTimer) clearInterval(window.manageModalTimer);
             els.manageModal.classList.remove('active');
@@ -2821,7 +2829,7 @@ function openManageModal(item) {
                 tData.btn.style.background = '';
                 tData.btn.style.color = '';
                 tData.btn.style.cursor = 'pointer';
-                tData.btn.innerHTML = t.btn_download || "ダウンロード";
+                tData.btn.innerHTML = tData.label; // ★ 解禁時に保存しておいた動的ラベルを表示
                 tData.btn.onclick = () => window.open(tData.url, '_blank');
             } else {
                 tData.btn.style.background = 'rgba(128,128,128,0.2)';
