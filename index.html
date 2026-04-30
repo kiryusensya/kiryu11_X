@@ -2759,6 +2759,17 @@ function openManageModal(item) {
     
     const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja; 
 
+    // ★ 期限切れ用の多言語辞書
+    const expiredTextMap = {
+        ja: "期限切れ",
+        en: "Expired",
+        zh: "已过期",
+        'zh-TW': "已過期",
+        ko: "만료됨",
+        ru: "Истек срок"
+    };
+    const expiredLabel = expiredTextMap[CURRENT_LANG] || "Expired";
+
     // 言語判定用ヘルパー関数
     const getLocalizedText = (fieldData, fallback) => {
         if (!fieldData) return escapeHTML(fallback);
@@ -2776,14 +2787,14 @@ function openManageModal(item) {
         const localizedType = getLocalizedText(sub.type, 'アドオン');
         const typeStrForIcon = typeof sub.type === 'string' ? sub.type : (sub.type ? (sub.type['ja'] || sub.type['en'] || '') : '');
         
-        // ★ アイコンの判定 兼 デフォルトボタン名の判定（「ゲーム」か「Game」が含まれているか）
+        // アイコンの判定 兼 デフォルトボタン名の判定（「ゲーム」か「Game」が含まれているか）
         const isGame = (typeStrForIcon.includes('ゲーム') || typeStrForIcon.includes('Game'));
         
         const typeIcon = isGame 
             ? '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>'
             : '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>';
 
-        // ★ JSONに「buttonLabel」が指定されていれば優先。なければ自動判定（ダウンロード or 開く）
+        // JSONに「buttonLabel」が指定されていれば優先。なければ自動判定（ダウンロード or 開く）
         const defaultBtnLabel = isGame ? (t.btn_download || "ダウンロード") : (t.btn_open || "開く");
         const btnLabel = sub.buttonLabel ? getLocalizedText(sub.buttonLabel, defaultBtnLabel) : defaultBtnLabel;
 
@@ -2800,8 +2811,8 @@ function openManageModal(item) {
         const subReleaseDate = sub.releaseDateIso ? new Date(sub.releaseDateIso) : null;
         const subExpireDate = sub.expireDateIso ? new Date(sub.expireDateIso) : null;
 
-        // 解禁日または有効期限のどちらかが設定されていれば監視対象に入れる
-        if (subReleaseDate || subExpireDate) {
+        // 解禁日、または親・子の有効期限のいずれかが設定されていれば監視対象に入れる
+        if (subReleaseDate || subExpireDate || parentExpireDate) {
             timers.push({ 
                 btn: actionBtn, 
                 releaseDate: subReleaseDate, 
@@ -2809,10 +2820,8 @@ function openManageModal(item) {
                 url: sub.url, 
                 label: btnLabel 
             });
-        }
-
-        // 解禁日が設定されていない（最初からダウンロード可能）場合の初期状態
-        if (!subReleaseDate) {
+        } else {
+            // 時間の縛りが一切ない（最初からずっとダウンロード可能）場合
             actionBtn.innerHTML = btnLabel;
             actionBtn.onclick = () => window.open(sub.url, '_blank');
         }
@@ -2825,41 +2834,29 @@ function openManageModal(item) {
     // リアルタイム更新用関数
     const updateManageTimers = () => {
         const now = new Date();
-
-        // 親アイテムの有効期限が切れたら管理画面を閉じてリフレッシュ
-        if (parentExpireDate && now >= parentExpireDate) {
-            if (window.manageModalTimer) clearInterval(window.manageModalTimer);
-            els.manageModal.classList.remove('active');
-            updateAccountUI();
-            fetchAvailableContent();
-            return;
-        }
-
-        // ★ここで「1つでも期限切れがあるか」をチェック（バグ修正箇所）
-        let isAnyExpired = false;
-        timers.forEach(tData => {
-            if (tData.expireDate && now >= tData.expireDate) {
-                isAnyExpired = true;
-            }
-        });
-
-        // ★期限切れがあったら、ここでループを抜け出して画面をリフレッシュする！
-        if (isAnyExpired) {
-            if (window.manageModalTimer) clearInterval(window.manageModalTimer);
-            els.manageModal.classList.remove('active');
-            updateAccountUI();
-            fetchAvailableContent();
-            return; 
-        }
+        const isParentExpired = parentExpireDate && now >= parentExpireDate;
 
         timers.forEach(tData => {
-            // 解禁前 / 解禁後のチェック（releaseDateが設定されている場合のみ）
-            if (tData.releaseDate) {
+            const isSubExpired = tData.expireDate && now >= tData.expireDate;
+            
+            // ★ 親アイテム または 個別アイテム の有効期限が切れているか？
+            if (isParentExpired || isSubExpired) {
+                tData.btn.style.background = 'rgba(128,128,128,0.2)';
+                tData.btn.style.color = 'var(--modal-text-main)';
+                tData.btn.style.opacity = '0.5';
+                tData.btn.style.cursor = 'not-allowed';
+                // バツ印アイコン + 期限切れテキスト
+                tData.btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> ${expiredLabel}`;
+                tData.btn.onclick = (e) => { e.preventDefault(); };
+            
+            // まだ期限内、かつ「解禁日(releaseDate)」が設定されている場合
+            } else if (tData.releaseDate) {
                 const diff = tData.releaseDate - now;
                 if (diff <= 0) {
                     // 解禁完了
                     tData.btn.style.background = '';
                     tData.btn.style.color = '';
+                    tData.btn.style.opacity = '1';
                     tData.btn.style.cursor = 'pointer';
                     tData.btn.innerHTML = tData.label; 
                     tData.btn.onclick = () => window.open(tData.url, '_blank');
@@ -2867,6 +2864,7 @@ function openManageModal(item) {
                     // 解禁前
                     tData.btn.style.background = 'rgba(128,128,128,0.2)';
                     tData.btn.style.color = 'var(--modal-text-main)';
+                    tData.btn.style.opacity = '1';
                     tData.btn.style.cursor = 'pointer';
                     
                     tData.btn.onclick = (e) => {
@@ -2892,6 +2890,14 @@ function openManageModal(item) {
                         tData.btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> ${hh}:${mm}:${ss}`;
                     }
                 }
+            // 解禁日は設定されていないが、期限は監視されている場合（普通に押せる状態）
+            } else {
+                tData.btn.style.background = '';
+                tData.btn.style.color = '';
+                tData.btn.style.opacity = '1';
+                tData.btn.style.cursor = 'pointer';
+                tData.btn.innerHTML = tData.label; 
+                tData.btn.onclick = () => window.open(tData.url, '_blank');
             }
         });
     };
