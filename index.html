@@ -2284,6 +2284,7 @@ function setupEventListeners() {
         logout();
       });
   }
+  
   if (els.closeManageModalBtn) {
         els.closeManageModalBtn.addEventListener('click', () => {
             els.manageModal.classList.remove('active');
@@ -2298,18 +2299,18 @@ function setupEventListeners() {
             }
         });
     }
+  
   if (els.heroOptionsBtn) {
       els.heroOptionsBtn.addEventListener('click', (e) => {
           e.stopPropagation();
           els.heroOptionsDropdown.classList.toggle('open');
       });
   }
-  // 余白クリックでドロップダウンを閉じる処理に追加
+  
   document.addEventListener('click', (e) => { 
       if (els.heroOptionsWrapper && !els.heroOptionsWrapper.contains(e.target)) {
           els.heroOptionsDropdown.classList.remove('open');
       }
-      // (既存のアカウントドロップダウンを閉じる処理はそのまま維持)
   });
 
   els.updateModal = gId('updateModal');
@@ -2320,19 +2321,16 @@ function setupEventListeners() {
   els.updateSpinner = gId('updateSpinner');
   els.updateMessageText = gId('updateMessageText');
 
-  // ★ 修正: アップデート確認ロジック
   const performUpdateCheck = () => {
       if (!selectedHeroItem) return;
       const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja;
       
-      // 1. 初期状態（確認中）にセット
       els.updateMessageText.textContent = t.msg_checking_update || "確認中...";
-      els.updateSpinner.style.display = 'block'; // クルクル開始
-      els.btnUpdateExecute.style.display = 'none'; // アップデートボタンは隠す
-      els.btnUpdateRecheck.disabled = true; // 確認中は再確認ボタンを無効化
+      els.updateSpinner.style.display = 'block'; 
+      els.btnUpdateExecute.style.display = 'none'; 
+      els.btnUpdateRecheck.disabled = true; 
       els.updateModal.classList.add('active');
       
-      // 2. 2.5秒後にサーバーから最新の情報を取ってくる
       setTimeout(async () => {
           if (!els.updateModal.classList.contains('active')) return;
           
@@ -2346,15 +2344,13 @@ function setupEventListeners() {
               }
 
               els.updateSpinner.style.display = 'none';
-              els.btnUpdateRecheck.disabled = false; // 再確認ボタンを復活
+              els.btnUpdateRecheck.disabled = false; 
               
-              // 3. 判定とUIの切り替え
               if (currentUpdateUrl && currentUpdateUrl.trim() !== "") {
                   els.updateMessageText.textContent = t.msg_update_available || "利用可能な更新データがあります。";
                   els.btnUpdateExecute.style.display = 'flex';
-                  els.btnUpdateRecheck.style.display = 'none'; // 更新があるなら再確認ボタンは隠す
+                  els.btnUpdateRecheck.style.display = 'none'; 
                   
-                  // アップデートボタンの処理
                   els.btnUpdateExecute.onclick = () => {
                       els.updateSpinner.style.display = 'block';
                       els.btnUpdateExecute.style.display = 'none';
@@ -2363,13 +2359,12 @@ function setupEventListeners() {
                       setTimeout(() => {
                          els.updateSpinner.style.display = 'none'; 
                          els.updateMessageText.textContent = t.msg_update_latest || "ご利用のソフトウェアは最新です";
-                         els.btnUpdateRecheck.style.display = 'flex'; // 完了したので再確認ボタンを戻す
+                         els.btnUpdateRecheck.style.display = 'flex'; 
                          
                          window.open(currentUpdateUrl, '_blank'); 
 
-                         // ★ 裏画面（Heroエリア）のメインボタンを即座に「最新版」に変更
                          if (els.heroActionBtn) {
-                             const btnIcon = 'check'; // チェックマーク
+                             const btnIcon = 'check'; 
                              const doneText = (CURRENT_LANG === 'ja') ? '最新版' : 'Up to Date';
                              els.heroActionBtn.innerHTML = `<span>${doneText}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="${btnIcon}" aria-hidden="true" size="20" class="lucide lucide-${btnIcon}"></svg>`;
                              els.heroActionBtn.classList.add('is-download');
@@ -2393,7 +2388,6 @@ function setupEventListeners() {
       }, 2500);
   };
 
-  // メニューから「アップデート確認」を押したとき
   if (els.btnUpdateCheck) {
       els.btnUpdateCheck.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -2403,20 +2397,18 @@ function setupEventListeners() {
       });
   }
 
-  // 「再確認」ボタンを押したとき
   if (els.btnUpdateRecheck) {
       els.btnUpdateRecheck.addEventListener('click', () => {
           performUpdateCheck();
       });
   }
 
-  // 閉じるボタンの処理
   [els.closeUpdateModalBtn, els.btnUpdateCancel].forEach(btn => {
       if(btn) btn.addEventListener('click', () => {
           if(els.updateModal) els.updateModal.classList.remove('active');
       });
+  });
 
-  // ★ 復活: メニューから「ライセンス情報」を押したとき
   if (els.btnShowLicense) {
       els.btnShowLicense.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -2429,7 +2421,6 @@ function setupEventListeners() {
       });
   }
 
-  // ★ 復活: ライセンスモーダルを閉じる処理
   if (els.closeLicenseModalBtn) {
       els.closeLicenseModalBtn.addEventListener('click', () => els.licenseModal.classList.remove('active'));
   }
@@ -2438,7 +2429,6 @@ function setupEventListeners() {
   const closeAccountModalBtn = document.getElementById('closeAccountModalBtn');
   const btnSubmitAccPassChange = document.getElementById('btnSubmitAccPassChange');
 
-  // 1. パスワード変更モーダルの開く処理（btnMenuAccount から変更）
   if (els.btnMenuPassword) {
       els.btnMenuPassword.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -2452,7 +2442,6 @@ function setupEventListeners() {
       });
   }
 
-  // 2. パスワード変更モーダルの閉じる処理（※元のコードをそのまま残す）
   if (closeAccountModalBtn) {
       closeAccountModalBtn.addEventListener('click', () => accountModal.classList.remove('active'));
   }
@@ -2462,12 +2451,11 @@ function setupEventListeners() {
       });
   }
 
-  // 3. 【新規追加】利用履歴モーダルの開閉処理
   if (els.btnMenuHistory) {
       els.btnMenuHistory.addEventListener('click', (e) => {
           e.stopPropagation();
           toggleDropdown(false);
-          renderHistoryModal(); // モーダルを開く前に履歴を生成
+          renderHistoryModal(); 
           els.historyModal.classList.add('active');
       });
   }
@@ -2554,7 +2542,7 @@ function setupEventListeners() {
         if (selectedHeroItem.releaseDateIso) {
             const releaseDate = new Date(selectedHeroItem.releaseDateIso);
             if (releaseDate > new Date()) {
-                showLockedError(); // ★修正：エラー3001を表示させる
+                showLockedError(); 
                 return; 
             }
         }
@@ -2564,11 +2552,10 @@ function setupEventListeners() {
         try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
 
         if (isMulti) {
-            openManageModal(selectedHeroItem); // 複数なら独立モーダルを開く
+            openManageModal(selectedHeroItem); 
         } else if (targetUrl) {
-            window.open(targetUrl, '_blank'); // 単体ならそのまま開く
+            window.open(targetUrl, '_blank'); 
         } else {
-            // 複数コンテンツ(JSON)なら詳細モーダルを開く
             showMobileItemDetail(selectedHeroItem, false);
         }
      } else {
