@@ -460,8 +460,7 @@ export default async function handler(req, res) {
           message: content[`メッセージ(${suffix})`] || content["メッセージ(jp)"], 
           extraInfo: content[`詳細(${suffix})`] || content["詳細(jp)"],
           imageUrl: content.Imag_Url, url: content.Action_url, releaseDateIso: content["解禁時間"], expireDateIso: content["有効時間"], icon: content.アイコン || 'download',
-          groupId: content["重複"], buttonLabel: content[`ボタン(${suffix})`] || content["ボタン(jp)"], price: content["価格"] || 0, isOwned: isOwned,
-          license: content["License"], updateUrl: content["Update_URL"]
+          groupId: content["重複"], buttonLabel: content[`ボタン(${suffix})`] || content["ボタン(jp)"], price: content["価格"] || 0, isOwned: isOwned
         };
       });
       return res.status(200).json({ success: true, items });
@@ -513,7 +512,7 @@ export default async function handler(req, res) {
           message: c[`メッセージ(${suffix})`] || c["メッセージ(jp)"], url: c.Action_url, imageUrl: c.Imag_Url,
           icon: c.アイコン || 'download', releaseDateIso: c["解禁時間"], expireDateIso: c["有効時間"], extraInfo: c[`詳細(${suffix})`] || c["詳細(jp)"],
           groupId: c["重複"], buttonLabel: c[`ボタン(${suffix})`] || c["ボタン(jp)"],
-          price: c["価格"] || 0, license: c["License"], updateUrl: c["Update_URL"]
+          price: c["価格"] || 0
         };
       }).filter(Boolean);
       return res.status(200).json({ success: true, points: user?.points || 0, history: historyData });
@@ -606,10 +605,10 @@ export default async function handler(req, res) {
       const suffix = lMap[lang] || 'jp';
 
       const txt = {
-      btnLabel: content[`ボタン(${suffix})`] || content["ボタン(jp)"], bundle: content[`バンドル(${suffix})`] || content["バンドル(jp)"],
-      message: content[`メッセージ(${suffix})`] || content["メッセージ(jp)"], title: content[`タイトル(${suffix})`] || content["タイトル(jp)"],
-     desc: content[`詳細(${suffix})`] || content["詳細(jp)"], license: content["License"], updateUrl: content["Update_URL"]
-    };
+        btnLabel: content[`ボタン(${suffix})`] || content["ボタン(jp)"], bundle: content[`バンドル(${suffix})`] || content["バンドル(jp)"],
+        message: content[`メッセージ(${suffix})`] || content["メッセージ(jp)"], title: content[`タイトル(${suffix})`] || content["タイトル(jp)"],
+        desc: content[`詳細(${suffix})`] || content["詳細(jp)"]
+      };
 
       if (mode === 'check') {
         return res.status(200).json({
