@@ -1763,7 +1763,7 @@ const TRANSLATIONS={
   success_msg_box: "コードが正常に認証されました。\n左ライブラリメニューからコンテンツを選択してダウンロードしてください。",
   error_title_prefix: "エラー",
   error_used_msg: "コードが使用済みです",
-  error_locked_msg: "このコンテンツは解禁していません。",
+  error_locked_msg: "このコンテンツは解禁していません。", error_expired_msg: "このコンテンツの有効期限は切れています。",
   error_owned_msg: "既に所有しているようです。",
   error_owned_sub: "左ライブラリメニューからコンテンツを選択してダウンロードしてください。",
   btn_close:"閉じる",btn_continue:"認証する",btn_download:"ダウンロード", btn_buy:"購入する", 
@@ -1811,7 +1811,7 @@ const TRANSLATIONS={
   success_msg_box: "Redeem Code successfully verified.\nPlease select the content from the left library menu to download.",
   error_title_prefix: "Error",
   error_used_msg: "This code has already been used.",
-  error_locked_msg: "This content is not yet unlocked.",
+  error_locked_msg: "This content is not yet unlocked.", error_expired_msg: "The expiration date for this content has passed.",
   error_owned_msg: "You already own it.",
   error_owned_sub: "Please select the content from the left library menu to download.",
   btn_close:"Close",btn_continue:"Redeem",btn_download:"Download", btn_buy:"Buy",
@@ -1859,7 +1859,7 @@ const TRANSLATIONS={
   success_msg_box: "代码已成功兑换。\n请从左侧库菜单中选择要下载的内容。",
   error_title_prefix: "错误",
   error_used_msg: "该代码已被使用。",
-  error_locked_msg: "此内容尚未解锁。",
+  error_locked_msg: "此内容尚未解锁。", error_expired_msg: "此内容的有效期已过。",
   error_owned_msg: "您已经有了。",
   error_owned_sub: "请从左侧库菜单中选择要下载的内容。",
   btn_close:"关闭",btn_continue:"兑換",btn_download:"下载", btn_buy:"购买", 
@@ -1907,7 +1907,7 @@ const TRANSLATIONS={
   success_msg_box: "代碼已成功兌換。\n請從左側庫菜單中選擇要下載的內容。",
   error_title_prefix: "錯誤",
   error_used_msg: "該代碼已被使用。",
-  error_locked_msg: "此內容尚未解鎖。",
+  error_locked_msg: "此內容尚未解鎖。", error_expired_msg: "此內容的有效期限已過。",
   error_owned_msg: "你已經擁有了。",
   error_owned_sub: "請從左側庫菜單中選擇要下載的內容。",
   btn_close:"關閉",btn_continue:"兌換",btn_download:"下載", btn_buy:"購買", 
@@ -1955,7 +1955,7 @@ const TRANSLATIONS={
   success_msg_box: "코드가 성공적으로 인증되었습니다.\n왼쪽 라이브러리 메뉴에서 다운로드할 콘텐츠를 선택하세요.",
   error_title_prefix: "오류",
   error_used_msg: "이미 사용된 코드입니다.",
-  error_locked_msg: "이 콘텐츠는 아직 해제되지 않았습니다.",
+  error_locked_msg: "이 콘텐츠는 아직 해제되지 않았습니다.", error_expired_msg: "이 콘텐츠의 유효 기간이 만료되었습니다.",
   error_owned_msg: "이미 가지고 있습니다.",
   error_owned_sub: "왼쪽 라이브러리 메뉴에서 다운로드할 콘텐츠를 선택하세요.",
   btn_close:"닫기",btn_continue:"사용",btn_download:"다운로드", btn_buy:"구매", 
@@ -2003,7 +2003,7 @@ const TRANSLATIONS={
   success_msg_box: "Код успешно проверен.\nПожалуйста, выберите контент из левого меню библиотеки для загрузки.",
   error_title_prefix: "Ошибка",
   error_used_msg: "Этот код уже был использован.",
-  error_locked_msg: "Этот контент еще не разблокирован.",
+  error_locked_msg: "Этот контент еще не разблокирован.", error_expired_msg: "Срок действия этого контента истек.",
   error_owned_msg: "Оно у вас уже есть.",
   error_owned_sub: "Пожалуйста, выберите контент из левого меню библиотеки для загрузки.",
   btn_close:"Закрыть",btn_continue:"Погасить",btn_download:"Скачать", btn_buy:"Купить", 
@@ -2361,6 +2361,35 @@ function showLockedError() {
     els.errorCodeText.textContent = "3001";
     els.errorTime.textContent = getFormattedCurrentTime(CURRENT_LANG);
     els.errorMessage.textContent = t.error_locked_msg || "このコンテンツは解禁していません。";
+    
+    els.errorSubMessage.innerHTML = "";
+    els.errorInfoBox.style.display = 'none';
+    
+    els.btnErrorClose.style.flex = "none";
+    els.btnErrorClose.style.width = "100%";
+    
+    els.phaseInput.style.display = 'none';
+    els.phasePreview.style.display = 'none';
+    els.phaseSuccess.style.display = 'none';
+
+    els.authModal.classList.add('active');
+    els.modalCon.classList.add('is-wide');
+    
+    els.phaseError.style.opacity = '0';
+    els.phaseError.style.display = 'flex';
+    setTimeout(() => els.phaseError.style.opacity = '1', 50);
+    
+    try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+}
+function showExpiredError() {
+    const t = TRANSLATIONS[CURRENT_LANG];
+    currentAuthRequestId++; // 他のモーダルアニメーションをキャンセル
+
+    // ★ 期限切れ専用のエラーコードを「3002」と定義
+    els.errorCodeText.textContent = "3002"; 
+    els.errorTime.textContent = getFormattedCurrentTime(CURRENT_LANG);
+    // 先ほど追加した辞書のテキストを呼び出す
+    els.errorMessage.textContent = t.error_expired_msg || "このコンテンツの有効期限は切れています。";
     
     els.errorSubMessage.innerHTML = "";
     els.errorInfoBox.style.display = 'none';
@@ -2847,7 +2876,7 @@ function openManageModal(item) {
                 tData.btn.style.cursor = 'not-allowed';
                 // バツ印アイコン + 期限切れテキスト
                 tData.btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> ${expiredLabel}`;
-                tData.btn.onclick = (e) => { e.preventDefault(); };
+                tData.btn.onclick = (e) => { e.preventDefault(); e.stopPropagation(); showExpiredError(); };
             
             // まだ期限内、かつ「解禁日(releaseDate)」が設定されている場合
             } else if (tData.releaseDate) {
@@ -2977,7 +3006,7 @@ function showMobileItemDetail(item, isNewRedeem = false) {
             els.btnSuccessDownload.style.pointerEvents = 'none';
             els.btnSuccessDownload.style.opacity = '0.6';
             els.btnSuccessDownload.removeAttribute('href'); 
-            els.btnSuccessDownload.onclick = (e) => { e.preventDefault(); };
+            els.btnSuccessDownload.onclick = (e) => { e.preventDefault(); e.stopPropagation(); showExpiredError(); };
 
             if (diff > oneDay) {
                const y = releaseDate.getFullYear();
@@ -3647,7 +3676,7 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                 dlBtn.style.opacity = '0.5';
                 dlBtn.style.cursor = 'not-allowed';
                 dlBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> ${expiredLabel}`;
-                dlBtn.onclick = (e) => { e.stopPropagation(); e.preventDefault(); };
+                dlBtn.onclick = (e) => { e.stopPropagation(); e.preventDefault(); showExpiredError(); };
             }
             else if (isLocked) {
                 // 解禁前のスタイル
