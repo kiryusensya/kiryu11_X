@@ -3292,7 +3292,6 @@ async function performAuth(code, mode = 'check') {
        
        const lowMsg = serverMessage.toLowerCase();
        let specificErrorCode = generateErrorCode();
-       let specificErrorCode = generateErrorCode();
         if (lowMsg.includes("invalid") || lowMsg.includes("not found")) {
             specificErrorCode = "1012";
         } else if (lowMsg.includes("already owned") || lowMsg.includes("owned")) {
