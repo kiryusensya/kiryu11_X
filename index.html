@@ -2798,14 +2798,14 @@ function openManageModal(item) {
         actionBtn.className = 'btn-download-small';
 
         const subReleaseDate = sub.releaseDateIso ? new Date(sub.releaseDateIso) : null;
-        const subExpireDate = sub.expireDateIso ? new Date(sub.expireDateIso) : null; // ★追加：個別の有効期限
+        const subExpireDate = sub.expireDateIso ? new Date(sub.expireDateIso) : null;
 
         // 解禁日または有効期限のどちらかが設定されていれば監視対象に入れる
         if (subReleaseDate || subExpireDate) {
             timers.push({ 
                 btn: actionBtn, 
                 releaseDate: subReleaseDate, 
-                expireDate: subExpireDate, // ★追加
+                expireDate: subExpireDate,
                 url: sub.url, 
                 label: btnLabel 
             });
@@ -2835,16 +2835,24 @@ function openManageModal(item) {
             return;
         }
 
+        // ★ここで「1つでも期限切れがあるか」をチェック（バグ修正箇所）
+        let isAnyExpired = false;
         timers.forEach(tData => {
-            // ★追加: 個別コンテンツの有効期限が切れたらモーダルを閉じてリフレッシュ
             if (tData.expireDate && now >= tData.expireDate) {
-                if (window.manageModalTimer) clearInterval(window.manageModalTimer);
-                els.manageModal.classList.remove('active');
-                updateAccountUI();
-                fetchAvailableContent();
-                return;
+                isAnyExpired = true;
             }
+        });
 
+        // ★期限切れがあったら、ここでループを抜け出して画面をリフレッシュする！
+        if (isAnyExpired) {
+            if (window.manageModalTimer) clearInterval(window.manageModalTimer);
+            els.manageModal.classList.remove('active');
+            updateAccountUI();
+            fetchAvailableContent();
+            return; 
+        }
+
+        timers.forEach(tData => {
             // 解禁前 / 解禁後のチェック（releaseDateが設定されている場合のみ）
             if (tData.releaseDate) {
                 const diff = tData.releaseDate - now;
@@ -2886,13 +2894,13 @@ function openManageModal(item) {
                 }
             }
         });
-      };
-
-    updateManageTimers(); 
-    window.manageModalTimer = setInterval(updateManageTimers, 1000);
+    };
 
     if(els.authModal) els.authModal.classList.remove('active');
     els.manageModal.classList.add('active');
+
+    updateManageTimers(); 
+    window.manageModalTimer = setInterval(updateManageTimers, 1000);
 }
 function showMobileItemDetail(item, isNewRedeem = false) {
     if(modalDownloadTimer) clearInterval(modalDownloadTimer); 
