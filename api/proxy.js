@@ -599,6 +599,7 @@ export default async function handler(req, res) {
         }
 
         return res.status(200).json({ success: true, embedUrl: embedUrl });
+    }
 
     // ==========================================
     // 一般ユーザー用機能
