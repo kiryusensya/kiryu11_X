@@ -577,18 +577,28 @@ export default async function handler(req, res) {
         // 4. URLを返す
         const targetUrl = content.Action_url;
         
+        // ★修正: URLが設定されていない場合は安全にエラーメッセージを返す
+        if (!targetUrl) {
+            return res.status(400).json({ success: false, message: "動画のURLが設定されていません。" });
+        }
+
         // YouTubeのURLであれば、埋め込み用(embed)URLに変換して返す
         let embedUrl = targetUrl;
-        if (targetUrl.includes('youtube.com/watch?v=')) {
-            const videoId = new URL(targetUrl).searchParams.get('v');
-            embedUrl = `https://www.youtube.com/embed/${videoId}?rel=0`;
-        } else if (targetUrl.includes('youtu.be/')) {
-            const videoId = targetUrl.split('youtu.be/')[1].split('?')[0];
-            embedUrl = `https://www.youtube.com/embed/${videoId}?rel=0`;
+        try {
+            // ★修正: 予期せぬURLフォーマットでプログラムが死なないように保護
+            const urlStr = String(targetUrl);
+            if (urlStr.includes('youtube.com/watch')) {
+                const videoId = new URL(urlStr).searchParams.get('v');
+                if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}?rel=0`;
+            } else if (urlStr.includes('youtu.be/')) {
+                const videoId = urlStr.split('youtu.be/')[1].split('?')[0];
+                if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}?rel=0`;
+            }
+        } catch (e) {
+            console.error("動画URLの解析エラー:", e);
         }
 
         return res.status(200).json({ success: true, embedUrl: embedUrl });
-    }
 
     // ==========================================
     // 一般ユーザー用機能
