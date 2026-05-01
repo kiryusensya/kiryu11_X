@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kiryu10 // Video Player</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0; padding: 0; background-color: #000; color: #fff;
+            font-family: 'Noto Sans JP', sans-serif;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;
+        }
+        #statusMessage { font-size: 18px; font-weight: bold; margin-bottom: 20px; }
+        .video-container {
+            width: 100%; max-width: 1000px; aspect-ratio: 16 / 9;
+            background: #111; border-radius: 12px; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: none;
+        }
+        iframe { width: 100%; height: 100%; border: none; }
+        .btn-back {
+            margin-top: 30px; padding: 10px 30px; background: #333; color: #fff;
+            border: 1px solid #555; border-radius: 50px; text-decoration: none; font-weight: bold; transition: 0.2s;
+        }
+        .btn-back:hover { background: #555; }
+        .spinner {
+            width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.2);
+            border-top: 4px solid #007DFF; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div id="loadingBox" style="text-align: center;">
+        <div class="spinner"></div>
+        <div id="statusMessage">認証中...</div>
+    </div>
+
+    <div class="video-container" id="videoContainer">
+        <iframe id="youtubePlayer" src="" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+    </div>
+
+    <a href="#" onclick="window.close()" class="btn-back">閉じる</a>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const token = localStorage.getItem('user_session_token') || "";
+
+            const statusMsg = document.getElementById('statusMessage');
+            const loadingBox = document.getElementById('loadingBox');
+            const videoContainer = document.getElementById('videoContainer');
+            const youtubePlayer = document.getElementById('youtubePlayer');
+
+            if (!code || !token) {
+                statusMsg.textContent = "認証エラー: 不正なアクセスです。";
+                statusMsg.style.color = "#FF3B30";
+                document.querySelector('.spinner').style.display = 'none';
+                return;
+            }
+
+            try {
+                // api/proxy.js に動画URLを問い合わせる
+                const response = await fetch('api/proxy', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ type: 'get_video_url', code: code })
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.embedUrl) {
+                    // 認証成功：プレイヤーを表示
+                    loadingBox.style.display = 'none';
+                    videoContainer.style.display = 'block';
+                    youtubePlayer.src = data.embedUrl;
+                } else {
+                    // 認証失敗（期限切れ・未所有など）
+                    statusMsg.textContent = data.message || "動画の読み込みに失敗しました。";
+                    statusMsg.style.color = "#FF3B30";
+                    document.querySelector('.spinner').style.display = 'none';
+                }
+            } catch (error) {
+                statusMsg.textContent = "通信エラーが発生しました。";
+                statusMsg.style.color = "#FF3B30";
+                document.querySelector('.spinner').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
