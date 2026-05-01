@@ -525,6 +525,59 @@ export default async function handler(req, res) {
             return res.status(200).json({ success: true, message: "OK" });
         }
     }
+    // ==========================================
+    // ▼ 動画視聴用の一時URL取得処理 ▼
+    // ==========================================
+    if (type === 'get_video_url') {
+        const { code } = params; // コンテンツID
+        
+        // 1. ログイン確認
+        if (!authUserId) {
+            return res.status(401).json({ success: false, message: "Unauthorized" });
+        }
+
+        // 2. 所有権確認
+        const { data: userHistories } = await supabase
+            .from('histories')
+            .select('id, codes(content_id, contents(Action_url, "有効時間", "解禁時間"))')
+            .eq('user_id', authUserId);
+
+        if (!userHistories || userHistories.length === 0) {
+            return res.status(403).json({ success: false, message: "Forbidden: 履歴が存在しません。" });
+        }
+
+        const matchedHistory = userHistories.find(h => h.codes && String(h.codes.content_id) === String(code));
+
+        if (!matchedHistory || !matchedHistory.codes || !matchedHistory.codes.contents) {
+            return res.status(403).json({ success: false, message: "Forbidden: このコンテンツを所有していません。" });
+        }
+
+        const content = matchedHistory.codes.contents;
+        const now = new Date();
+
+        // 3. 有効期限と解禁日のチェック
+        if (content["有効時間"] && now > new Date(content["有効時間"])) {
+            return res.status(403).json({ success: false, message: "Forbidden: 有効期限が切れています。" });
+        }
+        if (content["解禁時間"] && now < new Date(content["解禁時間"])) {
+             return res.status(403).json({ success: false, message: "Forbidden: まだ解禁されていません。" });
+        }
+
+        // 4. URLを返す
+        const targetUrl = content.Action_url;
+        
+        // YouTubeのURLであれば、埋め込み用(embed)URLに変換して返す
+        let embedUrl = targetUrl;
+        if (targetUrl.includes('youtube.com/watch?v=')) {
+            const videoId = new URL(targetUrl).searchParams.get('v');
+            embedUrl = `https://www.youtube.com/embed/${videoId}?rel=0`;
+        } else if (targetUrl.includes('youtu.be/')) {
+            const videoId = targetUrl.split('youtu.be/')[1].split('?')[0];
+            embedUrl = `https://www.youtube.com/embed/${videoId}?rel=0`;
+        }
+
+        return res.status(200).json({ success: true, embedUrl: embedUrl });
+    }
 
     // ==========================================
     // 一般ユーザー用機能
