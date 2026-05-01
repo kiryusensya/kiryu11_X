@@ -8,6 +8,13 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
+        @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+        @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Medium.woff') format('woff'); font-weight: 500; font-style: normal; }
+        @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+        @font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+        @font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+        @font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+        @font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
         :root {
             --primary: #007DFF;
             --bg-color: #F1F3F5;
@@ -17,6 +24,12 @@
             --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
             --spring-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
         }
+        :root:lang(ja) { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
+        :root:lang(en) { --font-stack: 'HarmonyOS Sans', sans-serif; }
+        :root:lang(zh) { --font-stack: 'HarmonyOS Sans SC', 'Microsoft YaHei', sans-serif; }
+        :root:lang(zh-TW) { --font-stack: 'HarmonyOS Sans TC', 'Microsoft JhengHei', sans-serif; }
+        :root:lang(ko) { --font-stack: 'HarmonyOS Sans', 'Noto Sans KR', sans-serif; }
+        :root:lang(ru) { --font-stack: 'HarmonyOS Sans', sans-serif; }
         [data-theme="dark"] {
             --bg-color: #121212;
             --card-bg: rgba(40, 40, 40, 0.5);
@@ -158,12 +171,11 @@
                 err_session_sub: "安全のため自動的にログアウトしました。再度ログインしてください。",
                 err_load_failed: "動画の読み込みに失敗しました",
                 err_network: "通信エラーが発生しました",
-                // ▼ 追加 ▼
                 err_no_history: "履歴が存在しません。",
                 err_not_owned: "このコンテンツを所有していません。",
                 err_expired: "有効期限が切れています。",
                 err_not_released: "まだ解禁されていません。",
-                err_no_url: "動画のURLが設定されていません。"
+                err_no_url: "動画のURLが設定されていません。", err_support_sub: "詳細を確認するにはサポートページを参照してください。"
             },
             en: {
                 loading: "Establishing secure connection...",
@@ -184,9 +196,9 @@
                 err_not_owned: "You do not own this content.",
                 err_expired: "The content has expired.",
                 err_not_released: "The content is not yet released.",
-                err_no_url: "Video URL is not set."
+                err_no_url: "Video URL is not set.", err_support_sub: "Please refer to the support page for more details."
             },
-            "zh-CN": {
+            "zh": {
                 loading: "正在建立安全连接...",
                 btn_close: "关闭",
                 btn_home: "返回首页",
@@ -205,7 +217,7 @@
                 err_not_owned: "您不拥有此内容。",
                 err_expired: "内容已过期。",
                 err_not_released: "内容尚未解锁。",
-                err_no_url: "未设置视频URL。"
+                err_no_url: "未设置视频URL。", err_support_sub: "有关详细信息，请参阅支持页面。"
             },
             "zh-TW": {
                 loading: "正在建立安全連線...",
@@ -226,7 +238,7 @@
                 err_not_owned: "您不擁有此內容。",
                 err_expired: "內容已過期。",
                 err_not_released: "內容尚未解鎖。",
-                err_no_url: "未設定影片URL。"
+                err_no_url: "未設定影片URL。", err_support_sub: "有關詳細資訊，請參閱支援頁面。"
             },
             ko: {
                 loading: "안전한 연결을 설정하는 중...",
@@ -247,7 +259,7 @@
                 err_not_owned: "이 콘텐츠를 소유하고 있지 않습니다.",
                 err_expired: "콘텐츠가 만료되었습니다.",
                 err_not_released: "아직 해제되지 않았습니다.",
-                err_no_url: "동영상 URL이 설정되지 않았습니다."
+                err_no_url: "동영상 URL이 설정되지 않았습니다.", err_support_sub: "자세한 내용은 지원 페이지를 참조해 주십시오."
             },
             ru: {
                 loading: "Установка безопасного соединения...",
@@ -268,7 +280,7 @@
                 err_not_owned: "Вы не владеете этим контентом.",
                 err_expired: "Срок действия контента истек.",
                 err_not_released: "Контент еще не выпущен.",
-                err_no_url: "URL-адрес видео не установлен."
+                err_no_url: "URL-адрес видео не установлен.", err_support_sub: "Пожалуйста, обратитесь к странице поддержки для получения подробной информации."
             }
         };
         // Utility: Get Formatted Time
