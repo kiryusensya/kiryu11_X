@@ -11,7 +11,7 @@
             font-family: 'Noto Sans JP', sans-serif;
             display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;
         }
-        #statusMessage { font-size: 18px; font-weight: bold; margin-bottom: 20px; }
+        #statusMessage { font-size: 18px; font-weight: bold; margin-bottom: 20px; text-align: center; }
         .video-container {
             width: 100%; max-width: 1000px; aspect-ratio: 16 / 9;
             background: #111; border-radius: 12px; overflow: hidden;
@@ -34,28 +34,100 @@
 
     <div id="loadingBox" style="text-align: center;">
         <div class="spinner"></div>
-        <div id="statusMessage">認証中...</div>
+        <div id="statusMessage" data-translate="loading">認証中...</div>
     </div>
 
     <div class="video-container" id="videoContainer">
         <iframe id="youtubePlayer" src="" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
     </div>
 
-    <a href="index.html" class="btn-back">閉じる</a>
+    <a href="index.html" class="btn-back" data-translate="btn_close">閉じる</a>
 
     <script>
+        // 1. 多言語辞書の定義
+        const TRANSLATIONS = {
+            ja: {
+                loading: "認証中...",
+                btn_close: "閉じる",
+                err_login_required: "このコンテンツを視聴するにはログインが必要です。",
+                err_invalid_access: "認証エラー: 不正なアクセスです。",
+                err_session_expired: "セッションが切れました。再度ログインしてください。",
+                err_load_failed: "動画の読み込みに失敗しました。",
+                err_network: "通信エラーが発生しました。",
+                btn_home: "ホームに戻る"
+            },
+            en: {
+                loading: "Authenticating...",
+                btn_close: "Close",
+                err_login_required: "You must be logged in to view this content.",
+                err_invalid_access: "Auth Error: Invalid access.",
+                err_session_expired: "Session expired. Please log in again.",
+                err_load_failed: "Failed to load video.",
+                err_network: "A network error occurred.",
+                btn_home: "Return to Home"
+            },
+            zh: {
+                loading: "正在验证...",
+                btn_close: "关闭",
+                err_login_required: "您必须登录才能观看此内容。",
+                err_invalid_access: "验证错误：无效访问。",
+                err_session_expired: "会话已过期，请重新登录。",
+                err_load_failed: "视频加载失败。",
+                err_network: "发生网络错误。",
+                btn_home: "返回首页"
+            },
+            "zh-TW": {
+                loading: "正在驗證...",
+                btn_close: "關閉",
+                err_login_required: "您必須登入才能觀看此內容。",
+                err_invalid_access: "驗證錯誤：無效存取。",
+                err_session_expired: "工作階段已過期，請重新登入。",
+                err_load_failed: "影片載入失敗。",
+                err_network: "發生網路錯誤。",
+                btn_home: "返回首頁"
+            },
+            ko: {
+                loading: "인증 중...",
+                btn_close: "닫기",
+                err_login_required: "이 콘텐츠를 시청하려면 로그인해야 합니다.",
+                err_invalid_access: "인증 오류: 잘못된 접근입니다.",
+                err_session_expired: "세션이 만료되었습니다. 다시 로그인해 주세요.",
+                err_load_failed: "동영상을 불러오는 데 실패했습니다.",
+                err_network: "네트워크 오류가 발생했습니다.",
+                btn_home: "홈으로 돌아가기"
+            },
+            ru: {
+                loading: "Аутентификация...",
+                btn_close: "Закрыть",
+                err_login_required: "Вы должны войти в систему для просмотра этого контента.",
+                err_invalid_access: "Ошибка аутентификации: Недействительный доступ.",
+                err_session_expired: "Время сеанса истекло. Пожалуйста, войдите снова.",
+                err_load_failed: "Не удалось загрузить видео.",
+                err_network: "Произошла ошибка сети.",
+                btn_home: "На главную"
+            }
+        };
+
         document.addEventListener('DOMContentLoaded', async () => {
+            // 2. 言語設定の読み込みと適用
+            const userLang = localStorage.getItem('user_lang') || 'ja';
+            const t = TRANSLATIONS[userLang] || TRANSLATIONS.ja;
+            document.documentElement.lang = userLang;
+
+            document.querySelectorAll('[data-translate]').forEach(el => {
+                const key = el.getAttribute('data-translate');
+                if (t[key]) el.textContent = t[key];
+            });
+
+            // 3. 動画認証処理
             const urlParams = new URLSearchParams(window.location.search);
             const code = urlParams.get('code');
             const target = urlParams.get('target') || "";
-            
-            // 1. ローカルストレージからログインの証（トークン）を取得
             const token = localStorage.getItem('user_session_token');
 
-            // ★ 追加：ログインしていなければ強制的にログイン画面へ追い出す
             if (!token) {
-                alert("このコンテンツを視聴するにはログインが必要です。");
-                window.location.href = 'Access.html'; // ※ログイン画面のURLに合わせてください
+                alert(t.err_login_required);
+                window.location.href = 'Access.html';
                 return;
             }
 
@@ -65,14 +137,13 @@
             const youtubePlayer = document.getElementById('youtubePlayer');
 
             if (!code) {
-                statusMsg.textContent = "認証エラー: 不正なアクセスです。";
+                statusMsg.textContent = t.err_invalid_access;
                 statusMsg.style.color = "#FF3B30";
                 document.querySelector('.spinner').style.display = 'none';
                 return;
             }
 
             try {
-                // 2. api/proxy.js に動画URLを問い合わせる（ここで所有権も裏でチェックされます）
                 const response = await fetch('api/proxy', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -82,28 +153,26 @@
                 const data = await response.json();
 
                 if (data.success && data.embedUrl) {
-                    // 認証成功：プレイヤーを表示
                     loadingBox.style.display = 'none';
                     videoContainer.style.display = 'block';
                     youtubePlayer.src = data.embedUrl;
                 } else {
-                    // ★ 認証失敗（期限切れ・未所有・セッション切れなど）の処理
                     document.querySelector('.spinner').style.display = 'none';
                     statusMsg.style.color = "#FF3B30";
                     
                     if (data.message && data.message.includes("Unauthorized")) {
-                        // トークンが古いなどの場合はログアウトさせて追い出す
                         localStorage.removeItem('user_session_token');
                         localStorage.removeItem('user_session_identity');
-                        alert("セッションが切れました。再度ログインしてください。");
+                        alert(t.err_session_expired);
                         window.location.href = 'Access.html';
                     } else {
-                        // 所有していない、期限切れなどの場合
-                        statusMsg.innerHTML = `${data.message || "動画の読み込みに失敗しました。"}<br><br><a href="index.html" style="color:#007DFF; font-size: 16px;">ホームに戻る</a>`;
+                        // APIからのエラーメッセージはそのまま表示するか、汎用エラーを使用
+                        const apiMsg = data.message ? data.message.replace('Forbidden: ', '') : t.err_load_failed;
+                        statusMsg.innerHTML = `${apiMsg}<br><br><a href="index.html" style="color:#007DFF; font-size: 16px;">${t.btn_home}</a>`;
                     }
                 }
             } catch (error) {
-                statusMsg.textContent = "通信エラーが発生しました。";
+                statusMsg.textContent = t.err_network;
                 statusMsg.style.color = "#FF3B30";
                 document.querySelector('.spinner').style.display = 'none';
             }
