@@ -399,10 +399,12 @@
                             specificCode = "5005"; // URL未設定
                         }
                         
-                        showError(specificCode, displayMsg, "詳細を確認するにはサポートページを参照してください。");
+                        // ★ ここを修正： t.err_support_sub を使う
+                        showError(specificCode, displayMsg, t.err_support_sub);
                     }
                 }
             } catch (error) {
+                // ついでにここ（通信エラー時）も多言語対応させたい場合は、辞書に追加して差し替えることができます。
                 showError("5000", t.err_network, "インターネット接続を確認して再度お試しください。");
             }
         });
