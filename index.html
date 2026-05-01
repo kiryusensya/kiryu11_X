@@ -2862,11 +2862,16 @@ function openManageModal(item) {
             // 時間の縛りが一切ない（最初からずっとダウンロード可能）場合
             actionBtn.innerHTML = btnLabel;
             actionBtn.onclick = () => {
-                const token = localStorage.getItem('user_session_token') || "";
-                // 複数のURLがまとまっている場合、インデックス等で識別する必要があります。
-                // ここでは暫定的に「親のコード」と「URLそのもの（エンコードして）」を送る例とします。
-                const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(sub.url)}&token=${token}`;
-                window.open(dlUrl, '_blank');
+                const isYouTube = sub.url && (sub.url.includes('youtube.com') || sub.url.includes('youtu.be'));
+                if (isYouTube) {
+                    // YouTube等の動画リンクはプロキシを通さず直接開く（または自前のプレイヤー画面を開く）
+                    window.open(sub.url, '_blank');
+                } else {
+                    // 通常のファイルはAPIプロキシを経由して安全にダウンロード
+                    const token = localStorage.getItem('user_session_token') || "";
+                    const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(sub.url)}&token=${token}`;
+                    window.open(dlUrl, '_blank');
+                }
             };
         }
         row.appendChild(infoDiv);
@@ -2937,7 +2942,6 @@ function openManageModal(item) {
                         tData.btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> ${hh}:${mm}:${ss}`;
                     }
                 }
-            // 解禁日は設定されていないが、期限は監視されている場合（普通に押せる状態）
             } else {
                 tData.btn.style.background = '';
                 tData.btn.style.color = '';
@@ -2945,9 +2949,14 @@ function openManageModal(item) {
                 tData.btn.style.cursor = 'pointer';
                 tData.btn.innerHTML = tData.label; 
                 tData.btn.onclick = () => {
-                    const token = localStorage.getItem('user_session_token') || "";
-                    const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(tData.url)}&token=${token}`;
-                    window.open(dlUrl, '_blank');
+                    const isYouTube = tData.url && (tData.url.includes('youtube.com') || tData.url.includes('youtu.be'));
+                    if (isYouTube) {
+                        window.open(tData.url, '_blank');
+                    } else {
+                        const token = localStorage.getItem('user_session_token') || "";
+                        const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(tData.url)}&token=${token}`;
+                        window.open(dlUrl, '_blank');
+                    }
                 };
             }
         });
@@ -3057,12 +3066,20 @@ function showMobileItemDetail(item, isNewRedeem = false) {
                     openManageModal(item);
                 };
             } else {
-                // 単一の場合、直接URLを開くのではなく、APIを経由させる
-                const token = localStorage.getItem('user_session_token') || "";
-                // URLにトークンとアイテムコードを含めてAPIへアクセス
-                els.btnSuccessDownload.href = `/api/proxy?type=download&code=${item.code}&token=${token}`;
-                els.btnSuccessDownload.onclick = null; 
-                els.btnSuccessDownload.target = "_blank";
+                const isYouTube = targetUrl && (targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be'));
+                
+                if (isYouTube) {
+                    // YouTubeの場合はそのままリンクを設定する（ボタン名を「視聴する」等に変えてもOK）
+                    els.btnSuccessDownload.href = targetUrl;
+                    els.btnSuccessDownload.onclick = null;
+                    els.btnSuccessDownload.target = "_blank";
+                } else {
+                    // 単一ファイルの場合、APIを経由させる
+                    const token = localStorage.getItem('user_session_token') || "";
+                    els.btnSuccessDownload.href = `/api/proxy?type=download&code=${item.code}&token=${token}`;
+                    els.btnSuccessDownload.onclick = null; 
+                    els.btnSuccessDownload.target = "_blank";
+                }
             }
 
             const btnLabel = item.buttonLabel || t.btn_download || "ダウンロード";
