@@ -351,7 +351,7 @@
       slide_login: "スライドして進む", slide_force: "スライドして変更", slide_loading: "照合中",
       err_empty: "⚠個人識別識別子とパスワードを入力してください。", err_invalid: "⚠無効な個人識別識別子またはパスワードです。",
       err_net: "⚠通信エラーが発生しました。", err_input_all: "入力してください", err_len: "⚠パスワードは6文字以上にしてください",
-      err_match: "⚠パスワードが一致しません", msg_success: "入域許可! 移動中...", lang_label: "日本語"
+      err_match: "⚠パスワードが一致しません", msg_success: "入域許可! 移動中...", msg_auth_required: "⚠利用するには入域管理を通過する必要があります。", lang_label: "日本語"
     },
     en: {
       title_login: "Secure Access Control", ph_user: "Personal Identifier", ph_pass: "Password", link_support: "If not permitted",
@@ -360,7 +360,7 @@
       slide_login: "Slide to enter", slide_force: "Slide to update", slide_loading: "Matching",
       err_empty: "⚠Please enter your personal Identifier and password.", err_invalid: "⚠Invalid personal Identifier or password.",
       err_net: "⚠Network error occurred.", err_input_all: "⚠Please fill in all fields.", err_len: "⚠Password must be at least 6 characters.",
-      err_match: "⚠Passwords do not match.", msg_success: "Access granted! Loading...", lang_label: "English"
+      err_match: "⚠Passwords do not match.", msg_success: "Access granted! Loading...", msg_auth_required: "⚠You must pass access control to proceed.", lang_label: "English"
     },
     zh: {
       title_login: "安全入域管理系统", ph_user: "个人标识符", ph_pass: "密码", link_support: "如果未获许可",
@@ -369,7 +369,7 @@
       slide_login: "滑动以进入", slide_force: "滑动以修改", slide_loading: "正在核对中",
       err_empty: "⚠请输入个人标识符和密码。", err_invalid: "⚠个人标识符或密码无效。",
       err_net: "⚠发生网络错误。", err_input_all: "⚠请填写所有字段。", err_len: "⚠密码长度至少为6个字符。",
-      err_match: "⚠两次输入的新密码不一致。", msg_success: "准入许可！正在移动中...", lang_label: "简体中文"
+      err_match: "⚠两次输入的新密码不一致。", msg_success: "准入许可！正在移动中...", msg_auth_required: "⚠使用前必须通过入域管理。", lang_label: "简体中文"
     },
     "zh-TW": {
       title_login: "安全進出管理系統", ph_user: "個人識別碼", ph_pass: "密碼", link_support: "無法登入？",
@@ -378,7 +378,7 @@
       slide_login: "滑動以進入", slide_force: "滑動以修改", slide_loading: "正在比對中",
       err_empty: "⚠請輸入個人識別碼和密碼。", err_invalid: "⚠個人識別碼或密碼無效。",
       err_net: "⚠發生網路錯誤。", err_input_all: "⚠請填寫所有欄位。", err_len: "⚠密碼長度至少為6個字符。",
-      err_match: "⚠兩次輸入的新密碼不一致。", msg_success: "准予進出！正在移動中...", lang_label: "繁體中文"
+      err_match: "⚠兩次輸入的新密碼不一致。", msg_success: "准予進出！正在移動中...", msg_auth_required: "⚠使用前必須通過進出管理。", lang_label: "繁體中文"
     },
     ko: {
       title_login: "보안 출입 관리 시스템", ph_user: "개인 식별자", ph_pass: "비밀번호", link_support: "허용되지 않는 경우",
@@ -387,7 +387,7 @@
       slide_login: "슬라이드하여 진행", slide_force: "슬라이드하여 변경", slide_loading: "확인 중",
       err_empty: "⚠개인 식별자와 비밀번호를 입력해 주십시오.", err_invalid: "⚠개인 식별자 또는 비밀번호가 잘못되었습니다.",
       err_net: "⚠통신 오류가 발생했습니다.", err_input_all: "모든 항목을 입력해 주세요.", err_len: "⚠비밀번호는 6자 이상이어야 합니다.",
-      err_match: "⚠비밀번호가 일치하지 않습니다.", msg_success: "출입 허가! 이동 중...", lang_label: "한국어"
+      err_match: "⚠비밀번호가 일치하지 않습니다.", msg_success: "출입 허가! 이동 중...", msg_auth_required: "⚠이용하려면 출입 관리를 통과해야 합니다.", lang_label: "한국어"
     },
     ru: {
       title_login: "Система безопасного контроля доступа", ph_user: "Идентификатор пользователя", ph_pass: "Пароль", link_support: "Если доступ запрещен",
@@ -396,7 +396,7 @@
       slide_login: "Проведите для входа", slide_force: "Проведите для смены", slide_loading: "Аутентификация",
       err_empty: "⚠Введите идентификатор пользователя и пароль.", err_invalid: "⚠Неверный идентификатор пользователя или пароль.",
       err_net: "⚠Произошла ошибка сети.", err_input_all: "⚠Заполните все поля.", err_len: "⚠Пароль минимум 6 символов.",
-      err_match: "⚠Пароли не совпадают.", msg_success: "Доступ разрешен! Переход...", lang_label: "Русский"
+      err_match: "⚠Пароли не совпадают.", msg_success: "Доступ разрешен! Переход...", msg_auth_required: "⚠Для использования необходимо пройти контроль доступа.", lang_label: "Русский"
     }
   };
 
@@ -425,6 +425,15 @@
   document.addEventListener('click', (e) => { if (!langTrigger.contains(e.target)) langMenu.classList.remove('open'); });
 
   applyLanguage(CURRENT_LANG);
+  // ▼ 追加: 強制アクセス時の警告メッセージ表示 ▼
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('auth') === 'required') {
+      const t = TRANSLATIONS[CURRENT_LANG];
+      document.getElementById('authStatus').textContent = t.msg_auth_required;
+      
+      // URLバーから ?auth=required を消す（リロードしても消えたままにする）
+      window.history.replaceState(null, '', window.location.pathname);
+  }
 
   function initSlider(containerId, onComplete) {
       const container = document.getElementById(containerId);
