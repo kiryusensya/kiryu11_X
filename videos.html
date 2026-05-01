@@ -47,15 +47,24 @@
         document.addEventListener('DOMContentLoaded', async () => {
             const urlParams = new URLSearchParams(window.location.search);
             const code = urlParams.get('code');
-            const target = urlParams.get('target') || ""; // ← これを追加
-            const token = localStorage.getItem('user_session_token') || "";
+            const target = urlParams.get('target') || "";
+            
+            // 1. ローカルストレージからログインの証（トークン）を取得
+            const token = localStorage.getItem('user_session_token');
+
+            // ★ 追加：ログインしていなければ強制的にログイン画面へ追い出す
+            if (!token) {
+                alert("このコンテンツを視聴するにはログインが必要です。");
+                window.location.href = 'Access.html'; // ※ログイン画面のURLに合わせてください
+                return;
+            }
 
             const statusMsg = document.getElementById('statusMessage');
             const loadingBox = document.getElementById('loadingBox');
             const videoContainer = document.getElementById('videoContainer');
             const youtubePlayer = document.getElementById('youtubePlayer');
 
-            if (!code || !token) {
+            if (!code) {
                 statusMsg.textContent = "認証エラー: 不正なアクセスです。";
                 statusMsg.style.color = "#FF3B30";
                 document.querySelector('.spinner').style.display = 'none';
@@ -63,7 +72,7 @@
             }
 
             try {
-                // api/proxy.js に動画URLを問い合わせる
+                // 2. api/proxy.js に動画URLを問い合わせる（ここで所有権も裏でチェックされます）
                 const response = await fetch('api/proxy', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -78,10 +87,20 @@
                     videoContainer.style.display = 'block';
                     youtubePlayer.src = data.embedUrl;
                 } else {
-                    // 認証失敗（期限切れ・未所有など）
-                    statusMsg.textContent = data.message || "動画の読み込みに失敗しました。";
-                    statusMsg.style.color = "#FF3B30";
+                    // ★ 認証失敗（期限切れ・未所有・セッション切れなど）の処理
                     document.querySelector('.spinner').style.display = 'none';
+                    statusMsg.style.color = "#FF3B30";
+                    
+                    if (data.message && data.message.includes("Unauthorized")) {
+                        // トークンが古いなどの場合はログアウトさせて追い出す
+                        localStorage.removeItem('user_session_token');
+                        localStorage.removeItem('user_session_identity');
+                        alert("セッションが切れました。再度ログインしてください。");
+                        window.location.href = 'Access.html';
+                    } else {
+                        // 所有していない、期限切れなどの場合
+                        statusMsg.innerHTML = `${data.message || "動画の読み込みに失敗しました。"}<br><br><a href="index.html" style="color:#007DFF; font-size: 16px;">ホームに戻る</a>`;
+                    }
                 }
             } catch (error) {
                 statusMsg.textContent = "通信エラーが発生しました。";
