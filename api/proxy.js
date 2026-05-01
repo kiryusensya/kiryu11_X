@@ -73,6 +73,11 @@ export default async function handler(req, res) {
         token = authHeader.split(' ')[1];
     }
 
+    // ▼ 追加: URLパラメータからのトークン取得 (window.open等の新しいタブでのGETリクエスト用)
+    if (!token && params.token) {
+        token = params.token;
+    }
+
     const cookieHeader = req.headers.cookie;
     if (cookieHeader) {
         const cookies = {};
@@ -110,8 +115,6 @@ export default async function handler(req, res) {
         // まず、送信された code が「コンテンツID」として履歴に存在するか確認する
         // (ユーザーの history に紐づく codes を JOIN して探す)
         
-        const safeCode = String(code).replace(/[^A-Z0-9\-]/gi, "").toUpperCase();
-        
         // ユーザーの履歴一覧を取得し、codesテーブルをJOIN
         const { data: userHistories } = await supabase
             .from('histories')
@@ -122,11 +125,17 @@ export default async function handler(req, res) {
             return res.status(403).send("Forbidden: 履歴が存在しません。");
         }
 
+        // ハイフンを除外して純粋な英数字のみで比較するための準備
+        const cleanTargetCode = String(code).replace(/[^A-Z0-9]/gi, "").toUpperCase();
+
         // 履歴の中から、送信された code (コンテンツID または アクティベーションコード) に合致するものを探す
         const matchedHistory = userHistories.find(h => {
             if (!h.codes) return false;
-            return String(h.codes.content_id) === String(code) || 
-                   String(h.codes["アクティベーションコード"]).toUpperCase() === safeCode;
+            
+            const dbContentId = String(h.codes.content_id);
+            const cleanDbCode = String(h.codes["アクティベーションコード"]).replace(/[^A-Z0-9]/gi, "").toUpperCase();
+            
+            return dbContentId === String(code) || cleanDbCode === cleanTargetCode;
         });
 
         if (!matchedHistory || !matchedHistory.codes || !matchedHistory.codes.contents) {
