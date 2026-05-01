@@ -543,6 +543,8 @@
       const statusEl = document.getElementById('authStatus');
       const t = TRANSLATIONS[CURRENT_LANG];
       
+      statusEl.style.color = "var(--danger)"; // ★ここを追加（通常のエラー表示用に赤色に戻す）
+      
       if (!email || !pass) { 
           statusEl.textContent = t.err_empty; 
           loginSliderObj.reset();
