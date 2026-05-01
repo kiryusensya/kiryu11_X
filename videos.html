@@ -4,35 +4,109 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>kiryu10 // Video Player</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;800&family=HarmonyOS+Sans:wght@400;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        body {
-            margin: 0; padding: 0; background-color: #000; color: #fff;
-            font-family: 'Noto Sans JP', sans-serif;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;
+        :root {
+            --primary: #007DFF;
+            --bg-color: #F1F3F5;
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --modal-text-main: #000000;
+            --modal-text-sub: #666666;
+            --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
+            --spring-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        #statusMessage { font-size: 18px; font-weight: bold; margin-bottom: 20px; text-align: center; }
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --card-bg: rgba(40, 40, 40, 0.5);
+            --modal-text-main: #FFFFFF;
+            --modal-text-sub: #A0A0A0;
+        }
+
+        body {
+            margin: 0; padding: 0; background-color: var(--bg-color); color: var(--modal-text-main);
+            font-family: var(--font-stack);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh;
+            overflow: hidden;
+        }
+
+        #statusMessage { font-size: 18px; font-weight: 800; margin-bottom: 20px; text-align: center; }
+        
         .video-container {
-            width: 100%; max-width: 1000px; aspect-ratio: 16 / 9;
-            background: #111; border-radius: 12px; overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: none;
+            width: 100%; max-width: 1200px; width: 90vw; aspect-ratio: 16 / 9;
+            background: #000; border-radius: 24px; overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3); display: none;
+            position: relative; z-index: 10;
         }
         iframe { width: 100%; height: 100%; border: none; }
+        
         .btn-back {
-            margin-top: 30px; padding: 10px 30px; background: #333; color: #fff;
-            border: 1px solid #555; border-radius: 50px; text-decoration: none; font-weight: bold; transition: 0.2s;
+            margin-top: 30px; padding: 12px 40px; background: var(--modal-text-main); color: var(--bg-color);
+            border: none; border-radius: 50px; text-decoration: none; font-weight: 800; font-size: 16px; 
+            transition: transform 0.2s; cursor: pointer; z-index: 10;
         }
-        .btn-back:hover { background: #555; }
+        .btn-back:hover { transform: scale(0.95); opacity: 0.9; }
+
         .spinner {
-            width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.2);
-            border-top: 4px solid #007DFF; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;
+            width: 40px; height: 40px; border: 4px solid rgba(128,128,128,0.2);
+            border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px auto;
         }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* --- Modal System --- */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            z-index: 9999; display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+        .modal-sheet {
+            background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
+            border-radius: 32px; box-shadow: 0 30px 80px rgba(0,0,0,0.2);
+            width: 90%; max-width: 450px; padding: 40px;
+            font-family: var(--font-stack); text-align: left;
+            transform: translateY(40px) scale(0.95); opacity: 0;
+            transition: transform 0.6s var(--spring-ease), opacity 0.4s ease;
+        }
+        [data-theme="dark"] .modal-sheet {
+            background: rgba(40, 40, 40, 0.8); box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+        }
+        .modal-overlay.active .modal-sheet {
+            transform: translateY(0) scale(1); opacity: 1;
+        }
+
+        /* Error Layout inside Modal */
+        .error-title-color { color: #FF3B30; font-size: 24px; font-weight: 800; margin: 0 0 20px 0; display: flex; align-items: center; gap: 8px;}
+        [data-theme="dark"] .error-title-color { color: #FF453A; }
+        .modal-error-main-msg { font-size: 18px; font-weight: 800; color: var(--modal-text-main); margin: 0 0 20px 0; line-height: 1.4;}
+        
+        .modal-grey-box {
+            background: rgba(128,128,128,0.1); border-radius: 16px; padding: 20px;
+            margin-bottom: 24px; display: flex; flex-direction: column; gap: 10px;
+        }
+        [data-theme="dark"] .modal-grey-box { background: rgba(255,255,255,0.08); }
+        .modal-box-text { font-size: 14px; font-weight: 700; color: var(--modal-text-sub); margin: 0; line-height: 1.5; white-space: pre-wrap;}
+        .modal-box-time { font-size: 14px; font-weight: 800; color: var(--modal-text-main); margin: 0; }
+
+        .btn-outline {
+            width: 100%; height: 50px; border-radius: 25px; border: 2px solid var(--modal-text-main);
+            background: transparent; color: var(--modal-text-main); font-weight: 800; font-size: 16px;
+            cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; text-decoration: none;
+        }
+        [data-theme="dark"] .btn-outline { border-color: rgba(255,255,255,0.6); color: #fff; }
+        .btn-outline:hover { background: rgba(128,128,128,0.1); transform: scale(0.98);}
+        [data-theme="dark"] .btn-outline:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
+
+        /* Background blur effect */
+        #particleCanvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.3; filter: blur(60px); pointer-events: none;}
     </style>
 </head>
 <body>
+    <canvas id="particleCanvas"></canvas>
 
-    <div id="loadingBox" style="text-align: center;">
+    <div id="loadingBox" style="text-align: center; position: relative; z-index: 5;">
         <div class="spinner"></div>
         <div id="statusMessage" data-translate="loading">認証中...</div>
     </div>
@@ -41,108 +115,140 @@
         <iframe id="youtubePlayer" src="" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
     </div>
 
-    <a href="index.html" class="btn-back" data-translate="btn_close">閉じる</a>
+    <a href="index.html" class="btn-back" id="btnCloseMain" style="display:none;" data-translate="btn_close">閉じる</a>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="modal-overlay">
+        <div class="modal-sheet">
+            <h2 class="error-title-color">
+                <i data-lucide="triangle-alert"></i> 
+                <span data-translate="error_title_prefix">エラー</span> 
+                <span id="errorCodeText" style="margin-left:auto; font-size:18px; opacity:0.7;">5001</span>
+            </h2>
+            <h3 id="errorMessage" class="modal-error-main-msg"></h3>
+            <div class="modal-grey-box" id="errorInfoBox">
+                <p class="modal-box-text" id="errorSubMessage"></p>
+                <p class="modal-box-time" id="errorTime"></p>
+            </div>
+            <a href="index.html" id="btnErrorAction" class="btn-outline" data-translate="btn_home">ホームに戻る</a>
+        </div>
+    </div>
 
     <script>
-        // 1. 多言語辞書の定義
+        // Theme initialization
+        const applyTheme = () => {
+            const savedTheme = localStorage.getItem('user_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        };
+        applyTheme();
+
+        // Translations
         const TRANSLATIONS = {
             ja: {
-                loading: "認証中...",
+                loading: "安全な接続を確立しています...",
                 btn_close: "閉じる",
+                btn_home: "ホームに戻る",
+                btn_login: "ログイン画面へ",
+                error_title_prefix: "エラー",
                 err_login_required: "このコンテンツを視聴するにはログインが必要です。",
-                err_invalid_access: "認証エラー: 不正なアクセスです。",
-                err_session_expired: "セッションが切れました。再度ログインしてください。",
-                err_load_failed: "動画の読み込みに失敗しました。",
-                err_network: "通信エラーが発生しました。",
-                btn_home: "ホームに戻る"
+                err_login_sub: "アカウントをお持ちの場合は、ログイン後に再度アクセスしてください。",
+                err_invalid_access: "不正なアクセス",
+                err_invalid_sub: "URLが正しくないか、パラメータが不足しています。",
+                err_session_expired: "セッションが切れました",
+                err_session_sub: "安全のため自動的にログアウトしました。再度ログインしてください。",
+                err_load_failed: "動画の読み込みに失敗しました",
+                err_network: "通信エラーが発生しました"
             },
             en: {
-                loading: "Authenticating...",
+                loading: "Establishing secure connection...",
                 btn_close: "Close",
+                btn_home: "Return to Home",
+                btn_login: "Go to Login",
+                error_title_prefix: "Error",
                 err_login_required: "You must be logged in to view this content.",
-                err_invalid_access: "Auth Error: Invalid access.",
-                err_session_expired: "Session expired. Please log in again.",
-                err_load_failed: "Failed to load video.",
-                err_network: "A network error occurred.",
-                btn_home: "Return to Home"
-            },
-            zh: {
-                loading: "正在验证...",
-                btn_close: "关闭",
-                err_login_required: "您必须登录才能观看此内容。",
-                err_invalid_access: "验证错误：无效访问。",
-                err_session_expired: "会话已过期，请重新登录。",
-                err_load_failed: "视频加载失败。",
-                err_network: "发生网络错误。",
-                btn_home: "返回首页"
-            },
-            "zh-TW": {
-                loading: "正在驗證...",
-                btn_close: "關閉",
-                err_login_required: "您必須登入才能觀看此內容。",
-                err_invalid_access: "驗證錯誤：無效存取。",
-                err_session_expired: "工作階段已過期，請重新登入。",
-                err_load_failed: "影片載入失敗。",
-                err_network: "發生網路錯誤。",
-                btn_home: "返回首頁"
-            },
-            ko: {
-                loading: "인증 중...",
-                btn_close: "닫기",
-                err_login_required: "이 콘텐츠를 시청하려면 로그인해야 합니다.",
-                err_invalid_access: "인증 오류: 잘못된 접근입니다.",
-                err_session_expired: "세션이 만료되었습니다. 다시 로그인해 주세요.",
-                err_load_failed: "동영상을 불러오는 데 실패했습니다.",
-                err_network: "네트워크 오류가 발생했습니다.",
-                btn_home: "홈으로 돌아가기"
-            },
-            ru: {
-                loading: "Аутентификация...",
-                btn_close: "Закрыть",
-                err_login_required: "Вы должны войти в систему для просмотра этого контента.",
-                err_invalid_access: "Ошибка аутентификации: Недействительный доступ.",
-                err_session_expired: "Время сеанса истекло. Пожалуйста, войдите снова.",
-                err_load_failed: "Не удалось загрузить видео.",
-                err_network: "Произошла ошибка сети.",
-                btn_home: "На главную"
+                err_login_sub: "If you have an account, please log in and try again.",
+                err_invalid_access: "Invalid Access",
+                err_invalid_sub: "The URL is incorrect or parameters are missing.",
+                err_session_expired: "Session Expired",
+                err_session_sub: "You have been logged out for security. Please log in again.",
+                err_load_failed: "Failed to load video",
+                err_network: "A network error occurred"
             }
+            // 必要に応じて他の言語も追加してください
         };
 
+        // Utility: Get Formatted Time
+        function getCurrentTime(lang) {
+            try {
+                return new Intl.DateTimeFormat('en-US', {
+                    year: 'numeric', month: '2-digit', day: '2-digit',
+                    hour: '2-digit', minute: '2-digit', hour12: false
+                }).format(new Date()).replace(/(\d+)\/(\d+)\/(\d+),?/, '$3/$1/$2');
+            } catch (e) {
+                return new Date().toLocaleString();
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
-            // 2. 言語設定の読み込みと適用
+            lucide.createIcons();
+
+            // Setup Language
             const userLang = localStorage.getItem('user_lang') || 'ja';
             const t = TRANSLATIONS[userLang] || TRANSLATIONS.ja;
             document.documentElement.lang = userLang;
-
             document.querySelectorAll('[data-translate]').forEach(el => {
                 const key = el.getAttribute('data-translate');
                 if (t[key]) el.textContent = t[key];
             });
 
-            // 3. 動画認証処理
+            // Elements
+            const loadingBox = document.getElementById('loadingBox');
+            const videoContainer = document.getElementById('videoContainer');
+            const youtubePlayer = document.getElementById('youtubePlayer');
+            const btnCloseMain = document.getElementById('btnCloseMain');
+            
+            // Modal Elements
+            const errorModal = document.getElementById('errorModal');
+            const errorCodeText = document.getElementById('errorCodeText');
+            const errorMessage = document.getElementById('errorMessage');
+            const errorSubMessage = document.getElementById('errorSubMessage');
+            const errorTime = document.getElementById('errorTime');
+            const btnErrorAction = document.getElementById('btnErrorAction');
+
+            // Show Error Modal Function
+            const showError = (code, mainText, subText, actionUrl = "index.html", actionLabel = t.btn_home) => {
+                loadingBox.style.display = 'none';
+                
+                errorCodeText.innerHTML = `<a href="error.html?code=${code}" target="_blank" style="color: inherit; text-decoration: underline;">${code}</a>`;
+                errorMessage.textContent = mainText;
+                errorSubMessage.textContent = subText || "";
+                errorTime.textContent = getCurrentTime(userLang);
+                
+                btnErrorAction.href = actionUrl;
+                btnErrorAction.textContent = actionLabel;
+
+                errorModal.classList.add('active');
+            };
+
+            // Parameters & Token
             const urlParams = new URLSearchParams(window.location.search);
             const code = urlParams.get('code');
             const target = urlParams.get('target') || "";
             const token = localStorage.getItem('user_session_token');
 
+            // --- 1. 未ログインチェック ---
             if (!token) {
-                alert(t.err_login_required);
-                window.location.href = 'Access.html';
+                showError("5001", t.err_login_required, t.err_login_sub, "Access.html", t.btn_login);
                 return;
             }
 
-            const statusMsg = document.getElementById('statusMessage');
-            const loadingBox = document.getElementById('loadingBox');
-            const videoContainer = document.getElementById('videoContainer');
-            const youtubePlayer = document.getElementById('youtubePlayer');
-
+            // --- 2. パラメータ不足チェック ---
             if (!code) {
-                statusMsg.textContent = t.err_invalid_access;
-                statusMsg.style.color = "#FF3B30";
-                document.querySelector('.spinner').style.display = 'none';
+                showError("5002", t.err_invalid_access, t.err_invalid_sub);
                 return;
             }
 
+            // --- 3. API通信 ---
             try {
                 const response = await fetch('api/proxy', {
                     method: 'POST',
@@ -153,30 +259,50 @@
                 const data = await response.json();
 
                 if (data.success && data.embedUrl) {
+                    // --- 成功時 ---
                     loadingBox.style.display = 'none';
                     videoContainer.style.display = 'block';
+                    btnCloseMain.style.display = 'inline-block';
                     youtubePlayer.src = data.embedUrl;
                 } else {
-                    document.querySelector('.spinner').style.display = 'none';
-                    statusMsg.style.color = "#FF3B30";
-                    
+                    // --- APIエラー時 ---
                     if (data.message && data.message.includes("Unauthorized")) {
                         localStorage.removeItem('user_session_token');
                         localStorage.removeItem('user_session_identity');
-                        alert(t.err_session_expired);
-                        window.location.href = 'Access.html';
+                        showError("5003", t.err_session_expired, t.err_session_sub, "Access.html", t.btn_login);
                     } else {
-                        // APIからのエラーメッセージはそのまま表示するか、汎用エラーを使用
+                        // 所有していない・解禁前・期限切れ などのエラー(APIから返ってくるメッセージを利用)
                         const apiMsg = data.message ? data.message.replace('Forbidden: ', '') : t.err_load_failed;
-                        statusMsg.innerHTML = `${apiMsg}<br><br><a href="index.html" style="color:#007DFF; font-size: 16px;">${t.btn_home}</a>`;
+                        // 適切なエラーコードにマッピング（API側のメッセージに基づく）
+                        let specificCode = "5004";
+                        if (apiMsg.includes('所有していません')) specificCode = "3001";
+                        if (apiMsg.includes('期限切れ')) specificCode = "3002";
+                        
+                        showError(specificCode, apiMsg, "詳細を確認するにはサポートページを参照してください。");
                     }
                 }
             } catch (error) {
-                statusMsg.textContent = t.err_network;
-                statusMsg.style.color = "#FF3B30";
-                document.querySelector('.spinner').style.display = 'none';
+                showError("5000", t.err_network, "インターネット接続を確認して再度お試しください。");
             }
         });
+
+        // Background Particles
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particleHue = document.documentElement.getAttribute('data-theme') === 'light' ? 210 : 220;
+        
+        const resizeCanvas = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() { this.x=Math.random()*canvas.width; this.y=Math.random()*canvas.height; this.size=Math.random()*150+50; this.speedX=Math.random()*0.2-0.1; this.speedY=Math.random()*0.2-0.1; this.opacity=Math.random()*0.2+0.05; }
+            update() { this.x+=this.speedX; this.y+=this.speedY; if(this.x<0||this.x>canvas.width)this.speedX*=-1; if(this.y<0||this.y>canvas.height)this.speedY*=-1; }
+            draw() { ctx.fillStyle=`hsla(${particleHue}, 100%, 50%, ${this.opacity})`; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); }
+        }
+        let p = Array.from({length: 6}, () => new Particle());
+        function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); p.forEach(i=>{i.update();i.draw();}); requestAnimationFrame(animate); }
+        animate();
     </script>
 </body>
 </html>
