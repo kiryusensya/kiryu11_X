@@ -47,6 +47,7 @@
         document.addEventListener('DOMContentLoaded', async () => {
             const urlParams = new URLSearchParams(window.location.search);
             const code = urlParams.get('code');
+            const target = urlParams.get('target') || ""; // ← これを追加
             const token = localStorage.getItem('user_session_token') || "";
 
             const statusMsg = document.getElementById('statusMessage');
@@ -66,7 +67,7 @@
                 const response = await fetch('api/proxy', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({ type: 'get_video_url', code: code })
+                    body: JSON.stringify({ type: 'get_video_url', code: code, target: target })
                 });
 
                 const data = await response.json();
