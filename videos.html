@@ -194,7 +194,7 @@
                 err_not_owned: "You do not own this content.",
                 err_expired: "The content has expired.",
                 err_not_released: "The content is not yet released.",
-                err_no_url: "Video URL is not set.", err_support_sub: "please start over from the home."
+                err_no_url: "Video URL is not set.", err_support_sub: "Please start over from the home."
             },
             "zh": {
                 loading: "正在建立安全连接...",
@@ -279,18 +279,43 @@
                 err_no_url: "URL-адрес видео не установлен.", err_support_sub: "Пожалуйста, начните заново с главной страницы."
             }
         };
-        // Utility: Get Formatted Time
+        // Utility: Get Formatted Time (端末タイムゾーン ＆ 多言語 ＆ GMTオフセット)
         function getCurrentTime(lang) {
             try {
-                return new Intl.DateTimeFormat('en-US', {
+                const now = new Date();
+                const formatter = new Intl.DateTimeFormat('en-US', {
                     year: 'numeric', month: '2-digit', day: '2-digit',
-                    hour: '2-digit', minute: '2-digit', hour12: false
-                }).format(new Date()).replace(/(\d+)\/(\d+)\/(\d+),?/, '$3/$1/$2');
+                    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+                });
+                const parts = formatter.formatToParts(now);
+                const p = {};
+                parts.forEach(part => { p[part.type] = part.value; });
+                let hr = p.hour === '24' ? '00' : p.hour;
+
+                // 端末のタイムゾーンオフセットを取得してGMT表記を作成
+                const offset = -now.getTimezoneOffset();
+                const sign = offset >= 0 ? '+' : '-';
+                const pad = n => String(Math.floor(Math.abs(n))).padStart(2, '0');
+                const gmt = `GMT${sign}${pad(offset / 60)}:${pad(offset % 60)}`;
+
+                const mInt = parseInt(p.month, 10) - 1;
+                const enM = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                const ruM = ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
+
+                switch(lang) {
+                    case 'ja': case 'zh': case 'zh-TW':
+                        return `${p.year}年${p.month}月${p.day}日 ${hr}:${p.minute}:${p.second} ${gmt}`;
+                    case 'ko':
+                        return `${p.year}년 ${p.month}월 ${p.day}일 ${hr}:${p.minute}:${p.second} ${gmt}`;
+                    case 'ru':
+                        return `${p.day} ${ruM[mInt]} ${p.year} г. ${hr}:${p.minute}:${p.second} ${gmt}`;
+                    case 'en': default:
+                        return `${enM[mInt]} ${p.day}, ${p.year} ${hr}:${p.minute}:${p.second} ${gmt}`;
+                }
             } catch (e) {
                 return new Date().toLocaleString();
             }
         }
-
         document.addEventListener('DOMContentLoaded', async () => {
             lucide.createIcons();
 
