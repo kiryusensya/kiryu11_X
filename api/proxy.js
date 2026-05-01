@@ -562,11 +562,6 @@ export default async function handler(req, res) {
         if (!matchedHistory || !matchedHistory.codes || !matchedHistory.codes.contents) {
             return res.status(403).json({ success: false, message: "Forbidden: このコンテンツを所有していません。" });
         }
-        const matchedHistory = userHistories.find(h => h.codes && String(h.codes.content_id) === String(code));
-
-        if (!matchedHistory || !matchedHistory.codes || !matchedHistory.codes.contents) {
-            return res.status(403).json({ success: false, message: "Forbidden: このコンテンツを所有していません。" });
-        }
 
         const content = matchedHistory.codes.contents;
         const now = new Date();
