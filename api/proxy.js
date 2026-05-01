@@ -96,6 +96,98 @@ export default async function handler(req, res) {
       }
     }
     // ==========================================
+    // ▼ ダウンロード（プロキシ）処理 ▼
+    // ==========================================
+    if (type === 'download') {
+        const { code, target } = params;
+        
+        // 1. ログイン確認
+        if (!authUserId) {
+            return res.status(401).send("Unauthorized: ログインが必要です。");
+        }
+
+        // 2. 所有権確認
+        // ユーザーの履歴から、要求されたcodeを持っているか確認
+        const safeCode = String(code).replace(/[^A-Z0-9\-]/gi, "").toUpperCase();
+        const { data: codeData } = await supabase.from('codes').select('id, contents(Action_url, "有効時間", "解禁時間")').eq('アクティベーションコード', safeCode).maybeSingle();
+        
+        if (!codeData) {
+            return res.status(404).send("Not Found: コンテンツが見つかりません。");
+        }
+
+        const { data: history } = await supabase.from('histories').select('id').eq('user_id', authUserId).eq('code_id', codeData.id).maybeSingle();
+        
+        if (!history) {
+            return res.status(403).send("Forbidden: このコンテンツを所有していません。");
+        }
+
+        const content = codeData.contents;
+        const now = new Date();
+
+        // 3. 有効期限と解禁日のチェック
+        if (content["有効時間"] && now > new Date(content["有効時間"])) {
+            return res.status(403).send("Forbidden: 有効期限が切れています。");
+        }
+        if (content["解禁時間"] && now < new Date(content["解禁時間"])) {
+             return res.status(403).send("Forbidden: まだ解禁されていません。");
+        }
+
+        // 4. ダウンロード先URLの決定
+        // 単一ファイルの場合はDBのAction_url、複数ファイル(配列)の場合はtargetパラメータを使用
+        let downloadTargetUrl = content.Action_url;
+        if (target) {
+            // targetが指定されている場合は、本当にAction_url内の配列に含まれているか検証を推奨しますが、
+            // ここでは簡易的に送られてきたtargetをデコードして使用します
+            downloadTargetUrl = decodeURIComponent(target);
+        }
+
+        if (!downloadTargetUrl) {
+            return res.status(404).send("Not Found: ダウンロードURLが設定されていません。");
+        }
+
+        // 5. サーバーから実際のURLへアクセスし、データをフロントに流す（プロキシ）
+        try {
+            const fetchResponse = await fetch(downloadTargetUrl);
+            
+            if (!fetchResponse.ok) {
+                return res.status(fetchResponse.status).send(`Error fetching file: ${fetchResponse.statusText}`);
+            }
+
+            // Google Drive等のヘッダー（Content-Type, Content-Disposition）をそのままクライアントに転送
+            const contentType = fetchResponse.headers.get('content-type');
+            const contentDisposition = fetchResponse.headers.get('content-disposition');
+            
+            if (contentType) res.setHeader('Content-Type', contentType);
+            if (contentDisposition) {
+                 res.setHeader('Content-Disposition', contentDisposition);
+            } else {
+                 // 強制的にダウンロードさせる場合のフォールバック
+                 res.setHeader('Content-Disposition', 'attachment');
+            }
+
+            // 取得したファイルストリームをレスポンスにパイプする
+            if (fetchResponse.body) {
+                // Next.js (Vercel) 環境などでのストリーム転送
+                return fetchResponse.body.pipeTo(new WritableStream({
+                    write(chunk) {
+                        res.write(chunk);
+                    },
+                    close() {
+                        res.end();
+                    }
+                }));
+            } else {
+                 // 古いNode.js環境等の場合のフォールバック（全体をバッファに乗せるため大容量には不向き）
+                 const buffer = await fetchResponse.arrayBuffer();
+                 return res.send(Buffer.from(buffer));
+            }
+
+        } catch (downloadError) {
+            console.error("Proxy Download Error:", downloadError);
+            return res.status(500).send("Internal Server Error: ファイルの取得に失敗しました。");
+        }
+    }
+    // ==========================================
     // ▼ 追加: 全アクセスログの記録処理 ▼
     // ==========================================
     const userAgent = req.headers['user-agent'] || 'unknown';
