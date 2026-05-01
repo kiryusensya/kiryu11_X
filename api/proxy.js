@@ -539,13 +539,29 @@ export default async function handler(req, res) {
         // 2. 所有権確認
         const { data: userHistories } = await supabase
             .from('histories')
-            .select('id, codes(content_id, contents(Action_url, "有効時間", "解禁時間"))')
+            // ★修正: 「アクティベーションコード」も一緒に取得するように変更
+            .select('id, codes(id, content_id, アクティベーションコード, contents(Action_url, "有効時間", "解禁時間"))')
             .eq('user_id', authUserId);
 
         if (!userHistories || userHistories.length === 0) {
             return res.status(403).json({ success: false, message: "Forbidden: 履歴が存在しません。" });
         }
 
+        // ★修正: コンテンツIDでもアクティベーションコードでも合致するように検索処理を強化
+        const cleanTargetCode = String(code).replace(/[^A-Z0-9]/gi, "").toUpperCase();
+        
+        const matchedHistory = userHistories.find(h => {
+            if (!h.codes) return false;
+            
+            const dbContentId = String(h.codes.content_id);
+            const cleanDbCode = String(h.codes["アクティベーションコード"]).replace(/[^A-Z0-9]/gi, "").toUpperCase();
+            
+            return dbContentId === String(code) || cleanDbCode === cleanTargetCode;
+        });
+
+        if (!matchedHistory || !matchedHistory.codes || !matchedHistory.codes.contents) {
+            return res.status(403).json({ success: false, message: "Forbidden: このコンテンツを所有していません。" });
+        }
         const matchedHistory = userHistories.find(h => h.codes && String(h.codes.content_id) === String(code));
 
         if (!matchedHistory || !matchedHistory.codes || !matchedHistory.codes.contents) {
