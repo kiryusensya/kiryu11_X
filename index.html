@@ -2321,10 +2321,16 @@ function setupEventListeners() {
         try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
 
         if (isMulti) {
-                    openManageModal(selectedHeroItem); // 複数なら独立モーダルを開く
-                } else if (targetUrl) {
-                    window.open(targetUrl, '_blank'); // 単体ならそのまま開く
-                }
+            openManageModal(selectedHeroItem); // 複数なら独立モーダルを開く
+        } else if (targetUrl) {
+            const isYouTube = targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be');
+            if (isYouTube) {
+                window.open(targetUrl, '_blank');
+            } else {
+                const token = localStorage.getItem('user_session_token') || "";
+                window.open(`/api/proxy?type=download&code=${selectedHeroItem.code}&token=${token}`, '_blank');
+            }
+        }
      } else {
         if (!currentUser) {
             toggleDropdown(true);
@@ -2908,11 +2914,16 @@ function openManageModal(item) {
                     tData.btn.style.cursor = 'pointer';
                     tData.btn.innerHTML = tData.label; 
                     tData.btn.onclick = () => {
-                        const token = localStorage.getItem('user_session_token') || "";
-                        const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(tData.url)}&token=${token}`;
-                        window.open(dlUrl, '_blank');
+                        const isYouTube = tData.url && (tData.url.includes('youtube.com') || tData.url.includes('youtu.be'));
+                        if (isYouTube) {
+                            window.open(tData.url, '_blank');
+                        } else {
+                            const token = localStorage.getItem('user_session_token') || "";
+                            const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(tData.url)}&token=${token}`;
+                            window.open(dlUrl, '_blank');
+                        }
                     };
-                } else {
+                }else {
                     // 解禁前
                     tData.btn.style.background = 'rgba(128,128,128,0.2)';
                     tData.btn.style.color = 'var(--modal-text-main)';
