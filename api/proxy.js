@@ -575,18 +575,32 @@ export default async function handler(req, res) {
         }
 
         // 4. URLを返す
-        const targetUrl = content.Action_url;
+        let videoUrl = content.Action_url;
         
-        // ★修正: URLが設定されていない場合は安全にエラーメッセージを返す
-        if (!targetUrl) {
+        // ① フロントから個別のURL(target)が指定されていれば、それを優先する（複数コンテンツ用）
+        if (params.target) {
+            videoUrl = decodeURIComponent(params.target);
+        } else {
+            // ② targetがなく、DBの値がJSON配列だった場合は、中からYouTubeのURLを探す
+            try {
+                if (videoUrl && String(videoUrl).trim().startsWith('[')) {
+                    const parsedArr = JSON.parse(videoUrl);
+                    const ytItem = parsedArr.find(obj => obj.url && (obj.url.includes('youtube.com') || obj.url.includes('youtu.be')));
+                    if (ytItem) videoUrl = ytItem.url;
+                }
+            } catch (e) {
+                console.error("JSON Parse Error:", e);
+            }
+        }
+
+        if (!videoUrl) {
             return res.status(400).json({ success: false, message: "動画のURLが設定されていません。" });
         }
 
-        // YouTubeのURLであれば、埋め込み用(embed)URLに変換して返す
-        let embedUrl = targetUrl;
+        // ③ YouTubeのURLを埋め込み用(embed)URLに変換して返す
+        let embedUrl = "";
         try {
-            // ★修正: 予期せぬURLフォーマットでプログラムが死なないように保護
-            const urlStr = String(targetUrl);
+            const urlStr = String(videoUrl);
             if (urlStr.includes('youtube.com/watch')) {
                 const videoId = new URL(urlStr).searchParams.get('v');
                 if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}?rel=0`;
@@ -595,7 +609,11 @@ export default async function handler(req, res) {
                 if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}?rel=0`;
             }
         } catch (e) {
-            console.error("動画URLの解析エラー:", e);
+            console.error("URL Format Error:", e);
+        }
+
+        if (!embedUrl) {
+            return res.status(400).json({ success: false, message: "有効なYouTube URLが見つかりませんでした。" });
         }
 
         return res.status(200).json({ success: true, embedUrl: embedUrl });
