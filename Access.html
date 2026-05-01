@@ -429,7 +429,9 @@
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('auth') === 'required') {
       const t = TRANSLATIONS[CURRENT_LANG];
-      document.getElementById('authStatus').textContent = t.msg_auth_required;
+      const statusEl = document.getElementById('authStatus');
+      statusEl.textContent = t.msg_auth_required;
+      statusEl.style.color = "var(--primary)"; // ★ここを追加（テーマカラーの青色にする）
       
       // URLバーから ?auth=required を消す（リロードしても消えたままにする）
       window.history.replaceState(null, '', window.location.pathname);
