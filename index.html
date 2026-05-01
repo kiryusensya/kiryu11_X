@@ -1693,38 +1693,38 @@ function formatLocalTime(dateObj, lang) {
     try {
         const formatter = new Intl.DateTimeFormat('en-US', {
             year: 'numeric', month: '2-digit', day: '2-digit',
-            hour: '2-digit', minute: '2-digit', hour12: false,
-            timeZoneName: 'short' 
+            hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
         });
-        
         const parts = formatter.formatToParts(dateObj);
         const p = {};
         parts.forEach(part => { p[part.type] = part.value; });
+        let hr = p.hour === '24' ? '00' : p.hour;
 
-        let hr = p.hour;
-        if (hr === '24') hr = '00';
+        // 端末のタイムゾーンオフセットを取得してGMT表記を作成
+        const offset = -dateObj.getTimezoneOffset();
+        const sign = offset >= 0 ? '+' : '-';
+        const pad = n => String(Math.floor(Math.abs(n))).padStart(2, '0');
+        const gmt = `GMT${sign}${pad(offset / 60)}:${pad(offset % 60)}`;
 
         const mInt = parseInt(p.month, 10) - 1;
+        // ★ 修正: 英語とロシア語の月名をフルスペルに戻しました
         const enMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         const ruMonths = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
 
-        const tz = p.timeZoneName ? ` ${p.timeZoneName}` : '';
-
         switch(lang) {
             case 'ja': case 'zh': case 'zh-TW':
-                return `${p.year}年${p.month}月${p.day}日 ${hr}:${p.minute}${tz}`;
+                return `${p.year}年${p.month}月${p.day}日 ${hr}:${p.minute}:${p.second} ${gmt}`;
             case 'ko':
-                return `${p.year}년 ${p.month}월 ${p.day}일 ${hr}:${p.minute}${tz}`;
+                return `${p.year}년 ${p.month}월 ${p.day}일 ${hr}:${p.minute}:${p.second} ${gmt}`;
             case 'ru':
-                return `${p.day} ${ruMonths[mInt]} ${p.year} г. ${hr}:${p.minute}${tz}`;
+                return `${p.day} ${ruMonths[mInt]} ${p.year} г. ${hr}:${p.minute}:${p.second} ${gmt}`;
             case 'en': default:
-                return `${enMonths[mInt]} ${p.day}, ${p.year} ${hr}:${p.minute}${tz}`;
+                return `${enMonths[mInt]} ${p.day}, ${p.year} ${hr}:${p.minute}:${p.second} ${gmt}`;
         }
     } catch (e) {
         return dateObj.toLocaleString();
     }
 }
-
 function getFormattedCurrentTime(lang) {
     return formatLocalTime(new Date(), lang);
 }
