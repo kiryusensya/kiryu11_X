@@ -2861,9 +2861,14 @@ function openManageModal(item) {
         } else {
             // 時間の縛りが一切ない（最初からずっとダウンロード可能）場合
             actionBtn.innerHTML = btnLabel;
-            actionBtn.onclick = () => window.open(sub.url, '_blank');
+            actionBtn.onclick = () => {
+                const token = localStorage.getItem('user_session_token') || "";
+                // 複数のURLがまとまっている場合、インデックス等で識別する必要があります。
+                // ここでは暫定的に「親のコード」と「URLそのもの（エンコードして）」を送る例とします。
+                const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(sub.url)}&token=${token}`;
+                window.open(dlUrl, '_blank');
+            };
         }
-
         row.appendChild(infoDiv);
         row.appendChild(actionBtn);
         list.appendChild(row);
@@ -2897,7 +2902,11 @@ function openManageModal(item) {
                     tData.btn.style.opacity = '1';
                     tData.btn.style.cursor = 'pointer';
                     tData.btn.innerHTML = tData.label; 
-                    tData.btn.onclick = () => window.open(tData.url, '_blank');
+                    tData.btn.onclick = () => {
+                        const token = localStorage.getItem('user_session_token') || "";
+                        const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(tData.url)}&token=${token}`;
+                        window.open(dlUrl, '_blank');
+                    };
                 } else {
                     // 解禁前
                     tData.btn.style.background = 'rgba(128,128,128,0.2)';
@@ -2935,7 +2944,11 @@ function openManageModal(item) {
                 tData.btn.style.opacity = '1';
                 tData.btn.style.cursor = 'pointer';
                 tData.btn.innerHTML = tData.label; 
-                tData.btn.onclick = () => window.open(tData.url, '_blank');
+                tData.btn.onclick = () => {
+                    const token = localStorage.getItem('user_session_token') || "";
+                    const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(tData.url)}&token=${token}`;
+                    window.open(dlUrl, '_blank');
+                };
             }
         });
     };
@@ -3044,8 +3057,10 @@ function showMobileItemDetail(item, isNewRedeem = false) {
                     openManageModal(item);
                 };
             } else {
-                // 単一の場合、今まで通り直接URLを開く
-                els.btnSuccessDownload.href = targetUrl;
+                // 単一の場合、直接URLを開くのではなく、APIを経由させる
+                const token = localStorage.getItem('user_session_token') || "";
+                // URLにトークンとアイテムコードを含めてAPIへアクセス
+                els.btnSuccessDownload.href = `/api/proxy?type=download&code=${item.code}&token=${token}`;
                 els.btnSuccessDownload.onclick = null; 
                 els.btnSuccessDownload.target = "_blank";
             }
