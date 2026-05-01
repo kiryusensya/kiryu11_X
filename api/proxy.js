@@ -107,21 +107,33 @@ export default async function handler(req, res) {
         }
 
         // 2. 所有権確認
-        // ユーザーの履歴から、要求されたcodeを持っているか確認
-        const safeCode = String(code).replace(/[^A-Z0-9\-]/gi, "").toUpperCase();
-        const { data: codeData } = await supabase.from('codes').select('id, contents(Action_url, "有効時間", "解禁時間")').eq('アクティベーションコード', safeCode).maybeSingle();
+        // まず、送信された code が「コンテンツID」として履歴に存在するか確認する
+        // (ユーザーの history に紐づく codes を JOIN して探す)
         
-        if (!codeData) {
-            return res.status(404).send("Not Found: コンテンツが見つかりません。");
+        const safeCode = String(code).replace(/[^A-Z0-9\-]/gi, "").toUpperCase();
+        
+        // ユーザーの履歴一覧を取得し、codesテーブルをJOIN
+        const { data: userHistories } = await supabase
+            .from('histories')
+            .select('id, codes(id, content_id, アクティベーションコード, contents(Action_url, "有効時間", "解禁時間"))')
+            .eq('user_id', authUserId);
+
+        if (!userHistories || userHistories.length === 0) {
+            return res.status(403).send("Forbidden: 履歴が存在しません。");
         }
 
-        const { data: history } = await supabase.from('histories').select('id').eq('user_id', authUserId).eq('code_id', codeData.id).maybeSingle();
-        
-        if (!history) {
+        // 履歴の中から、送信された code (コンテンツID または アクティベーションコード) に合致するものを探す
+        const matchedHistory = userHistories.find(h => {
+            if (!h.codes) return false;
+            return String(h.codes.content_id) === String(code) || 
+                   String(h.codes["アクティベーションコード"]).toUpperCase() === safeCode;
+        });
+
+        if (!matchedHistory || !matchedHistory.codes || !matchedHistory.codes.contents) {
             return res.status(403).send("Forbidden: このコンテンツを所有していません。");
         }
 
-        const content = codeData.contents;
+        const content = matchedHistory.codes.contents;
         const now = new Date();
 
         // 3. 有効期限と解禁日のチェック
