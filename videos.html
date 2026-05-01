@@ -280,6 +280,7 @@
             }
         };
         // Utility: Get Formatted Time (端末タイムゾーン ＆ 多言語 ＆ GMTオフセット)
+        // Utility: Get Formatted Time (端末タイムゾーン ＆ 多言語 ＆ GMTオフセット)
         function getCurrentTime(lang) {
             try {
                 const now = new Date();
@@ -299,8 +300,9 @@
                 const gmt = `GMT${sign}${pad(offset / 60)}:${pad(offset % 60)}`;
 
                 const mInt = parseInt(p.month, 10) - 1;
-                const enM = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                const ruM = ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
+                // ★ 修正: 英語とロシア語の月名をフルスペルに戻しました
+                const enMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                const ruMonths = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
 
                 switch(lang) {
                     case 'ja': case 'zh': case 'zh-TW':
@@ -308,9 +310,9 @@
                     case 'ko':
                         return `${p.year}년 ${p.month}월 ${p.day}일 ${hr}:${p.minute}:${p.second} ${gmt}`;
                     case 'ru':
-                        return `${p.day} ${ruM[mInt]} ${p.year} г. ${hr}:${p.minute}:${p.second} ${gmt}`;
+                        return `${p.day} ${ruMonths[mInt]} ${p.year} г. ${hr}:${p.minute}:${p.second} ${gmt}`;
                     case 'en': default:
-                        return `${enM[mInt]} ${p.day}, ${p.year} ${hr}:${p.minute}:${p.second} ${gmt}`;
+                        return `${enMonths[mInt]} ${p.day}, ${p.year} ${hr}:${p.minute}:${p.second} ${gmt}`;
                 }
             } catch (e) {
                 return new Date().toLocaleString();
