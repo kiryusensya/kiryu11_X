@@ -2916,8 +2916,9 @@ function openManageModal(item) {
                     tData.btn.onclick = () => {
                         const isYouTube = tData.url && (tData.url.includes('youtube.com') || tData.url.includes('youtu.be'));
                         if (isYouTube) {
-                            window.open(tData.url, '_blank');
-                        } else {
+            // ★新しいタブで videos.html を開き、クエリパラメータにコンテンツID(code)を渡す
+            window.open(`videos.html?code=${item.code}`, '_blank');
+        } else {
                             const token = localStorage.getItem('user_session_token') || "";
                             const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(tData.url)}&token=${token}`;
                             window.open(dlUrl, '_blank');
@@ -2962,8 +2963,9 @@ function openManageModal(item) {
                 tData.btn.onclick = () => {
                     const isYouTube = tData.url && (tData.url.includes('youtube.com') || tData.url.includes('youtu.be'));
                     if (isYouTube) {
-                        window.open(tData.url, '_blank');
-                    } else {
+            // ★新しいタブで videos.html を開き、クエリパラメータにコンテンツID(code)を渡す
+            window.open(`videos.html?code=${item.code}`, '_blank');
+        } else {
                         const token = localStorage.getItem('user_session_token') || "";
                         const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(tData.url)}&token=${token}`;
                         window.open(dlUrl, '_blank');
