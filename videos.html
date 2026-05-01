@@ -238,7 +238,7 @@
 
             // --- 1. 未ログインチェック ---
             if (!token) {
-                showError("5001", t.err_login_required, t.err_login_sub, "Access.html", t.btn_login);
+                showError("5001", t.err_login_required, t.err_login_sub, "Access.html?auth=required", t.btn_login);
                 return;
             }
 
@@ -269,7 +269,7 @@
                     if (data.message && data.message.includes("Unauthorized")) {
                         localStorage.removeItem('user_session_token');
                         localStorage.removeItem('user_session_identity');
-                        showError("5003", t.err_session_expired, t.err_session_sub, "Access.html", t.btn_login);
+                        showError("5003", t.err_session_expired, t.err_session_sub, "Access.html?auth=required", t.btn_login);
                     } else {
                         // 所有していない・解禁前・期限切れ などのエラー(APIから返ってくるメッセージを利用)
                         const apiMsg = data.message ? data.message.replace('Forbidden: ', '') : t.err_load_failed;
