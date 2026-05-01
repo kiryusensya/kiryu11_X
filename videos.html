@@ -155,7 +155,6 @@
         };
         applyTheme();
 
-        // Translations (★ 1. ここに新しいエラーメッセージを追加します)
         const TRANSLATIONS = {
             ja: {
                 loading: "安全な接続を確立しています...",
@@ -163,19 +162,19 @@
                 btn_home: "ホームに戻る",
                 btn_login: "ログイン画面へ",
                 error_title_prefix: "エラー",
-                err_login_required: "このコンテンツを視聴するにはログインが必要です。",
-                err_login_sub: "アカウントをお持ちの場合は、ログイン後に再度アクセスしてください。",
-                err_invalid_access: "不正なアクセス",
-                err_invalid_sub: "URLが正しくないか、パラメータが不足しています。",
+                err_login_required: "このコンテンツを視聴するには認証が必要です。",
+                err_login_sub: "アカウントをお持ちの場合は、認証後に再度アクセスしてください。",
+                err_invalid_access: "アクセス権限がありません",
+                err_invalid_sub: "安全のため、ホームからやり直してください。",
                 err_session_expired: "セッションが切れました",
                 err_session_sub: "安全のため自動的にログアウトしました。再度ログインしてください。",
                 err_load_failed: "動画の読み込みに失敗しました",
                 err_network: "通信エラーが発生しました",
-                err_no_history: "履歴が存在しません。",
+                err_no_history: "アクセス権限がありません",
                 err_not_owned: "このコンテンツを所有していません。",
                 err_expired: "有効期限が切れています。",
                 err_not_released: "まだ解禁されていません。",
-                err_no_url: "動画のURLが設定されていません。", err_support_sub: "詳細を確認するにはサポートページを参照してください。"
+                err_no_url: "動画のURLが設定されていません。", err_support_sub: "ホームからやり直してください。"
             },
             en: {
                 loading: "Establishing secure connection...",
@@ -185,18 +184,17 @@
                 error_title_prefix: "Error",
                 err_login_required: "You must be logged in to view this content.",
                 err_login_sub: "If you have an account, please log in and try again.",
-                err_invalid_access: "Invalid Access",
-                err_invalid_sub: "The URL is incorrect or parameters are missing.",
+                err_invalid_access: "You do not have permission to access this page.",
+                err_invalid_sub: "For your safety, please start over from the home.",
                 err_session_expired: "Session Expired",
                 err_session_sub: "You have been logged out for security. Please log in again.",
                 err_load_failed: "Failed to load video",
                 err_network: "A network error occurred",
-                // ▼ 追加 ▼
-                err_no_history: "No history found.",
+                err_no_history: "You do not have permission to access this page.",
                 err_not_owned: "You do not own this content.",
                 err_expired: "The content has expired.",
                 err_not_released: "The content is not yet released.",
-                err_no_url: "Video URL is not set.", err_support_sub: "Please refer to the support page for more details."
+                err_no_url: "Video URL is not set.", err_support_sub: "please start over from the home."
             },
             "zh": {
                 loading: "正在建立安全连接...",
@@ -206,18 +204,17 @@
                 error_title_prefix: "错误",
                 err_login_required: "您必须登录才能观看此内容。",
                 err_login_sub: "如果您已有账号，请登录后重试。",
-                err_invalid_access: "无效访问",
-                err_invalid_sub: "URL不正确或缺少参数。",
+                err_invalid_access: "您没有权限访问此页面!",
+                err_invalid_sub: "为了您的安全，请从首页重新开始。",
                 err_session_expired: "会话已过期",
                 err_session_sub: "为了您的安全，已自动登出。请重新登录。",
                 err_load_failed: "视频加载失败",
                 err_network: "发生网络错误",
-                // ▼ 追加 ▼
-                err_no_history: "没有找到记录。",
-                err_not_owned: "您不拥有此内容。",
-                err_expired: "内容已过期。",
+                err_no_history: "您没有权限访问此页面!",
+                err_not_owned: "您不拥有此内容",
+                err_expired: "内容已过期",
                 err_not_released: "内容尚未解锁。",
-                err_no_url: "未设置视频URL。", err_support_sub: "有关详细信息，请参阅支持页面。"
+                err_no_url: "未设置视频URL。", err_support_sub: "请从首页重新开始。"
             },
             "zh-TW": {
                 loading: "正在建立安全連線...",
@@ -227,18 +224,17 @@
                 error_title_prefix: "錯誤",
                 err_login_required: "您必須登入才能觀看此內容。",
                 err_login_sub: "如果您已有帳號，請登入後重試。",
-                err_invalid_access: "無效存取",
-                err_invalid_sub: "URL不正確或缺少參數。",
+                err_invalid_access: "您沒有存取權限!",
+                err_invalid_sub: "為了您的安全，請從首頁重新開始。",
                 err_session_expired: "工作階段已過期",
                 err_session_sub: "為了您的安全，已自動登出。請重新登入。",
                 err_load_failed: "影片載入失敗",
                 err_network: "發生網路錯誤",
-                // ▼ 追加 ▼
-                err_no_history: "沒有找到紀錄。",
+                err_no_history: "您沒有存取權限!",
                 err_not_owned: "您不擁有此內容。",
                 err_expired: "內容已過期。",
                 err_not_released: "內容尚未解鎖。",
-                err_no_url: "未設定影片URL。", err_support_sub: "有關詳細資訊，請參閱支援頁面。"
+                err_no_url: "未設定影片URL。", err_support_sub: "請從首頁重新開始"
             },
             ko: {
                 loading: "안전한 연결을 설정하는 중...",
@@ -248,14 +244,14 @@
                 error_title_prefix: "오류",
                 err_login_required: "이 콘텐츠를 시청하려면 로그인이 필요합니다.",
                 err_login_sub: "계정이 있으신 경우, 로그인 후 다시 시도해 주세요.",
-                err_invalid_access: "잘못된 접근",
-                err_invalid_sub: "URL이 올바르지 않거나 매개변수가 누락되었습니다.",
+                err_invalid_access: "액세스 권한 없음",
+                err_invalid_sub: "안전을 위해 홈에서 다시 시도하십시오.",
                 err_session_expired: "세션 만료",
                 err_session_sub: "보안을 위해 자동으로 로그아웃되었습니다. 다시 로그인해 주세요.",
                 err_load_failed: "동영상 로드 실패",
                 err_network: "네트워크 오류가 발생했습니다",
                 // ▼ 추가 ▼
-                err_no_history: "기록이 없습니다.",
+                err_no_history: "액세스 권한 없음",
                 err_not_owned: "이 콘텐츠를 소유하고 있지 않습니다.",
                 err_expired: "콘텐츠가 만료되었습니다.",
                 err_not_released: "아직 해제되지 않았습니다.",
@@ -269,18 +265,18 @@
                 error_title_prefix: "Ошибка",
                 err_login_required: "Вы должны войти в систему для просмотра этого контента.",
                 err_login_sub: "Если у вас есть аккаунт, пожалуйста, войдите и попробуйте снова.",
-                err_invalid_access: "Неверный доступ",
-                err_invalid_sub: "Неверный URL-адрес или отсутствуют параметры.",
+                err_invalid_access: "У вас нет прав доступа.",
+                err_invalid_sub: "В целях вашей безопасности, пожалуйста, начните заново с главной страницы.",
                 err_session_expired: "Сессия истекла",
                 err_session_sub: "В целях безопасности вы были автоматически отключены. Пожалуйста, войдите снова.",
                 err_load_failed: "Не удалось загрузить видео",
                 err_network: "Произошла ошибка сети",
                 // ▼ Добавьте это ▼
-                err_no_history: "История не найдена.",
+                err_no_history: "У вас нет прав доступа.",
                 err_not_owned: "Вы не владеете этим контентом.",
                 err_expired: "Срок действия контента истек.",
                 err_not_released: "Контент еще не выпущен.",
-                err_no_url: "URL-адрес видео не установлен.", err_support_sub: "Пожалуйста, обратитесь к странице поддержки для получения подробной информации."
+                err_no_url: "URL-адрес видео не установлен.", err_support_sub: "Пожалуйста, начните заново с главной страницы."
             }
         };
         // Utility: Get Formatted Time
