@@ -1,6 +1,6 @@
 export const config = {
-    // index.html, ルートパス(/), および管理画面群を門番の監視対象にする
-    matcher: ['/', '/index.html', '/dashboard.html', '/Enforcement-Administrator.html'],
+    // index.html, ルートパス(/), videos.html, および管理画面群を門番の監視対象にする
+    matcher: ['/', '/index.html', '/videos.html', '/dashboard.html', '/Enforcement-Administrator.html'],
 };
 
 export default function middleware(request) {
@@ -23,8 +23,8 @@ export default function middleware(request) {
         return; // admin_tokenがあれば通過
     }
 
-    // --- 2. 一般ユーザー画面 (index.html, /) のチェック ---
-    if (url.pathname === '/' || url.pathname.startsWith('/index.html')) {
+    // --- 2. 一般ユーザー画面 (index.html, /, videos.html) のチェック ---
+    if (url.pathname === '/' || url.pathname.startsWith('/index.html') || url.pathname.startsWith('/videos.html')) {
         // Cookieの中に user_session_token が存在するかチェック
         if (!cookie.includes('user_session_token=')) {
             url.pathname = '/Access.html';
