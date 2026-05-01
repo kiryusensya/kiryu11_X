@@ -142,7 +142,7 @@
         };
         applyTheme();
 
-        // Translations
+        // Translations (★ 1. ここに新しいエラーメッセージを追加します)
         const TRANSLATIONS = {
             ja: {
                 loading: "安全な接続を確立しています...",
@@ -157,7 +157,13 @@
                 err_session_expired: "セッションが切れました",
                 err_session_sub: "安全のため自動的にログアウトしました。再度ログインしてください。",
                 err_load_failed: "動画の読み込みに失敗しました",
-                err_network: "通信エラーが発生しました"
+                err_network: "通信エラーが発生しました",
+                // ▼ 追加 ▼
+                err_no_history: "履歴が存在しません。",
+                err_not_owned: "このコンテンツを所有していません。",
+                err_expired: "有効期限が切れています。",
+                err_not_released: "まだ解禁されていません。",
+                err_no_url: "動画のURLが設定されていません。"
             },
             en: {
                 loading: "Establishing secure connection...",
@@ -172,7 +178,13 @@
                 err_session_expired: "Session Expired",
                 err_session_sub: "You have been logged out for security. Please log in again.",
                 err_load_failed: "Failed to load video",
-                err_network: "A network error occurred"
+                err_network: "A network error occurred",
+                // ▼ 追加 ▼
+                err_no_history: "No history found.",
+                err_not_owned: "You do not own this content.",
+                err_expired: "The content has expired.",
+                err_not_released: "The content is not yet released.",
+                err_no_url: "Video URL is not set."
             },
             "zh-CN": {
                 loading: "正在建立安全连接...",
@@ -187,7 +199,13 @@
                 err_session_expired: "会话已过期",
                 err_session_sub: "为了您的安全，已自动登出。请重新登录。",
                 err_load_failed: "视频加载失败",
-                err_network: "发生网络错误"
+                err_network: "发生网络错误",
+                // ▼ 追加 ▼
+                err_no_history: "没有找到记录。",
+                err_not_owned: "您不拥有此内容。",
+                err_expired: "内容已过期。",
+                err_not_released: "内容尚未解锁。",
+                err_no_url: "未设置视频URL。"
             },
             "zh-TW": {
                 loading: "正在建立安全連線...",
@@ -202,7 +220,13 @@
                 err_session_expired: "工作階段已過期",
                 err_session_sub: "為了您的安全，已自動登出。請重新登入。",
                 err_load_failed: "影片載入失敗",
-                err_network: "發生網路錯誤"
+                err_network: "發生網路錯誤",
+                // ▼ 追加 ▼
+                err_no_history: "沒有找到紀錄。",
+                err_not_owned: "您不擁有此內容。",
+                err_expired: "內容已過期。",
+                err_not_released: "內容尚未解鎖。",
+                err_no_url: "未設定影片URL。"
             },
             ko: {
                 loading: "안전한 연결을 설정하는 중...",
@@ -217,7 +241,13 @@
                 err_session_expired: "세션 만료",
                 err_session_sub: "보안을 위해 자동으로 로그아웃되었습니다. 다시 로그인해 주세요.",
                 err_load_failed: "동영상 로드 실패",
-                err_network: "네트워크 오류가 발생했습니다"
+                err_network: "네트워크 오류가 발생했습니다",
+                // ▼ 추가 ▼
+                err_no_history: "기록이 없습니다.",
+                err_not_owned: "이 콘텐츠를 소유하고 있지 않습니다.",
+                err_expired: "콘텐츠가 만료되었습니다.",
+                err_not_released: "아직 해제되지 않았습니다.",
+                err_no_url: "동영상 URL이 설정되지 않았습니다."
             },
             ru: {
                 loading: "Установка безопасного соединения...",
@@ -232,7 +262,13 @@
                 err_session_expired: "Сессия истекла",
                 err_session_sub: "В целях безопасности вы были автоматически отключены. Пожалуйста, войдите снова.",
                 err_load_failed: "Не удалось загрузить видео",
-                err_network: "Произошла ошибка сети"
+                err_network: "Произошла ошибка сети",
+                // ▼ Добавьте это ▼
+                err_no_history: "История не найдена.",
+                err_not_owned: "Вы не владеете этим контентом.",
+                err_expired: "Срок действия контента истек.",
+                err_not_released: "Контент еще не выпущен.",
+                err_no_url: "URL-адрес видео не установлен."
             }
         };
         // Utility: Get Formatted Time
@@ -329,14 +365,29 @@
                         localStorage.removeItem('user_session_identity');
                         showError("5003", t.err_session_expired, t.err_session_sub, "Access.html?auth=required", t.btn_login);
                     } else {
-                        // 所有していない・解禁前・期限切れ などのエラー(APIから返ってくるメッセージを利用)
-                        const apiMsg = data.message ? data.message.replace('Forbidden: ', '') : t.err_load_failed;
-                        // 適切なエラーコードにマッピング（API側のメッセージに基づく）
+                        // ★ 2. ここを修正: APIからのメッセージを検知して、多言語辞書のテキストに差し替える
+                        const apiMsg = data.message || "";
                         let specificCode = "5004";
-                        if (apiMsg.includes('所有していません')) specificCode = "3001";
-                        if (apiMsg.includes('期限切れ')) specificCode = "3002";
+                        let displayMsg = t.err_load_failed;
+
+                        if (apiMsg.includes('履歴が存在しません')) {
+                            displayMsg = t.err_no_history;
+                            specificCode = "3000"; // 履歴なし
+                        } else if (apiMsg.includes('所有していません')) {
+                            displayMsg = t.err_not_owned;
+                            specificCode = "3001"; // 未所有
+                        } else if (apiMsg.includes('期限切れ')) {
+                            displayMsg = t.err_expired;
+                            specificCode = "3002"; // 期限切れ
+                        } else if (apiMsg.includes('解禁されていません')) {
+                            displayMsg = t.err_not_released;
+                            specificCode = "3003"; // 解禁前
+                        } else if (apiMsg.includes('URLが設定されていません')) {
+                            displayMsg = t.err_no_url;
+                            specificCode = "5005"; // URL未設定
+                        }
                         
-                        showError(specificCode, apiMsg, "詳細を確認するにはサポートページを参照してください。");
+                        showError(specificCode, displayMsg, "詳細を確認するにはサポートページを参照してください。");
                     }
                 }
             } catch (error) {
