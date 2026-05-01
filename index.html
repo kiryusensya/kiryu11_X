@@ -2899,8 +2899,7 @@ function openManageModal(item) {
                 tData.btn.style.color = 'var(--modal-text-main)';
                 tData.btn.style.opacity = '0.5';
                 tData.btn.style.cursor = 'not-allowed';
-                // バツ印アイコン + 期限切れテキスト
-                tData.btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> ${expiredLabel}`;
+                tData.btn.innerHTML = expiredLabel;
                 tData.btn.onclick = (e) => { e.preventDefault(); };
             
             // まだ期限内、かつ「解禁日(releaseDate)」が設定されている場合
@@ -3028,7 +3027,7 @@ function showMobileItemDetail(item, isNewRedeem = false) {
             els.btnSuccessDownload.style.background = 'rgba(128,128,128,0.2)';
             els.btnSuccessDownload.style.color = 'var(--modal-text-main)';
             els.btnSuccessDownload.removeAttribute('href');
-            els.btnSuccessDownload.innerHTML = `<span>${t.btn_expired || "期限切れ"}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-circle" size="18"></svg>`;
+            els.btnSuccessDownload.innerHTML = `<span>${t.btn_expired || "期限切れ"}</span>`;
 
             els.btnSuccessDownload.onclick = (e) => {
                 e.preventDefault();
@@ -3388,7 +3387,7 @@ function setHeroButtonState(state, forceUnlock = false) {
             btn.style.cursor = 'not-allowed';
             btn.style.background = 'rgba(128,128,128,0.2)';
             btn.style.color = 'var(--modal-text-main)';
-            btn.innerHTML = `<span>${t.btn_expired || "期限切れ"}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-circle"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>`;
+            btn.innerHTML = `<span>${t.btn_expired || "期限切れ"}</span>`;
         }
         // ★ 修正2: 「解禁待ち」の条件だけを独立させる
         else if (!forceUnlock && releaseDate && releaseDate > now) {
@@ -3685,7 +3684,7 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                 dlBtn.style.color = 'var(--modal-text-main)';
                 dlBtn.style.border = '1px solid transparent';
                 dlBtn.style.cursor = 'not-allowed';
-                dlBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-circle" style="margin-right: 4px;"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>${t.btn_expired || "期限切れ"}`;
+                dlBtn.innerHTML = `${t.btn_expired || "期限切れ"}`;
                 dlBtn.onclick = (e) => {
                     e.stopPropagation();
                     e.preventDefault(); // ★ 追加: 念のためデフォルトのリンク遷移をブロック
