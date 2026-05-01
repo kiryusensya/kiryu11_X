@@ -4018,21 +4018,36 @@ async function fetchUserHistory() {
 
 function initThemeAndParticles() {
   const htmlEl = document.documentElement;
+  // ボタン自体の要素を取得
   const toggleBtns = [gId('themeToggle'), gId('introThemeToggle'), gId('loginThemeToggle')];
-  const icons = [gId('themeIcon'), gId('introThemeIcon'), gId('loginThemeIcon')];
   let particleHue = 210;
+
   function applyTheme(theme) {
     htmlEl.setAttribute('data-theme', theme);
-    icons.forEach(ic => { if(ic) ic.setAttribute('data-lucide', theme === 'light' ? 'sun' : 'moon'); });
+    
+    // ★修正: アイコンの要素を書き換えるのではなく、ボタンの中身を丸ごと入れ替える
+    const iconName = theme === 'light' ? 'sun' : 'moon';
+    toggleBtns.forEach(btn => {
+        if (btn) {
+            btn.innerHTML = `<i data-lucide="${iconName}"></i>`;
+        }
+    });
+
     particleHue = theme === 'light' ? 210 : 220; 
+    
+    // 中身を入れ替えた後にアイコンを再生成させる
     try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
   }
+
   const saved = localStorage.getItem('user_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   applyTheme(saved);
+
   toggleBtns.forEach(btn => btn && btn.addEventListener('click', () => {
     const next = htmlEl.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-    applyTheme(next); localStorage.setItem('user_theme', next);
+    applyTheme(next); 
+    localStorage.setItem('user_theme', next);
   }));
+
   const canvas = gId('particleCanvas'); const ctx = canvas.getContext('2d'); canvas.width = innerWidth; canvas.height = innerHeight;
   class Particle {
     constructor() { this.x=Math.random()*canvas.width; this.y=Math.random()*canvas.height; this.size=Math.random()*150+50; this.speedX=Math.random()*0.2-0.1; this.speedY=Math.random()*0.2-0.1; this.opacity=Math.random()*0.3+0.1; }
