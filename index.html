@@ -2440,14 +2440,10 @@ function showPurchaseError(userPts, price) {
     
     els.btnErrorClose.style.flex = "none";
     els.btnErrorClose.style.width = "100%";
-    
-    els.phasePreview.style.opacity = '0';
-    setTimeout(() => {
         if (thisRequestId !== currentAuthRequestId) return;
         els.phasePreview.style.display = 'none';
         els.phaseError.style.display = 'flex';
         setTimeout(() => els.phaseError.style.opacity = '1', 50);
-    }, 400);
     
     try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
 }
@@ -2568,14 +2564,10 @@ async function buyItemWithPoints(contentId, price) { // ⭕ 引数を変更
                 els.btnSuccessClose.style.flex = "none";
                 els.btnSuccessClose.style.width = "100%";
                 els.btnSuccessDownload.style.display = "none"; // PC版はモーダル内ではなくHeroエリアでダウンロードさせる
-                
-                els.phasePreview.style.opacity = '0';
-                setTimeout(() => {
                   if (thisRequestId !== currentAuthRequestId) return;
                   els.phasePreview.style.display = 'none';
                   els.phaseSuccess.style.display = 'flex';
                   setTimeout(() => els.phaseSuccess.style.opacity = '1', 50);
-                }, 400);
 
                 // ★ PC版のHeroエリア（背景とダウンロードボタン）を即座に更新！
                 if (currentUser.history.length > 0) {
@@ -2611,13 +2603,10 @@ async function buyItemWithPoints(contentId, price) { // ⭕ 引数を変更
                 els.errorInfoBox.style.display = 'none';
             }
             
-            els.phasePreview.style.opacity = '0';
-            setTimeout(() => {
               if (thisRequestId !== currentAuthRequestId) return;
               els.phasePreview.style.display = 'none';
               els.phaseError.style.display = 'flex';
               setTimeout(() => els.phaseError.style.opacity = '1', 50);
-            }, 400);
         }
     } catch(e) {
         if (thisRequestId !== currentAuthRequestId) return;
@@ -3163,14 +3152,12 @@ async function performAuth(code, mode = 'check') {
             els.previewWarningBox.style.display = 'none';
         }
         
+        if (thisRequestId !== currentAuthRequestId) return;
         els.modalCon.classList.add('is-wide');
         els.phaseInput.style.opacity = '0';
-        setTimeout(() => {
-          if (thisRequestId !== currentAuthRequestId) return;
-          els.phaseInput.style.display = 'none';
-          els.phasePreview.style.display = 'flex';
-          setTimeout(() => els.phasePreview.style.opacity = '1', 50);
-        }, 400);
+        els.phaseInput.style.display = 'none';
+        els.phasePreview.style.display = 'flex';
+        setTimeout(() => els.phasePreview.style.opacity = '1', 50);
         
         els.btnPreviewRedeem.disabled = false;
         els.btnPreviewRedeem.innerHTML = t.btn_continue;
@@ -3200,14 +3187,10 @@ async function performAuth(code, mode = 'check') {
             els.btnSuccessClose.style.flex = "none";
             els.btnSuccessClose.style.width = "100%";
             els.btnSuccessDownload.style.display = "none";
-
-            els.phasePreview.style.opacity = '0';
-            setTimeout(() => {
                 if (thisRequestId !== currentAuthRequestId) return;
                 els.phasePreview.style.display = 'none';
                 els.phaseSuccess.style.display = 'flex';
                 setTimeout(() => els.phaseSuccess.style.opacity = '1', 50);
-            }, 400);
             return;
         }
 
@@ -3230,13 +3213,10 @@ async function performAuth(code, mode = 'check') {
            els.successMessageText.innerHTML = t.success_msg_box.replace(/\n/g, '<br>');
            els.successTime.textContent = currentAuthTime;
            
-           els.phasePreview.style.opacity = '0';
-           setTimeout(() => {
              if (thisRequestId !== currentAuthRequestId) return;
              els.phasePreview.style.display = 'none';
              els.phaseSuccess.style.display = 'flex';
              setTimeout(() => els.phaseSuccess.style.opacity = '1', 50);
-           }, 400);
 
            if (currentUser.history.length > 0) {
               updateHeroView(currentUser.history[0], true); 
@@ -3295,13 +3275,10 @@ async function performAuth(code, mode = 'check') {
             console.error("UI Update Error", err);
             els.errorMessage.textContent = t.msg_error;
         } finally {
-            els.phasePreview.style.opacity = '0';
-            setTimeout(() => {
               if (thisRequestId !== currentAuthRequestId) return;
               els.phasePreview.style.display = 'none';
               els.phaseError.style.display = 'flex';
               setTimeout(() => els.phaseError.style.opacity = '1', 50);
-            }, 400);
         }
       }
     }
@@ -3353,12 +3330,9 @@ async function performAuth(code, mode = 'check') {
        els.btnErrorClose.style.flex = "none";
        els.btnErrorClose.style.width = "100%";
        
-       els.phasePreview.style.opacity = '0';
-       setTimeout(() => {
          els.phasePreview.style.display = 'none';
          els.phaseError.style.display = 'flex';
          setTimeout(() => els.phaseError.style.opacity = '1', 50);
-       }, 400);
     }
   }
 }
