@@ -2443,7 +2443,7 @@ function showPurchaseError(userPts, price) {
         if (thisRequestId !== currentAuthRequestId) return;
         els.phasePreview.style.display = 'none';
         els.phaseError.style.display = 'flex';
-        setTimeout(() => els.phaseError.style.opacity = '1', 50);
+        els.phaseError.style.opacity = '1';
     
     try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
 }
@@ -2566,8 +2566,8 @@ async function buyItemWithPoints(contentId, price) { // ⭕ 引数を変更
                 els.btnSuccessDownload.style.display = "none"; // PC版はモーダル内ではなくHeroエリアでダウンロードさせる
                   if (thisRequestId !== currentAuthRequestId) return;
                   els.phasePreview.style.display = 'none';
-                  els.phaseSuccess.style.display = 'flex';
-                  setTimeout(() => els.phaseSuccess.style.opacity = '1', 50);
+                  els.phaseError.style.display = 'flex';
+                  els.phaseError.style.opacity = '1';
 
                 // ★ PC版のHeroエリア（背景とダウンロードボタン）を即座に更新！
                 if (currentUser.history.length > 0) {
@@ -2606,7 +2606,7 @@ async function buyItemWithPoints(contentId, price) { // ⭕ 引数を変更
               if (thisRequestId !== currentAuthRequestId) return;
               els.phasePreview.style.display = 'none';
               els.phaseError.style.display = 'flex';
-              setTimeout(() => els.phaseError.style.opacity = '1', 50);
+              els.phaseError.style.opacity = '1';
         }
     } catch(e) {
         if (thisRequestId !== currentAuthRequestId) return;
@@ -3189,8 +3189,8 @@ async function performAuth(code, mode = 'check') {
             els.btnSuccessDownload.style.display = "none";
                 if (thisRequestId !== currentAuthRequestId) return;
                 els.phasePreview.style.display = 'none';
-                els.phaseSuccess.style.display = 'flex';
-                setTimeout(() => els.phaseSuccess.style.opacity = '1', 50);
+                els.phaseError.style.display = 'flex';
+                els.phaseError.style.opacity = '1';
             return;
         }
 
@@ -3215,8 +3215,8 @@ async function performAuth(code, mode = 'check') {
            
              if (thisRequestId !== currentAuthRequestId) return;
              els.phasePreview.style.display = 'none';
-             els.phaseSuccess.style.display = 'flex';
-             setTimeout(() => els.phaseSuccess.style.opacity = '1', 50);
+             els.phaseError.style.display = 'flex';
+             els.phaseError.style.opacity = '1';
 
            if (currentUser.history.length > 0) {
               updateHeroView(currentUser.history[0], true); 
@@ -3278,7 +3278,7 @@ async function performAuth(code, mode = 'check') {
               if (thisRequestId !== currentAuthRequestId) return;
               els.phasePreview.style.display = 'none';
               els.phaseError.style.display = 'flex';
-              setTimeout(() => els.phaseError.style.opacity = '1', 50);
+              els.phaseError.style.opacity = '1';
         }
       }
     }
@@ -3332,7 +3332,7 @@ async function performAuth(code, mode = 'check') {
        
          els.phasePreview.style.display = 'none';
          els.phaseError.style.display = 'flex';
-         setTimeout(() => els.phaseError.style.opacity = '1', 50);
+         els.phaseError.style.opacity = '1';
     }
   }
 }
