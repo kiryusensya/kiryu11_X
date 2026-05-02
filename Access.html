@@ -320,11 +320,18 @@
 
   // ===== テーマ設定 (端末設定に追従) =====
   const htmlEl = document.documentElement;
-  const themeIcon = document.getElementById('themeIcon');
 
   function applyTheme(theme) {
     htmlEl.setAttribute('data-theme', theme);
-    if(themeIcon) themeIcon.setAttribute('data-lucide', theme === 'light' ? 'sun' : 'moon');
+    
+    // テーマ切り替えボタンを取得し、<i>タグごと再生成
+    const themeToggleBtn = document.getElementById('themeToggle');
+    if (themeToggleBtn) {
+      const iconName = theme === 'light' ? 'sun' : 'moon';
+      themeToggleBtn.innerHTML = `<i data-lucide="${iconName}" id="themeIcon"></i>`;
+    }
+    
+    // アイコンを再描画
     lucide.createIcons();
   }
 
