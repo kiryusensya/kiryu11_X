@@ -2559,7 +2559,8 @@ async function buyItemWithPoints(contentId, price) { // ⭕ 引数を変更
             type: 'purchase',
             userId: currentUser.userId,
             contentId: contentId, // APIが contentId で待っている場合用
-            code: contentId,      // APIが code で待っている場合用（両方送って絶対繋げる！）
+            code: contentId,      // APIが code で待っている場合用
+            app_tier: 'enterprise', // ★ここを追加！
             _t: Date.now()
         });
         if (thisRequestId !== currentAuthRequestId) return;
@@ -3165,6 +3166,7 @@ async function performAuth(code, mode = 'check') {
         userId: currentUser ? currentUser.userId : null,
         code: safeCode, 
         lang: CURRENT_LANG,
+        app_tier: 'enterprise', // ★ここを追加！エンタープライズ版からのアクセスであることを明示
         _t: Date.now()
     });
 
@@ -3821,7 +3823,8 @@ async function fetchAvailableContent() {
     try {
         const d = await safeFetch({
             type: 'get_available',
-            lang: CURRENT_LANG
+            lang: CURRENT_LANG,
+            app_tier: 'enterprise'
         });
         
         list.innerHTML = '';
@@ -3904,7 +3907,8 @@ async function fetchUserHistory() {
   try { 
     const data = await safeFetch({
         type: 'get_history',
-        lang: CURRENT_LANG
+        lang: CURRENT_LANG,
+        app_tier: 'enterprise'
     });
     
     if (data.success && Array.isArray(data.history)) {
@@ -4152,6 +4156,7 @@ setInterval(async () => {
         const data = await safeFetch({
             type: 'get_history',
             lang: CURRENT_LANG,
+            app_tier: 'enterprise',
             _t: Date.now() 
         });
 
