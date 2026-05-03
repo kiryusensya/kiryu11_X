@@ -17,8 +17,8 @@ if (!supabaseUrl || !supabaseKey || !JWT_SECRET) {
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const ALLOWED_ORIGINS = [
-  'https://kiryu10-standard.vercel.app',
-  'https://kiryu10-enterprise.vercel.app',
+  'https://kiryu11.vercel.app',
+  'https://kiryu11-pro.vercel.app',
   'http://localhost:3000'
 ];
 
@@ -71,16 +71,9 @@ export default async function handler(req, res) {
     const lang = params.lang || 'ja';
     
     // ==========================================
-    // ★大元凶の解決: URLによる階層(Tier)完全自動判定
-    // アクセス元のURLに 'standard' が含まれていれば確実にスタンダード版として扱う
-    // それ以外（enterprise版のURLなど）はエンタープライズ版として扱う
+    // ★完全に固定: エンタープライズ版API
     // ==========================================
-    let appTier = 'enterprise'; 
-    if (origin.includes('standard')) {
-        appTier = 'standard';
-    } else if (params.app_tier) {
-        appTier = String(params.app_tier).toLowerCase().trim();
-    }
+    const appTier = 'enterprise'; 
 
     // ==========================================
     // 認証 (JWT Token Verification)
@@ -161,11 +154,7 @@ export default async function handler(req, res) {
 
         const content = matchedHistory.codes.contents;
         
-        // 階層制限
-        const downloadTier = String(matchedHistory.codes.target_tier || content.target_tier || 'all').toLowerCase().trim();
-        if (appTier === 'standard' && downloadTier === 'enterprise') {
-            return res.status(403).send("Forbidden: このコンテンツはエンタープライズ版専用です。");
-        }
+        // ★ エンタープライズ版APIのため、ブロック処理はバイパス(通過)させます
 
         const checkNow = new Date();
         if (content["有効時間"] && checkNow > new Date(content["有効時間"])) return res.status(403).send("Forbidden: 有効期限が切れています。");
@@ -233,7 +222,7 @@ export default async function handler(req, res) {
     };
 
     // ==========================================
-    // ▼ 認証系処理 (Tier分離対応) ▼
+    // ▼ 認証系処理 ▼
     // ==========================================
     if (type === 'register') {
       const { email, password } = params;
@@ -255,8 +244,7 @@ export default async function handler(req, res) {
       if (user && await bcrypt.compare(password, user.password)) {
           const userTier = String(user.app_tier || 'standard').toLowerCase();
           
-          // ★ アカウントの互換性チェック（片通行ロジック）
-          // スタンダードアカウントでエンタープライズ画面にログインしようとした場合は弾く
+          // ★ アカウントの互換性チェック（エンタープライズ版はスタンダードアカウントを弾く）
           if (appTier === 'enterprise' && userTier !== 'enterprise') {
               return res.status(200).json({ success: false, message: "Invalid" });
           }
@@ -435,10 +423,7 @@ export default async function handler(req, res) {
           if (!isShow) return false;
           if (c["有効時間"] && new Date(c["有効時間"]).getTime() <= Date.now()) return false;
           
-          // ★ 階層フィルター: Standard版からのアクセス時、Enterprise専用コンテンツは表示しない
-          const targetTier = String(c.target_tier || 'all').toLowerCase().trim();
-          if (appTier === 'standard' && targetTier === 'enterprise') return false;
-          
+          // ★ エンタープライズ版APIのため制限なしで表示
           return true;
       });
 
@@ -472,10 +457,7 @@ export default async function handler(req, res) {
         const c = codeRec.contents; 
         if(!c) return null;
 
-        // ★ Standard画面からのアクセスでEnterpriseの履歴が混ざっていた場合は非表示にする
-        const targetTier = String(c.target_tier || 'all').toLowerCase().trim();
-        if (appTier === 'standard' && targetTier === 'enterprise') return null;
-
+        // ★ エンタープライズ版のため制限なしで履歴表示
         return {
           code: codeRec["アクティベーションコード"], date: h.created_at, title: c[`タイトル(${suffix})`] || c["タイトル(jp)"],
           message: c[`メッセージ(${suffix})`] || c["メッセージ(jp)"], url: c.Action_url, imageUrl: c.Imag_Url,
@@ -493,11 +475,7 @@ export default async function handler(req, res) {
       const { data: contentMaster } = await supabase.from('contents').select('*').eq('id', contentId).maybeSingle();
       if (!contentMaster) return res.status(200).json({ success: false, message: "Item not found" });
       
-      // ★ 階層制限の購入ブロック
-      const targetTier = String(contentMaster.target_tier || 'all').toLowerCase().trim();
-      if (appTier === 'standard' && targetTier === 'enterprise') {
-          return res.status(200).json({ success: false, message: "Item not found" });
-      }
+      // ★ エンタープライズ版APIのため、制限ブロックをバイパス
 
       const { data: user } = await supabase.from('users').select('points').eq('id', authUserId).maybeSingle();
       const { data: existingHist } = await supabase.from('histories').select('codes(content_id)').eq('user_id', authUserId);
@@ -537,11 +515,7 @@ export default async function handler(req, res) {
 
       const content = master.contents;
       
-      // ★ 階層制限: このコードがエンタープライズ専用の場合はブロックする
-      const targetTier = String(master.target_tier || content.target_tier || 'all').toLowerCase().trim();
-      if (appTier === 'standard' && targetTier === 'enterprise') {
-          return res.status(200).json({ success: false, message: "Invalid code" });
-      }
+      // ★ エンタープライズ版APIのため、制限ブロックをバイパス
 
       const isActive = master["有効/無効"] === true || String(master["有効/無効"]).trim().toUpperCase() === 'TRUE';
       if (!isActive) return res.status(200).json({ success: false, message: "Invalid code" });
