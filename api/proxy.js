@@ -23,7 +23,7 @@ const ALLOWED_ORIGINS = [
 ];
 
 export default async function handler(req, res) {
-  const origin = req.headers.origin;
+  const origin = req.headers.origin || '';
   if (ALLOWED_ORIGINS.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
   }
@@ -54,7 +54,7 @@ export default async function handler(req, res) {
     }
 
     // ==========================================
-    // パラメータ取得とアクセス元の階層(Tier)
+    // パラメータ取得
     // ==========================================
     let params = {};
     if (req.method === 'POST') {
@@ -70,9 +70,17 @@ export default async function handler(req, res) {
     const type = params.type || ''; 
     const lang = params.lang || 'ja';
     
-    // フロントエンド(safeFetch)から送られてくるアクセス元の画面情報を取得
-    // ※指定がない場合はより制限の厳しい 'standard' として扱う安全設計
-    const appTier = String(params.app_tier || 'standard').toLowerCase(); 
+    // ==========================================
+    // ★大元凶の解決: URLによる階層(Tier)完全自動判定
+    // アクセス元のURLに 'standard' が含まれていれば確実にスタンダード版として扱う
+    // それ以外（enterprise版のURLなど）はエンタープライズ版として扱う
+    // ==========================================
+    let appTier = 'enterprise'; 
+    if (origin.includes('standard')) {
+        appTier = 'standard';
+    } else if (params.app_tier) {
+        appTier = String(params.app_tier).toLowerCase().trim();
+    }
 
     // ==========================================
     // 認証 (JWT Token Verification)
@@ -106,6 +114,26 @@ export default async function handler(req, res) {
     }
 
     // ==========================================
+    // ▼ エラー検索機能 (error.html用) ▼
+    // ==========================================
+    if (type === 'error_search') {
+      const { code } = params;
+      if (!code) return res.status(200).json({ success: false, message: "Code is required" });
+
+      const { data: errData, error } = await supabase.from('errors').select('*').eq('code', code).maybeSingle();
+      
+      if (error || !errData) {
+        return res.status(200).json({ success: false, message: "Error code not found" });
+      }
+
+      const langColMap = { ja: 'ja', en: 'en', zh: 'zh', 'zh-TW': 'zh_TW', ko: 'ko', ru: 'ru' };
+      const colIdx = langColMap[lang] || 'ja';
+      const msg = errData[colIdx] || errData['ja'] || errData.message || "エラー詳細が見つかりません。";
+
+      return res.status(200).json({ success: true, code: errData.code, errorMessage: msg });
+    }
+
+    // ==========================================
     // ▼ ダウンロード（プロキシ）処理 ▼
     // ==========================================
     if (type === 'download') {
@@ -133,7 +161,7 @@ export default async function handler(req, res) {
 
         const content = matchedHistory.codes.contents;
         
-        // ★ 階層制限：エンタープライズ専用コンテンツは、スタンダード版のシステムからはダウンロード不可
+        // 階層制限
         const downloadTier = String(matchedHistory.codes.target_tier || content.target_tier || 'all').toLowerCase().trim();
         if (appTier === 'standard' && downloadTier === 'enterprise') {
             return res.status(403).send("Forbidden: このコンテンツはエンタープライズ版専用です。");
@@ -205,7 +233,7 @@ export default async function handler(req, res) {
     };
 
     // ==========================================
-    // ▼ 認証系処理 ▼
+    // ▼ 認証系処理 (Tier分離対応) ▼
     // ==========================================
     if (type === 'register') {
       const { email, password } = params;
@@ -215,31 +243,23 @@ export default async function handler(req, res) {
       if (existing) return res.status(200).json({ success: false, message: "Exists" });
       
       const hashedPassword = await bcrypt.hash(password, 10);
-      
-      // ★ アクセス元の画面 (appTier) をそのままアカウントの所属Tierとして登録
-      const { data: newUser, error } = await supabase.from('users').insert([{ 
-          email, password: hashedPassword, points: 0, app_tier: appTier 
-      }]).select().single();
-      
+      const { data: newUser, error } = await supabase.from('users').insert([{ email, password: hashedPassword, points: 0, app_tier: appTier }]).select().single();
       if (error) throw error;
       return res.status(200).json({ success: true, userId: newUser.id, message: "OK" });
     }
 
     if (type === 'user_login') {
       const { email, password } = params;
-      
-      // メールアドレスだけでユーザーを検索
       const { data: user } = await supabase.from('users').select('*').eq('email', email).maybeSingle();
       
       if (user && await bcrypt.compare(password, user.password)) {
           const userTier = String(user.app_tier || 'standard').toLowerCase();
           
           // ★ アカウントの互換性チェック（片通行ロジック）
+          // スタンダードアカウントでエンタープライズ画面にログインしようとした場合は弾く
           if (appTier === 'enterprise' && userTier !== 'enterprise') {
-              // スタンダードアカウントでエンタープライズ画面にログインしようとした場合は弾く
               return res.status(200).json({ success: false, message: "Invalid" });
           }
-          // ※ スタンダード画面(appTier='standard')からのアクセスの場合は、userTierが何であれ許可される。
 
           const isUserAdmin = user.is_admin === true;
           if (user.needs_password_change && !isUserAdmin) {
@@ -325,9 +345,6 @@ export default async function handler(req, res) {
             await logAudit('CREATE_USER', email, { tier: tierToAssign });
             return res.status(200).json({ success: true, message: "OK" });
         }
-
-        // admin_revoke_content, admin_reset_password, admin_search, admin_check_code, admin_reset_code, admin_set_points, admin_delete_user, admin_save_content, admin_create_code など
-        // 省略せずに全て必要であればそのまま追記可能
     }
 
     // ==========================================
@@ -391,7 +408,6 @@ export default async function handler(req, res) {
     // ==========================================
     // ▼ 一般ユーザー用機能 ▼
     // ==========================================
-    
     if (type === 'get_available') {
       const targetId = (!params.userId || params.userId === "GUEST") ? null : authUserId; 
       
@@ -419,7 +435,7 @@ export default async function handler(req, res) {
           if (!isShow) return false;
           if (c["有効時間"] && new Date(c["有効時間"]).getTime() <= Date.now()) return false;
           
-          // ★ 階層フィルター: Standard版からのアクセス時、Enterprise専用のコンテンツは表示しない
+          // ★ 階層フィルター: Standard版からのアクセス時、Enterprise専用コンテンツは表示しない
           const targetTier = String(c.target_tier || 'all').toLowerCase().trim();
           if (appTier === 'standard' && targetTier === 'enterprise') return false;
           
@@ -440,19 +456,6 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, items });
     }
 
-    if (type === 'error_search') {
-      const { code } = params;
-      if (!code) return res.status(200).json({ success: false, message: "Code is required" });
-      const { data: errData, error } = await supabase.from('errors').select('*').eq('code', code).maybeSingle();
-      if (error || !errData) return res.status(200).json({ success: false, message: "Error code not found" });
-
-      const langColMap = { ja: 'ja', en: 'en', zh: 'zh', 'zh-TW': 'zh_TW', ko: 'ko', ru: 'ru' };
-      const colIdx = langColMap[lang] || 'ja';
-      const msg = errData[colIdx] || errData['ja'] || errData.message || "エラー詳細が見つかりません。";
-
-      return res.status(200).json({ success: true, code: errData.code, errorMessage: msg });
-    }
-
     if (type === 'get_history') {
       if (!authUserId) return res.status(401).json({ success: false, message: "Unauthorized" });
       const { data: user } = await supabase.from('users').select('points').eq('id', authUserId).maybeSingle();
@@ -469,7 +472,7 @@ export default async function handler(req, res) {
         const c = codeRec.contents; 
         if(!c) return null;
 
-        // ★ 万が一、Standard画面からのアクセスでEnterpriseの履歴が混ざっていた場合は非表示にする
+        // ★ Standard画面からのアクセスでEnterpriseの履歴が混ざっていた場合は非表示にする
         const targetTier = String(c.target_tier || 'all').toLowerCase().trim();
         if (appTier === 'standard' && targetTier === 'enterprise') return null;
 
@@ -490,7 +493,7 @@ export default async function handler(req, res) {
       const { data: contentMaster } = await supabase.from('contents').select('*').eq('id', contentId).maybeSingle();
       if (!contentMaster) return res.status(200).json({ success: false, message: "Item not found" });
       
-      // ★ 階層(Tier)制限の購入ブロック
+      // ★ 階層制限の購入ブロック
       const targetTier = String(contentMaster.target_tier || 'all').toLowerCase().trim();
       if (appTier === 'standard' && targetTier === 'enterprise') {
           return res.status(200).json({ success: false, message: "Item not found" });
