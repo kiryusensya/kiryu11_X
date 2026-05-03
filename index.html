@@ -2369,6 +2369,41 @@ function setupEventListeners() {
           list.classList.toggle('open');
       });
   }
+  document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' || e.key === 'Esc') {
+          // 1. 認証・プレビュー・成功・エラーモーダル
+          if (els.authModal && els.authModal.classList.contains('active')) {
+              closeAuthModal();
+          }
+          // 2. ダウンロード管理モーダル
+          if (els.manageModal && els.manageModal.classList.contains('active')) {
+              els.manageModal.classList.remove('active');
+              if (window.manageModalTimer) clearInterval(window.manageModalTimer);
+          }
+          // 3. 利用履歴モーダル
+          if (els.historyModal && els.historyModal.classList.contains('active')) {
+              els.historyModal.classList.remove('active');
+          }
+          // 4. パスワード変更モーダル
+          const accountModal = document.getElementById('accountModal');
+          if (accountModal && accountModal.classList.contains('active')) {
+              accountModal.classList.remove('active');
+          }
+          // 5. アカウント ドロップダウンメニュー
+          if (els.accountDropdown && els.accountDropdown.classList.contains('open')) {
+              toggleDropdown(false);
+          }
+          // 6. スマホ用 ナビゲーションメニュー
+          if (els.mobileNav && els.mobileNav.classList.contains('active')) {
+              els.mobileNav.classList.remove('active');
+          }
+          // 7. 各種 言語選択メニュー
+          if (els.langMenu) els.langMenu.classList.remove('open');
+          if (els.loginLangMenu) els.loginLangMenu.classList.remove('open');
+          const mobileLangMenu = document.getElementById('mobileLangMenu');
+          if (mobileLangMenu) mobileLangMenu.classList.remove('open');
+      }
+  });
 }
 function showLockedError() {
     const t = TRANSLATIONS[CURRENT_LANG];
