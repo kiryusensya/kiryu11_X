@@ -1536,6 +1536,31 @@ button, input, textarea { font-family: var(--font-stack); }
     90% { opacity: 0; }
   }
 }
+.circle {
+  display: none !important;
+}
+
+/* 2. サークルが消えた分、文字の開始位置を左に詰め、幅を広げる */
+.achieve_disp {
+  margin-left: 24px !important;
+  width: 85% !important;
+}
+
+/* PC時の文字位置調整 */
+@media (min-width: 769px) {
+  .achieve_disp {
+    margin-left: 32px !important; 
+    width: 90% !important;
+  }
+}
+
+/* スマホ時の文字位置調整 */
+@media (max-width: 768px) {
+  .achieve_disp {
+    margin-left: 24px !important; 
+    width: 90% !important;
+  }
+}
 </style>
 </head>
 <body>
