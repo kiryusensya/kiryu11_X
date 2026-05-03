@@ -1281,6 +1281,10 @@ button, input, textarea { font-family: var(--font-stack); }
     flex-shrink: 0;      /* ★追加: ボタン自体が縮まないようにする */
 }
 .btn-download-small:active { transform: scale(0.95); }
+/* ====================================================
+   実績解除（トースト）アニメーション - kiryu11 Pro 青色最適化版
+   ==================================================== */
+
 /* z-indexを最前面に設定 */
 .achievement {
   position: fixed;
@@ -1290,7 +1294,7 @@ button, input, textarea { font-family: var(--font-stack); }
   z-index: 100000;
 }
 
-/* --- 以下、アニメーションとデザイン（青色カスタム版） --- */
+/* アニメーションキーフレーム共通 */
 @keyframes rotate {
   0% { transform: rotateY(0deg); }
   50% { transform: rotateY(360deg); }   
@@ -1345,17 +1349,6 @@ button, input, textarea { font-family: var(--font-stack); }
   100% { opacity: 1; }
 }
 
-@keyframes banner-animate {
-  0% { width: 75px; opacity: 0; }
-  2% { opacity: 0; }
-  4% { opacity: 1; }
-  11% { width: 75px; }
-  24% { width: 355px; }
-  85% { width: 355px; }
-  89% { width: 75px; opacity: 1; }
-  90% { opacity: 0; }
-}
-
 @keyframes textSlide {
   0% { transform: translateY(85px); opacity: 0; }
   20% { transform: translateY(85px); opacity: 0; }
@@ -1365,56 +1358,34 @@ button, input, textarea { font-family: var(--font-stack); }
   100% { opacity: 0; }
 }
 
+/* 共通構造・青色テーマ設定 */
 .animation {
-  width: 355px;
   height: 110px;
-  padding: 5px 0px 5px 0px;
+  padding: 5px 0px;
   position: relative;
   margin: auto;
-  display: -ms-flexbox;
   display: flex;
-  -ms-flex-wrap: wrap;
   flex-wrap: wrap;
-  -ms-flex-align: center;
   align-items: center;
-  -ms-flex-pack: center;
   justify-content: center;
 }
 
 .circle.circle_animate {
-  animation: circle_grow_move;
-  animation-duration: 10.5s;
+  animation: circle_grow_move 10.5s;
   transform-origin: center;
 }
-
 .circle.circle_animate::before {
-  animation: scale_circle_1;
-  animation-duration: 10.5s;
+  animation: scale_circle_1 10.5s 2;
   transform-origin: center;
-  animation-iteration-count: 2;
 }
-
 .circle.circle_animate::after {
-  animation: scale_circle_1;
-  animation-duration: 10.5s;
-  animation-delay: 0.1s;
+  animation: scale_circle_1 10.5s 0.1s;
   transform-origin: center;
 }
+.circle.circle_animate .trophy_animate { animation: trophy_animate_opacity 10.5s; }
+.circle.circle_animate .xbox_img { animation: xbox_animate_opacity 10.5s; z-index: 102; }
 
-.circle.circle_animate .trophy_animate {
-  animation: trophy_animate_opacity;
-  animation-duration: 10.5s;
-}
-
-.circle.circle_animate .xbox_img {
-  animation: xbox_animate_opacity;
-  animation-duration: 10.5s;
-  z-index: 102;
-}
-
-.rare .trophy_img{
-  display: none;
-}
+.rare .trophy_img{ display: none; }
 
 .circle {
   width: 75px;
@@ -1423,234 +1394,147 @@ button, input, textarea { font-family: var(--font-stack); }
   opacity: 0;
   margin: 0 auto;
   border-radius: 100%;
-  background: var(--primary); /* 青に変更 */
+  background: var(--primary); /* 青に固定 */
   position: relative;
   overflow: hidden;
   z-index: 4;
 }
 
 .circle::before {
-  content: "";
-  opacity: 0;
-  width: 75px;
-  height: 75px;
-  background-color: rgba(0, 125, 255, 0.8); /* 青の明るめ */
-  position: absolute;
-  top: 0;
-  left: 0;
-  border-radius: 50%;
-  display: block;
+  content: ""; opacity: 0; width: 75px; height: 75px;
+  background-color: rgba(0, 125, 255, 0.8);
+  position: absolute; top: 0; left: 0; border-radius: 50%; display: block;
 }
-
 .circle::after {
-  content: "";
-  opacity: 0;
-  width: 75px;
-  height: 75px;
-  background-color: rgba(0, 125, 255, 0.6); /* 青の暗め */
-  position: absolute;
-  top: 0;
-  left: 0;
-  border-radius: 50%;
-  display: block;
+  content: ""; opacity: 0; width: 75px; height: 75px;
+  background-color: rgba(0, 125, 255, 0.6);
+  position: absolute; top: 0; left: 0; border-radius: 50%; display: block;
 }
 
-.rare .circle::after{ z-index: -1; }
-.rare  .circle::before{ z-index: -1; }
+.rare .circle::after, .rare .circle::before { z-index: -1; }
 
-.circle .img {
-  height: 50%;
-  left: 25%;
-  top: 25%;
-  position: absolute;
-  z-index: 100;
-}
+.circle .img { height: 50%; left: 25%; top: 25%; position: absolute; z-index: 100; }
+.circle .img img { height: 100%; position: absolute; }
+.circle .trophy_1 { animation: rotate 6s infinite; }
 
-.circle .img img {
-  height: 100%;
-  position: absolute;
-}
-
-.circle .trophy_1 {
-  animation: rotate;
-  animation-duration: 6s;
-  animation-iteration-count: infinite;
-}
-
-.achieve_disp_animate {
-  animation: textSlide;
-  animation-duration: 10.5s;
-}
+.achieve_disp_animate { animation: textSlide 10.5s; }
 
 .banner {
-  width: 355px;
   height: 75px;
   position: relative;
-  left: 0;
-  opacity: 0;
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -ms-flex-align: center;
-  align-items: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  right: 0;
-  margin: 0 auto;
-  background: var(--primary); /* 青に変更 */
+  left: 0; opacity: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  right: 0; margin: 0 auto;
+  background: var(--primary); /* 青に固定 */
   overflow: hidden;
   border-radius: 100px;
 }
 
 .banner-outer {
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-align: center;
-  align-items: center;
-  -ms-flex-line-pack: center;
-  align-content: center;
-  width: 100%;
-  top: -75px;
-  position: relative;
+  display: flex; align-items: center; align-content: center;
+  width: 100%; top: -75px; position: relative;
 }
 
-.banner.banner-animate {
-  animation: banner-animate;
-  animation-duration: 10.5s;
-}
-
-.achieve_name::before,
-.achieve_score::before {
-  display: none !important;
-  opacity: 0;
-  content: "";
-}
-
-.achieve_name::after,
-.achieve_score::after {
-  display: none;
-  content: "";
-}
+.banner.banner-animate { animation: banner-animate 10.5s; }
 
 .achieve_disp {
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  width: 60%;
-  position: absolute;
-  -ms-flex-pack: center;
-  justify-content: center;
-  margin-left: 95px;
-  left: 0;
-  height: 100%;
-  top: 0;
+  display: flex; flex-direction: column;
+  position: absolute; justify-content: center;
+  left: 0; height: 100%; top: 0;
 }
-
-.achieve_disp input {
-  opacity: 1 !important;
-}
-
 .achieve_disp .score_disp {
-  width: 100%;
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-direction: row;
-  flex-direction: row;
-  -ms-flex-align: start;
-  align-items: flex-start;
+  width: 100%; display: flex; flex-direction: row; align-items: flex-start;
   margin-bottom: 0 !important;
 }
+.acheive_score { margin-left: 5px; margin-right: 5px; color: white; }
+.unlocked { width: 100%; color: white; font-weight: 400; }
+.gamerscore { display: flex; flex-direction: row; align-items: center; height: 24px; }
+.hyphen_sep { margin-right: 5px; color: white; line-height: 24px; }
 
-.achieve_disp .achiev_name {
-  border: none;
-  outline: none;
-  background: none;
-  font-size: 13pt;
-  color: white;
-  line-height: 24px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.acheive_score {
-  margin-left: 5px;
-  margin-right: 5px;
-  color: white;
-}
-
-.unlocked {
-  width: 100%;
-  color: white;
-  font-weight: 400;
-  font-size: 12px;
-}
-
-.gamerscore {
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-direction: row;
-  flex-direction: row;
-  -ms-flex-align: center;
-  align-items: center;
-  height: 24px;
-}
-
-.gamerscore input {
-  margin-left: 5px;
-  width: 30px;
-  margin-right: 5px;
-  background: none;
-  outline: none;
-  border: none;
-  color: white;
-  overflow: visible;
-  font-family: 'open sans', sans-serif;
-  font-weight: bold;
-  font-size: 13pt;
-}
-
-.hyphen_sep {
-  margin-right: 5px;
-  color: white;
-  font-size: 15pt;
-  line-height: 24px;
-}
-
+/* キラキラ(レア)演出用 */
 .rare .brilliant-wrap{ display: block; }
-
 .brilliant-wrap{
-  display: none;
-  height: 75px;
-  width: 75px;
-  border-radius: 50%;
-  overflow: hidden;
-  z-index: 101;
+  display: none; height: 75px; width: 75px; border-radius: 50%;
+  overflow: hidden; z-index: 101; opacity: 0;
   animation: brilliant-wrap 10s ease-in-out;
-  opacity: 0;
 }
-
 .brilliant {
-  height: 75px;
-  width: 75px;
+  height: 75px; width: 75px;
   background-image: url('https://dl.dropboxusercontent.com/s/ocn6nk0102mtiwq/spritesheet.png');
-  background-size: 11025px 75px;
-  background-position: right;
+  background-size: 11025px 75px; background-position: right;
   animation: brilliant 7.4s steps(147) 2s;
 }
-
 @keyframes brilliant {
   0% { background-position: 0; }
   100% { background-position: -11025px; }
 }
-
 @keyframes brilliant-wrap{
   0%, 20%{ opacity: 0; }
   20.00001%{ opacity: 1; }
   90% { opacity: 1; }
   95%{ opacity: 0; }
+}
+
+
+/* ====================================================
+   PC ＆ スマホごとの「幅」と「文字サイズ」のレスポンシブ対応
+   ==================================================== */
+
+/* ▼ PC用（769px以上）：幅を長く伸ばす（355px → 480px） */
+@media (min-width: 769px) {
+  .animation { width: 480px; }
+  .banner { padding-right: 20px; } /* 右側に余白を設ける */
+  .achieve_disp { width: 70%; margin-left: 95px; }
+  
+  .achieve_disp .achiev_name {
+    border: none; background: none; color: white;
+    font-size: 14pt; font-weight: 700; line-height: 24px;
+    overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  }
+  .unlocked { font-size: 12px; }
+  .gamerscore img { width: 20px; }
+  .acheive_score, .hyphen_sep { font-size: 15pt; }
+
+  @keyframes banner-animate {
+    0% { width: 75px; opacity: 0; }
+    4% { opacity: 1; }
+    11% { width: 75px; }
+    24% { width: 480px; } /* PCは長く伸ばす */
+    85% { width: 480px; }
+    89% { width: 75px; opacity: 1; }
+    90% { opacity: 0; }
+  }
+}
+
+/* ▼ スマホ用（768px以下）：画面幅に合わせ、文字を小さく折り返す */
+@media (max-width: 768px) {
+  .animation { width: 92%; max-width: 355px; }
+  .banner { width: 100%; border-radius: 50px; }
+  .achieve_disp { width: 68%; margin-left: 85px; padding-right: 15px; }
+  
+  .achieve_disp .achiev_name {
+    border: none; background: none; color: white;
+    font-size: 12px; /* 文字を小さく */
+    font-weight: 700; line-height: 1.3;
+    white-space: normal; /* 折り返しを許可 */
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* 最大2行まで表示 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .unlocked { font-size: 10px; margin-bottom: 2px; }
+  .gamerscore img { width: 14px; } /* Gアイコンも小さく */
+  .acheive_score, .hyphen_sep { font-size: 12px; line-height: 1.2; }
+
+  @keyframes banner-animate {
+    0% { width: 75px; opacity: 0; }
+    4% { opacity: 1; }
+    11% { width: 75px; }
+    24% { width: 100%; } /* スマホは画面幅（92%）いっぱいに広げる */
+    85% { width: 100%; }
+    89% { width: 75px; opacity: 1; }
+    90% { opacity: 0; }
+  }
 }
 </style>
 </head>
