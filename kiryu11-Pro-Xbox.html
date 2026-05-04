@@ -2847,12 +2847,15 @@ async function buyItemWithPoints(contentId, price) { // ⭕ 引数を変更
         // index.html の 846行目付近
 // buyItemWithPoints 関数内の if (data.success) { ... } の中身を以下に置き換えます
 if (data.success) {
-        currentUser.points = data.remainingPoints;
-            updateAccountUI();
-            await fetchUserHistory(); 
-          const isRareItem = itemPrice >= 1000;
-    // 第4引数を消すことで、自動で多言語辞書が使われます
-    triggerAchievement(currentContentData.title, itemPrice, isRareItem);
+    currentUser.points = data.remainingPoints;
+    updateAccountUI();
+    await fetchUserHistory(); 
+
+    triggerAchievement(
+        currentContentData.title, 
+        "", 
+        currentContentData.isRare // ★ アイテムのレアフラグを使う
+    );
 
             // ★ スマホ版とPC版で表示を分ける＆UIの更新
             if (window.innerWidth <= 768) {
@@ -3527,12 +3530,13 @@ async function performAuth(code, mode = 'check') {
             return;
         }
 
-        await saveUnlockedItemLocal(d, safeCode);
-        triggerAchievement(
-    currentContentData.detailedTitle || "コンテンツ解放", 
-    "100", // 獲得したGスコアっぽく見せる数字
-    true   // 第4引数を消すことで、自動で多言語辞書が使われます
-);
+        // saveUnlockedItemLocal の直後
+          await saveUnlockedItemLocal(d, safeCode);
+          triggerAchievement(
+          currentContentData.detailedTitle || "コンテンツ解放", 
+           "",      // スコアは空（CSSで消しているため）
+        d.isRare // ★ バックエンドから届いたフラグをそのまま使う
+    );
         if(window.innerWidth <= 768) {
            const item = {
              title: d.bundleLabel || d.message,
