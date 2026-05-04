@@ -1843,11 +1843,14 @@ function triggerAchievement(title, score, isRare = false, customUnlockText = nul
     document.querySelector('.achiev_name').innerText = title;
     document.querySelector('.acheive_score').innerText = score;
     
-    // 多言語対応（カスタムテキストがなければデフォルト）
-    let unlockText = customUnlockText || (isRare ? 'Rare achievement unlocked' : 'Achievement unlocked');
-    if (CURRENT_LANG === 'ja' && !customUnlockText) {
-        unlockText = isRare ? 'レア実績を解除しました' : '実績を解除しました';
+    // 多言語対応（カスタムテキストがなければ辞書から取得）
+    let unlockText = customUnlockText;
+    
+    if (!unlockText) {
+        // customUnlockText が指定されていない場合は、辞書から引っ張る
+        unlockText = isRare ? (t.success_unlock_rare_msg || "Rare content unlocked") : (t.success_unlock_msg || "Content unlocked");
     }
+    
     document.querySelector('.unlocked').innerText = unlockText;
 
     const achContainer = document.querySelector('.achievement');
@@ -2038,7 +2041,7 @@ const TRANSLATIONS={
   success_desc: "以下のコンテンツを引き換えました:",
   success_msg_box: "正常に処理されました。\nコンテンツを選択してダウンロードしてください。",
   error_title_prefix: "エラー",
-  error_used_msg: "このコードは引き換え済みです。",
+  error_used_msg: "このコードは引き換え済みです。", success_unlock_msg: "コンテンツのロックを解除しました", success_unlock_rare_msg: "特別なコンテンツを解放しました",
   error_locked_msg: "このコンテンツは解禁していません。",
   error_expired_msg: "このコンテンツは配信終了しました。", btn_expired: "配信終了",
   error_owned_msg: "既に所有しているようです。",
@@ -2087,7 +2090,7 @@ const TRANSLATIONS={
   success_desc: "The following content has been redeemed:",
   success_msg_box: "Processed successfully.\nPlease select and download your content.",
   error_title_prefix: "Error",
-  error_used_msg: "This code has already been redeemed.",
+  error_used_msg: "This code has already been redeemed.", success_unlock_msg: "Content unlocked", success_unlock_rare_msg: "Rare content unlocked",
   error_locked_msg: "This content has not been released.",
   error_expired_msg: "This content is no longer available.", btn_expired: "No longer available",
   error_owned_msg: "You already own this content.",
@@ -2136,7 +2139,7 @@ const TRANSLATIONS={
   success_desc: "以下内容兑换成功:",
   success_msg_box: "处理成功。\n请选择并下载内容。",
   error_title_prefix: "错误",
-  error_used_msg: "此代码已被兑换。",
+  error_used_msg: "此代码已被兑换。", success_unlock_msg: "已解锁内容", success_unlock_rare_msg: "已解锁稀有内容",
   error_locked_msg: "此内容尚未发布。",
   error_expired_msg: "此内容已停止提供。", btn_expired: "停止提供",
   error_owned_msg: "您已拥有此项目。",
@@ -2185,7 +2188,7 @@ const TRANSLATIONS={
   success_desc: "該代碼已兌換以下內容:",
   success_msg_box: "已成功處理。\n請選擇內容並下載",
   error_title_prefix: "錯誤",
-  error_used_msg: "此代碼已兌換。",
+  error_used_msg: "此代碼已兌換。", success_unlock_msg: "內容已解鎖", success_unlock_rare_msg: "稀有內容已解鎖",
   error_locked_msg: "此內容尚未發佈。",
   error_expired_msg: "此內容已結束配信。", btn_expired: "結束配信",
   error_owned_msg: "你已經擁有了。",
@@ -2234,7 +2237,7 @@ const TRANSLATIONS={
   success_desc: "다음 콘텐츠가 활성화되었습니다:",
   success_msg_box: "정상적으로 처리되었습니다.\n콘텐츠를 선택하여 다운로드해 주세요.",
   error_title_prefix: "오류",
-  error_used_msg: "이 코드는 이미 사용되었습니다.",
+  error_used_msg: "이 코드는 이미 사용되었습니다.", success_unlock_msg: "콘텐츠가 잠금 해제되었습니다", success_unlock_rare_msg: "희귀 콘텐츠가 잠금 해제되었습니다",
   error_locked_msg: "이 콘텐츠는 아직 출시되지 않았습니다.",
   error_expired_msg: "이 콘텐츠는 배포가 종료되었습니다.", btn_expired: "제공 종료",
   error_owned_msg: "이미 가지고 있습니다.",
@@ -2283,7 +2286,7 @@ const TRANSLATIONS={
   success_desc: "Если вы продолжите, вы получите следующий контент:",
   success_msg_box: "Успешно обработано.\nВыберите контент и загрузите.",
   error_title_prefix: "Ошибка",
-  error_used_msg: "Этот код уже активирован.",
+  error_used_msg: "Этот код уже активирован.", success_unlock_msg: "Контент разблокирован", success_unlock_rare_msg: "Редкий контент разблокирован",
   error_locked_msg: "Этот контент еще не выпущен.",
   error_expired_msg: "Срок действия этого контента истек.", btn_expired: "Раздача окончена",
   error_owned_msg: "Оно у вас уже есть.",
@@ -2843,13 +2846,13 @@ async function buyItemWithPoints(contentId, price) { // ⭕ 引数を変更
         
         // index.html の 846行目付近
 // buyItemWithPoints 関数内の if (data.success) { ... } の中身を以下に置き換えます
-
-        if (data.success) {
-            currentUser.points = data.remainingPoints;
+if (data.success) {
+        currentUser.points = data.remainingPoints;
             updateAccountUI();
             await fetchUserHistory(); 
           const isRareItem = itemPrice >= 1000;
-    triggerAchievement(currentContentData.title, itemPrice, isRareItem, "新しいコンテンツを獲得しました");
+    // 第4引数を消すことで、自動で多言語辞書が使われます
+    triggerAchievement(currentContentData.title, itemPrice, isRareItem);
 
             // ★ スマホ版とPC版で表示を分ける＆UIの更新
             if (window.innerWidth <= 768) {
@@ -3528,8 +3531,7 @@ async function performAuth(code, mode = 'check') {
         triggerAchievement(
     currentContentData.detailedTitle || "コンテンツ解放", 
     "100", // 獲得したGスコアっぽく見せる数字
-    true,  // コード入力成功時は気持ちよくレア音源を鳴らす
-    "コンテンツのロックを解除しました"
+    true   // 第4引数を消すことで、自動で多言語辞書が使われます
 );
         if(window.innerWidth <= 768) {
            const item = {
