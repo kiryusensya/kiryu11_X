@@ -1282,7 +1282,7 @@ button, input, textarea { font-family: var(--font-stack); }
 }
 .btn-download-small:active { transform: scale(0.95); }
 /* ====================================================
-   実績解除アニメーション - ダイヤ演出復活・完全版
+   実績解除アニメーション - 緑色 ＆ Gスコア非表示版
    ==================================================== */
 
 /* コンテナ設定 */
@@ -1296,6 +1296,11 @@ button, input, textarea { font-family: var(--font-stack); }
 
 /* トロフィー画像のみ非表示（Xboxロゴとダイヤは表示します） */
 .trophy_img {
+  display: none !important;
+}
+
+/* 🌟 今回の追加：Gスコア(Gマークと数字)とハイフンを完全に消して左に詰める */
+.gamerscore, .hyphen_sep {
   display: none !important;
 }
 
@@ -1324,13 +1329,13 @@ button, input, textarea { font-family: var(--font-stack); }
 }
 .circle {
   width: 75px; height: 75px; top: 0; opacity: 0; margin: 0 auto;
-  border-radius: 100%; background: var(--primary); position: relative; overflow: hidden; z-index: 4;
+  border-radius: 100%; background: #39960C; position: relative; overflow: hidden; z-index: 4;
 }
 .circle::before, .circle::after {
   content: ""; opacity: 0; width: 75px; height: 75px; position: absolute; top: 0; left: 0; border-radius: 50%; display: block;
 }
-.circle::before { background-color: rgba(0, 125, 255, 0.8); }
-.circle::after { background-color: rgba(0, 125, 255, 0.6); }
+.circle::before { background-color: #40a90e; }
+.circle::after { background-color: #32830a; }
 
 /* サークルアニメーション */
 .circle.circle_animate { transform-origin: center; }
@@ -1346,18 +1351,15 @@ button, input, textarea { font-family: var(--font-stack); }
 .banner {
   height: 75px; position: relative; left: 0; opacity: 0;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  right: 0; margin: 0 auto; background: var(--primary); overflow: hidden; border-radius: 100px;
+  right: 0; margin: 0 auto; background: #39960C; overflow: hidden; border-radius: 100px;
 }
 .banner-outer { display: flex; align-items: center; align-content: center; width: 100%; top: -75px; position: relative; }
 .achieve_disp { display: flex; flex-direction: column; position: absolute; justify-content: center; left: 0; height: 100%; top: 0; }
 .achieve_disp .score_disp { width: 100%; display: flex; flex-direction: row; align-items: flex-start; margin-bottom: 0 !important; }
-.acheive_score { margin-left: 5px; margin-right: 5px; color: white; }
 .unlocked { width: 100%; color: white; font-weight: 400; }
-.gamerscore { display: flex; flex-direction: row; align-items: center; height: 24px; }
-.hyphen_sep { margin-right: 5px; color: white; line-height: 24px; }
 
 /* ====================================================
-   レア演出（ダイヤとキラキラ）復活！
+   レア演出（ダイヤとキラキラ）
    ==================================================== */
 .rare .brilliant-wrap { display: block; }
 .brilliant-wrap {
@@ -1395,8 +1397,6 @@ button, input, textarea { font-family: var(--font-stack); }
     overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
   }
   .unlocked { font-size: 12px; }
-  .gamerscore img { width: 20px; }
-  .acheive_score, .hyphen_sep { font-size: 15pt; }
 
   .circle.circle_animate { animation: circle_grow_move_pc 10.5s; }
   .banner.banner-animate { animation: banner_animate_pc 10.5s; }
@@ -1405,10 +1405,10 @@ button, input, textarea { font-family: var(--font-stack); }
     1% { opacity: 0; transform: scale(0.1); }
     4% { transform: scale(1.1); }
     5% { transform: scale(1); opacity: 1; }
-    11% { transform: translate(0); background-color: var(--primary); }
-    24% { transform: translateX(-202.5px); background-color: var(--primary); }
-    85% { transform: translateX(-202.5px); background-color: var(--primary); }
-    89% { transform: translateX(0); background-color: var(--primary); }
+    11% { transform: translate(0); background-color: #39960C; }
+    24% { transform: translateX(-202.5px); background-color: #42ae0e; }
+    85% { transform: translateX(-202.5px); background-color: #42ae0e; }
+    89% { transform: translateX(0); background-color: #39960C; }
     94% { transform: scale(1); }
     96% { transform: scale(1.1); }
     98% { transform: scale(0.1); opacity: 1; }
@@ -1438,8 +1438,6 @@ button, input, textarea { font-family: var(--font-stack); }
     line-height: 1.3; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
   .unlocked { font-size: 10px; margin-bottom: 2px; }
-  .gamerscore img { width: 14px; }
-  .acheive_score, .hyphen_sep { font-size: 12px; line-height: 1.2; }
 
   .circle.circle_animate { animation: circle_grow_move_mobile 10.5s; }
   .banner.banner-animate { animation: banner_animate_mobile 10.5s; }
@@ -1448,10 +1446,10 @@ button, input, textarea { font-family: var(--font-stack); }
     1% { opacity: 0; transform: scale(0.1); }
     4% { transform: scale(1.1); }
     5% { transform: scale(1); opacity: 1; }
-    11% { transform: translate(0); background-color: var(--primary); }
-    24% { transform: translateX(-140px); background-color: var(--primary); }
-    85% { transform: translateX(-140px); background-color: var(--primary); }
-    89% { transform: translateX(0); background-color: var(--primary); }
+    11% { transform: translate(0); background-color: #39960C; }
+    24% { transform: translateX(-140px); background-color: #42ae0e; }
+    85% { transform: translateX(-140px); background-color: #42ae0e; }
+    89% { transform: translateX(0); background-color: #39960C; }
     94% { transform: scale(1); }
     96% { transform: scale(1.1); }
     98% { transform: scale(0.1); opacity: 1; }
