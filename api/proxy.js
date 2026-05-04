@@ -193,7 +193,7 @@ export default async function handler(req, res) {
     // ==========================================
     const userAgent = req.headers['user-agent'] || 'unknown';
     const safeType = type || 'unknown';
-    const ignoredActions = ['get_history', 'get_available', 'error_search', 'admin_get_access_logs', 'admin_search', 'admin_set_points'];
+    const ignoredActions = ['get_history', 'get_available', 'error_search', 'admin_get_access_logs', 'admin_search', 'admin_set_points', 'get_video_url'];
     
     let targetCode = null;
     if (safeType === 'check' || safeType === 'redeem') {
