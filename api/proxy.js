@@ -692,7 +692,8 @@ export default async function handler(req, res) {
       if (mode === 'check') {
         return res.status(200).json({
           success: true, bundleLabel: txt.bundle, message: txt.message, detailedTitle: txt.title, detailedDesc: txt.desc,
-          buttonLabel: txt.btnLabel, imageUrl: content.Imag_Url, icon: content.アイコン || 'download', groupId: content["重複"]
+          buttonLabel: txt.btnLabel, imageUrl: content.Imag_Url, icon: content.アイコン || 'download', groupId: content["重複"],
+          isRare: content.is_rare || false // ★ ここにカンマ(,)を付けて追加！
         });
       }
 
@@ -733,7 +734,8 @@ export default async function handler(req, res) {
           success: true, actionUrl: retUrl, bundleLabel: txt.bundle, message: txt.message,         
           detailedTitle: txt.title, detailedDesc: txt.desc, buttonLabel: txt.btnLabel,
           imageUrl: content.Imag_Url, isReleaseDateReached: isRelease, releaseDateIso: content["解禁時間"],
-          expireDateIso: content["有効時間"], btnIcon: content.アイコン || 'download', groupId: content["重複"]
+          expireDateIso: content["有効時間"], btnIcon: content.アイコン || 'download', groupId: content["重複"],
+          isRare: content.is_rare || false // ★ ここにカンマ(,)を付けて追加！
         });
       }
     }
