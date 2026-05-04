@@ -575,14 +575,14 @@
             `;
             resEl.appendChild(actionsDiv);
 
-            // ★ 追加: Tier変更イベント
+            // ★ 修正: Tier変更イベント
             actionsDiv.querySelector('#btnSetTier').addEventListener('click', async (e) => {
+                const btn = e.currentTarget; // ★ 必ず await（待機）の前にボタン要素を取得して保持する
                 const newTier = actionsDiv.querySelector('#setTierVal').value;
-                const newTierName = newTier === 'enterprise' ? 'エンタープライズ版' : 'スタンダード版';
+                const newTierName = newTier === 'enterprise' ? 'プロフェッショナル版' : 'スタンダード版';
                 
                 if (!(await customConfirm(`権限を「${newTierName}」に変更しますか？`, "権限の変更"))) return;
                 
-                const btn = e.currentTarget;
                 btn.textContent = "処理中..."; btn.disabled = true;
                 try {
                     const tierRes = await safeFetch({ type: 'admin_set_tier', targetEmail: d.userId || u, targetTier: newTier });
@@ -595,7 +595,6 @@
                 } catch(err) { await customAlert('⚠通信エラー', "エラー"); }
                 btn.textContent = "変更"; btn.disabled = false;
             });
-
             // ポイント設定のエンターキー対応
             actionsDiv.querySelector('#setPtVal').addEventListener('keydown', (e) => {
                 if(e.key === 'Enter') actionsDiv.querySelector('#btnSetPt').click();
