@@ -21,7 +21,30 @@ const ALLOWED_ORIGINS = [
   'https://kiryu11-pro.vercel.app',
   'http://localhost:3000'
 ];
-
+// ==========================================
+// ★ 追加: Action_url (JSON) パース＆権限チェック用共通関数
+// ==========================================
+const parseActionUrl = (actionUrlStr, currentTier) => {
+    let parsedUrls = [];
+    try {
+        if (actionUrlStr && String(actionUrlStr).trim().startsWith('[')) {
+            const arr = JSON.parse(actionUrlStr);
+            parsedUrls = arr.map(item => {
+                const itemTier = String(item.target_tier || 'all').toLowerCase();
+                // enterprise版なら全てtrue、standard版ならenterprise専用以外がtrue
+                const isAvailable = currentTier === 'enterprise' || itemTier !== 'enterprise';
+                return { ...item, isAvailable };
+            });
+        } else if (actionUrlStr) {
+            // 今まで通りの単一URLだった場合の互換性維持
+            parsedUrls = [{ title: "メインコンテンツ", url: actionUrlStr, type: "main", isAvailable: true }];
+        }
+    } catch (e) {
+        // JSONの構文エラー時などのフェイルセーフ
+        parsedUrls = [{ title: "メインコンテンツ", url: actionUrlStr, type: "main", isAvailable: true }];
+    }
+    return parsedUrls;
+};
 export default async function handler(req, res) {
   const origin = req.headers.origin || '';
   if (ALLOWED_ORIGINS.includes(origin)) {
@@ -582,7 +605,7 @@ export default async function handler(req, res) {
           title: content[`タイトル(${suffix})`] || content["タイトル(jp)"],
           message: content[`メッセージ(${suffix})`] || content["メッセージ(jp)"], 
           extraInfo: content[`詳細(${suffix})`] || content["詳細(jp)"],
-          imageUrl: content.Imag_Url, url: content.Action_url, releaseDateIso: content["解禁時間"], expireDateIso: content["有効時間"], icon: content.アイコン || 'download',
+          imageUrl: content.Imag_Url, urls: parseActionUrl(content.Action_url, appTier), releaseDateIso: content["解禁時間"], expireDateIso: content["有効時間"], icon: content.アイコン || 'download',
           groupId: content["重複"], buttonLabel: content[`ボタン(${suffix})`] || content["ボタン(jp)"], price: content["価格"] || 0, isOwned: isOwned
         };
       });
@@ -608,7 +631,7 @@ export default async function handler(req, res) {
         // ★ エンタープライズ版のため制限なしで履歴表示
         return {
           code: codeRec["アクティベーションコード"], date: h.created_at, title: c[`タイトル(${suffix})`] || c["タイトル(jp)"],
-          message: c[`メッセージ(${suffix})`] || c["メッセージ(jp)"], url: c.Action_url, imageUrl: c.Imag_Url,
+          message: c[`メッセージ(${suffix})`] || c["メッセージ(jp)"], urls: parseActionUrl(c.Action_url, appTier), imageUrl: c.Imag_Url,
           icon: c.アイコン || 'download', releaseDateIso: c["解禁時間"], expireDateIso: c["有効時間"], extraInfo: c[`詳細(${suffix})`] || c["詳細(jp)"],
           groupId: c["重複"], buttonLabel: c[`ボタン(${suffix})`] || c["ボタン(jp)"], price: c["価格"] || 0
         };
@@ -663,7 +686,11 @@ export default async function handler(req, res) {
 
       const content = master.contents;
       
-      // ★ エンタープライズ版APIのため、制限ブロックをバイパス
+      // ★ 階層制限（エンタープライズ版は通過、スタンダード版はブロック）
+      const targetTier = String(master.target_tier || content.target_tier || 'all').toLowerCase().trim();
+      if (appTier === 'standard' && targetTier === 'enterprise') {
+          return res.status(200).json({ success: false, message: "Invalid code" });
+      }
 
       const isActive = master["有効/無効"] === true || String(master["有効/無効"]).trim().toUpperCase() === 'TRUE';
       if (!isActive) return res.status(200).json({ success: false, message: "Invalid code" });
@@ -692,7 +719,8 @@ export default async function handler(req, res) {
       if (mode === 'check') {
         return res.status(200).json({
           success: true, bundleLabel: txt.bundle, message: txt.message, detailedTitle: txt.title, detailedDesc: txt.desc,
-          buttonLabel: txt.btnLabel, imageUrl: content.Imag_Url, icon: content.アイコン || 'download', groupId: content["重複"]
+          buttonLabel: txt.btnLabel, imageUrl: content.Imag_Url, icon: content.アイコン || 'download', groupId: content["重複"],
+          urls: parseActionUrl(content.Action_url, appTier) // ★ココ！
         });
       }
 
@@ -720,7 +748,6 @@ export default async function handler(req, res) {
         if (isOwned) return res.status(200).json({ success: false, isAlreadyOwned: true, message: "Already owned" });
 
         const isRelease = !content["解禁時間"] || (checkNow >= new Date(content["解禁時間"]));
-        const retUrl = content.Action_url;
 
         if (targetId) {
            await supabase.from('histories').insert([{ user_id: targetId, code_id: master.id }]);
@@ -730,7 +757,9 @@ export default async function handler(req, res) {
         }
 
         return res.status(200).json({
-          success: true, actionUrl: retUrl, bundleLabel: txt.bundle, message: txt.message,         
+          success: true, 
+          urls: parseActionUrl(content.Action_url, appTier), // ★ココ！（actionUrlの代わり）
+          bundleLabel: txt.bundle, message: txt.message,         
           detailedTitle: txt.title, detailedDesc: txt.desc, buttonLabel: txt.btnLabel,
           imageUrl: content.Imag_Url, isReleaseDateReached: isRelease, releaseDateIso: content["解禁時間"],
           expireDateIso: content["有効時間"], btnIcon: content.アイコン || 'download', groupId: content["重複"]
