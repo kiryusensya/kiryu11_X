@@ -1282,7 +1282,7 @@ button, input, textarea { font-family: var(--font-stack); }
 }
 .btn-download-small:active { transform: scale(0.95); }
 /* ====================================================
-   実績解除アニメーション - 最終完全版（青色・長文・Xboxロゴ位置修正）
+   実績解除アニメーション - 修正完全版（青色・長文・Xboxロゴ位置修正）
    ==================================================== */
 
 /* コンテナ設定 */
@@ -1332,8 +1332,10 @@ button, input, textarea { font-family: var(--font-stack); }
 .circle::before { background-color: rgba(0, 125, 255, 0.8); }
 .circle::after { background-color: rgba(0, 125, 255, 0.6); }
 
-.circle.circle_animate::before { animation: scale_circle_1 10.5s 2 center; }
-.circle.circle_animate::after { animation: scale_circle_1 10.5s 0.1s center; }
+/* ▼ エラー修正： center 指定を分離しました */
+.circle.circle_animate { transform-origin: center; }
+.circle.circle_animate::before { animation: scale_circle_1 10.5s 2; transform-origin: center; }
+.circle.circle_animate::after { animation: scale_circle_1 10.5s 0.1s; transform-origin: center; }
 .circle.circle_animate .xbox_img { animation: xbox_animate_opacity 10.5s; z-index: 102; }
 
 .circle .img { height: 50%; left: 25%; top: 25%; position: absolute; z-index: 100; }
@@ -1370,8 +1372,7 @@ button, input, textarea { font-family: var(--font-stack); }
   .gamerscore img { width: 20px; }
   .acheive_score, .hyphen_sep { font-size: 15pt; }
 
-  /* PC専用の移動距離を指定 */
-  .circle.circle_animate { animation: circle_grow_move_pc 10.5s center; }
+  .circle.circle_animate { animation: circle_grow_move_pc 10.5s; }
   .banner.banner-animate { animation: banner_animate_pc 10.5s; }
 
   @keyframes circle_grow_move_pc {
@@ -1414,8 +1415,7 @@ button, input, textarea { font-family: var(--font-stack); }
   .gamerscore img { width: 14px; }
   .acheive_score, .hyphen_sep { font-size: 12px; line-height: 1.2; }
 
-  /* スマホ専用の移動距離を指定 */
-  .circle.circle_animate { animation: circle_grow_move_mobile 10.5s center; }
+  .circle.circle_animate { animation: circle_grow_move_mobile 10.5s; }
   .banner.banner-animate { animation: banner_animate_mobile 10.5s; }
 
   @keyframes circle_grow_move_mobile {
