@@ -579,7 +579,7 @@
             actionsDiv.querySelector('#btnSetTier').addEventListener('click', async (e) => {
                 const btn = e.currentTarget; // ★ 必ず await（待機）の前にボタン要素を取得して保持する
                 const newTier = actionsDiv.querySelector('#setTierVal').value;
-                const newTierName = newTier === 'enterprise' ? 'プロフェッショナル版' : 'スタンダード版';
+                const newTierName = newTier === 'enterprise' ? 'エンタープライズ版' : 'スタンダード版';
                 
                 if (!(await customConfirm(`権限を「${newTierName}」に変更しますか？`, "権限の変更"))) return;
                 
