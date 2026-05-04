@@ -377,6 +377,27 @@ export default async function handler(req, res) {
             await logAudit('SET_POINTS', targetEmail, { amount });
             return res.status(200).json({ success: true });
         }
+      // ★ 追加: 5-2. ユーザー権限(Tier)の変更
+        if (type === 'admin_set_tier') {
+            const { targetEmail, targetTier } = params;
+            if (!targetEmail || !targetTier) {
+                return res.status(200).json({ success: false, message: "必要なパラメータが不足しています" });
+            }
+            
+            // Tierの値を standard か enterprise にバリデーション
+            const safeTier = targetTier === 'enterprise' ? 'enterprise' : 'standard';
+            
+            const { error } = await supabase.from('users').update({ app_tier: safeTier }).eq('email', targetEmail);
+            
+            if (error) {
+                return res.status(200).json({ success: false, message: error.message });
+            }
+            
+            // 監査ログに権限変更を記録
+            await logAudit('SET_TIER', targetEmail, { newTier: safeTier });
+            
+            return res.status(200).json({ success: true, message: `権限を ${safeTier} に変更しました` });
+        }
 
         // 6. ユーザー削除
         if (type === 'admin_delete_user') {
