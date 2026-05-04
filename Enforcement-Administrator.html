@@ -6,57 +6,38 @@
 <title>Enforcement Administrator</title>
 
 <script>
-  // ログイン状態の確認関数
   function checkCookie(name) {
       const value = `; ${document.cookie}`;
       const parts = value.split(`; ${name}=`);
       return parts.length === 2;
   }
-
-  // 1. アクセス時の初回チェック
-  if (!checkCookie('admin_logged_in')) {
-      window.location.replace('signin.html');
-  }
-
-  // 2. Cookie（キャッシュ）削除の監視（3秒ごとにチェック）
+  if (!checkCookie('admin_logged_in')) window.location.replace('signin.html');
   setInterval(() => {
-      if (!checkCookie('admin_logged_in')) {
-          // Cookieが削除されているのを検知したら即座にリダイレクト
-          window.location.replace('signin.html');
-      }
+      if (!checkCookie('admin_logged_in')) window.location.replace('signin.html');
   }, 3000);
 
-  // 3. 20分無操作で強制ログアウトさせるタイマー処理
   let inactivityTimer;
-  const INACTIVITY_LIMIT = 20 * 60 * 1000; // 20分 = 1,200,000ミリ秒
-
+  const INACTIVITY_LIMIT = 20 * 60 * 1000;
   function performAutoLogout() {
-      // Cookieを強制的に削除してサインイン画面へ
       document.cookie = "admin_logged_in=; path=/; max-age=0;";
       alert("20分間操作がなかったため、セキュリティ保護のため自動的にログアウトしました。");
       window.location.replace('signin.html');
   }
-
   function resetInactivityTimer() {
       clearTimeout(inactivityTimer);
       inactivityTimer = setTimeout(performAutoLogout, INACTIVITY_LIMIT);
   }
-
-  // ユーザーのアクション（マウス移動、クリック、キー入力、スクロール等）を検知したらタイマーをリセット
   window.addEventListener('mousemove', resetInactivityTimer);
   window.addEventListener('mousedown', resetInactivityTimer);
   window.addEventListener('keypress', resetInactivityTimer);
   window.addEventListener('touchstart', resetInactivityTimer);
   window.addEventListener('scroll', resetInactivityTimer);
-
-  // ページ読み込み時にタイマーを初回起動
   resetInactivityTimer();
 </script>
 
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
 <style>
-  /* --- FONT FACE DEFINITIONS --- */
 @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
 @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Medium.woff') format('woff'); font-weight: 500; font-style: normal; }
 @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
@@ -72,11 +53,6 @@
     --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
   }
   :root:lang(ja) { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
-:root:lang(zh) { --font-stack: 'HarmonyOS Sans', 'HarmonyOS Sans SC', sans-serif; }
-:root:lang(zh-TW) { --font-stack: 'HarmonyOS Sans', 'HarmonyOS Sans TC', sans-serif; }
-:root:lang(ko) { --font-stack: 'HarmonyOS Sans', 'Noto Sans KR', sans-serif; }
-:root:lang(ru) { --font-stack: 'HarmonyOS Sans', sans-serif; }
-:root:lang(en) { --font-stack: 'HarmonyOS Sans', sans-serif; }
   body { font-family: var(--font-stack); background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 0; min-height: 100vh; display: flex; overflow-x: hidden; }
   * { box-sizing: border-box; }
 
@@ -109,13 +85,8 @@
   option { background-color: var(--bg-color); color: var(--text-main); }
   option:checked { background-color: var(--primary); color: #fff; }
   input[type="number"]::-webkit-outer-spin-button,
-  input[type="number"]::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-  input[type="number"] {
-    -moz-appearance: textfield; 
-  }
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type="number"] { -moz-appearance: textfield; }
   select { appearance: none; cursor: pointer; }
   input:focus, select:focus, textarea:focus { border-color: var(--primary); background: rgba(0, 125, 255, 0.05); }
   
@@ -184,6 +155,14 @@
           <h2>新規アカウントの作成</h2>
           <div class="form-group"><label>新しい個人識別子</label><input type="text" id="newUserId" placeholder="個人識別子"></div>
           <div class="form-group"><label>初期パスワード</label><input type="text" id="newUserPass" placeholder="初期パスワード"></div>
+          <!-- ★ 追加: ユーザー階層の選択 -->
+          <div class="form-group">
+              <label>アカウント権限 (Tier)</label>
+              <select id="newUserTier">
+                  <option value="standard">スタンダード版専用アカウント</option>
+                  <option value="enterprise">エンタープライズ対応アカウント (全機能)</option>
+              </select>
+          </div>
           <button id="btnCreate" class="btn-primary">アカウントを発行</button>
           <div id="createResult" class="msg"></div>
       </div>
@@ -192,6 +171,7 @@
   <div id="panel-reset" class="panel">
       <div class="card">
           <h2>パスワードのリセット</h2>
+          <p style="font-size:12px; color:var(--text-sub); margin-bottom:20px;">スタンダード版・エンタープライズ版どちらのアカウントもリセット可能です。</p>
           <div class="form-group"><label>個人識別子</label><input type="text" id="resetUserId" placeholder="個人識別子"></div>
           <div class="form-group"><label>新しい仮パスワード</label><input type="text" id="resetUserPass" placeholder="新しい仮パスワード"></div>
           <button id="btnReset" class="btn-primary" style="background:#FF9500; color:#000;">強制リセットを実行</button>
@@ -221,6 +201,16 @@
               <h3 style="border-bottom: 1px solid var(--card-border); padding-bottom: 8px; margin-top:0;">基本設定</h3>
               <div class="grid-form">
                   <div class="form-group" style="grid-column: 1 / -1;"><label>コンテンツID (※上書き更新する場合のみ入力)</label><input type="number" class="content-input" data-col="id" placeholder="空欄で新規作成"></div>
+                  
+                  <!-- ★ 追加: コンテンツの対象階層の選択 -->
+                  <div class="form-group" style="grid-column: 1 / -1;">
+                      <label>対象階層 (Tier)</label>
+                      <select class="content-input" data-col="target_tier">
+                          <option value="all">全バージョン共通 (All)</option>
+                          <option value="enterprise">エンタープライズ専用 (Enterprise)</option>
+                      </select>
+                  </div>
+
                   <div class="form-group"><label>表示設定</label><select class="content-input" data-col="show/ hide"><option value="show">show</option><option value="hide">hide</option></select></div>
                   <div class="form-group"><label>価格 (ポイント)</label><input type="number" class="content-input" data-col="価格" placeholder="0"></div>
                   <div class="form-group"><label>解禁時間</label><input type="datetime-local" class="content-input" data-col="解禁時間"></div>
@@ -260,6 +250,14 @@
               </div>
           </div>
           <div class="grid-form">
+              <!-- ★ 追加: コードの対象階層の選択 -->
+              <div class="form-group" style="grid-column: 1 / -1;">
+                  <label>対象階層 (Tier)</label>
+                  <select id="genCodeTier">
+                      <option value="all">全バージョン共通 (All)</option>
+                      <option value="enterprise">エンタープライズ専用 (Enterprise)</option>
+                  </select>
+              </div>
               <div class="form-group"><label>コードタイプ</label><select id="genCodeType"><option value="ONCE">ONCE (1回使い切り)</option><option value="MULTIPLE">MULTI (複数回)</option><option value="POINT">POINT (ポイント付与)</option></select></div>
               <div class="form-group"><label>付与ポイント(POINT時のみ)</label><input type="number" id="genPointPpp" placeholder="0"></div>
               <div class="form-group" style="grid-column: 1 / -1;"><label>初期ステータス</label><select id="genIsActive"><option value="true">有効 (利用可能)</option><option value="false">無効</option></select></div>
@@ -303,13 +301,14 @@
                       <tr>
                           <th style="padding: 12px 16px; border-bottom: 1px solid var(--card-border);">日時</th>
                           <th style="padding: 12px 16px; border-bottom: 1px solid var(--card-border);">IPアドレス</th>
+                          <th style="padding: 12px 16px; border-bottom: 1px solid var(--card-border);">アクセス元</th> <!-- ★ 追加 -->
                           <th style="padding: 12px 16px; border-bottom: 1px solid var(--card-border);">アクション</th>
                           <th style="padding: 12px 16px; border-bottom: 1px solid var(--card-border);">入力コード</th>
                           <th style="padding: 12px 16px; border-bottom: 1px solid var(--card-border);">ユーザー</th>
                       </tr>
                   </thead>
                   <tbody id="logTableBody">
-                      <tr><td colspan="5" style="padding: 20px; text-align: center; color: var(--text-sub);">「更新」ボタンを押して読み込んでください</td></tr>
+                      <tr><td colspan="6" style="padding: 20px; text-align: center; color: var(--text-sub);">「更新」ボタンを押して読み込んでください</td></tr>
                   </tbody>
               </table>
           </div>
@@ -368,7 +367,6 @@
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       document.getElementById('panel-' + tabId).classList.add('active');
       event.currentTarget.classList.add('active');
-      // ▼ 'access-log': 'アクセスログ' を追加しました
       const titles = { 'create': '個人識別子発行', 'reset': 'パスワードリセット', 'search': '個人識別子管理', 'contents': 'コンテンツ登録', 'codes': 'コード発行', 'code-support': 'コード確認・復旧', 'access-log': 'アクセスログ' };
       document.getElementById('pageTitle').textContent = titles[tabId] || '';
       if(window.innerWidth <= 768) document.getElementById('sidebarNav').classList.remove('open');
@@ -387,13 +385,17 @@
       window.location.href = 'signin.html';
   });
 
+  // ★ ユーザー作成: Tier情報を送るように変更
   document.getElementById('btnCreate').addEventListener('click', async () => {
-      const u = document.getElementById('newUserId').value.trim(), p = document.getElementById('newUserPass').value.trim();
+      const u = document.getElementById('newUserId').value.trim();
+      const p = document.getElementById('newUserPass').value.trim();
+      const tier = document.getElementById('newUserTier').value; // ★追加
+      
       const resEl = document.getElementById('createResult');
       if(!u || !p) { resEl.textContent = "すべて入力してください"; resEl.style.color = "var(--danger)"; return; }
       resEl.textContent = "処理中..."; resEl.style.color = "var(--text-sub)";
       try {
-          const d = await safeFetch({ type: 'admin_create_user', email: u, password: p });
+          const d = await safeFetch({ type: 'admin_create_user', email: u, password: p, target_tier: tier }); // ★送信データ追加
           if(d.success) { resEl.textContent = `✅ 発行成功！ ID: ${escapeHTML(u)} / PW: ${escapeHTML(p)}`; resEl.style.color = "var(--success)"; document.getElementById('newUserId').value = ""; document.getElementById('newUserPass').value = ""; } 
           else { resEl.textContent = `⚠エラー: ${escapeHTML(d.message)}`; resEl.style.color = "var(--danger)"; }
       } catch(e) { resEl.textContent = "⚠通信エラー"; resEl.style.color = "var(--danger)"; }
@@ -412,6 +414,7 @@
       } catch(e) { resEl.textContent = "⚠通信エラー"; resEl.style.color = "var(--danger)"; }
   });
 
+  // ★ ユーザー管理: アカウントのTier情報を表示するように変更
   document.getElementById('btnSearch').addEventListener('click', async () => {
     const u = document.getElementById('searchUserId').value.trim();
     const resEl = document.getElementById('searchResult');
@@ -422,6 +425,9 @@
         const d = await safeFetch({ type: 'admin_search', targetEmail: u });
         resEl.innerHTML = '';
         if (d.success) {
+            // Tierの表示テキスト作成
+            const tierLabel = d.tier === 'enterprise' ? '<span style="color:#FF9500;">エンタープライズ対応</span>' : '<span style="color:var(--primary);">スタンダード版専用</span>';
+
             const actionsDiv = document.createElement('div');
             actionsDiv.style.cssText = 'background:rgba(255,255,255,0.05); padding:20px; border-radius:12px; margin-bottom:20px; border: 1px solid var(--card-border);';
             actionsDiv.innerHTML = `
@@ -429,8 +435,9 @@
                     <i data-lucide="user" style="width:16px; height:16px; margin-right:4px;"></i> ${escapeHTML(d.userId || u)}
                 </h3>
                 <div style="display:flex; flex-direction:column; gap:10px; margin-bottom: 20px;">
+                    <div style="font-size:14px; color:var(--text-sub);">アカウント権限: <strong>${tierLabel}</strong></div>
                     <div style="font-size:14px; color:var(--text-sub);">現在の所持ポイント: <strong style="color:#fff; font-size:20px; margin-left:8px;">${escapeHTML(String(d.points))}</strong> pt</div>
-                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
                         <input type="number" id="setPtVal" placeholder="ポイント数を入力" style="width:250px; height:44px; margin-bottom:0;">
                         <button class="btn-primary" id="btnSetPt" style="width:auto; height:44px; padding:0 20px; background:#04CF22;">ポイントを設定</button>
                     </div>
@@ -494,7 +501,6 @@
     } catch (e) { resEl.innerHTML = "<span style='color:var(--danger);'>⚠通信エラー</span>"; }
   });
   
-  // コンテンツの登録（contentsテーブルへの保存）
   document.getElementById('btnSaveContent').addEventListener('click', async () => {
       const resEl = document.getElementById('contentManageResult');
       const payload = {};
@@ -522,7 +528,7 @@
       }
   });
 
-  // シリアルコードの発行（codesテーブルへの保存）
+  // ★ コード発行: Tier情報を送るように変更
   document.getElementById('btnCreateCode').addEventListener('click', async () => {
       const resEl = document.getElementById('codeManageResult');
       const contentId = document.getElementById('genCodeContentId').value.trim();
@@ -530,6 +536,7 @@
       const codeType = document.getElementById('genCodeType').value;
       const pointPpp = document.getElementById('genPointPpp').value.trim();
       const isActive = document.getElementById('genIsActive').value === 'true';
+      const targetTier = document.getElementById('genCodeTier').value; // ★ 追加
 
       if (!contentId || !codeStr) {
           resEl.textContent = "⚠ コンテンツIDとアクティベーションコードは必須です"; 
@@ -544,7 +551,8 @@
               code: codeStr, 
               codeType: codeType, 
               pointPpp: parseInt(pointPpp) || 0, 
-              isActive: isActive 
+              isActive: isActive,
+              targetTier: targetTier // ★ 追加送信
           });
           if(d.success) {
               resEl.textContent = `✅ コード発行成功！ (${escapeHTML(codeStr)})`; resEl.style.color = "var(--success)";
@@ -557,6 +565,7 @@
       }
   });
 
+  // ★ コード確認: 対象のTier（階層）を表示するように変更
   document.getElementById('btnCheckCode').addEventListener('click', async () => {
       const code = document.getElementById('targetSupportCode').value.trim();
       const resEl = document.getElementById('codeSupportResult');
@@ -566,6 +575,7 @@
           const d = await safeFetch({ type: 'admin_check_code', code: code });
           if(d.success) {
               const statusText = d.isUsed ? "<span style='color:var(--danger); font-weight:800;'>使用済み (USED)</span>" : "<span style='color:var(--success); font-weight:800;'>未使用 (AVAILABLE)</span>";
+              const tierText = d.targetTier === 'enterprise' ? '<span style="color:#FF9500; font-weight:bold;">エンタープライズ専用</span>' : '全バージョン共通 (All)'; // ★ 追加
               let timeText = "記録なし";
               if (d.usedTime) {
                   timeText = new Date(d.usedTime).toLocaleString(navigator.language, { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -573,6 +583,7 @@
               let html = `<div style="background:rgba(0,0,0,0.3); padding:16px; border-radius:12px; border:1px solid var(--card-border);">
                       <div style="margin-bottom:8px;"><strong>コード:</strong> ${escapeHTML(d.code)}</div>
                       <div style="margin-bottom:8px;"><strong>タイトル:</strong> ${escapeHTML(d.title) || '-'}</div>
+                      <div style="margin-bottom:8px;"><strong>対象階層:</strong> ${tierText}</div>
                       <div style="margin-bottom:16px;"><strong>ステータス:</strong> ${statusText}</div>`;
               if (d.isUsed) {
                   html += `<div style="margin-bottom:8px; font-size:13px; color:var(--text-sub);">使用日時: ${escapeHTML(timeText)}<br>使用者: ${escapeHTML(d.usedBy || '不明')}</div>
@@ -596,24 +607,21 @@
           } else { resEl.innerHTML = `<span style='color:var(--danger);'>⚠エラー: ${escapeHTML(d.message)}</span>`; }
       } catch(e) { resEl.innerHTML = "<span style='color:var(--danger);'>⚠通信エラー</span>"; }
   });
- // 本格的なシリアルコードを生成する関数（プルダウン連動版）
+
   function generateProSerialCode() {
-      // 画面のプルダウンから選択されたフォーマットを取得
       const format = document.getElementById('codeFormatSelect').value;
       
       let blocks = 4;
       let charsPerBlock = 4;
 
-      // 選択されたフォーマットに合わせて長さを設定
       if (format === '4x3') {
           blocks = 3; charsPerBlock = 4;
       } else if (format === '5x5') {
           blocks = 5; charsPerBlock = 5;
-      } else { // 4x4 (デフォルト)
+      } else { 
           blocks = 4; charsPerBlock = 4;
       }
 
-      // O(オー)や0(ゼロ)、I(アイ)や1など、見間違えやすい文字を省いた安全な文字リスト
       const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; 
       let codeParts = [];
       
@@ -625,12 +633,10 @@
           codeParts.push(part);
       }
       
-      // ハイフンで繋いで入力欄にセット
       document.getElementById('genCodeStr').value = codeParts.join('-');
   }
-  // ==========================================
-  // ▼ アクセスログ取得処理（フィルター＆入力コード対応版） ▼
-  // ==========================================
+
+  // ★ アクセスログ表示: アクセス元のTierを表示
   const btnLoadLogs = document.getElementById('btnLoadLogs');
   const logFilterSelect = document.getElementById('logFilterSelect');
   let allLogsData = [];
@@ -650,7 +656,7 @@
       });
 
       if (filteredLogs.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="5" style="padding: 20px; text-align: center; color: var(--text-sub);">該当するログはありません</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="6" style="padding: 20px; text-align: center; color: var(--text-sub);">該当するログはありません</td></tr>';
           return;
       }
 
@@ -669,14 +675,17 @@
               typeLabel = "引き換え (実行)";
           }
 
-          // 未入力やログ記録がない場合はハイフンにする
           const displayCode = log.code && log.code !== '-' ? log.code : '（入力なし）';
+          
+          // アクセス元ラベルの色分け
+          const tierLabel = log.appTier === 'enterprise' ? '<span style="color:#FF9500; font-weight:bold;">Enterprise</span>' : '<span style="color:var(--primary); font-weight:bold;">Standard</span>';
 
           const tr = document.createElement('tr');
           tr.style.borderBottom = "1px solid var(--card-border)";
           tr.innerHTML = `
               <td style="padding: 12px 16px;">${escapeHTML(log.date)}</td>
               <td style="padding: 12px 16px;">${escapeHTML(log.ip)}</td>
+              <td style="padding: 12px 16px;">${tierLabel}</td>
               <td style="padding: 12px 16px;"><span style="padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; ${typeStyle}">${escapeHTML(typeLabel)}</span></td>
               <td style="padding: 12px 16px; font-family:  var(--font-stack); letter-spacing: 0.5px;">${escapeHTML(displayCode)}</td>
               <td style="padding: 12px 16px;">${escapeHTML(log.email)}</td>
@@ -694,7 +703,6 @@
           resEl.style.color = "var(--text-sub)";
           
           try {
-              // API(バックエンド)へ通信
               const d = await safeFetch({ type: 'admin_get_access_logs', limit: 300 });
               
               if (d.success) {
