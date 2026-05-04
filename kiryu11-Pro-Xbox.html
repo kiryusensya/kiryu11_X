@@ -1282,7 +1282,7 @@ button, input, textarea { font-family: var(--font-stack); }
 }
 .btn-download-small:active { transform: scale(0.95); }
 /* ====================================================
-   実績解除アニメーション - 修正完全版（青色・長文・Xboxロゴ位置修正）
+   実績解除アニメーション - ダイヤ演出復活・完全版
    ==================================================== */
 
 /* コンテナ設定 */
@@ -1294,8 +1294,8 @@ button, input, textarea { font-family: var(--font-stack); }
   z-index: 100000;
 }
 
-/* トロフィー画像とダイヤを非表示（Xboxロゴのみ残す） */
-.trophy_img, .brilliant-wrap {
+/* トロフィー画像のみ非表示（Xboxロゴとダイヤは表示します） */
+.trophy_img {
   display: none !important;
 }
 
@@ -1332,7 +1332,7 @@ button, input, textarea { font-family: var(--font-stack); }
 .circle::before { background-color: rgba(0, 125, 255, 0.8); }
 .circle::after { background-color: rgba(0, 125, 255, 0.6); }
 
-/* ▼ エラー修正： center 指定を分離しました */
+/* サークルアニメーション */
 .circle.circle_animate { transform-origin: center; }
 .circle.circle_animate::before { animation: scale_circle_1 10.5s 2; transform-origin: center; }
 .circle.circle_animate::after { animation: scale_circle_1 10.5s 0.1s; transform-origin: center; }
@@ -1355,6 +1355,32 @@ button, input, textarea { font-family: var(--font-stack); }
 .unlocked { width: 100%; color: white; font-weight: 400; }
 .gamerscore { display: flex; flex-direction: row; align-items: center; height: 24px; }
 .hyphen_sep { margin-right: 5px; color: white; line-height: 24px; }
+
+/* ====================================================
+   レア演出（ダイヤとキラキラ）復活！
+   ==================================================== */
+.rare .brilliant-wrap { display: block; }
+.brilliant-wrap {
+  display: none; height: 75px; width: 75px; border-radius: 50%;
+  overflow: hidden; z-index: 101; opacity: 0;
+  animation: brilliant-wrap 10s ease-in-out;
+}
+.brilliant {
+  height: 75px; width: 75px;
+  background-image: url('https://dl.dropboxusercontent.com/s/ocn6nk0102mtiwq/spritesheet.png');
+  background-size: 11025px 75px; background-position: right;
+  animation: brilliant 7.4s steps(147) 2s;
+}
+@keyframes brilliant {
+  0% { background-position: 0; }
+  100% { background-position: -11025px; }
+}
+@keyframes brilliant-wrap{
+  0%, 20%{ opacity: 0; }
+  20.00001%{ opacity: 1; }
+  90% { opacity: 1; }
+  95%{ opacity: 0; }
+}
 
 /* ====================================================
    PC用設定 (480pxのバーに合わせてサークルを -202.5px 移動)
