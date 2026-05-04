@@ -351,20 +351,25 @@ export default async function handler(req, res) {
         // 4. ユーザー情報検索
         if (type === 'admin_search') {
             const { targetEmail } = params;
-            // ★追加: app_tier をデータベースから取得
             const { data: user, error } = await supabase.from('users').select('id, email, points, app_tier').eq('email', targetEmail).maybeSingle();
             if (error || !user) return res.status(200).json({ success: false, message: "ユーザーが見つかりません" });
 
+            // ★ 修正: 日本語や括弧付きカラムの取得漏れを防ぐため、関連テーブルを (*) で取得する
             const { data: histories } = await supabase.from('histories')
-                .select('created_at, codes(アクティベーションコード, contents(タイトル(jp)))')
+                .select('created_at, codes(*, contents(*))')
                 .eq('user_id', user.id)
                 .order('created_at', { ascending: false });
 
-            const historyList = (histories || []).map(h => ({
-                title: h.codes?.contents?.['タイトル(jp)'] || '不明なコンテンツ',
-                code: h.codes?.['アクティベーションコード'] || '-',
-                date: new Date(h.created_at).toLocaleString('ja-JP')
-            }));
+            const historyList = (histories || []).map(h => {
+                const codeData = h.codes || {};
+                const contentData = codeData.contents || {};
+                
+                return {
+                    title: contentData['タイトル(jp)'] || '不明なコンテンツ',
+                    code: codeData['アクティベーションコード'] || '-',
+                    date: new Date(h.created_at).toLocaleString('ja-JP')
+                };
+            });
 
             return res.status(200).json({ success: true, userId: user.email, points: user.points, tier: user.app_tier, history: historyList });
         }
