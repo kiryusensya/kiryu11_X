@@ -18,9 +18,11 @@
 
   let inactivityTimer;
   const INACTIVITY_LIMIT = 20 * 60 * 1000;
-  function performAutoLogout() {
+  
+  // 自動ログアウト時のアラートもカスタムモーダル対応のため async/await 化
+  async function performAutoLogout() {
       document.cookie = "admin_logged_in=; path=/; max-age=0;";
-      alert("20分間操作がなかったため、セキュリティ保護のため自動的にログアウトしました。");
+      await customAlert("20分間操作がなかったため、セキュリティ保護のため自動的にログアウトしました。");
       window.location.replace('signin.html');
   }
   function resetInactivityTimer() {
@@ -80,7 +82,7 @@
 
   .form-group { margin-bottom: 20px; text-align: left; }
   label { display: block; font-size: 13px; font-weight: 700; color: var(--text-sub); margin-bottom: 8px; }
-  input, select, textarea { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: var(--text-main); padding: 0 16px; font-size: 14px; font-family: inherit; outline: none; }
+  input, select, textarea { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: var(--text-main); padding: 0 16px; font-size: 14px; font-family: inherit; outline: none; transition: 0.2s; }
   input, select { height: 50px; }
   option { background-color: var(--bg-color); color: var(--text-main); }
   option:checked { background-color: var(--primary); color: #fff; }
@@ -103,6 +105,15 @@
   .history-list li { background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); padding: 16px; margin-bottom: 10px; border-radius: 12px; }
   .history-title { font-weight: 800; font-size: 16px; margin-bottom: 6px; display: block; }
   .history-meta { color: var(--text-sub); font-size: 12px; line-height: 1.5; }
+
+  /* 独自モーダル用 CSS */
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); z-index: 9999; justify-content: center; align-items: center; backdrop-filter: blur(5px); animation: fadeIn 0.2s; }
+  .modal-box { background: var(--bg-color); border: 1px solid var(--card-border); padding: 30px; border-radius: 20px; width: 90%; max-width: 420px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+  .modal-box h3 { margin: 0 0 15px 0; font-size: 20px; color: var(--text-main); }
+  .modal-box p { color: var(--text-sub); font-size: 14px; margin-bottom: 25px; line-height: 1.6; word-break: break-all; }
+  #customModalInput { margin-bottom: 20px; text-align: center; display: none; }
+  .modal-actions { display: flex; gap: 12px; justify-content: center; }
+  .modal-actions button { flex: 1; height: 44px; font-size: 15px; }
 
   @media (max-width: 768px) {
     body { flex-direction: column; overflow-y: auto; }
@@ -155,7 +166,6 @@
           <h2>新規アカウントの作成</h2>
           <div class="form-group"><label>新しい個人識別子</label><input type="text" id="newUserId" placeholder="個人識別子"></div>
           <div class="form-group"><label>初期パスワード</label><input type="text" id="newUserPass" placeholder="初期パスワード"></div>
-          <!-- ★ 追加: ユーザー階層の選択 -->
           <div class="form-group">
               <label>アカウント権限 (Tier)</label>
               <select id="newUserTier">
@@ -202,7 +212,6 @@
               <div class="grid-form">
                   <div class="form-group" style="grid-column: 1 / -1;"><label>コンテンツID (※上書き更新する場合のみ入力)</label><input type="number" class="content-input" data-col="id" placeholder="空欄で新規作成"></div>
                   
-                  <!-- ★ 追加: コンテンツの対象階層の選択 -->
                   <div class="form-group" style="grid-column: 1 / -1;">
                       <label>対象階層 (Tier)</label>
                       <select class="content-input" data-col="target_tier">
@@ -250,7 +259,6 @@
               </div>
           </div>
           <div class="grid-form">
-              <!-- ★ 追加: コードの対象階層の選択 -->
               <div class="form-group" style="grid-column: 1 / -1;">
                   <label>対象階層 (Tier)</label>
                   <select id="genCodeTier">
@@ -301,7 +309,7 @@
                       <tr>
                           <th style="padding: 12px 16px; border-bottom: 1px solid var(--card-border);">日時</th>
                           <th style="padding: 12px 16px; border-bottom: 1px solid var(--card-border);">IPアドレス</th>
-                          <th style="padding: 12px 16px; border-bottom: 1px solid var(--card-border);">アクセス元</th> <!-- ★ 追加 -->
+                          <th style="padding: 12px 16px; border-bottom: 1px solid var(--card-border);">アクセス元</th>
                           <th style="padding: 12px 16px; border-bottom: 1px solid var(--card-border);">アクション</th>
                           <th style="padding: 12px 16px; border-bottom: 1px solid var(--card-border);">入力コード</th>
                           <th style="padding: 12px 16px; border-bottom: 1px solid var(--card-border);">ユーザー</th>
@@ -317,6 +325,19 @@
   </div>
 </div>
 
+<!-- 独自モーダル HTML構造 -->
+<div id="customModalOverlay" class="modal-overlay">
+  <div id="customModal" class="modal-box" role="dialog" aria-modal="true">
+      <h3 id="customModalTitle">通知</h3>
+      <p id="customModalMessage"></p>
+      <input type="text" id="customModalInput" placeholder="">
+      <div class="modal-actions">
+          <button id="customModalBtnCancel" class="btn-danger">キャンセル</button>
+          <button id="customModalBtnOk" class="btn-primary">OK</button>
+      </div>
+  </div>
+</div>
+
 <script>
   const escapeHTML = (str) => {
     if (!str) return "";
@@ -326,6 +347,94 @@
   };
 
   lucide.createIcons();
+
+  /* ======== 独自モーダル管理ロジック (非同期 Promise) ======== */
+  function showModal({ type, message, title = "通知", placeholder = "" }) {
+      return new Promise((resolve) => {
+          const overlay = document.getElementById('customModalOverlay');
+          const titleEl = document.getElementById('customModalTitle');
+          const msgEl = document.getElementById('customModalMessage');
+          const inputEl = document.getElementById('customModalInput');
+          const btnOk = document.getElementById('customModalBtnOk');
+          const btnCancel = document.getElementById('customModalBtnCancel');
+
+          titleEl.textContent = title;
+          msgEl.innerHTML = message;
+          inputEl.value = '';
+          inputEl.placeholder = placeholder;
+          
+          if (type === 'prompt') {
+              inputEl.style.display = 'block';
+              btnCancel.style.display = 'block';
+          } else if (type === 'confirm') {
+              inputEl.style.display = 'none';
+              btnCancel.style.display = 'block';
+          } else { // alert
+              inputEl.style.display = 'none';
+              btnCancel.style.display = 'none';
+          }
+
+          overlay.style.display = 'flex';
+          if (type === 'prompt') inputEl.focus();
+          else btnOk.focus();
+
+          const cleanup = () => {
+              overlay.style.display = 'none';
+              btnOk.onclick = null;
+              btnCancel.onclick = null;
+              inputEl.onkeydown = null;
+              document.removeEventListener('keydown', handleEsc);
+          };
+
+          const handleEsc = (e) => {
+              if (e.key === 'Escape') {
+                  cleanup();
+                  resolve(type === 'prompt' ? null : false);
+              }
+          };
+          document.addEventListener('keydown', handleEsc);
+
+          btnOk.onclick = () => {
+              cleanup();
+              resolve(type === 'prompt' ? inputEl.value : true);
+          };
+
+          btnCancel.onclick = () => {
+              cleanup();
+              resolve(type === 'prompt' ? null : false);
+          };
+
+          if (type === 'prompt') {
+              inputEl.onkeydown = (e) => {
+                  if (e.key === 'Enter') btnOk.click();
+              }
+          }
+      });
+  }
+
+  const customAlert = (msg, title="通知") => showModal({ type: 'alert', message: msg, title });
+  const customConfirm = (msg, title="確認") => showModal({ type: 'confirm', message: msg, title });
+  const customPrompt = (msg, placeholder="") => showModal({ type: 'prompt', message: msg, title: "入力", placeholder });
+
+  /* ======== エンターキー連動ロジック ======== */
+  function bindEnterKey(inputId, btnId) {
+      const input = document.getElementById(inputId);
+      if (input) {
+          input.addEventListener('keydown', (e) => {
+              if (e.key === 'Enter') document.getElementById(btnId).click();
+          });
+      }
+  }
+
+  // 各フォームにエンターキー操作を紐付け
+  bindEnterKey('newUserId', 'btnCreate');
+  bindEnterKey('newUserPass', 'btnCreate');
+  bindEnterKey('resetUserId', 'btnReset');
+  bindEnterKey('resetUserPass', 'btnReset');
+  bindEnterKey('searchUserId', 'btnSearch');
+  bindEnterKey('targetSupportCode', 'btnCheckCode');
+
+
   const GAS_API_URL = "api/proxy"; 
   const langs = ['jp', 'en', 'zh', 'zh-TW', 'ko', 'ru'];
   const txtFields = ['ボタン', 'バンドル', 'メッセージ', 'タイトル', '詳細'];
@@ -385,17 +494,16 @@
       window.location.href = 'signin.html';
   });
 
-  // ★ ユーザー作成: Tier情報を送るように変更
   document.getElementById('btnCreate').addEventListener('click', async () => {
       const u = document.getElementById('newUserId').value.trim();
       const p = document.getElementById('newUserPass').value.trim();
-      const tier = document.getElementById('newUserTier').value; // ★追加
+      const tier = document.getElementById('newUserTier').value; 
       
       const resEl = document.getElementById('createResult');
       if(!u || !p) { resEl.textContent = "すべて入力してください"; resEl.style.color = "var(--danger)"; return; }
       resEl.textContent = "処理中..."; resEl.style.color = "var(--text-sub)";
       try {
-          const d = await safeFetch({ type: 'admin_create_user', email: u, password: p, target_tier: tier }); // ★送信データ追加
+          const d = await safeFetch({ type: 'admin_create_user', email: u, password: p, target_tier: tier }); 
           if(d.success) { resEl.textContent = `✅ 発行成功！ ID: ${escapeHTML(u)} / PW: ${escapeHTML(p)}`; resEl.style.color = "var(--success)"; document.getElementById('newUserId').value = ""; document.getElementById('newUserPass').value = ""; } 
           else { resEl.textContent = `⚠エラー: ${escapeHTML(d.message)}`; resEl.style.color = "var(--danger)"; }
       } catch(e) { resEl.textContent = "⚠通信エラー"; resEl.style.color = "var(--danger)"; }
@@ -405,7 +513,10 @@
       const u = document.getElementById('resetUserId').value.trim(), p = document.getElementById('resetUserPass').value.trim();
       const resEl = document.getElementById('resetResult');
       if(!u || !p) { resEl.textContent = "すべて入力してください"; resEl.style.color = "var(--danger)"; return; }
-      if(!confirm(`パスワードを強制リセットしますか？`)) return;
+      
+      // カスタム確認モーダルへ変更
+      if(!(await customConfirm(`「${escapeHTML(u)}」のパスワードを強制リセットしますか？`, "警告"))) return;
+      
       resEl.textContent = "処理中..."; resEl.style.color = "var(--text-sub)";
       try {
           const d = await safeFetch({ type: 'admin_reset_password', targetEmail: u, newPassword: p });
@@ -414,7 +525,6 @@
       } catch(e) { resEl.textContent = "⚠通信エラー"; resEl.style.color = "var(--danger)"; }
   });
 
-  // ★ ユーザー管理: アカウントのTier情報を表示するように変更
   document.getElementById('btnSearch').addEventListener('click', async () => {
     const u = document.getElementById('searchUserId').value.trim();
     const resEl = document.getElementById('searchResult');
@@ -425,7 +535,6 @@
         const d = await safeFetch({ type: 'admin_search', targetEmail: u });
         resEl.innerHTML = '';
         if (d.success) {
-            // Tierの表示テキスト作成
             const tierLabel = d.tier === 'enterprise' ? '<span style="color:#FF9500;">エンタープライズ対応</span>' : '<span style="color:var(--primary);">スタンダード版専用</span>';
 
             const actionsDiv = document.createElement('div');
@@ -450,6 +559,11 @@
             `;
             resEl.appendChild(actionsDiv);
 
+            // ポイント設定のエンターキー対応
+            actionsDiv.querySelector('#setPtVal').addEventListener('keydown', (e) => {
+                if(e.key === 'Enter') actionsDiv.querySelector('#btnSetPt').click();
+            });
+
             actionsDiv.querySelector('#btnSetPt').addEventListener('click', async (e) => {
                 const ptVal = actionsDiv.querySelector('#setPtVal').value;
                 if(ptVal === '') return;
@@ -458,21 +572,23 @@
                 try {
                     const ptRes = await safeFetch({ type: 'admin_set_points', targetEmail: d.userId || u, amount: parseInt(ptVal) });
                     if(ptRes.success) {
-                        alert(`成功: ポイントを ${ptVal} pt に設定しました。`);
+                        await customAlert(`成功: ポイントを ${ptVal} pt に設定しました。`, "完了");
                         document.getElementById('btnSearch').click();
-                    } else alert(`⚠エラー: ${ptRes.message}`);
-                } catch(err) { alert('⚠通信エラー'); }
+                    } else await customAlert(`⚠エラー: ${ptRes.message}`, "エラー");
+                } catch(err) { await customAlert('⚠通信エラー', "エラー"); }
                 btn.textContent = "ポイントを設定"; btn.disabled = false;
             });
 
             actionsDiv.querySelector('#btnDeleteUser').addEventListener('click', async (e) => {
-                const confCode = prompt(`【危険】本当に削除する場合は対象のID「${d.userId || u}」を入力してください。`);
-                if(confCode !== (d.userId || u)) return alert("IDが一致しません。");
+                const confCode = await customPrompt(`【危険】本当に削除する場合は対象のID「${d.userId || u}」を入力してください。`, "IDを入力");
+                if (confCode === null) return; // キャンセル時
+                if (confCode !== (d.userId || u)) return await customAlert("IDが一致しません。", "エラー");
+                
                 try {
                     const delRes = await safeFetch({ type: 'admin_delete_user', targetEmail: d.userId || u });
-                    if(delRes.success) { alert("完全に削除しました。"); resEl.innerHTML = ''; } 
-                    else alert(`⚠エラー: ${delRes.message}`);
-                } catch(err) { alert('⚠通信エラー'); }
+                    if(delRes.success) { await customAlert("完全に削除しました。"); resEl.innerHTML = ''; } 
+                    else await customAlert(`⚠エラー: ${delRes.message}`, "エラー");
+                } catch(err) { await customAlert('⚠通信エラー', "エラー"); }
             });
 
            if (!d.history || d.history.length === 0) {
@@ -485,12 +601,12 @@
                     li.innerHTML = `<div><span class="history-title">${escapeHTML(h.title)}</span><span class="history-meta">コード: ${escapeHTML(h.code)}<br>日時: ${escapeHTML(h.date)}</span></div>`;
                     const rBtn = document.createElement('button'); rBtn.className = 'btn-danger'; rBtn.style.cssText = 'height:32px; padding:0 16px; font-size:12px;'; rBtn.innerHTML = '無効化';
                     rBtn.addEventListener('click', async () => {
-                        if (!confirm(`削除しますか？`)) return;
+                        if (!(await customConfirm(`「${escapeHTML(h.title)}」を削除しますか？`))) return;
                         rBtn.disabled = true;
                         try {
                             const r = await safeFetch({ type: 'admin_revoke_content', targetEmail: d.userId || u, code: h.code });
-                            if (r.success) li.remove(); else { alert(r.message); rBtn.disabled=false; }
-                        } catch(e) { alert('⚠エラー'); rBtn.disabled=false; }
+                            if (r.success) li.remove(); else { await customAlert(r.message, "エラー"); rBtn.disabled=false; }
+                        } catch(e) { await customAlert('⚠エラー', "エラー"); rBtn.disabled=false; }
                     });
                     li.appendChild(rBtn); ul.appendChild(li);
                 });
@@ -528,7 +644,6 @@
       }
   });
 
-  // ★ コード発行: Tier情報を送るように変更
   document.getElementById('btnCreateCode').addEventListener('click', async () => {
       const resEl = document.getElementById('codeManageResult');
       const contentId = document.getElementById('genCodeContentId').value.trim();
@@ -536,7 +651,7 @@
       const codeType = document.getElementById('genCodeType').value;
       const pointPpp = document.getElementById('genPointPpp').value.trim();
       const isActive = document.getElementById('genIsActive').value === 'true';
-      const targetTier = document.getElementById('genCodeTier').value; // ★ 追加
+      const targetTier = document.getElementById('genCodeTier').value; 
 
       if (!contentId || !codeStr) {
           resEl.textContent = "⚠ コンテンツIDとアクティベーションコードは必須です"; 
@@ -552,7 +667,7 @@
               codeType: codeType, 
               pointPpp: parseInt(pointPpp) || 0, 
               isActive: isActive,
-              targetTier: targetTier // ★ 追加送信
+              targetTier: targetTier 
           });
           if(d.success) {
               resEl.textContent = `✅ コード発行成功！ (${escapeHTML(codeStr)})`; resEl.style.color = "var(--success)";
@@ -565,7 +680,6 @@
       }
   });
 
-  // ★ コード確認: 対象のTier（階層）を表示するように変更
   document.getElementById('btnCheckCode').addEventListener('click', async () => {
       const code = document.getElementById('targetSupportCode').value.trim();
       const resEl = document.getElementById('codeSupportResult');
@@ -575,7 +689,7 @@
           const d = await safeFetch({ type: 'admin_check_code', code: code });
           if(d.success) {
               const statusText = d.isUsed ? "<span style='color:var(--danger); font-weight:800;'>使用済み (USED)</span>" : "<span style='color:var(--success); font-weight:800;'>未使用 (AVAILABLE)</span>";
-              const tierText = d.targetTier === 'enterprise' ? '<span style="color:#FF9500; font-weight:bold;">エンタープライズ専用</span>' : '全バージョン共通 (All)'; // ★ 追加
+              const tierText = d.targetTier === 'enterprise' ? '<span style="color:#FF9500; font-weight:bold;">エンタープライズ専用</span>' : '全バージョン共通 (All)';
               let timeText = "記録なし";
               if (d.usedTime) {
                   timeText = new Date(d.usedTime).toLocaleString(navigator.language, { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -595,13 +709,13 @@
               const btnReset = document.getElementById('btnResetCodeStatus');
               if (btnReset) {
                   btnReset.addEventListener('click', async () => {
-                      if(!confirm("「未使用」状態に戻しますか？")) return;
+                      if(!(await customConfirm("「未使用」状態に戻しますか？", "確認"))) return;
                       btnReset.textContent = "処理中..."; btnReset.disabled = true;
                       try {
                           const r = await safeFetch({ type: 'admin_reset_code', code: d.code });
-                          if(r.success) { alert("リセットしました。"); document.getElementById('btnCheckCode').click(); } 
-                          else { alert(`⚠エラー: ${r.message}`); btnReset.textContent = "ステータスを戻す"; btnReset.disabled = false; }
-                      } catch(err) { alert("⚠通信エラー"); btnReset.disabled = false; }
+                          if(r.success) { await customAlert("リセットしました。", "完了"); document.getElementById('btnCheckCode').click(); } 
+                          else { await customAlert(`⚠エラー: ${r.message}`, "エラー"); btnReset.textContent = "ステータスを戻す"; btnReset.disabled = false; }
+                      } catch(err) { await customAlert("⚠通信エラー", "エラー"); btnReset.disabled = false; }
                   });
               }
           } else { resEl.innerHTML = `<span style='color:var(--danger);'>⚠エラー: ${escapeHTML(d.message)}</span>`; }
@@ -636,7 +750,6 @@
       document.getElementById('genCodeStr').value = codeParts.join('-');
   }
 
-  // ★ アクセスログ表示: アクセス元のTierを表示
   const btnLoadLogs = document.getElementById('btnLoadLogs');
   const logFilterSelect = document.getElementById('logFilterSelect');
   let allLogsData = [];
@@ -676,8 +789,6 @@
           }
 
           const displayCode = log.code && log.code !== '-' ? log.code : '（入力なし）';
-          
-          // アクセス元ラベルの色分け
           const tierLabel = log.appTier === 'enterprise' ? '<span style="color:#FF9500; font-weight:bold;">Enterprise</span>' : '<span style="color:var(--primary); font-weight:bold;">Standard</span>';
 
           const tr = document.createElement('tr');
