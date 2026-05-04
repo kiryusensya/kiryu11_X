@@ -543,13 +543,29 @@
                 <h3 style="margin:0 0 16px 0; font-size:16px;">
                     <i data-lucide="user" style="width:16px; height:16px; margin-right:4px;"></i> ${escapeHTML(d.userId || u)}
                 </h3>
-                <div style="display:flex; flex-direction:column; gap:10px; margin-bottom: 20px;">
-                    <div style="font-size:14px; color:var(--text-sub);">アカウント権限: <strong>${tierLabel}</strong></div>
-                    <div style="font-size:14px; color:var(--text-sub);">現在の所持ポイント: <strong style="color:#fff; font-size:20px; margin-left:8px;">${escapeHTML(String(d.points))}</strong> pt</div>
-                    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
-                        <input type="number" id="setPtVal" placeholder="ポイント数を入力" style="width:250px; height:44px; margin-bottom:0;">
-                        <button class="btn-primary" id="btnSetPt" style="width:auto; height:44px; padding:0 20px; background:#04CF22;">ポイントを設定</button>
+                <div style="display:flex; flex-direction:column; gap:15px; margin-bottom: 20px;">
+                    
+                    <!-- 権限 (Tier) 変更エリア: PCは右端、スマホは下に折り返し -->
+                    <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px; background:rgba(0,0,0,0.2); padding:10px 15px; border-radius:8px;">
+                        <div style="font-size:14px; color:var(--text-sub);">アカウント権限: <strong>${tierLabel}</strong></div>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <select id="setTierVal" style="width:auto; height:36px; font-size:13px; padding:0 30px 0 15px; border-radius:18px;">
+                                <option value="standard" ${d.tier !== 'enterprise' ? 'selected' : ''}>スタンダード版</option>
+                                <option value="enterprise" ${d.tier === 'enterprise' ? 'selected' : ''}>エンタープライズ版</option>
+                            </select>
+                            <button class="btn-primary" id="btnSetTier" style="width:auto; height:36px; padding:0 15px; font-size:13px;">変更</button>
+                        </div>
                     </div>
+
+                    <!-- ポイント変更エリア -->
+                    <div style="background:rgba(0,0,0,0.2); padding:10px 15px; border-radius:8px;">
+                        <div style="font-size:14px; color:var(--text-sub); margin-bottom:8px;">現在の所持ポイント: <strong style="color:#fff; font-size:20px; margin-left:8px;">${escapeHTML(String(d.points))}</strong> pt</div>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <input type="number" id="setPtVal" placeholder="ポイント数を入力" style="flex:1; min-width:150px; max-width:250px; height:44px; margin-bottom:0;">
+                            <button class="btn-primary" id="btnSetPt" style="width:auto; height:44px; padding:0 20px; background:#04CF22;">ポイントを設定</button>
+                        </div>
+                    </div>
+                    
                 </div>
                 <div style="border-top: 1px solid rgba(255,59,48,0.3); padding-top:16px;">
                     <button class="btn-danger" id="btnDeleteUser" style="width:100%; color:var(--danger); border-color:var(--danger); background: rgba(255,59,48,0.1);">
@@ -558,6 +574,27 @@
                 </div>
             `;
             resEl.appendChild(actionsDiv);
+
+            // ★ 追加: Tier変更イベント
+            actionsDiv.querySelector('#btnSetTier').addEventListener('click', async (e) => {
+                const newTier = actionsDiv.querySelector('#setTierVal').value;
+                const newTierName = newTier === 'enterprise' ? 'エンタープライズ版' : 'スタンダード版';
+                
+                if (!(await customConfirm(`権限を「${newTierName}」に変更しますか？`, "権限の変更"))) return;
+                
+                const btn = e.currentTarget;
+                btn.textContent = "処理中..."; btn.disabled = true;
+                try {
+                    const tierRes = await safeFetch({ type: 'admin_set_tier', targetEmail: d.userId || u, targetTier: newTier });
+                    if(tierRes.success) {
+                        await customAlert(`成功: 権限を「${newTierName}」に変更しました。`, "完了");
+                        document.getElementById('btnSearch').click(); // 完了後に再検索して表示を更新
+                    } else {
+                        await customAlert(`⚠エラー: ${tierRes.message}`, "エラー");
+                    }
+                } catch(err) { await customAlert('⚠通信エラー', "エラー"); }
+                btn.textContent = "変更"; btn.disabled = false;
+            });
 
             // ポイント設定のエンターキー対応
             actionsDiv.querySelector('#setPtVal').addEventListener('keydown', (e) => {
