@@ -21,30 +21,7 @@ const ALLOWED_ORIGINS = [
   'https://kiryu11-pro.vercel.app',
   'http://localhost:3000'
 ];
-// ==========================================
-// ★ 追加: Action_url (JSON) パース＆権限チェック用共通関数
-// ==========================================
-const parseActionUrl = (actionUrlStr, currentTier) => {
-    let parsedUrls = [];
-    try {
-        if (actionUrlStr && String(actionUrlStr).trim().startsWith('[')) {
-            const arr = JSON.parse(actionUrlStr);
-            parsedUrls = arr.map(item => {
-                const itemTier = String(item.target_tier || 'all').toLowerCase();
-                // enterprise版なら全てtrue、standard版ならenterprise専用以外がtrue
-                const isAvailable = currentTier === 'enterprise' || itemTier !== 'enterprise';
-                return { ...item, isAvailable };
-            });
-        } else if (actionUrlStr) {
-            // 今まで通りの単一URLだった場合の互換性維持
-            parsedUrls = [{ title: "メインコンテンツ", url: actionUrlStr, type: "main", isAvailable: true }];
-        }
-    } catch (e) {
-        // JSONの構文エラー時などのフェイルセーフ
-        parsedUrls = [{ title: "メインコンテンツ", url: actionUrlStr, type: "main", isAvailable: true }];
-    }
-    return parsedUrls;
-};
+
 export default async function handler(req, res) {
   const origin = req.headers.origin || '';
   if (ALLOWED_ORIGINS.includes(origin)) {
@@ -316,16 +293,15 @@ export default async function handler(req, res) {
     }
 
     // ==========================================
-    // ▼ 管理者用機能 (完全実装) ▼
+    // ▼ 管理者用機能 ▼
     // ==========================================
     if (type.startsWith('admin_')) {
         if (!isAdmin) return res.status(401).json({ success: false, message: "管理者権限がありません" });
         
-        // 1. アクセスログ取得
         if (type === 'admin_get_access_logs') {
             const limit = params.limit || 100;
             const { data: logs, error } = await supabase.from('access_logs')
-                .select(`id, created_at, ip_address, action_type, user_agent, target_code, user_id, app_tier`)
+                .select(`id, created_at, ip_address, action_type, user_agent, target_code, user_id`)
                 .neq('action_type', 'admin_get_access_logs')
                 .order('created_at', { ascending: false })
                 .limit(limit);
@@ -339,173 +315,26 @@ export default async function handler(req, res) {
                 type: log.action_type,
                 code: log.target_code || '-',
                 email: log.user_id ? `ID: ${log.user_id.substring(0, 8)}...` : '未ログイン (GUEST)',
-                userAgent: log.user_agent,
-                appTier: log.app_tier || '不明' // ★追加: ログからTierを返却
+                userAgent: log.user_agent
             }));
             return res.status(200).json({ success: true, logs: formattedLogs });
         }
         
-        // 2. ユーザー作成
         if (type === 'admin_create_user') {
             const { email, password, target_tier } = params; 
-            const tierToAssign = target_tier || 'standard'; // ★追加: HTMLから受け取ったTier
+            const tierToAssign = target_tier || 'enterprise';
             if (!email || !password) return res.status(200).json({ success: false, message: "Missing credentials" });
             const { data: existing } = await supabase.from('users').select('id').eq('email', email).maybeSingle();
             if (existing) return res.status(200).json({ success: false, message: "そのIDは既に存在します" });
             
             const hashedPassword = await bcrypt.hash(password, 10);
             const { error } = await supabase.from('users').insert([{ email, password: hashedPassword, points: 0, needs_password_change: true, app_tier: tierToAssign }]);
-            if (error) return res.status(200).json({ success: false, message: error.message });
+            if (error) throw error;
             await logAudit('CREATE_USER', email, { tier: tierToAssign });
             return res.status(200).json({ success: true, message: "OK" });
         }
-
-        // 3. パスワードリセット
-        if (type === 'admin_reset_password') {
-            const { targetEmail, newPassword } = params;
-            if (!targetEmail || !newPassword) return res.status(200).json({ success: false, message: "Missing credentials" });
-            const hashedPassword = await bcrypt.hash(newPassword, 10);
-            const { error } = await supabase.from('users').update({ password: hashedPassword, needs_password_change: true }).eq('email', targetEmail);
-            if (error) return res.status(200).json({ success: false, message: error.message });
-            await logAudit('RESET_PASSWORD', targetEmail, {});
-            return res.status(200).json({ success: true });
-        }
-
-        // 4. ユーザー情報検索
-        if (type === 'admin_search') {
-            const { targetEmail } = params;
-            // ★追加: app_tier をデータベースから取得
-            const { data: user, error } = await supabase.from('users').select('id, email, points, app_tier').eq('email', targetEmail).maybeSingle();
-            if (error || !user) return res.status(200).json({ success: false, message: "ユーザーが見つかりません" });
-
-            const { data: histories } = await supabase.from('histories')
-                .select('created_at, codes(アクティベーションコード, contents(タイトル(jp)))')
-                .eq('user_id', user.id)
-                .order('created_at', { ascending: false });
-
-            const historyList = (histories || []).map(h => ({
-                title: h.codes?.contents?.['タイトル(jp)'] || '不明なコンテンツ',
-                code: h.codes?.['アクティベーションコード'] || '-',
-                date: new Date(h.created_at).toLocaleString('ja-JP')
-            }));
-
-            return res.status(200).json({ success: true, userId: user.email, points: user.points, tier: user.app_tier, history: historyList });
-        }
-
-        // 5. ポイント付与・変更
-        if (type === 'admin_set_points') {
-            const { targetEmail, amount } = params;
-            const { error } = await supabase.from('users').update({ points: amount }).eq('email', targetEmail);
-            if (error) return res.status(200).json({ success: false, message: error.message });
-            await logAudit('SET_POINTS', targetEmail, { amount });
-            return res.status(200).json({ success: true });
-        }
-
-        // 6. ユーザー削除
-        if (type === 'admin_delete_user') {
-            const { targetEmail } = params;
-            const { data: user } = await supabase.from('users').select('id').eq('email', targetEmail).maybeSingle();
-            if (!user) return res.status(200).json({ success: false, message: "ユーザーが見つかりません" });
-            const { error } = await supabase.from('users').delete().eq('email', targetEmail);
-            if (error) return res.status(200).json({ success: false, message: error.message });
-            await logAudit('DELETE_USER', targetEmail, {});
-            return res.status(200).json({ success: true });
-        }
-
-        // 7. 所持コンテンツ剥奪
-        if (type === 'admin_revoke_content') {
-            const { targetEmail, code } = params;
-            const { data: user } = await supabase.from('users').select('id').eq('email', targetEmail).maybeSingle();
-            if (!user) return res.status(200).json({ success: false, message: "ユーザーが見つかりません" });
-
-            const { data: codeData } = await supabase.from('codes').select('id').eq('アクティベーションコード', code).maybeSingle();
-            if (codeData) {
-                const { error } = await supabase.from('histories').delete().eq('user_id', user.id).eq('code_id', codeData.id);
-                if (error) return res.status(200).json({ success: false, message: error.message });
-            }
-            await logAudit('REVOKE_CONTENT', targetEmail, { code });
-            return res.status(200).json({ success: true });
-        }
-
-        // 8. コンテンツ(マスターデータ)登録・更新
-        if (type === 'admin_save_content') {
-            const { payload } = params;
-            if (!payload) return res.status(200).json({ success: false, message: "データがありません" });
-            
-            let result;
-            if (payload.id) {
-                result = await supabase.from('contents').update(payload).eq('id', payload.id).select().single();
-            } else {
-                result = await supabase.from('contents').insert([payload]).select().single();
-            }
-            if (result.error) return res.status(200).json({ success: false, message: result.error.message });
-            await logAudit('SAVE_CONTENT', 'system', { contentId: result.data.id });
-            return res.status(200).json({ success: true, contentId: result.data.id });
-        }
-
-        // 9. コード発行
-        if (type === 'admin_create_code') {
-            const { contentId, code, codeType, pointPpp, isActive, targetTier } = params; // ★ targetTierを追加
-            const { error } = await supabase.from('codes').insert([{
-                content_id: contentId,
-                'アクティベーションコード': code,
-                Types: codeType,
-                'Point PPP': pointPpp,
-                '有効/無効': isActive,
-                'USED?': false,
-                target_tier: targetTier // ★ データベースにTierを保存
-            }]);
-            if (error) return res.status(200).json({ success: false, message: error.message });
-            await logAudit('CREATE_CODE', 'system', { code });
-            return res.status(200).json({ success: true });
-        }
-
-        // 10. コードステータス確認
-        if (type === 'admin_check_code') {
-            const { code } = params;
-            // ★追加: target_tier を取得するよう変更
-            const { data: codeData, error } = await supabase.from('codes').select('*, contents("タイトル(jp)", target_tier)').eq('アクティベーションコード', code).maybeSingle();
-            if (error || !codeData) return res.status(200).json({ success: false, message: "コードが見つかりません" });
-
-            let usedTime = null;
-            let usedBy = null;
-
-            if (codeData['USED?']) {
-                const { data: hist } = await supabase.from('histories').select('created_at, users(email)').eq('code_id', codeData.id).maybeSingle();
-                if (hist) {
-                    usedTime = hist.created_at;
-                    usedBy = hist.users?.email;
-                }
-            }
-            
-            // ★ コードの階層、またはコンテンツの階層を判別
-            const tTier = codeData.target_tier || codeData.contents?.target_tier || 'all';
-
-            return res.status(200).json({
-                success: true,
-                code: codeData['アクティベーションコード'],
-                title: codeData.contents?.['タイトル(jp)'],
-                isUsed: codeData['USED?'],
-                usedTime,
-                usedBy,
-                targetTier: tTier // ★追加: 確認結果としてTierを返す
-            });
-        }
-
-        // 11. コードステータス(使用済み)の解除
-        if (type === 'admin_reset_code') {
-            const { code } = params;
-            const { data: codeData } = await supabase.from('codes').select('id').eq('アクティベーションコード', code).maybeSingle();
-            if (!codeData) return res.status(200).json({ success: false, message: "コードが見つかりません" });
-
-            await supabase.from('histories').delete().eq('code_id', codeData.id);
-            const { error } = await supabase.from('codes').update({ 'USED?': false }).eq('id', codeData.id);
-            
-            if (error) return res.status(200).json({ success: false, message: error.message });
-            await logAudit('RESET_CODE', 'system', { code });
-            return res.status(200).json({ success: true });
-        }
     }
+
     // ==========================================
     // ▼ 動画視聴用の一時URL取得処理 ▼
     // ==========================================
@@ -605,7 +434,7 @@ export default async function handler(req, res) {
           title: content[`タイトル(${suffix})`] || content["タイトル(jp)"],
           message: content[`メッセージ(${suffix})`] || content["メッセージ(jp)"], 
           extraInfo: content[`詳細(${suffix})`] || content["詳細(jp)"],
-          imageUrl: content.Imag_Url, urls: parseActionUrl(content.Action_url, appTier), releaseDateIso: content["解禁時間"], expireDateIso: content["有効時間"], icon: content.アイコン || 'download',
+          imageUrl: content.Imag_Url, url: content.Action_url, releaseDateIso: content["解禁時間"], expireDateIso: content["有効時間"], icon: content.アイコン || 'download',
           groupId: content["重複"], buttonLabel: content[`ボタン(${suffix})`] || content["ボタン(jp)"], price: content["価格"] || 0, isOwned: isOwned
         };
       });
@@ -631,7 +460,7 @@ export default async function handler(req, res) {
         // ★ エンタープライズ版のため制限なしで履歴表示
         return {
           code: codeRec["アクティベーションコード"], date: h.created_at, title: c[`タイトル(${suffix})`] || c["タイトル(jp)"],
-          message: c[`メッセージ(${suffix})`] || c["メッセージ(jp)"], urls: parseActionUrl(c.Action_url, appTier), imageUrl: c.Imag_Url,
+          message: c[`メッセージ(${suffix})`] || c["メッセージ(jp)"], url: c.Action_url, imageUrl: c.Imag_Url,
           icon: c.アイコン || 'download', releaseDateIso: c["解禁時間"], expireDateIso: c["有効時間"], extraInfo: c[`詳細(${suffix})`] || c["詳細(jp)"],
           groupId: c["重複"], buttonLabel: c[`ボタン(${suffix})`] || c["ボタン(jp)"], price: c["価格"] || 0
         };
@@ -686,11 +515,7 @@ export default async function handler(req, res) {
 
       const content = master.contents;
       
-      // ★ 階層制限（エンタープライズ版は通過、スタンダード版はブロック）
-      const targetTier = String(master.target_tier || content.target_tier || 'all').toLowerCase().trim();
-      if (appTier === 'standard' && targetTier === 'enterprise') {
-          return res.status(200).json({ success: false, message: "Invalid code" });
-      }
+      // ★ エンタープライズ版APIのため、制限ブロックをバイパス
 
       const isActive = master["有効/無効"] === true || String(master["有効/無効"]).trim().toUpperCase() === 'TRUE';
       if (!isActive) return res.status(200).json({ success: false, message: "Invalid code" });
@@ -719,8 +544,7 @@ export default async function handler(req, res) {
       if (mode === 'check') {
         return res.status(200).json({
           success: true, bundleLabel: txt.bundle, message: txt.message, detailedTitle: txt.title, detailedDesc: txt.desc,
-          buttonLabel: txt.btnLabel, imageUrl: content.Imag_Url, icon: content.アイコン || 'download', groupId: content["重複"],
-          urls: parseActionUrl(content.Action_url, appTier) // ★ココ！
+          buttonLabel: txt.btnLabel, imageUrl: content.Imag_Url, icon: content.アイコン || 'download', groupId: content["重複"]
         });
       }
 
@@ -748,6 +572,7 @@ export default async function handler(req, res) {
         if (isOwned) return res.status(200).json({ success: false, isAlreadyOwned: true, message: "Already owned" });
 
         const isRelease = !content["解禁時間"] || (checkNow >= new Date(content["解禁時間"]));
+        const retUrl = content.Action_url;
 
         if (targetId) {
            await supabase.from('histories').insert([{ user_id: targetId, code_id: master.id }]);
@@ -757,9 +582,7 @@ export default async function handler(req, res) {
         }
 
         return res.status(200).json({
-          success: true, 
-          urls: parseActionUrl(content.Action_url, appTier), // ★ココ！（actionUrlの代わり）
-          bundleLabel: txt.bundle, message: txt.message,         
+          success: true, actionUrl: retUrl, bundleLabel: txt.bundle, message: txt.message,         
           detailedTitle: txt.title, detailedDesc: txt.desc, buttonLabel: txt.btnLabel,
           imageUrl: content.Imag_Url, isReleaseDateReached: isRelease, releaseDateIso: content["解禁時間"],
           expireDateIso: content["有効時間"], btnIcon: content.アイコン || 'download', groupId: content["重複"]
