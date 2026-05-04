@@ -2316,16 +2316,16 @@ function setupEventListeners() {
             }
         }
         
-        const urlsArray = selectedHeroItem.urls || [];
-        const isMulti = urlsArray.length > 1;
+        const targetUrl = selectedHeroItem.url || selectedHeroItem.actionUrl;
+        let isMulti = false;
+        try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
 
         if (isMulti) {
             openManageModal(selectedHeroItem); // 複数なら独立モーダルを開く
-        } else if (urlsArray.length === 1) {
-            const singleUrl = urlsArray[0].url;
-            const isYouTube = singleUrl && (singleUrl.includes('youtube.com') || singleUrl.includes('youtu.be'));
+        } else if (targetUrl) {
+            const isYouTube = targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be');
             if (isYouTube) {
-               window.open(`videos.html?code=${selectedHeroItem.code}&target=${encodeURIComponent(singleUrl)}`, '_blank');
+               window.open(`videos.html?code=${selectedHeroItem.code}&target=${encodeURIComponent(targetUrl)}`, '_blank');
             } else {
                 const token = localStorage.getItem('user_session_token') || "";
                 window.open(`/api/proxy?type=download&code=${selectedHeroItem.code}&token=${token}`, '_blank');
@@ -2833,8 +2833,9 @@ function openManageModal(item) {
     // 親アイテムの有効期限を取得
     const parentExpireDate = item.expireDateIso ? new Date(item.expireDateIso) : null;
     
-    let subItems = item.urls || [];
-    if (!subItems || subItems.length === 0) return;
+    let subItems = [];
+    const targetUrl = item.url || item.actionUrl;
+    try { subItems = JSON.parse(targetUrl); } catch(e) { return; }
     
     const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja; 
 
@@ -3099,8 +3100,9 @@ function showMobileItemDetail(item, isNewRedeem = false) {
             els.btnSuccessDownload.style.pointerEvents = 'auto';
             els.btnSuccessDownload.style.opacity = '1';
 
-            const urlsArray = item.urls || [];
-            const isMulti = urlsArray.length > 1;
+            const targetUrl = item.url || item.actionUrl;
+            let isMulti = false;
+            try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
 
             if (isMulti) {
                 // 複数ある場合、ボタンを押すと独立モーダルが開く
@@ -3109,15 +3111,16 @@ function showMobileItemDetail(item, isNewRedeem = false) {
                     e.preventDefault();
                     openManageModal(item);
                 };
-            } else if (urlsArray.length === 1) {
-                const singleUrl = urlsArray[0].url;
-                const isYouTube = singleUrl && (singleUrl.includes('youtube.com') || singleUrl.includes('youtu.be'));
+            } else {
+                const isYouTube = targetUrl && (targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be'));
                 
                 if (isYouTube) {
-                    els.btnSuccessDownload.href = singleUrl;
+                    // YouTubeの場合はそのままリンクを設定する（ボタン名を「視聴する」等に変えてもOK）
+                    els.btnSuccessDownload.href = targetUrl;
                     els.btnSuccessDownload.onclick = null;
                     els.btnSuccessDownload.target = "_blank";
                 } else {
+                    // 単一ファイルの場合、APIを経由させる
                     const token = localStorage.getItem('user_session_token') || "";
                     els.btnSuccessDownload.href = `/api/proxy?type=download&code=${item.code}&token=${token}`;
                     els.btnSuccessDownload.onclick = null; 
@@ -3251,7 +3254,7 @@ async function performAuth(code, mode = 'check') {
              title: d.bundleLabel || d.message,
              message: d.message,
              imageUrl: d.imageUrl,
-             urls: d.urls,
+             url: d.actionUrl,
              releaseDateIso: d.releaseDateIso,
              buttonLabel: d.buttonLabel,
              icon: d.btnIcon
@@ -3630,7 +3633,7 @@ async function saveUnlockedItemLocal(data, code) {
     code: code, 
     title: data.bundleLabel || data.message || "Unknown Content", 
     message: data.message,
-    urls: data.urls,
+    url: data.actionUrl, 
     date: new Date().toLocaleDateString(), 
     authTime: currentAuthTime, 
     icon: data.btnIcon || 'download', 
