@@ -16,6 +16,7 @@ Copyright (c) kiryu-sensya All Rights Reserved.
 ---
 ## English
 **General-Purpose Code Redemption & Content Distribution Management System**
+
 This project is a full-stack web application for content distribution and user permission (Tier) management using serial codes.
 
 ###  Main Features
@@ -29,6 +30,7 @@ This project is a full-stack web application for content distribution and user p
 ## 简体中文
 
 **通用代码兑换及内容分发管理系统**
+
 本项目是一个全栈式 Web 应用，用于使用序列号进行内容分发和用户权限（分级）管理。
 
 ###  主要功能
@@ -41,6 +43,7 @@ This project is a full-stack web application for content distribution and user p
 ---
 ## 繁體中文
 **通用代碼兌換及內容分發管理系統**
+
 本專案是一個全端式 Web 應用，用於使用序號進行內容分發和使用者權限（分級）管理。
 
 ###  主要功能
@@ -53,6 +56,7 @@ This project is a full-stack web application for content distribution and user p
 ---
 ## 한국어 
 **범용 코드 교환 및 콘텐츠 전송 관리 시스템**
+
 이 프로젝트는 시리얼 코드를 이용한 콘텐츠 배포 및 사용자 권한(Tier) 관리를 위한 풀 스택 웹 애플리케이션입니다.
 
 ###  주요 기능
@@ -65,6 +69,7 @@ This project is a full-stack web application for content distribution and user p
 ---
 ## Русский
 **Универсальная система управления активацией кодов и распространением контента**
+
 Этот проект представляет собой полнофункциональное веб-приложение для распространения контента и управления правами доступа пользователей (уровнями) с использованием серийных кодов.
 
 ###  Основные функции
