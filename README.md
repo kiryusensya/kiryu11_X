@@ -10,7 +10,6 @@ Copyright (c) kiryu-sensya All Rights Reserved.
 * **マルチティア権限:** `標準版` / `プロフェッショナル版` の階層別アクセス制御。
 * **ポイントシステム:** コンテンツ購入やコードによるポイントチャージ。
 * **時限解放:** 日本時間（JST）に基づいた厳密な解放・有効期限管理。
-* **管理コンソール:** 独自モーダルとログ監視機能を備えた管理者専用画面。
 
 ### ⚠ 本リポジトリ内のソースコード、画像、およびすべてのドキュメントの無断使用、複製、改変、転載、および再配布を一切禁止します。
 ---
@@ -23,7 +22,6 @@ This project is a full-stack web application for content distribution and user p
 * **Multi-Tier Permissions:** Tiered access control for `Standard Edition` / `Professional Edition`.
 * **Point System:** Points charged through content purchases and codes.
 * **Time-Limited Release:** Strict release and expiration date management based on Japan Standard Time (JST).
-* **Admin Console:** An administrator-only screen with a unique modal and log monitoring function.
 
 ### ⚠ Unauthorized use, reproduction, modification, republication, and redistribution of the source code, images, and all documents in this repository are strictly prohibited.
 ---
@@ -37,7 +35,6 @@ This project is a full-stack web application for content distribution and user p
 * **多层权限：** 针对“标准版”/“专业版”进行分级访问控制。
 * **积分系统：** 通过购买内容和兑换码获得积分。
 * **限时发布：** 基于日本标准时间 (JST) 的严格发布和过期日期管理。
-* **管理员控制台：** 仅限管理员访问的界面，包含独特的模态框和日志监控功能。
 
 ### ⚠严禁未经授权使用、复制、修改、转载和重新发布本仓库中的源代码、图像和所有文档。
 ---
@@ -50,7 +47,6 @@ This project is a full-stack web application for content distribution and user p
 * **多層權限：** 針對「標準版」/「專業版」進行分級存取控制。
 * **積分系統：** 透過內容購買和代碼兌換獲得積分。
 * **限時發布：** 基於日本標準時間 (JST) 的嚴格發布和到期日期管理。
-* **管理員控制台：** 管理員專屬介面，包含獨特的模態框和日誌監控功能。
 
 嚴禁未經授權使用、複製、修改、轉載和重新發布本儲存庫中的原始碼、圖像和所有文件。
 ---
@@ -63,7 +59,6 @@ This project is a full-stack web application for content distribution and user p
 * **멀티 티어 권한:** `표준 버전`/`프로페셔널 버전`의 계층 적 액세스 제어.
 * **포인트 시스템:** 콘텐츠 구매 및 코드로 포인트 충전.
 * **시한 해방:** 일본 시간(JST)에 근거한 엄밀한 해방·유효 기한 관리.
-* **관리 콘솔:** 자체 모달과 로그 모니터링 기능을 갖춘 관리자 전용 화면.
 
 ### ⚠본 저장소 내의 소스 코드, 이미지 및 모든 문서의 무단 사용, 복제, 수정, 전재 및 재배포를 엄격히 금지합니다.
 ---
@@ -76,6 +71,5 @@ This project is a full-stack web application for content distribution and user p
 * **Многоуровневые разрешения:** Многоуровневый контроль доступа для «Стандартной версии» / «Профессиональной версии».
 * **Система баллов:** Баллы можно начислять за покупку контента или кодов.
 * **Ограниченный по времени выпуск:** Строгое управление датами выпуска и истечения срока действия на основе японского стандартного времени (JST).
-* **Консоль администратора:** Экран только для администратора с уникальным модальным окном и функцией мониторинга журналов.
 
 ### ⚠ Несанкционированное использование, копирование, изменение, перепечатка и перераспределение исходного кода, изображений и всех документов в этом репозитории строго запрещены.
