@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>利用規約 - kiryu11 Pro</title>
+<link rel="icon" href="https://static.wixstatic.com/media/2f0694_eb4d3063598a4cc5b6bd6b8e31cba915~mv2.png/v1/crop/x_248,y_0,w_1065,h_950/fill/w_816,h_728,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/1767545356653.png">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+:root {
+  --primary: #007DFF;
+  --bg-color: #F1F3F5;
+  --card-bg: rgba(255, 255, 255, 0.7);
+  --card-border: rgba(255, 255, 255, 0.6);
+  --text-main: #000000;
+  --text-sub: #666666;
+  --font-stack: 'Noto Sans JP', sans-serif;
+  --shadow-soft: 0 10px 40px rgba(0,0,0,0.08);
+}
+
+[data-theme="dark"] {
+  --bg-color: #121212;
+  --card-bg: rgba(40, 40, 40, 0.6);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --text-main: #FFFFFF;
+  --text-sub: #A0A0A0;
+  --shadow-soft: 0 15px 50px rgba(0,0,0,0.5);
+}
+
+body {
+  margin: 0; padding: 0;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  font-family: var(--font-stack);
+  transition: background-color 0.5s ease;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#particleCanvas {
+  position: fixed; inset: 0; width: 100%; height: 100%;
+  z-index: 0; opacity: 0.4; pointer-events: none; filter: blur(80px);
+}
+
+.header-nav {
+  width: 100%;
+  padding: 20px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  z-index: 10;
+  box-sizing: border-box;
+}
+
+.brand {
+  font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 10px;
+  text-decoration: none; color: var(--text-main);
+}
+.brand i { color: #FFA500; }
+
+.theme-pill {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: transform 0.3s; backdrop-filter: blur(10px);
+  color: var(--text-main);
+}
+.theme-pill:hover { transform: scale(1.1); }
+
+.container {
+  width: 90%; max-width: 800px;
+  margin: 40px auto 80px auto;
+  position: relative; z-index: 10;
+}
+
+.tos-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  padding: 50px;
+  box-shadow: var(--shadow-soft);
+}
+
+.tos-title {
+  font-size: 32px; font-weight: 800; margin: 0 0 10px 0;
+  text-align: center;
+}
+
+.tos-date {
+  font-size: 14px; color: var(--text-sub); text-align: center; margin-bottom: 40px;
+  font-weight: 500;
+}
+
+.tos-section { margin-bottom: 30px; }
+.tos-section h2 {
+  font-size: 20px; font-weight: 700; margin: 0 0 16px 0;
+  padding-bottom: 8px; border-bottom: 1px solid var(--card-border);
+}
+.tos-section p, .tos-section li {
+  font-size: 15px; font-weight: 500; color: var(--text-sub); margin-bottom: 10px;
+}
+.tos-section ul, .tos-section ol { padding-left: 20px; margin: 0 0 16px 0; }
+
+.btn-back {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 50px; padding: 0 30px; margin-top: 20px;
+  background-color: var(--text-main); color: var(--bg-color);
+  font-weight: 800; font-size: 16px; border-radius: 25px;
+  text-decoration: none; transition: transform 0.2s, opacity 0.2s;
+}
+.btn-back:hover { opacity: 0.8; transform: translateY(-2px); }
+
+@media (max-width: 768px) {
+  .tos-card { padding: 30px 20px; }
+  .tos-title { font-size: 24px; }
+  .header-nav { padding: 20px; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="particleCanvas"></canvas>
+
+<nav class="header-nav">
+  <a href="index.html" class="brand">
+    <i data-lucide="globe-lock"></i> kiryu11 Pro
+  </a>
+  <div class="theme-pill" id="themeToggle">
+    <i data-lucide="moon" id="themeIcon"></i>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="tos-card">
+    <h1 class="tos-title">利用規約</h1>
+    <div class="tos-date">最終改定日：2026年5月12日</div>
+
+    <div class="tos-section">
+      <p>この利用規約（以下、「本規約」といいます。）は、kiryu11 Pro（以下、「当サイト」といいます。）が提供する個人認証センターおよび付随するすべてのサービス（以下、「本サービス」といいます。）の利用条件を定めるものです。ユーザーの皆様には、本規約に従って本サービスをご利用いただきます。</p>
+    </div>
+
+    <div class="tos-section">
+      <h2>第1条（適用）</h2>
+      <ol>
+        <li>本規約は、ユーザーと当サイトとの間の本サービスの利用に関わる一切の関係に適用されるものとします。</li>
+        <li>当サイトが本サービス上で掲載するルールや各種規定は、本規約の一部を構成するものとします。</li>
+      </ol>
+    </div>
+
+    <div class="tos-section">
+      <h2>第2条（アカウントおよびパスワードの管理）</h2>
+      <ol>
+        <li>ユーザーは、自己の責任において本サービスのユーザーIDおよびパスワードを厳重に管理するものとします。</li>
+        <li>ユーザーは、いかなる場合にも、ユーザーIDおよびパスワードを第三者に譲渡または貸与し、もしくは第三者と共用することはできません。</li>
+        <li>パスワードの変更はアカウント設定画面より行うことができます。当サイトは、ユーザーIDとパスワードの組み合わせが登録情報と一致してログインされた場合には、そのユーザーIDを登録しているユーザー自身による利用とみなします。</li>
+      </ol>
+    </div>
+
+    <div class="tos-section">
+      <h2>第3条（アクティベーションコードおよびポイントの利用）</h2>
+      <ol>
+        <li>ユーザーは、当サイトが発行するアクティベーションコード（プロダクトコード）または当サイト内で付与されるポイントを利用して、特定のデジタルコンテンツを解禁・ダウンロードすることができます。</li>
+        <li>一度引き換えられたコード、および消費されたポイントの返還、取り消し、ならびに現金への換金は、いかなる理由があっても行わないものとします。</li>
+        <li>コードの不正利用、譲渡、転売は固く禁じます。</li>
+      </ol>
+    </div>
+
+    <div class="tos-section">
+      <h2>第4条（コンテンツの提供期間と解禁日）</h2>
+      <ol>
+        <li>一部のコンテンツには、アクセスが可能となる「解禁日」や、アクセスが不可となる「配信終了日」が設定されている場合があります。</li>
+        <li>システム上の時間管理のロジック上、配信終了や解禁日時の基準は、ユーザーの設定言語やアクセス元の環境にかかわらず全て「日本標準時（JST）」が厳格に適用されます。</li>
+        <li>配信終了となったコンテンツに対するダウンロードの補償はいたしかねます。</li>
+      </ol>
+    </div>
+
+    <div class="tos-section">
+      <h2>第5条（禁止事項）</h2>
+      <p>ユーザーは、本サービスの利用にあたり、以下の行為をしてはなりません。</p>
+      <ul>
+        <li>法令または公序良俗に違反する行為</li>
+        <li>本サービスに含まれる著作権、商標権その他の知的財産権を侵害する行為</li>
+        <li>本サービスによって得られたデジタルコンテンツ（動画、アドオン、ゲームファイル等）を無断で二次配布、転載、または販売する行為</li>
+        <li>本サービスのサーバーやネットワークシステムに過度な負荷をかける行為、または不正アクセスを試みる行為</li>
+        <li>他のユーザーのログイン情報等を利用する行為</li>
+        <li>その他、当サイトが不適切と判断する行為</li>
+      </ul>
+    </div>
+
+    <div class="tos-section">
+      <h2>第6条（免責事項）</h2>
+      <ol>
+        <li>当サイトは、本サービスに事実上または法律上の瑕疵（安全性、信頼性、正確性、完全性、有効性、特定の目的への適合性、セキュリティなどに関する欠陥、エラーやバグ、権利侵害などを含みます。）がないことを明示的にも黙示的にも保証しておりません。</li>
+        <li>当サイトは、本サービスに起因してユーザーに生じたあらゆる損害について一切の責任を負いません。</li>
+      </ol>
+    </div>
+
+    <div class="tos-section">
+      <h2>第7条（利用規約の変更）</h2>
+      <p>当サイトは、必要と判断した場合には、ユーザーに通知することなくいつでも本規約を変更することができるものとします。なお、本規約の変更後、本サービスの利用を開始した場合には、当該ユーザーは変更後の規約に同意したものとみなします。</p>
+    </div>
+
+    <div style="text-align: center; margin-top: 50px;">
+      <a href="index.html" class="btn-back">
+        <i data-lucide="arrow-left" style="margin-right: 8px;"></i> メインシステムへ戻る
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  lucide.createIcons();
+
+  const htmlEl = document.documentElement;
+  const themeToggle = document.getElementById('themeToggle');
+  const themeIcon = document.getElementById('themeIcon');
+  let particleHue = 210;
+
+  function applyTheme(theme) {
+    htmlEl.setAttribute('data-theme', theme);
+    const iconName = theme === 'light' ? 'sun' : 'moon';
+    themeToggle.innerHTML = `<i data-lucide="${iconName}"></i>`;
+    particleHue = theme === 'light' ? 210 : 220;
+    lucide.createIcons();
+  }
+
+  const saved = localStorage.getItem('user_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  applyTheme(saved);
+
+  themeToggle.addEventListener('click', () => {
+    const next = htmlEl.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    applyTheme(next);
+    localStorage.setItem('user_theme', next);
+  });
+
+  // パーティクルアニメーション
+  const canvas = document.getElementById('particleCanvas'); 
+  const ctx = canvas.getContext('2d'); 
+  canvas.width = innerWidth; canvas.height = innerHeight;
+  class Particle {
+    constructor() { this.x=Math.random()*canvas.width; this.y=Math.random()*canvas.height; this.size=Math.random()*150+50; this.speedX=Math.random()*0.2-0.1; this.speedY=Math.random()*0.2-0.1; this.opacity=Math.random()*0.3+0.1; }
+    update() { this.x+=this.speedX; this.y+=this.speedY; if(this.x<0||this.x>canvas.width)this.speedX*=-1; if(this.y<0||this.y>canvas.height)this.speedY*=-1; }
+    draw() { ctx.fillStyle=`hsla(${particleHue}, 100%, 50%, ${this.opacity*0.2})`; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); }
+  }
+  let p = []; for(let i=0;i<8;i++) p.push(new Particle());
+  function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); p.forEach(i=>{i.update();i.draw();}); requestAnimationFrame(animate); }
+  window.addEventListener('resize', () => { canvas.width=innerWidth; canvas.height=innerHeight; }); 
+  animate();
+</script>
+
+</body>
+</html>
