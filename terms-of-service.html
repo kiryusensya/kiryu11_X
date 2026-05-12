@@ -108,6 +108,9 @@ body {
 .theme-pill:hover { transform: scale(1.1); }
 [data-theme="dark"] .theme-pill { color: #fff; }
 
+/* スマホ用テーマボタン（PC時は非表示） */
+#mobileThemeToggle { display: none; }
+
 /* =========================================
    利用規約 (TOS) 専用スタイル
    ========================================= */
@@ -135,7 +138,7 @@ body {
 .highlight-box { background: rgba(0, 125, 255, 0.1); border-left: 4px solid var(--primary); padding: 16px; border-radius: 8px; margin-top: 10px; font-weight: 700; font-size: 14px; }
 
 /* =========================================
-   スマホ完全対応 (index.html準拠)
+   スマホ完全対応
    ========================================= */
 .mobile-menu-trigger { display: none; }
 .mobile-nav-overlay { display: none; }
@@ -160,48 +163,41 @@ body {
   /* レイアウト組み替え */
   .rgl-wrapper { flex-direction: column; }
   .rgl-sidebar { width: 100%; height: auto; padding: 0; border-right: none; border-bottom: 1px solid rgba(128,128,128,0.1); overflow: visible; position: relative; z-index: 100; background-color: var(--sidebar-bg); }
-  .rgl-brand-area { padding: 16px 12px; display: flex; align-items: center; justify-content: flex-start; gap: 8px; width: 100%; padding-right: 120px; }
   
   /* ハンバーガーアイコン表示 */
-  .mobile-menu-trigger { display: flex; align-items: center; justify-content: center; background: transparent; border: none; color: var(--sidebar-text); cursor: pointer; padding: 8px; margin-right: 4px; }
+  .mobile-menu-trigger { display: flex; align-items: center; justify-content: center; background: transparent; border: none; color: var(--sidebar-text); cursor: pointer; padding: 8px; margin-right: 4px; order: 1; }
   .rgl-brand { order: 2; }
-  .mobile-menu-trigger { order: 1; }
-
-  /* 特定の要素をスマホで非表示にする */
-  .rgl-bottom-controls { display: none !important; }
-  .capsule-menu { display: none !important; } /* ★カプセルメニューをスマホで非表示 */
-
- .rgl-brand-area { 
-      padding: 16px 12px; 
+  
+  /* ヘッダーエリアの配置（スマホ） */
+  .rgl-brand-area { 
+      padding: 16px 16px; 
       display: flex; 
       align-items: center; 
       justify-content: flex-start; 
       gap: 8px; 
       width: 100%; 
-      padding-right: 16px; /* 120pxから変更 */
   }
 
-  /* スマホ用テーマボタンのスタイル（ロゴのすぐ右に配置） */
+  /* スマホ用テーマボタンのスタイル（右端に配置） */
   #mobileThemeToggle {
       display: flex;
       order: 3; /* ハンバーガー(1)、ロゴ(2)の次に配置 */
-      margin-left: 8px; /* ロゴとの間隔 */
+      margin-left: auto; /* ★ margin-left: auto で右端に押しやる */
       width: 38px;
       height: 38px;
   }
 
-  /* 既存の .rgl-header（右上絶対配置の設定）を丸ごと削除し、以下に差し替え */
-  .rgl-header { 
-      display: none !important; /* PC用の右上ボタンはスマホでは完全に隠す */
-  }
-}
+  /* 特定の要素をスマホで非表示にする */
+  .rgl-bottom-controls { display: none !important; }
+  .capsule-menu { display: none !important; }
+  .rgl-header { display: none !important; } /* PC用の右上ボタンはスマホでは完全に隠す */
 
   /* 利用規約のコンテンツ余白調整 */
   .tos-page-wrapper { padding: 30px 16px 60px 16px; }
   .tos-glass-card { padding: 30px 20px; }
   .tos-title { font-size: 24px; }
 }
-#mobileThemeToggle { display: none; }
+
 @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
@@ -239,24 +235,24 @@ body {
 
 <div class="rgl-wrapper">
     <!-- サイドバー -->
-<aside class="rgl-sidebar">
-    <div class="rgl-brand-area">
-        <!-- ハンバーガーアイコン -->
-        <button class="mobile-menu-trigger" id="mobileMenuBtn">
-            <i data-lucide="menu"></i>
-        </button>
-        <div class="rgl-brand">
-            <i data-lucide="globe-lock"></i> <span data-translate="brand_name">kiryu11 Pro</span>
+    <aside class="rgl-sidebar">
+        <div class="rgl-brand-area">
+            <!-- ハンバーガーアイコン -->
+            <button class="mobile-menu-trigger" id="mobileMenuBtn">
+                <i data-lucide="menu"></i>
+            </button>
+            <div class="rgl-brand">
+                <i data-lucide="globe-lock"></i> <span data-translate="brand_name">kiryu11 Pro</span>
+            </div>
+            
+            <!-- ▼ スマホ専用のテーマ切り替えボタン ▼ -->
+            <div class="theme-pill" id="mobileThemeToggle">
+                <i data-lucide="moon"></i>
+            </div>
+            <!-- ▲ スマホ専用のテーマ切り替えボタン ▲ -->
         </div>
-        
-        <!-- ▼ ここに追加：スマホ専用のテーマ切り替えボタン ▼ -->
-        <div class="theme-pill" id="mobileThemeToggle">
-            <i data-lucide="moon"></i>
-        </div>
-        <!-- ▲ 追加ここまで ▲ -->
-    </div>
-        
-        <!-- PC用カプセルメニュー (スマホではCSSで非表示) -->
+            
+        <!-- PC用カプセルメニュー -->
         <div class="capsule-menu">
             <a href="index.html" class="rgl-tab" data-translate="card1_title">Home</a>
             <a href="terms.html" class="rgl-tab active" data-translate="card_terms_title">Terms</a>
@@ -264,7 +260,7 @@ body {
 
         <div style="flex: 1;"></div> <!-- 余白調整 -->
 
-        <!-- PC用言語切り替え (スマホではCSSで非表示) -->
+        <!-- PC用言語切り替え -->
         <div class="rgl-bottom-controls">
             <div style="position:relative;">
                 <button class="lang-trigger-sidebar" id="langTrigger">
@@ -289,7 +285,7 @@ body {
 
     <!-- メインエリア -->
     <main class="rgl-main">
-        <!-- ヘッダー（テーマ切り替え） -->
+        <!-- ヘッダー（PC用テーマ切り替え） -->
         <nav class="rgl-header">
             <div class="theme-pill" id="themeToggle">
                 <i data-lucide="moon" id="themeIcon"></i>
@@ -564,7 +560,6 @@ function initMobileMenu() {
 function initThemeAndParticles() {
     const htmlEl = document.documentElement;
     const themeToggle = document.getElementById('themeToggle');
-    // ▼ 追加：スマホ用トグルボタンを取得
     const mobileThemeToggle = document.getElementById('mobileThemeToggle');
     let particleHue = 210;
 
@@ -572,7 +567,6 @@ function initThemeAndParticles() {
         htmlEl.setAttribute('data-theme', theme);
         const iconName = theme === 'light' ? 'sun' : 'moon';
         
-        // ▼ 変更：両方のボタンのアイコンを同時に更新する
         const iconHTML = `<i data-lucide="${iconName}"></i>`;
         themeToggle.innerHTML = iconHTML;
         if (mobileThemeToggle) mobileThemeToggle.innerHTML = iconHTML;
@@ -584,14 +578,12 @@ function initThemeAndParticles() {
     const savedTheme = localStorage.getItem('user_theme') || 'dark';
     applyTheme(savedTheme);
 
-    // ▼ 追加：切り替え処理を共通化
     const handleThemeToggle = () => {
         const nextTheme = htmlEl.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
         applyTheme(nextTheme);
         localStorage.setItem('user_theme', nextTheme);
     };
 
-    // ▼ 変更：両方のボタンにクリックイベントを設定
     themeToggle.addEventListener('click', handleThemeToggle);
     if (mobileThemeToggle) {
         mobileThemeToggle.addEventListener('click', handleThemeToggle);
