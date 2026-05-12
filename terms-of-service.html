@@ -11,9 +11,6 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
-/* =========================================
-   共通変数 & ベーススタイル (index.html準拠)
-   ========================================= */
 /* --- FONT FACE DEFINITIONS --- */
 @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
 @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Medium.woff') format('woff'); font-weight: 500; font-style: normal; }
@@ -39,8 +36,8 @@
 
 :root:lang(ja) { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
 :root:lang(en) { --font-stack: 'HarmonyOS Sans', sans-serif; }
-:root:lang(zh) { --font-stack: 'HarmonyOS Sans SC', 'Microsoft YaHei', sans-serif; }
-:root:lang(zh-TW) { --font-stack: 'HarmonyOS Sans TC', 'Microsoft JhengHei', sans-serif; }
+:root:lang(zh) { --font-stack: 'HarmonyOS Sans SC', 'Noto Sans SC', sans-serif; }
+:root:lang(zh-TW) { --font-stack: 'HarmonyOS Sans TC', 'Noto Sans TC', sans-serif; }
 :root:lang(ko) { --font-stack: 'HarmonyOS Sans', 'Noto Sans KR', sans-serif; }
 :root:lang(ru) { --font-stack: 'HarmonyOS Sans', sans-serif; }
 
@@ -266,6 +263,19 @@ body {
                         <li data-translate="tos_s4_2">配信終了となったコンテンツに対する再ダウンロードの補償はいたしかねます。</li>
                     </ol>
                 </div>
+
+                <!-- 新しく追加された 第5条 -->
+                <div class="tos-section">
+                    <h2 data-translate="tos_s5_t">第5条（サービスの停止・アカウントの無効化）</h2>
+                    <p data-translate="tos_s5_intro">当サイトは、ユーザーが以下のいずれかに該当すると判断した場合、事前の通知なく当該ユーザーに対するアクティベーションコードの無効化、および本サービスへのアクセス遮断を行うことができるものとします。</p>
+                    <ul>
+                        <li data-translate="tos_s5_l1">本規約のいずれかの条項に違反した場合</li>
+                        <li data-translate="tos_s5_l2">運営者または他のユーザーに対し、社会通念上不適切な言動（ハラスメント、執拗な勧誘、公序良俗に反する行為等）を行った場合（SNS上での言動も含みます）</li>
+                        <li data-translate="tos_s5_l3">その他、当サイトが「システムの健全な運用を妨げる」と判断した場合</li>
+                    </ul>
+                    <p data-translate="tos_s5_outro" style="margin-top: 10px;">前項に基づき当サイトが行った措置によりユーザーに生じた損害について、当サイトは一切の責任を負いません。</p>
+                </div>
+
             </div>
         </div>
     </main>
@@ -293,7 +303,13 @@ const TRANSLATIONS = {
     tos_s3_alert: "【重要】システム上の時間管理のロジック上、配信終了や解禁日時の基準は、ユーザーの設定言語やアクセス元の環境にかかわらず全て「日本標準時（JST）」が厳格に適用されます。",
     tos_s4_t: "第4条（免責事項・禁止事項）",
     tos_s4_1: "本サービスによって得られたデジタルコンテンツ（動画、アドオン、ファイル等）を無断で二次配布、転載、または販売する行為を禁じます。",
-    tos_s4_2: "配信終了となったコンテンツに対するダウンロードの補償はいたしかねます。また、当サイトは本サービスに起因して生じたあらゆる損害について責任を負いません。"
+    tos_s4_2: "配信終了となったコンテンツに対するダウンロードの補償はいたしかねます。また、当サイトは本サービスに起因して生じたあらゆる損害について責任を負いません。",
+    tos_s5_t: "第5条（サービスの停止・アカウントの無効化）",
+    tos_s5_intro: "当サイトは、ユーザーが以下のいずれかに該当すると判断した場合、事前の通知なく当該ユーザーに対するアクティベーションコードの無効化、および本サービスへのアクセス遮断を行うことができるものとします。",
+    tos_s5_l1: "本規約のいずれかの条項に違反した場合",
+    tos_s5_l2: "運営者または他のユーザーに対し、社会通念上不適切な言動（ハラスメント、執拗な勧誘、公序良俗に反する行為等）を行った場合（SNS上での言動も含みます）",
+    tos_s5_l3: "その他、当サイトが「システムの健全な運用を妨げる」と判断した場合",
+    tos_s5_outro: "前項に基づき当サイトが行った措置によりユーザーに生じた損害について、当サイトは一切の責任を負いません。"
   },
   en: {
     brand_name: "kiryu11 Pro",
@@ -312,7 +328,13 @@ const TRANSLATIONS = {
     tos_s3_alert: "[IMPORTANT] Regarding the system's time management logic, the criteria for expiration and release dates are strictly fixed to Japan Standard Time (JST), regardless of the user's selected interface language or access location.",
     tos_s4_t: "Article 4 (Prohibitions and Disclaimer)",
     tos_s4_1: "Unauthorized secondary distribution, reproduction, or sale of digital content obtained through this service is prohibited.",
-    tos_s4_2: "We cannot compensate for downloads of expired content. We are not responsible for any damages resulting from the use of this service."
+    tos_s4_2: "We cannot compensate for downloads of expired content. We are not responsible for any damages resulting from the use of this service.",
+    tos_s5_t: "Article 5 (Service Suspension and Account Invalidation)",
+    tos_s5_intro: "This site reserves the right to invalidate a user's activation codes and block access to the Service without prior notice if it determines that the user falls under any of the following:",
+    tos_s5_l1: "Violates any provision of these Terms.",
+    tos_s5_l2: "Engages in socially inappropriate behavior (harassment, persistent solicitation, acts against public policy or morals, etc.) towards the operator or other users (including behavior on SNS).",
+    tos_s5_l3: "Is otherwise determined by this site to be \"hindering the sound operation of the system.\"",
+    tos_s5_outro: "This site shall not be held liable for any damages incurred by the user as a result of measures taken under the preceding paragraph."
   },
   zh: {
     brand_name: "kiryu11 Pro",
@@ -331,7 +353,13 @@ const TRANSLATIONS = {
     tos_s3_alert: "【重要提示】基于系统的逻辑架构，所有到期和解禁时间均严格以“日本标准时间（JST）”为准。即使用户将界面语言设置为其他语言，时间标准也不会改变。",
     tos_s4_t: "第4条（禁止事项与免责声明）",
     tos_s4_1: "禁止未经授权二次分发、转载或销售通过本服务获取的数字内容。",
-    tos_s4_2: "对于已下架内容，我们不提供下载补偿。本网站不对因使用本服务造成的任何损害负责。"
+    tos_s4_2: "对于已下架内容，我们不提供下载补偿。本网站不对因使用本服务造成的任何损害负责。",
+    tos_s5_t: "第5条（服务暂停与账户作废）",
+    tos_s5_intro: "如果本网站认定用户存在以下任何一种情况，我们有权在不事先通知的情况下，作废该用户的激活码并封禁其对本服务的访问权限：",
+    tos_s5_l1: "违反本条款的任何规定。",
+    tos_s5_l2: "对运营者或其他用户做出有违社会公德的不当言行（如骚扰、持续纠缠、违反公序良俗的行为等），包含在SNS（社交媒体）上的言行。",
+    tos_s5_l3: "其他被本网站认定为“妨碍系统健康运营”的情况。",
+    tos_s5_outro: "对于因本网站基于前项采取的措施而给用户造成的任何损失，本网站概不负责。"
   },
   "zh-TW": {
     brand_name: "kiryu11 Pro",
@@ -350,7 +378,13 @@ const TRANSLATIONS = {
     tos_s3_alert: "【重要提示】基於系統的邏輯架構，所有到期和解禁時間均嚴格以「日本標準時間（JST）」為準。即使用戶將介面語言設置為其他語言，時間標準也不會改變。",
     tos_s4_t: "第4條（禁止事項與免責聲明）",
     tos_s4_1: "禁止未經授權二次分發、轉載或銷售通過本服務獲取的數位內容。",
-    tos_s4_2: "對於已下架內容，我們不提供下載補償。本網站不對因使用本服務造成的任何損害負責。"
+    tos_s4_2: "對於已下架內容，我們不提供下載補償。本網站不對因使用本服務造成的任何損害負責。",
+    tos_s5_t: "第5條（服務暫停與帳戶作廢）",
+    tos_s5_intro: "如果本網站認定用戶存在以下任何一種情況，我們有權在不事先通知的情況下，作廢該用戶的啟用碼並封禁其對本服務的存取權限：",
+    tos_s5_l1: "違反本條款的任何規定。",
+    tos_s5_l2: "對營運者或其他用戶做出有違社會公德的不當言行（如騷擾、持續糾纏、違反公序良俗的行為等），包含在SNS（社群媒體）上的言行。",
+    tos_s5_l3: "其他被本網站認定為「妨礙系統健康營運」的情況。",
+    tos_s5_outro: "對於因本網站基於前項採取的措施而給用戶造成的任何損失，本網站概不負責。"
   },
   ko: {
     brand_name: "kiryu11 Pro",
@@ -369,7 +403,13 @@ const TRANSLATIONS = {
     tos_s3_alert: "[중요] 시스템의 시간 관리 로직 상, 배포 종료 및 공개 일시의 기준은 사용자가 선택한 인터페이스 언어에 관계없이 항상 '일본 표준시(JST)'가 엄격하게 적용됩니다.",
     tos_s4_t: "제4조 (금지사항 및 면책)",
     tos_s4_1: "본 서비스를 통해 얻은 디지털 콘텐츠를 무단으로 2차 배포, 전재 또는 판매하는 행위는 금지됩니다.",
-    tos_s4_2: "배포가 종료된 콘텐츠에 대한 다운로드 보상은 불가합니다. 당사는 서비스 이용으로 인해 발생한 어떠한 손해에 대해서도 책임지지 않습니다."
+    tos_s4_2: "배포가 종료된 콘텐츠에 대한 다운로드 보상은 불가합니다. 당사는 서비스 이용으로 인해 발생한 어떠한 손해에 대해서도 책임지지 않습니다.",
+    tos_s5_t: "제5조 (서비스 정지 및 계정 무효화)",
+    tos_s5_intro: "본 사이트는 사용자가 다음 각 호의 어느 하나에 해당한다고 판단하는 경우, 사전 통지 없이 해당 사용자의 활성화 코드를 무효화하고 본 서비스에 대한 접근을 차단할 수 있습니다.",
+    tos_s5_l1: "본 약관의 규정을 위반한 경우",
+    tos_s5_l2: "운영자 또는 다른 사용자에게 사회 통념상 부적절한 언동(괴롭힘, 집요한 권유, 공서양속에 반하는 행위 등)을 한 경우 (SNS 상에서의 언동 포함)",
+    tos_s5_l3: "기타 본 사이트가 \"시스템의 건전한 운영을 방해한다\"고 판단한 경우",
+    tos_s5_outro: "전항에 따라 본 사이트가 취한 조치로 인해 사용자에게 발생한 손해에 대해 본 사이트는 어떠한 책임도 지지 않습니다."
   },
   ru: {
     brand_name: "kiryu11 Pro",
@@ -388,7 +428,13 @@ const TRANSLATIONS = {
     tos_s3_alert: "[ВАЖНО] В соответствии с логикой управления временем системы, критерии истечения срока действия и даты выпуска строго зафиксированы по японскому стандартному времени (JST), даже если язык интерфейса установлен на русский или любой другой.",
     tos_s4_t: "Статья 4 (Запреты и отказ от ответственности)",
     tos_s4_1: "Несанкционированное вторичное распространение или продажа цифрового контента, полученного через этот сервис, запрещены.",
-    tos_s4_2: "Мы не компенсируем загрузку контента с истекшим сроком действия и не несем ответственности за ущерб."
+    tos_s4_2: "Мы не компенсируем загрузку контента с истекшим сроком действия и не несем ответственности за ущерб.",
+    tos_s5_t: "Статья 5 (Приостановка предоставления услуг и аннулирование учетной записи)",
+    tos_s5_intro: "Данный сайт оставляет за собой право аннулировать коды активации пользователя и заблокировать доступ к Сервису без предварительного уведомления, если будет установлено, что пользователь попадает под любое из следующих условий:",
+    tos_s5_l1: "Нарушает любое из положений настоящих Условий.",
+    tos_s5_l2: "Демонстрирует социально неприемлемое поведение (домогательства, настойчивые просьбы, действия, противоречащие общественному порядку или морали, и т. д.) по отношению к оператору или другим пользователям (включая поведение в социальных сетях / SNS).",
+    tos_s5_l3: "Если сайт посчитает, что пользователь «препятствует нормальной работе системы».",
+    tos_s5_outro: "Данный сайт не несет ответственности за любой ущерб, понесенный пользователем в результате мер, принятых в соответствии с предыдущим пунктом."
   }
 };
 
