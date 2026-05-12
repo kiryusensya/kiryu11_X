@@ -3,258 +3,490 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>利用規約 - kiryu11 Pro</title>
+<title>Terms of Service - kiryu11 Pro</title>
 <link rel="icon" href="https://static.wixstatic.com/media/2f0694_eb4d3063598a4cc5b6bd6b8e31cba915~mv2.png/v1/crop/x_248,y_0,w_1065,h_950/fill/w_816,h_728,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/1767545356653.png">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
+/* =========================================
+   共通変数 & ベーススタイル (index.html準拠)
+   ========================================= */
 :root {
   --primary: #007DFF;
   --bg-color: #F1F3F5;
-  --card-bg: rgba(255, 255, 255, 0.7);
+  --card-bg: rgba(255, 255, 255, 0.6);
   --card-border: rgba(255, 255, 255, 0.6);
-  --text-main: #000000;
-  --text-sub: #666666;
+  --modal-text-main: #000000;
+  --modal-text-sub: #666666;
+  --sidebar-bg: #E0E0E0;
+  --sidebar-text: #000;
+  --sidebar-width: 340px;
+  --sidebar-item-hover: rgba(0,0,0,0.05);
   --font-stack: 'Noto Sans JP', sans-serif;
-  --shadow-soft: 0 10px 40px rgba(0,0,0,0.08);
+  --shadow-soft: 0 10px 40px rgba(0,0,0,0.05);
 }
+
+:root:lang(ja) { --font-stack: 'Noto Sans JP', sans-serif; }
+:root:lang(en), :root:lang(ru) { --font-stack: sans-serif; }
+:root:lang(zh), :root:lang(zh-TW) { --font-stack: 'Microsoft YaHei', sans-serif; }
+:root:lang(ko) { --font-stack: 'Noto Sans KR', sans-serif; }
 
 [data-theme="dark"] {
   --bg-color: #121212;
-  --card-bg: rgba(40, 40, 40, 0.6);
+  --card-bg: rgba(40, 40, 40, 0.5);
   --card-border: rgba(255, 255, 255, 0.1);
-  --text-main: #FFFFFF;
-  --text-sub: #A0A0A0;
-  --shadow-soft: 0 15px 50px rgba(0,0,0,0.5);
+  --modal-text-main: #FFFFFF;
+  --modal-text-sub: #A0A0A0;
+  --sidebar-bg: #000000;
+  --sidebar-text: #fff;
+  --sidebar-item-hover: rgba(255,255,255,0.1);
+  --shadow-soft: 0 15px 40px rgba(0,0,0,0.4);
 }
 
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(128, 128, 128, 0.2); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(128, 128, 128, 0.4); }
+[data-theme="dark"] ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); }
+
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
 body {
-  margin: 0; padding: 0;
-  background-color: var(--bg-color);
-  color: var(--text-main);
-  font-family: var(--font-stack);
+  margin: 0; padding: 0; background-color: var(--bg-color); color: var(--modal-text-main);
+  font-family: var(--font-stack); height: 100vh; overflow: hidden; display: flex;
   transition: background-color 0.5s ease;
-  line-height: 1.6;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 #particleCanvas {
-  position: fixed; inset: 0; width: 100%; height: 100%;
-  z-index: 0; opacity: 0.4; pointer-events: none; filter: blur(80px);
+  position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.4; pointer-events: none; filter: blur(80px);
 }
 
-.header-nav {
-  width: 100%;
-  padding: 20px 40px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: relative;
-  z-index: 10;
-  box-sizing: border-box;
-}
+/* =========================================
+   レイアウト構造 (RGL)
+   ========================================= */
+.rgl-wrapper { display: flex; width: 100%; height: 100%; z-index: 5; position: relative; }
 
-.brand {
-  font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 10px;
-  text-decoration: none; color: var(--text-main);
+/* サイドバー */
+.rgl-sidebar {
+  width: var(--sidebar-width); background-color: var(--sidebar-bg); display: flex; flex-direction: column; 
+  flex-shrink: 0; border-right: 1px solid rgba(128,128,128,0.1); color: var(--sidebar-text); z-index: 100;
 }
-.brand i { color: #FFA500; }
+.rgl-brand-area { padding: 30px 24px 20px 24px; flex-shrink: 0; }
+.rgl-brand { font-weight: 800; font-size: 20px; display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--sidebar-text); }
+.rgl-brand i { color: #FFA500; } 
 
-.theme-pill {
-  width: 44px; height: 44px; border-radius: 50%;
-  background: var(--card-bg); border: 1px solid var(--card-border);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: transform 0.3s; backdrop-filter: blur(10px);
-  color: var(--text-main);
+/* カプセルメニュー */
+.capsule-menu {
+  display: flex; background: rgba(128, 128, 128, 0.1); border-radius: 50px; padding: 6px; margin: 0 24px 20px 24px; gap: 4px;
 }
+.capsule-menu .rgl-tab {
+  flex: 1; text-align: center; padding: 10px 0; border-radius: 50px; font-size: 13px; font-weight: 800; color: var(--sidebar-text); opacity: 0.6; transition: all 0.3s ease; text-decoration: none; cursor: pointer;
+}
+.capsule-menu .rgl-tab.active { opacity: 1; background: var(--card-bg); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+[data-theme="dark"] .capsule-menu .rgl-tab.active { background: rgba(255,255,255,0.15); }
+
+/* 下部コントロール (言語切り替え) */
+.rgl-bottom-controls { margin-top: auto; padding: 20px 24px 30px 24px; flex-shrink: 0; border-top: 1px solid rgba(128,128,128,0.1); }
+.lang-trigger-sidebar {
+  width: 100%; height: 40px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; cursor: pointer; font-size: 14px; font-weight: 700; color: var(--sidebar-text); border-radius: 50px; background: transparent; transition: all 0.2s ease; border: 1px solid transparent;
+}
+.lang-trigger-sidebar:hover { background: rgba(128, 128, 128, 0.15); }
+[data-theme="dark"] .lang-trigger-sidebar { border: 1px solid rgba(255, 255, 255, 0.6); background: rgba(255, 255, 255, 0.05); }
+.lang-list { position: absolute; bottom: 80px; left: 24px; width: 200px; background: var(--card-bg); backdrop-filter: blur(20px); padding: 5px; border-radius: 12px; list-style: none; display: none; box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 200; border: 1px solid rgba(128,128,128,0.1); }
+.lang-list.open { display: block; animation: fadeInUp 0.3s; }
+.lang-list li { padding: 10px 15px; cursor: pointer; border-radius: 8px; color: var(--modal-text-main); font-size: 13px; }
+.lang-list li:hover { background: rgba(128,128,128,0.1); }
+[data-theme="dark"] .lang-list li { color: #fff; }
+
+/* メインエリア */
+.rgl-main { flex: 1; position: relative; display: flex; flex-direction: column; overflow-y: auto; background-color: transparent; }
+.rgl-header { position: sticky; top: 0; z-index: 50; padding: 24px 40px; display: flex; justify-content: flex-end; align-items: center; }
+.theme-pill { width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid rgba(128,128,128,0.2); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.3s; backdrop-filter: blur(10px); color: var(--modal-text-main); }
 .theme-pill:hover { transform: scale(1.1); }
+[data-theme="dark"] .theme-pill { color: #fff; }
 
-.container {
-  width: 90%; max-width: 800px;
-  margin: 40px auto 80px auto;
-  position: relative; z-index: 10;
+/* =========================================
+   利用規約 (TOS) 専用スタイル
+   ========================================= */
+.tos-page-wrapper {
+  padding: 0 40px 60px 40px;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
 }
-
-.tos-card {
+.tos-glass-card {
   background: var(--card-bg);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
+  backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
   border: 1px solid var(--card-border);
   border-radius: 24px;
   padding: 50px;
   box-shadow: var(--shadow-soft);
+  color: var(--modal-text-main);
 }
-
-.tos-title {
-  font-size: 32px; font-weight: 800; margin: 0 0 10px 0;
-  text-align: center;
-}
-
-.tos-date {
-  font-size: 14px; color: var(--text-sub); text-align: center; margin-bottom: 40px;
-  font-weight: 500;
-}
-
-.tos-section { margin-bottom: 30px; }
-.tos-section h2 {
-  font-size: 20px; font-weight: 700; margin: 0 0 16px 0;
-  padding-bottom: 8px; border-bottom: 1px solid var(--card-border);
-}
-.tos-section p, .tos-section li {
-  font-size: 15px; font-weight: 500; color: var(--text-sub); margin-bottom: 10px;
-}
+.tos-title { font-size: 32px; font-weight: 800; margin: 0 0 10px 0; text-align: center; }
+.tos-date { font-size: 14px; color: var(--modal-text-sub); text-align: center; margin-bottom: 40px; font-weight: 700; }
+.tos-section { margin-bottom: 32px; }
+.tos-section h2 { font-size: 20px; font-weight: 800; margin: 0 0 16px 0; padding-bottom: 8px; border-bottom: 1px solid rgba(128,128,128,0.2); }
+.tos-section p, .tos-section li { font-size: 15px; font-weight: 500; line-height: 1.7; margin-bottom: 10px; opacity: 0.9; }
 .tos-section ul, .tos-section ol { padding-left: 20px; margin: 0 0 16px 0; }
+.highlight-box { background: rgba(0, 125, 255, 0.1); border-left: 4px solid var(--primary); padding: 16px; border-radius: 8px; margin-top: 10px; font-weight: 700; font-size: 14px; }
 
-.btn-back {
-  display: inline-flex; align-items: center; justify-content: center;
-  height: 50px; padding: 0 30px; margin-top: 20px;
-  background-color: var(--text-main); color: var(--bg-color);
-  font-weight: 800; font-size: 16px; border-radius: 25px;
-  text-decoration: none; transition: transform 0.2s, opacity 0.2s;
-}
-.btn-back:hover { opacity: 0.8; transform: translateY(-2px); }
-
+/* スマホ対応 */
+.mobile-menu-trigger { display: none; }
 @media (max-width: 768px) {
-  .tos-card { padding: 30px 20px; }
+  .rgl-wrapper { flex-direction: column; }
+  .rgl-sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid rgba(128,128,128,0.1); position: relative; z-index: 100; }
+  .rgl-brand-area { padding: 16px 12px; display: flex; align-items: center; justify-content: flex-start; gap: 8px; }
+  .mobile-menu-trigger { display: flex; align-items: center; justify-content: center; background: transparent; border: none; color: var(--sidebar-text); padding: 8px; }
+  .rgl-brand { order: 2; } .mobile-menu-trigger { order: 1; }
+  .rgl-bottom-controls { display: none !important; }
+  .capsule-menu { margin: 10px 16px; }
+  .rgl-header { padding: 16px; position: absolute; right: 0; }
+  .tos-page-wrapper { padding: 20px 16px 40px 16px; }
+  .tos-glass-card { padding: 30px 20px; }
   .tos-title { font-size: 24px; }
-  .header-nav { padding: 20px; }
+  
+  /* スマホ用の簡易言語スイッチャー */
+  .mobile-lang-container { padding: 16px; display: flex; justify-content: center; border-top: 1px solid rgba(128,128,128,0.1); }
 }
+@keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
 <body>
 
 <canvas id="particleCanvas"></canvas>
 
-<nav class="header-nav">
-  <a href="index.html" class="brand">
-    <i data-lucide="globe-lock"></i> kiryu11 Pro
-  </a>
-  <div class="theme-pill" id="themeToggle">
-    <i data-lucide="moon" id="themeIcon"></i>
-  </div>
-</nav>
+<div class="rgl-wrapper">
+    <!-- サイドバー -->
+    <aside class="rgl-sidebar">
+        <div class="rgl-brand-area">
+            <div class="rgl-brand">
+                <i data-lucide="globe-lock"></i> <span data-translate="brand_name">kiryu11 Pro</span>
+            </div>
+        </div>
+        
+        <div class="capsule-menu">
+            <a href="index.html" class="rgl-tab" data-translate="card1_title">Home</a>
+            <a href="terms.html" class="rgl-tab active" data-translate="card_terms_title">Terms</a>
+        </div>
 
-<div class="container">
-  <div class="tos-card">
-    <h1 class="tos-title">利用規約</h1>
-    <div class="tos-date">最終改定日：2026年5月12日</div>
+        <div style="flex: 1;"></div> <!-- 余白調整 -->
 
-    <div class="tos-section">
-      <p>この利用規約（以下、「本規約」といいます。）は、kiryu11 Pro（以下、「当サイト」といいます。）が提供する個人認証センターおよび付随するすべてのサービス（以下、「本サービス」といいます。）の利用条件を定めるものです。ユーザーの皆様には、本規約に従って本サービスをご利用いただきます。</p>
-    </div>
+        <div class="rgl-bottom-controls">
+            <div style="position:relative;">
+                <button class="lang-trigger-sidebar" id="langTrigger">
+                    <span style="display:flex;align-items:center;gap:8px;">
+                        <i data-lucide="globe" style="width: 16px; height: 16px;"></i> 
+                        <span id="currentLangLabel">日本語</span>
+                    </span>
+                    <i data-lucide="chevron-up" style="width: 14px; height: 14px; opacity: 0.5;"></i>
+                </button>
+                <ul class="lang-list" id="langMenu">
+                    <li class="lang-option" data-value="ja">日本語</li>
+                    <li class="lang-option" data-value="en">English</li>
+                    <li class="lang-option" data-value="zh">简体中文</li>
+                    <li class="lang-option" data-value="zh-TW">繁體中文</li>
+                    <li class="lang-option" data-value="ko">한국어</li>
+                    <li class="lang-option" data-value="ru">Русский</li>
+                </ul>
+            </div>
+            <div style="margin-top:20px; font-size:10px; opacity:0.3; text-align:center;">© 2026 kiryu-sensya</div>
+        </div>
+        
+        <!-- スマホ用簡易言語スイッチャー -->
+        <div class="mobile-lang-container" style="display: none;">
+             <select id="mobileLangSelect" style="width: 100%; padding: 10px; border-radius: 12px; background: var(--card-bg); color: var(--modal-text-main); border: 1px solid var(--card-border);">
+                <option value="ja">日本語</option>
+                <option value="en">English</option>
+                <option value="zh">简体中文</option>
+                <option value="zh-TW">繁體中文</option>
+                <option value="ko">한국어</option>
+                <option value="ru">Русский</option>
+             </select>
+        </div>
+    </aside>
 
-    <div class="tos-section">
-      <h2>第1条（適用）</h2>
-      <ol>
-        <li>本規約は、ユーザーと当サイトとの間の本サービスの利用に関わる一切の関係に適用されるものとします。</li>
-        <li>当サイトが本サービス上で掲載するルールや各種規定は、本規約の一部を構成するものとします。</li>
-      </ol>
-    </div>
+    <!-- メインエリア -->
+    <main class="rgl-main">
+        <nav class="rgl-header">
+            <div class="theme-pill" id="themeToggle">
+                <i data-lucide="moon" id="themeIcon"></i>
+            </div>
+        </nav>
 
-    <div class="tos-section">
-      <h2>第2条（アカウントおよびパスワードの管理）</h2>
-      <ol>
-        <li>ユーザーは、自己の責任において本サービスのユーザーIDおよびパスワードを厳重に管理するものとします。</li>
-        <li>ユーザーは、いかなる場合にも、ユーザーIDおよびパスワードを第三者に譲渡または貸与し、もしくは第三者と共用することはできません。</li>
-        <li>パスワードの変更はアカウント設定画面より行うことができます。当サイトは、ユーザーIDとパスワードの組み合わせが登録情報と一致してログインされた場合には、そのユーザーIDを登録しているユーザー自身による利用とみなします。</li>
-      </ol>
-    </div>
+        <div class="tos-page-wrapper">
+            <div class="tos-glass-card">
+                <h1 class="tos-title" data-translate="tos_title">利用規約</h1>
+                <div class="tos-date" data-translate="tos_date">最終改定日：2026年5月12日</div>
 
-    <div class="tos-section">
-      <h2>第3条（アクティベーションコードおよびポイントの利用）</h2>
-      <ol>
-        <li>ユーザーは、当サイトが発行するアクティベーションコード（プロダクトコード）または当サイト内で付与されるポイントを利用して、特定のデジタルコンテンツを解禁・ダウンロードすることができます。</li>
-        <li>一度引き換えられたコード、および消費されたポイントの返還、取り消し、ならびに現金への換金は、いかなる理由があっても行わないものとします。</li>
-        <li>コードの不正利用、譲渡、転売は固く禁じます。</li>
-      </ol>
-    </div>
+                <div class="tos-section">
+                    <p data-translate="tos_intro">この利用規約は、当サイトが提供するシステムおよびデジタルコンテンツの利用条件を定めるものです。</p>
+                </div>
 
-    <div class="tos-section">
-      <h2>第4条（コンテンツの提供期間と解禁日）</h2>
-      <ol>
-        <li>一部のコンテンツには、アクセスが可能となる「解禁日」や、アクセスが不可となる「配信終了日」が設定されている場合があります。</li>
-        <li>システム上の時間管理のロジック上、配信終了や解禁日時の基準は、ユーザーの設定言語やアクセス元の環境にかかわらず全て「日本標準時（JST）」が厳格に適用されます。</li>
-        <li>配信終了となったコンテンツに対するダウンロードの補償はいたしかねます。</li>
-      </ol>
-    </div>
+                <div class="tos-section">
+                    <h2 data-translate="tos_s1_t">第1条（適用）</h2>
+                    <ol>
+                        <li data-translate="tos_s1_1">本規約は、ユーザーと当サイトとの間の本サービスの利用に関わる一切の関係に適用されます。</li>
+                    </ol>
+                </div>
 
-    <div class="tos-section">
-      <h2>第5条（禁止事項）</h2>
-      <p>ユーザーは、本サービスの利用にあたり、以下の行為をしてはなりません。</p>
-      <ul>
-        <li>法令または公序良俗に違反する行為</li>
-        <li>本サービスに含まれる著作権、商標権その他の知的財産権を侵害する行為</li>
-        <li>本サービスによって得られたデジタルコンテンツ（動画、アドオン、ゲームファイル等）を無断で二次配布、転載、または販売する行為</li>
-        <li>本サービスのサーバーやネットワークシステムに過度な負荷をかける行為、または不正アクセスを試みる行為</li>
-        <li>他のユーザーのログイン情報等を利用する行為</li>
-        <li>その他、当サイトが不適切と判断する行為</li>
-      </ul>
-    </div>
+                <div class="tos-section">
+                    <h2 data-translate="tos_s2_t">第2条（アカウントおよびコード）</h2>
+                    <ol>
+                        <li data-translate="tos_s2_1">ユーザーは、自己の責任においてアカウントおよびアクティベーションコードを管理するものとします。</li>
+                        <li data-translate="tos_s2_2">コードの不正利用、第三者への譲渡、転売は固く禁じます。</li>
+                    </ol>
+                </div>
 
-    <div class="tos-section">
-      <h2>第6条（免責事項）</h2>
-      <ol>
-        <li>当サイトは、本サービスに事実上または法律上の瑕疵（安全性、信頼性、正確性、完全性、有効性、特定の目的への適合性、セキュリティなどに関する欠陥、エラーやバグ、権利侵害などを含みます。）がないことを明示的にも黙示的にも保証しておりません。</li>
-        <li>当サイトは、本サービスに起因してユーザーに生じたあらゆる損害について一切の責任を負いません。</li>
-      </ol>
-    </div>
+                <div class="tos-section">
+                    <h2 data-translate="tos_s3_t">第3条（コンテンツの提供期間とタイムゾーン設定）</h2>
+                    <p data-translate="tos_s3_1">一部のコンテンツには、アクセスが可能となる「解禁日」や、アクセスが不可となる「配信終了日」が設定されています。</p>
+                    <div class="highlight-box" data-translate="tos_s3_alert">
+                        【重要】システム上の時間管理ロジックについて、配信終了や解禁日時の基準は、ユーザーが選択したインターフェース言語やアクセス元の環境にかかわらず、全て「日本標準時（JST）」が厳格に適用されます。
+                    </div>
+                </div>
 
-    <div class="tos-section">
-      <h2>第7条（利用規約の変更）</h2>
-      <p>当サイトは、必要と判断した場合には、ユーザーに通知することなくいつでも本規約を変更することができるものとします。なお、本規約の変更後、本サービスの利用を開始した場合には、当該ユーザーは変更後の規約に同意したものとみなします。</p>
-    </div>
-
-    <div style="text-align: center; margin-top: 50px;">
-      <a href="index.html" class="btn-back">
-        <i data-lucide="arrow-left" style="margin-right: 8px;"></i> メインシステムへ戻る
-      </a>
-    </div>
-
-  </div>
+                <div class="tos-section">
+                    <h2 data-translate="tos_s4_t">第4条（免責事項・禁止事項）</h2>
+                    <ol>
+                        <li data-translate="tos_s4_1">本サービスによって得られたデジタルコンテンツの無断転載・二次配布を禁じます。</li>
+                        <li data-translate="tos_s4_2">配信終了となったコンテンツに対する再ダウンロードの補償はいたしかねます。</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </main>
 </div>
 
 <script>
-  lucide.createIcons();
+/* =========================================
+   多言語辞書データ (TRANSLATIONS)
+   ========================================= */
+const TRANSLATIONS = {
+  ja: {
+    brand_name: "kiryu11 Pro",
+    card1_title: "ホーム",
+    card_terms_title: "利用規約",
+    tos_title: "利用規約",
+    tos_date: "最終改定日：2026年5月12日",
+    tos_intro: "この利用規約（以下、「本規約」といいます。）は、kiryu11 Pro（以下、「当サイト」といいます。）が提供する個人認証センターおよび付随するすべてのサービス（以下、「本サービス」といいます。）の利用条件を定めるものです。ユーザーの皆様には、本規約に従って本サービスをご利用いただきます。",
+    tos_s1_t: "第1条（適用）",
+    tos_s1_1: "本規約は、ユーザーと当サイトとの間の本サービスの利用に関わる一切の関係に適用されるものとします。",
+    tos_s2_t: "第2条（アカウントおよびパスワードの管理）",
+    tos_s2_1: "ユーザーは、自己の責任において本サービスのユーザーIDおよびアクティベーションコードを厳重に管理するものとします。",
+    tos_s2_2: "コードの不正利用、譲渡、転売は固く禁じます。",
+    tos_s3_t: "第3条（コンテンツの提供期間と解禁日）",
+    tos_s3_1: "一部のコンテンツには、アクセスが可能となる「解禁日」や、アクセスが不可となる「配信終了日」が設定されている場合があります。",
+    tos_s3_alert: "【重要】システム上の時間管理のロジック上、配信終了や解禁日時の基準は、ユーザーの設定言語やアクセス元の環境にかかわらず全て「日本標準時（JST）」が厳格に適用されます。",
+    tos_s4_t: "第4条（免責事項・禁止事項）",
+    tos_s4_1: "本サービスによって得られたデジタルコンテンツ（動画、アドオン、ファイル等）を無断で二次配布、転載、または販売する行為を禁じます。",
+    tos_s4_2: "配信終了となったコンテンツに対するダウンロードの補償はいたしかねます。また、当サイトは本サービスに起因して生じたあらゆる損害について責任を負いません。"
+  },
+  en: {
+    brand_name: "kiryu11 Pro",
+    card1_title: "Home",
+    card_terms_title: "Terms",
+    tos_title: "Terms of Service",
+    tos_date: "Last Updated: May 12, 2026",
+    tos_intro: "These Terms of Service govern your use of the Personal Activation Center and all associated services provided by kiryu11 Pro.",
+    tos_s1_t: "Article 1 (Application)",
+    tos_s1_1: "These terms apply to all relationships between the user and this site regarding the use of the Service.",
+    tos_s2_t: "Article 2 (Account and Code Management)",
+    tos_s2_1: "Users are responsible for strictly managing their User ID and activation codes at their own risk.",
+    tos_s2_2: "Unauthorized use, transfer, or resale of codes is strictly prohibited.",
+    tos_s3_t: "Article 3 (Content Availability and Timezone)",
+    tos_s3_1: "Some content may have a 'Release Date' when access becomes available, or an 'Expiration Date' when access is terminated.",
+    tos_s3_alert: "[IMPORTANT] Regarding the system's time management logic, the criteria for expiration and release dates are strictly fixed to Japan Standard Time (JST), regardless of the user's selected interface language or access location.",
+    tos_s4_t: "Article 4 (Prohibitions and Disclaimer)",
+    tos_s4_1: "Unauthorized secondary distribution, reproduction, or sale of digital content obtained through this service is prohibited.",
+    tos_s4_2: "We cannot compensate for downloads of expired content. We are not responsible for any damages resulting from the use of this service."
+  },
+  zh: {
+    brand_name: "kiryu11 Pro",
+    card1_title: "首页",
+    card_terms_title: "使用条款",
+    tos_title: "使用条款",
+    tos_date: "最后更新：2026年5月12日",
+    tos_intro: "本使用条款规定了您使用 kiryu11 Pro 提供的个人认证中心及所有相关服务的条件。",
+    tos_s1_t: "第1条（适用）",
+    tos_s1_1: "本条款适用于用户与本网站之间关于使用本服务的所有关系。",
+    tos_s2_t: "第2条（账户和代码管理）",
+    tos_s2_1: "用户需自行负责严格管理其用户 ID 和激活码。",
+    tos_s2_2: "严禁未经授权使用、转让或转售代码。",
+    tos_s3_t: "第3条（内容提供期与时区）",
+    tos_s3_1: "部分内容可能设有允许访问的“解禁日期”或终止访问的“下架日期”。",
+    tos_s3_alert: "【重要提示】基于系统的逻辑架构，所有到期和解禁时间均严格以“日本标准时间（JST）”为准。即使用户将界面语言设置为其他语言，时间标准也不会改变。",
+    tos_s4_t: "第4条（禁止事项与免责声明）",
+    tos_s4_1: "禁止未经授权二次分发、转载或销售通过本服务获取的数字内容。",
+    tos_s4_2: "对于已下架内容，我们不提供下载补偿。本网站不对因使用本服务造成的任何损害负责。"
+  },
+  "zh-TW": {
+    brand_name: "kiryu11 Pro",
+    card1_title: "首頁",
+    card_terms_title: "服務條款",
+    tos_title: "服務條款",
+    tos_date: "最後更新：2026年5月12日",
+    tos_intro: "本服務條款規定了您使用 kiryu11 Pro 提供的個人認證中心及所有相關服務的條件。",
+    tos_s1_t: "第1條（適用）",
+    tos_s1_1: "本條款適用於用戶與本網站之間關於使用本服務的所有關係。",
+    tos_s2_t: "第2條（帳戶和代碼管理）",
+    tos_s2_1: "用戶需自行負責嚴格管理其用戶 ID 和啟用碼。",
+    tos_s2_2: "嚴禁未經授權使用、轉讓或轉售代碼。",
+    tos_s3_t: "第3條（內容提供期與時區）",
+    tos_s3_1: "部分內容可能設有允許存取的「解禁日期」或終止存取的「下架日期」。",
+    tos_s3_alert: "【重要提示】基於系統的邏輯架構，所有到期和解禁時間均嚴格以「日本標準時間（JST）」為準。即使用戶將介面語言設置為其他語言，時間標準也不會改變。",
+    tos_s4_t: "第4條（禁止事項與免責聲明）",
+    tos_s4_1: "禁止未經授權二次分發、轉載或銷售通過本服務獲取的數位內容。",
+    tos_s4_2: "對於已下架內容，我們不提供下載補償。本網站不對因使用本服務造成的任何損害負責。"
+  },
+  ko: {
+    brand_name: "kiryu11 Pro",
+    card1_title: "홈",
+    card_terms_title: "이용약관",
+    tos_title: "이용약관",
+    tos_date: "최종 수정일: 2026년 5월 12일",
+    tos_intro: "이 약관은 kiryu11 Pro가 제공하는 개인 인증 센터 및 모든 관련 서비스의 이용 조건을 규정합니다.",
+    tos_s1_t: "제1조 (적용)",
+    tos_s1_1: "이 약관은 서비스 이용과 관련하여 사용자와 본 사이트 간의 모든 관계에 적용됩니다.",
+    tos_s2_t: "제2조 (계정 및 코드 관리)",
+    tos_s2_1: "사용자는 자신의 책임하에 사용자 ID 및 활성화 코드를 엄격하게 관리해야 합니다.",
+    tos_s2_2: "코드의 무단 사용, 양도 또는 재판매는 엄격히 금지됩니다.",
+    tos_s3_t: "제3조 (콘텐츠 제공 기간 및 시간대)",
+    tos_s3_1: "일부 콘텐츠에는 액세스가 가능한 '공개일' 또는 액세스가 종료되는 '배포 종료일'이 설정되어 있을 수 있습니다.",
+    tos_s3_alert: "[중요] 시스템의 시간 관리 로직 상, 배포 종료 및 공개 일시의 기준은 사용자가 선택한 인터페이스 언어에 관계없이 항상 '일본 표준시(JST)'가 엄격하게 적용됩니다.",
+    tos_s4_t: "제4조 (금지사항 및 면책)",
+    tos_s4_1: "본 서비스를 통해 얻은 디지털 콘텐츠를 무단으로 2차 배포, 전재 또는 판매하는 행위는 금지됩니다.",
+    tos_s4_2: "배포가 종료된 콘텐츠에 대한 다운로드 보상은 불가합니다. 당사는 서비스 이용으로 인해 발생한 어떠한 손해에 대해서도 책임지지 않습니다."
+  },
+  ru: {
+    brand_name: "kiryu11 Pro",
+    card1_title: "Главная",
+    card_terms_title: "Условия",
+    tos_title: "Условия использования",
+    tos_date: "Последнее обновление: 12 мая 2026 г.",
+    tos_intro: "Эти Условия использования регулируют ваше использование Центра личной активации и всех связанных услуг, предоставляемых kiryu11 Pro.",
+    tos_s1_t: "Статья 1 (Применение)",
+    tos_s1_1: "Эти условия применяются ко всем отношениям между пользователем и этим сайтом.",
+    tos_s2_t: "Статья 2 (Управление аккаунтом и кодом)",
+    tos_s2_1: "Пользователи несут ответственность за строгое управление своим ID и кодами активации.",
+    tos_s2_2: "Несанкционированное использование, передача или перепродажа кодов строго запрещены.",
+    tos_s3_t: "Статья 3 (Доступность контента и часовой пояс)",
+    tos_s3_1: "Некоторый контент может иметь «Дату выхода», когда доступ открывается, или «Дату истечения», когда доступ прекращается.",
+    tos_s3_alert: "[ВАЖНО] В соответствии с логикой управления временем системы, критерии истечения срока действия и даты выпуска строго зафиксированы по японскому стандартному времени (JST), даже если язык интерфейса установлен на русский или любой другой.",
+    tos_s4_t: "Статья 4 (Запреты и отказ от ответственности)",
+    tos_s4_1: "Несанкционированное вторичное распространение или продажа цифрового контента, полученного через этот сервис, запрещены.",
+    tos_s4_2: "Мы не компенсируем загрузку контента с истекшим сроком действия и не несем ответственности за ущерб."
+  }
+};
 
-  const htmlEl = document.documentElement;
-  const themeToggle = document.getElementById('themeToggle');
-  const themeIcon = document.getElementById('themeIcon');
-  let particleHue = 210;
-
-  function applyTheme(theme) {
-    htmlEl.setAttribute('data-theme', theme);
-    const iconName = theme === 'light' ? 'sun' : 'moon';
-    themeToggle.innerHTML = `<i data-lucide="${iconName}"></i>`;
-    particleHue = theme === 'light' ? 210 : 220;
+/* =========================================
+   機能・ロジック
+   ========================================= */
+document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
-  }
+    initThemeAndParticles();
+    initLanguageSwitcher();
+});
 
-  const saved = localStorage.getItem('user_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-  applyTheme(saved);
+// テーマとパーティクル
+function initThemeAndParticles() {
+    const htmlEl = document.documentElement;
+    const themeToggle = document.getElementById('themeToggle');
+    let particleHue = 210;
 
-  themeToggle.addEventListener('click', () => {
-    const next = htmlEl.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-    applyTheme(next);
-    localStorage.setItem('user_theme', next);
-  });
+    function applyTheme(theme) {
+        htmlEl.setAttribute('data-theme', theme);
+        const iconName = theme === 'light' ? 'sun' : 'moon';
+        themeToggle.innerHTML = `<i data-lucide="${iconName}"></i>`;
+        particleHue = theme === 'light' ? 210 : 220;
+        lucide.createIcons();
+    }
 
-  // パーティクルアニメーション
-  const canvas = document.getElementById('particleCanvas'); 
-  const ctx = canvas.getContext('2d'); 
-  canvas.width = innerWidth; canvas.height = innerHeight;
-  class Particle {
-    constructor() { this.x=Math.random()*canvas.width; this.y=Math.random()*canvas.height; this.size=Math.random()*150+50; this.speedX=Math.random()*0.2-0.1; this.speedY=Math.random()*0.2-0.1; this.opacity=Math.random()*0.3+0.1; }
-    update() { this.x+=this.speedX; this.y+=this.speedY; if(this.x<0||this.x>canvas.width)this.speedX*=-1; if(this.y<0||this.y>canvas.height)this.speedY*=-1; }
-    draw() { ctx.fillStyle=`hsla(${particleHue}, 100%, 50%, ${this.opacity*0.2})`; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); }
-  }
-  let p = []; for(let i=0;i<8;i++) p.push(new Particle());
-  function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); p.forEach(i=>{i.update();i.draw();}); requestAnimationFrame(animate); }
-  window.addEventListener('resize', () => { canvas.width=innerWidth; canvas.height=innerHeight; }); 
-  animate();
+    const savedTheme = localStorage.getItem('user_theme') || 'dark';
+    applyTheme(savedTheme);
+
+    themeToggle.addEventListener('click', () => {
+        const nextTheme = htmlEl.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        applyTheme(nextTheme);
+        localStorage.setItem('user_theme', nextTheme);
+    });
+
+    const canvas = document.getElementById('particleCanvas'); 
+    const ctx = canvas.getContext('2d'); 
+    canvas.width = innerWidth; canvas.height = innerHeight;
+    class Particle {
+        constructor() { this.x=Math.random()*canvas.width; this.y=Math.random()*canvas.height; this.size=Math.random()*150+50; this.speedX=Math.random()*0.2-0.1; this.speedY=Math.random()*0.2-0.1; this.opacity=Math.random()*0.3+0.1; }
+        update() { this.x+=this.speedX; this.y+=this.speedY; if(this.x<0||this.x>canvas.width)this.speedX*=-1; if(this.y<0||this.y>canvas.height)this.speedY*=-1; }
+        draw() { ctx.fillStyle=`hsla(${particleHue}, 100%, 50%, ${this.opacity*0.2})`; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); }
+    }
+    let p = []; for(let i=0;i<8;i++) p.push(new Particle());
+    function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); p.forEach(i=>{i.update();i.draw();}); requestAnimationFrame(animate); }
+    window.addEventListener('resize', () => { canvas.width=innerWidth; canvas.height=innerHeight; }); animate();
+}
+
+// 言語スイッチャー
+function initLanguageSwitcher() {
+    const langTrigger = document.getElementById('langTrigger');
+    const langMenu = document.getElementById('langMenu');
+    const mobileSelect = document.getElementById('mobileLangSelect');
+    
+    // スマホ判定
+    if (window.innerWidth <= 768 && mobileSelect) {
+        document.querySelector('.mobile-lang-container').style.display = 'block';
+    }
+
+    let currentLang = localStorage.getItem('user_lang') || 'ja';
+    updateLanguage(currentLang);
+
+    // PC用ドロップダウン
+    langTrigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        langMenu.classList.toggle('open');
+    });
+
+    document.querySelectorAll('.lang-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+            const val = opt.getAttribute('data-value');
+            localStorage.setItem('user_lang', val);
+            updateLanguage(val);
+            langMenu.classList.remove('open');
+            if (mobileSelect) mobileSelect.value = val;
+        });
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!langTrigger.contains(e.target)) langMenu.classList.remove('open');
+    });
+
+    // スマホ用セレクトボックス
+    if (mobileSelect) {
+        mobileSelect.value = currentLang;
+        mobileSelect.addEventListener('change', (e) => {
+            const val = e.target.value;
+            localStorage.setItem('user_lang', val);
+            updateLanguage(val);
+        });
+    }
+}
+
+// 翻訳適用
+function updateLanguage(lang) {
+    document.documentElement.lang = lang;
+    const t = TRANSLATIONS[lang];
+    if (!t) return;
+
+    document.querySelectorAll('[data-translate]').forEach(el => {
+        const key = el.getAttribute('data-translate');
+        if (t[key]) el.innerHTML = t[key];
+    });
+
+    const langMap = { ja: '日本語', en: 'English', zh: '简体中文', 'zh-TW': '繁體中文', ko: '한국어', ru: 'Русский' };
+    const label = document.getElementById('currentLangLabel');
+    if (label) label.textContent = langMap[lang] || 'Language';
+}
 </script>
 
 </body>
