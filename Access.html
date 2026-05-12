@@ -275,8 +275,13 @@
           <div class="slide-thumb"><i data-lucide="arrow-right"></i></div>
         </div>
         
-        <div style="margin-top: 30px; font-size: 12px; font-weight: 700; color: var(--text-sub); text-align: center; font-family: var(--font-stack);">
-            <a href="support.html" style="color: var(--text-sub); text-decoration: none;" data-i18n="link_support">ログインできない場合</a>
+        <div style="margin-top: 30px; font-size: 12px; font-weight: 700; color: var(--text-sub); display: flex; justify-content: space-between; align-items: center; font-family: var(--font-stack);">
+            <a href="support.html" style="color: var(--text-sub); text-decoration: none; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'" data-i18n="link_support">ログインできない場合</a>
+            
+            <a href="terms-of-service.html" target="_blank" style="color: var(--text-sub); text-decoration: none; display: flex; align-items: center; gap: 4px; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
+                <span data-i18n="link_terms">利用規約</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-external-link"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>
+            </a>
         </div>
       </div>
       <div class="login-image-side">
@@ -352,7 +357,7 @@
   // ===== 翻訳データ =====
   const TRANSLATIONS = {
     ja: {
-      title_login: "セキュア入域管理", ph_user: "個人識別子", ph_pass: "パスワード", link_support: "許可されない場合",
+      title_login: "セキュア入域管理", ph_user: "個人識別子", ph_pass: "パスワード", link_support: "許可されない場合", link_terms: "利用規約",
       title_force: "パスワードの変更", desc_force: "セキュリティのため、初期パスワードからの変更をお願いします。",
       ph_new_pass: "新しいパスワード", ph_conf_pass: "確認用パスワード", 
       slide_login: "スライドして進む", slide_force: "スライドして変更", slide_loading: "照合中",
@@ -361,7 +366,7 @@
       err_match: "パスワードが一致しません", msg_success: "入域許可! 移動中...", msg_auth_required: "利用するには入域管理で通行証を認証する必要があります。", lang_label: "日本語"
     },
     en: {
-      title_login: "Secure Access Control", ph_user: "Personal Identifier", ph_pass: "Password", link_support: "If not permitted",
+      title_login: "Secure Access Control", ph_user: "Personal Identifier", ph_pass: "Password", link_support: "If not permitted", link_terms: "Terms of Service",
       title_force: "Change Password", desc_force: "For security reasons, please change your initial password.",
       ph_new_pass: "New Password", ph_conf_pass: "Confirm Password", 
       slide_login: "Slide to enter", slide_force: "Slide to update", slide_loading: "Verifying",
@@ -370,7 +375,7 @@
       err_match: "Passwords do not match.", msg_success: "Access Granted! Loading...", msg_auth_required: "To use this service, you must authenticate your pass at Access Control.", lang_label: "English"
     },
     zh: {
-      title_login: "安全入域管理系统", ph_user: "个人标识符", ph_pass: "密码", link_support: "如果未获许可",
+      title_login: "安全入域管理系统", ph_user: "个人标识符", ph_pass: "密码", link_support: "如果未获许可", link_terms: "服务条款",
       title_force: "修改密码", desc_force: "出于安全原因，请修改您的初始密码。",
       ph_new_pass: "新密码", ph_conf_pass: "确认密码", 
       slide_login: "滑动以进入", slide_force: "滑动以修改", slide_loading: "正在核对中",
@@ -379,25 +384,25 @@
       err_match: "两次输入的新密码不一致。", msg_success: "准入许可！正在移动中...", msg_auth_required: "使用前需在入域管理处验证通行证。", lang_label: "简体中文"
     },
     "zh-TW": {
-      title_login: "安全進出管理系統", ph_user: "個人識別碼", ph_pass: "密碼", link_support: "無法登入？",
+      title_login: "安全進出管理系統", ph_user: "個人識別碼", ph_pass: "密碼", link_support: "無法登入？", link_terms: "服务条款",
       title_force: "修改密碼", desc_force: "出於安全原因，請修改您的初始密碼。",
       ph_new_pass: "新密碼", ph_conf_pass: "確認密碼", 
-      slide_login: "滑動以進入", slide_force: "滑動以修改", slide_loading: "正在比對中",
+      slide_login: "滑動以進入", slide_force: "滑動以修改", slide_loading: "正在比對中", link_terms: "服務條款",
       err_empty: "請輸入個人識別碼和密碼。", err_invalid: "個人識別碼或密碼無效。",
       err_net: "發生網路錯誤。", err_input_all: "請填寫所有欄位。", err_len: "密碼長度至少為6個字符。",
       err_match: "兩次輸入的新密碼不一致。", msg_success: "准予進出！正在移動中...", msg_auth_required: "使用前需在入域管理處驗證通行證。", lang_label: "繁體中文"
     },
     ko: {
-      title_login: "보안 출입 관리 시스템", ph_user: "개인 식별자", ph_pass: "비밀번호", link_support: "허용되지 않는 경우",
+      title_login: "보안 출입 관리 시스템", ph_user: "개인 식별자", ph_pass: "비밀번호", link_support: "허용되지 않는 경우", link_terms: "이용약관",
       title_force: "비밀번호 변경", desc_force: "보안을 위해 초기 비밀번호를 변경해 주세요.",
       ph_new_pass: "새 비밀번호", ph_conf_pass: "비밀번호 확인", 
-      slide_login: "슬라이드하여 진행", slide_force: "슬라이드하여 변경", slide_loading: "확인 중",
+      slide_login: "슬라이드하여 진행", slide_force: "슬라이드하여 변경", slide_loading: "확인 중", 
       err_empty: "개인 식별자와 비밀번호를 입력해 주십시오.", err_invalid: "개인 식별자 또는 비밀번호가 잘못되었습니다.",
       err_net: "통신 오류가 발생했습니다.", err_input_all: "모든 항목을 입력해 주세요.", err_len: "비밀번호는 6자 이상이어야 합니다.",
       err_match: "비밀번호가 일치하지 않습니다.", msg_success: "출입 허가! 이동 중...", msg_auth_required: "이용하시려면 입역 관리에서 통행증을 인증해야 합니다.", lang_label: "한국어"
     },
     ru: {
-      title_login: "Система безопасного контроля доступа", ph_user: "Идентификатор пользователя", ph_pass: "Пароль", link_support: "Если доступ запрещен",
+      title_login: "Система безопасного контроля доступа", ph_user: "Идентификатор пользователя", ph_pass: "Пароль", link_support: "Если доступ запрещен", link_terms: "Условия использования",
       title_force: "Смена пароля", desc_force: "В целях безопасности измените начальный пароль.",
       ph_new_pass: "Новый пароль", ph_conf_pass: "Подтвердите пароль", 
       slide_login: "Проведите для входа", slide_force: "Проведите для смены", slide_loading: "Аутентификация",
