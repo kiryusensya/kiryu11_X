@@ -719,7 +719,7 @@ export default async function handler(req, res) {
         return res.status(200).json({
           success: true, bundleLabel: txt.bundle, message: txt.message, detailedTitle: txt.title, detailedDesc: txt.desc,
           buttonLabel: txt.btnLabel, imageUrl: content.Imag_Url, icon: content.アイコン || 'download', groupId: content["重複"],
-          isRare: content.is_rare || false // ★ ここにカンマ(,)を付けて追加！
+          isRare: content.is_rare || false // ★ rare機能を復活
         });
       }
 
@@ -727,13 +727,13 @@ export default async function handler(req, res) {
         if (!targetId) return res.status(200).json({ success: false, message: "Login required" });
         const { data: user } = await supabase.from('users').select('points').eq('id', targetId).maybeSingle();
         if (user) {
-           // URLエラーを避けるため、元のシンプルな更新処理に戻します
+           // URLエラーを避けるため、シンプルな更新処理に戻します
            await supabase.from('codes').update({ "USED?": true }).eq('id', master.id);
            await supabase.from('users').update({ points: user.points + (master["Point PPP"] || 0) }).eq('id', targetId);
         }
         return res.status(200).json({ success: true, isPointMode: true, addedPoints: master["Point PPP"] || 0, message: `${master["Point PPP"] || 0} pt`, title: txt.title || "ポイントチャージ完了" });
       }
-      
+
       if (codeType !== 'POINT') {
         let isOwned = false;
         if (targetId) {
@@ -750,13 +750,13 @@ export default async function handler(req, res) {
         const isRelease = !content["解禁時間"] || (checkNow >= new Date(content["解禁時間"]));
         const retUrl = content.Action_url;
 
-        // URLエラーを避けるため、元のシンプルな更新処理に戻します
+        // URLエラーを避けるため、シンプルな更新処理に戻します
         if (isOnce) {
            await supabase.from('codes').update({ "USED?": true }).eq('id', master.id);
         }
 
         if (targetId) {
-           // 二重登録を少しでも防ぐため、すでにこのコードが誰かの履歴に存在しないか直前で確認します
+           // ★ 二重登録を少しでも防ぐため、すでにこのコードが誰かの履歴に存在しないか直前で確認します
            const { count } = await supabase.from('histories').select('id', { count: 'exact', head: true }).eq('code_id', master.id);
            
            if (count === 0) {
@@ -771,7 +771,8 @@ export default async function handler(req, res) {
           success: true, actionUrl: retUrl, bundleLabel: txt.bundle, message: txt.message,         
           detailedTitle: txt.title, detailedDesc: txt.desc, buttonLabel: txt.btnLabel,
           imageUrl: content.Imag_Url, isReleaseDateReached: isRelease, releaseDateIso: content["解禁時間"],
-          expireDateIso: content["有効時間"], btnIcon: content.アイコン || 'download', groupId: content["重複"]
+          expireDateIso: content["有効時間"], btnIcon: content.アイコン || 'download', groupId: content["重複"],
+          isRare: content.is_rare || false // ★ rare機能を復活
         });
       }
     }
