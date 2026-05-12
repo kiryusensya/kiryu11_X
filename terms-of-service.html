@@ -11,9 +11,14 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
-/* =========================================
-   共通変数 & ベーススタイル
-   ========================================= */
+/* --- FONT FACE DEFINITIONS --- */
+@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Medium.woff') format('woff'); font-weight: 500; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
 :root {
   --primary: #007DFF;
   --bg-color: #F1F3F5;
@@ -29,10 +34,12 @@
   --shadow-soft: 0 10px 40px rgba(0,0,0,0.05);
 }
 
-:root:lang(ja) { --font-stack: 'Noto Sans JP', sans-serif; }
-:root:lang(en), :root:lang(ru) { --font-stack: sans-serif; }
-:root:lang(zh), :root:lang(zh-TW) { --font-stack: 'Microsoft YaHei', sans-serif; }
-:root:lang(ko) { --font-stack: 'Noto Sans KR', sans-serif; }
+:root:lang(ja) { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
+:root:lang(en) { --font-stack: 'HarmonyOS Sans', sans-serif; }
+:root:lang(zh) { --font-stack: 'HarmonyOS Sans SC', 'Microsoft YaHei', sans-serif; }
+:root:lang(zh-TW) { --font-stack: 'HarmonyOS Sans TC', 'Microsoft JhengHei', sans-serif; }
+:root:lang(ko) { --font-stack: 'HarmonyOS Sans', 'Noto Sans KR', sans-serif; }
+:root:lang(ru) { --font-stack: 'HarmonyOS Sans', sans-serif; }
 
 [data-theme="dark"] {
   --bg-color: #121212;
@@ -74,9 +81,23 @@ body {
   width: var(--sidebar-width); background-color: var(--sidebar-bg); display: flex; flex-direction: column; 
   flex-shrink: 0; border-right: 1px solid rgba(128,128,128,0.1); color: var(--sidebar-text); z-index: 100;
 }
-.rgl-brand-area { padding: 30px 24px 20px 24px; flex-shrink: 0; }
-.rgl-brand { font-weight: 800; font-size: 20px; display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--sidebar-text); }
+.rgl-brand-area { 
+  padding: 30px 24px 20px 24px; flex-shrink: 0; 
+  display: flex; align-items: center; /* 追加: フレックスで横並びに */
+}
+.rgl-brand { 
+  font-weight: 800; font-size: 20px; display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--sidebar-text); 
+}
 .rgl-brand i { color: #FFA500; } 
+
+/* テーマ切り替えボタン */
+.theme-pill { 
+  width: 40px; height: 40px; border-radius: 50%; background: var(--card-bg); border: 1px solid rgba(128,128,128,0.2); 
+  display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.3s; 
+  backdrop-filter: blur(10px); color: var(--modal-text-main); 
+}
+.theme-pill:hover { transform: scale(1.1); }
+[data-theme="dark"] .theme-pill { color: #fff; border-color: rgba(255,255,255,0.2); }
 
 /* カプセルメニュー */
 .capsule-menu {
@@ -103,16 +124,12 @@ body {
 
 /* メインエリア */
 .rgl-main { flex: 1; position: relative; display: flex; flex-direction: column; overflow-y: auto; background-color: transparent; }
-.rgl-header { position: sticky; top: 0; z-index: 50; padding: 24px 40px; display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
-.theme-pill { width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid rgba(128,128,128,0.2); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.3s; backdrop-filter: blur(10px); color: var(--modal-text-main); }
-.theme-pill:hover { transform: scale(1.1); }
-[data-theme="dark"] .theme-pill { color: #fff; }
 
 /* =========================================
    利用規約 (TOS) 専用スタイル
    ========================================= */
 .tos-page-wrapper {
-  padding: 0 40px 60px 40px;
+  padding: 40px;
   max-width: 900px;
   margin: 0 auto;
   width: 100%;
@@ -160,32 +177,26 @@ body {
   /* レイアウト組み替え */
   .rgl-wrapper { flex-direction: column; }
   .rgl-sidebar { width: 100%; height: auto; padding: 0; border-right: none; border-bottom: 1px solid rgba(128,128,128,0.1); overflow: visible; position: relative; z-index: 100; background-color: var(--sidebar-bg); }
-  .rgl-brand-area { padding: 16px 12px; display: flex; align-items: center; justify-content: flex-start; gap: 8px; width: 100%; padding-right: 120px; }
+  
+  /* スマホ版ヘッダー (ブランドエリア) */
+  .rgl-brand-area { padding: 12px 16px; display: flex; align-items: center; width: 100%; box-sizing: border-box; }
   
   /* ハンバーガーアイコン表示 */
-  .mobile-menu-trigger { display: flex; align-items: center; justify-content: center; background: transparent; border: none; color: var(--sidebar-text); cursor: pointer; padding: 8px; margin-right: 4px; }
-  .rgl-brand { order: 2; }
+  .mobile-menu-trigger { display: flex; align-items: center; justify-content: center; background: transparent; border: none; color: var(--sidebar-text); cursor: pointer; padding: 4px; margin-right: 8px; }
+  .rgl-brand { order: 2; font-size: 18px; }
   .mobile-menu-trigger { order: 1; }
 
   /* 特定の要素をスマホで非表示にする */
   .rgl-bottom-controls { display: none !important; }
   .capsule-menu { display: none !important; } /* ★カプセルメニューをスマホで非表示 */
 
-  /* 右上ヘッダー（テーマ切替）をサイドバーの右余白に絶対配置 */
-  .rgl-header { 
-      position: absolute !important; 
-      top: 0; right: 0; width: auto; height: 70px; 
-      background: transparent !important; padding: 0 16px; 
-      z-index: 200; display: flex !important; 
-      align-items: center; justify-content: flex-end; 
-      gap: 10px; pointer-events: none; 
-  }
-  .rgl-header > * { pointer-events: auto; }
-
   /* 利用規約のコンテンツ余白調整 */
-  .tos-page-wrapper { padding: 30px 16px 60px 16px; }
+  .tos-page-wrapper { padding: 24px 16px 60px 16px; }
   .tos-glass-card { padding: 30px 20px; }
   .tos-title { font-size: 24px; }
+  
+  /* スマホ用の簡易言語スイッチャー */
+  .mobile-lang-container { padding: 16px; display: flex; justify-content: center; border-top: 1px solid rgba(128,128,128,0.1); }
 }
 @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 </style>
@@ -223,15 +234,20 @@ body {
 </div>
 
 <div class="rgl-wrapper">
-    <!-- サイドバー -->
+    <!-- サイドバー / スマホヘッダー -->
     <aside class="rgl-sidebar">
+        <!-- ロゴ ＋ テーマ切り替えが横一列に並ぶ領域 -->
         <div class="rgl-brand-area">
-            <!-- ハンバーガーアイコン -->
             <button class="mobile-menu-trigger" id="mobileMenuBtn">
                 <i data-lucide="menu"></i>
             </button>
             <div class="rgl-brand">
                 <i data-lucide="globe-lock"></i> <span data-translate="brand_name">kiryu11 Pro</span>
+            </div>
+            
+            <!-- ★ テーマ切り替えボタンを右端に配置 (margin-left: auto) -->
+            <div class="theme-pill" id="themeToggle" style="margin-left: auto;">
+                <i data-lucide="moon" id="themeIcon"></i>
             </div>
         </div>
         
@@ -264,17 +280,22 @@ body {
             </div>
             <div style="margin-top:20px; font-size:10px; opacity:0.3; text-align:center;">© 2026 kiryu-sensya</div>
         </div>
+        
+        <!-- スマホ用簡易言語スイッチャー -->
+        <div class="mobile-lang-container" style="display: none;">
+             <select id="mobileLangSelect" style="width: 100%; padding: 10px; border-radius: 12px; background: var(--card-bg); color: var(--modal-text-main); border: 1px solid var(--card-border); font-family: inherit; font-weight: 700; outline: none;">
+                <option value="ja">日本語</option>
+                <option value="en">English</option>
+                <option value="zh">简体中文</option>
+                <option value="zh-TW">繁體中文</option>
+                <option value="ko">한국어</option>
+                <option value="ru">Русский</option>
+             </select>
+        </div>
     </aside>
 
     <!-- メインエリア -->
     <main class="rgl-main">
-        <!-- ヘッダー（テーマ切り替え） -->
-        <nav class="rgl-header">
-            <div class="theme-pill" id="themeToggle">
-                <i data-lucide="moon" id="themeIcon"></i>
-            </div>
-        </nav>
-
         <div class="tos-page-wrapper">
             <div class="tos-glass-card">
                 <h1 class="tos-title" data-translate="tos_title">利用規約</h1>
@@ -580,6 +601,12 @@ function initThemeAndParticles() {
 function initLanguageSwitcher() {
     const langTrigger = document.getElementById('langTrigger');
     const langMenu = document.getElementById('langMenu');
+    const mobileSelect = document.getElementById('mobileLangSelect');
+    
+    // スマホ判定 (セレクトボックスの表示)
+    if (window.innerWidth <= 768 && mobileSelect) {
+        document.querySelector('.mobile-lang-container').style.display = 'block';
+    }
 
     let currentLang = localStorage.getItem('user_lang') || 'ja';
     updateLanguage(currentLang);
@@ -595,12 +622,23 @@ function initLanguageSwitcher() {
             localStorage.setItem('user_lang', val);
             updateLanguage(val);
             langMenu.classList.remove('open');
+            if (mobileSelect) mobileSelect.value = val;
         });
     });
 
     document.addEventListener('click', (e) => {
         if (!langTrigger.contains(e.target)) langMenu.classList.remove('open');
     });
+
+    // スマホ用セレクトボックス
+    if (mobileSelect) {
+        mobileSelect.value = currentLang;
+        mobileSelect.addEventListener('change', (e) => {
+            const val = e.target.value;
+            localStorage.setItem('user_lang', val);
+            updateLanguage(val);
+        });
+    }
 }
 
 // 翻訳適用
