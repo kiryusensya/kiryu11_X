@@ -83,7 +83,7 @@ body {
 }
 .rgl-brand-area { 
   padding: 30px 24px 20px 24px; flex-shrink: 0; 
-  display: flex; align-items: center; /* 追加: フレックスで横並びに */
+  display: flex; align-items: center;
 }
 .rgl-brand { 
   font-weight: 800; font-size: 20px; display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--sidebar-text); 
@@ -152,7 +152,7 @@ body {
 .highlight-box { background: rgba(0, 125, 255, 0.1); border-left: 4px solid var(--primary); padding: 16px; border-radius: 8px; margin-top: 10px; font-weight: 700; font-size: 14px; }
 
 /* =========================================
-   スマホ完全対応 (index.html準拠)
+   スマホ完全対応
    ========================================= */
 .mobile-menu-trigger { display: none; }
 .mobile-nav-overlay { display: none; }
@@ -182,9 +182,9 @@ body {
   .rgl-brand-area { padding: 12px 16px; display: flex; align-items: center; width: 100%; box-sizing: border-box; }
   
   /* ハンバーガーアイコン表示 */
+  /* ここにあった order の指定を削除しました */
   .mobile-menu-trigger { display: flex; align-items: center; justify-content: center; background: transparent; border: none; color: var(--sidebar-text); cursor: pointer; padding: 4px; margin-right: 8px; }
-  .rgl-brand { order: 2; font-size: 18px; }
-  .mobile-menu-trigger { order: 1; }
+  .rgl-brand { font-size: 18px; }
 
   /* 特定の要素をスマホで非表示にする */
   .rgl-bottom-controls { display: none !important; }
@@ -205,7 +205,6 @@ body {
 
 <canvas id="particleCanvas"></canvas>
 
-<!-- スマホ用ナビゲーションオーバーレイ -->
 <div class="mobile-nav-overlay" id="mobileNav">
     <button class="mobile-menu-close" id="mobileMenuCloseBtn">
         <i data-lucide="x"></i>
@@ -234,33 +233,27 @@ body {
 </div>
 
 <div class="rgl-wrapper">
-    <!-- サイドバー / スマホヘッダー -->
     <aside class="rgl-sidebar">
-        <!-- ロゴ ＋ テーマ切り替えが横一列に並ぶ領域 -->
         <div class="rgl-brand-area">
             <button class="mobile-menu-trigger" id="mobileMenuBtn">
                 <i data-lucide="menu"></i>
             </button>
+            
             <div class="rgl-brand">
                 <i data-lucide="globe-lock"></i> <span data-translate="brand_name">kiryu11 Pro</span>
             </div>
             
-            <!-- ★ テーマ切り替えボタンを右端に配置 (margin-left: auto) -->
             <div class="theme-pill" id="themeToggle" style="margin-left: auto;">
                 <i data-lucide="moon" id="themeIcon"></i>
             </div>
         </div>
         
-        <!-- PC用カプセルメニュー (スマホではCSSで非表示) -->
         <div class="capsule-menu">
             <a href="index.html" class="rgl-tab" data-translate="card1_title">Home</a>
             <a href="terms.html" class="rgl-tab active" data-translate="card_terms_title">Terms</a>
         </div>
 
-        <div style="flex: 1;"></div> <!-- 余白調整 -->
-
-        <!-- PC用言語切り替え (スマホではCSSで非表示) -->
-        <div class="rgl-bottom-controls">
+        <div style="flex: 1;"></div> <div class="rgl-bottom-controls">
             <div style="position:relative;">
                 <button class="lang-trigger-sidebar" id="langTrigger">
                     <span style="display:flex;align-items:center;gap:8px;">
@@ -281,7 +274,6 @@ body {
             <div style="margin-top:20px; font-size:10px; opacity:0.3; text-align:center;">© 2026 kiryu-sensya</div>
         </div>
         
-        <!-- スマホ用簡易言語スイッチャー -->
         <div class="mobile-lang-container" style="display: none;">
              <select id="mobileLangSelect" style="width: 100%; padding: 10px; border-radius: 12px; background: var(--card-bg); color: var(--modal-text-main); border: 1px solid var(--card-border); font-family: inherit; font-weight: 700; outline: none;">
                 <option value="ja">日本語</option>
@@ -294,7 +286,6 @@ body {
         </div>
     </aside>
 
-    <!-- メインエリア -->
     <main class="rgl-main">
         <div class="tos-page-wrapper">
             <div class="tos-glass-card">
