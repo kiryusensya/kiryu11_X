@@ -727,12 +727,22 @@ export default async function handler(req, res) {
         if (!targetId) return res.status(200).json({ success: false, message: "Login required" });
         const { data: user } = await supabase.from('users').select('points').eq('id', targetId).maybeSingle();
         if (user) {
+           // ★ 修正: コードを「使用済みではない（trueではない）」場合のみ更新する
+           const { data: updatedCode } = await supabase.from('codes')
+               .update({ "USED?": true })
+               .eq('アクティベーションコード', safeCode)
+               .neq('USED?', true) // ここが重要: すでに true になっている場合は更新しない
+               .select();
+
+           // 更新結果が0件の場合、直前に別のリクエストで使われたことを意味する
+           if (!updatedCode || updatedCode.length === 0) {
+               return res.status(200).json({ success: false, message: "This code has already been used." });
+           }
+
            await supabase.from('users').update({ points: user.points + (master["Point PPP"] || 0) }).eq('id', targetId);
-           await supabase.from('codes').update({ "USED?": true }).eq('アクティベーションコード', safeCode);
         }
         return res.status(200).json({ success: true, isPointMode: true, addedPoints: master["Point PPP"] || 0, message: `${master["Point PPP"] || 0} pt`, title: txt.title || "ポイントチャージ完了" });
       }
-
       if (codeType !== 'POINT') {
         let isOwned = false;
         if (targetId) {
@@ -749,11 +759,23 @@ export default async function handler(req, res) {
         const isRelease = !content["解禁時間"] || (checkNow >= new Date(content["解禁時間"]));
         const retUrl = content.Action_url;
 
+        // ★ 修正: histories への登録より先に、アトミックにコードを消費する
+        if (isOnce) {
+           const { data: updatedCode } = await supabase.from('codes')
+               .update({ "USED?": true })
+               .eq('アクティベーションコード', safeCode)
+               .neq('USED?', true) // すでに true になっている場合は弾く
+               .select();
+
+           // 直前に他のリクエストに先を越されて使用済みになっていた場合はエラーを返す
+           if (!updatedCode || updatedCode.length === 0) {
+               return res.status(200).json({ success: false, message: "This code has already been used." });
+           }
+        }
+
+        // コードの消費に成功した（またはマルチコード等）場合のみ、所有履歴を追加
         if (targetId) {
            await supabase.from('histories').insert([{ user_id: targetId, code_id: master.id }]);
-        }
-        if (isOnce) {
-           await supabase.from('codes').update({ "USED?": true }).eq('アクティベーションコード', safeCode);
         }
 
         return res.status(200).json({
