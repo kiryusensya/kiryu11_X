@@ -11,14 +11,9 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
-/* --- FONT FACE DEFINITIONS --- */
-@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
-@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Medium.woff') format('woff'); font-weight: 500; font-style: normal; }
-@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
-@font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
-@font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
-@font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
-@font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+/* =========================================
+   共通変数 & ベーススタイル
+   ========================================= */
 :root {
   --primary: #007DFF;
   --bg-color: #F1F3F5;
@@ -34,12 +29,10 @@
   --shadow-soft: 0 10px 40px rgba(0,0,0,0.05);
 }
 
-:root:lang(ja) { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
-:root:lang(en) { --font-stack: 'HarmonyOS Sans', sans-serif; }
-:root:lang(zh) { --font-stack: 'HarmonyOS Sans SC', 'Noto Sans SC', sans-serif; }
-:root:lang(zh-TW) { --font-stack: 'HarmonyOS Sans TC', 'Noto Sans TC', sans-serif; }
-:root:lang(ko) { --font-stack: 'HarmonyOS Sans', 'Noto Sans KR', sans-serif; }
-:root:lang(ru) { --font-stack: 'HarmonyOS Sans', sans-serif; }
+:root:lang(ja) { --font-stack: 'Noto Sans JP', sans-serif; }
+:root:lang(en), :root:lang(ru) { --font-stack: sans-serif; }
+:root:lang(zh), :root:lang(zh-TW) { --font-stack: 'Microsoft YaHei', sans-serif; }
+:root:lang(ko) { --font-stack: 'Noto Sans KR', sans-serif; }
 
 [data-theme="dark"] {
   --bg-color: #121212;
@@ -110,7 +103,7 @@ body {
 
 /* メインエリア */
 .rgl-main { flex: 1; position: relative; display: flex; flex-direction: column; overflow-y: auto; background-color: transparent; }
-.rgl-header { position: sticky; top: 0; z-index: 50; padding: 24px 40px; display: flex; justify-content: flex-end; align-items: center; }
+.rgl-header { position: sticky; top: 0; z-index: 50; padding: 24px 40px; display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
 .theme-pill { width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid rgba(128,128,128,0.2); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.3s; backdrop-filter: blur(10px); color: var(--modal-text-main); }
 .theme-pill:hover { transform: scale(1.1); }
 [data-theme="dark"] .theme-pill { color: #fff; }
@@ -141,23 +134,58 @@ body {
 .tos-section ul, .tos-section ol { padding-left: 20px; margin: 0 0 16px 0; }
 .highlight-box { background: rgba(0, 125, 255, 0.1); border-left: 4px solid var(--primary); padding: 16px; border-radius: 8px; margin-top: 10px; font-weight: 700; font-size: 14px; }
 
-/* スマホ対応 */
+/* =========================================
+   スマホ完全対応 (index.html準拠)
+   ========================================= */
 .mobile-menu-trigger { display: none; }
+.mobile-nav-overlay { display: none; }
+
 @media (max-width: 768px) {
+  /* ハンバーガーメニューのオーバーレイ */
+  .mobile-nav-overlay { display: flex; flex-direction: column; position: fixed; inset: 0; background: var(--bg-color); z-index: 10001; padding: 40px; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); visibility: hidden; }
+  .mobile-nav-overlay.active { transform: translateX(0); visibility: visible; }
+  .mobile-menu-close { align-self: flex-end; background: transparent; border: 1px solid var(--card-border); color: var(--modal-text-main); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 40px; }
+  .mobile-nav-content { display: flex; flex-direction: column; gap: 40px; flex: 1; }
+  .mobile-nav-item { font-family: var(--font-stack); font-size: 32px; font-weight: 800; color: var(--modal-text-main); text-decoration: none; text-align: left; opacity: 0; transform: translateX(-20px); transition: opacity 0.3s ease, transform 0.3s ease; }
+  .mobile-nav-overlay.active .mobile-nav-item { opacity: 1; transform: translateX(0); }
+  .mobile-nav-overlay.active .mobile-nav-item:nth-child(1) { transition-delay: 0.1s; }
+  .mobile-nav-overlay.active .mobile-nav-item:nth-child(2) { transition-delay: 0.2s; }
+  
+  /* スマホ用下部言語メニュー */
+  .mobile-menu-footer { margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(128,128,128,0.1); opacity: 0; transform: translateY(20px); transition: all 0.3s ease 0.3s; position: relative; }
+  .mobile-nav-overlay.active .mobile-menu-footer { opacity: 1; transform: translateY(0); }
+  .mobile-menu-footer .lang-list { position: absolute; bottom: 60px; left: 0; width: 100%; display: none; }
+  .mobile-menu-footer .lang-list.open { display: block; animation: fadeInUp 0.3s ease; }
+
+  /* レイアウト組み替え */
   .rgl-wrapper { flex-direction: column; }
-  .rgl-sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid rgba(128,128,128,0.1); position: relative; z-index: 100; }
-  .rgl-brand-area { padding: 16px 12px; display: flex; align-items: center; justify-content: flex-start; gap: 8px; }
-  .mobile-menu-trigger { display: flex; align-items: center; justify-content: center; background: transparent; border: none; color: var(--sidebar-text); padding: 8px; }
-  .rgl-brand { order: 2; } .mobile-menu-trigger { order: 1; }
+  .rgl-sidebar { width: 100%; height: auto; padding: 0; border-right: none; border-bottom: 1px solid rgba(128,128,128,0.1); overflow: visible; position: relative; z-index: 100; background-color: var(--sidebar-bg); }
+  .rgl-brand-area { padding: 16px 12px; display: flex; align-items: center; justify-content: flex-start; gap: 8px; width: 100%; padding-right: 120px; }
+  
+  /* ハンバーガーアイコン表示 */
+  .mobile-menu-trigger { display: flex; align-items: center; justify-content: center; background: transparent; border: none; color: var(--sidebar-text); cursor: pointer; padding: 8px; margin-right: 4px; }
+  .rgl-brand { order: 2; }
+  .mobile-menu-trigger { order: 1; }
+
+  /* 特定の要素をスマホで非表示にする */
   .rgl-bottom-controls { display: none !important; }
-  .capsule-menu { margin: 10px 16px; }
-  .rgl-header { padding: 16px; position: absolute; right: 0; }
-  .tos-page-wrapper { padding: 20px 16px 40px 16px; }
+  .capsule-menu { display: none !important; } /* ★カプセルメニューをスマホで非表示 */
+
+  /* 右上ヘッダー（テーマ切替）をサイドバーの右余白に絶対配置 */
+  .rgl-header { 
+      position: absolute !important; 
+      top: 0; right: 0; width: auto; height: 70px; 
+      background: transparent !important; padding: 0 16px; 
+      z-index: 200; display: flex !important; 
+      align-items: center; justify-content: flex-end; 
+      gap: 10px; pointer-events: none; 
+  }
+  .rgl-header > * { pointer-events: auto; }
+
+  /* 利用規約のコンテンツ余白調整 */
+  .tos-page-wrapper { padding: 30px 16px 60px 16px; }
   .tos-glass-card { padding: 30px 20px; }
   .tos-title { font-size: 24px; }
-  
-  /* スマホ用の簡易言語スイッチャー */
-  .mobile-lang-container { padding: 16px; display: flex; justify-content: center; border-top: 1px solid rgba(128,128,128,0.1); }
 }
 @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 </style>
@@ -166,15 +194,48 @@ body {
 
 <canvas id="particleCanvas"></canvas>
 
+<!-- スマホ用ナビゲーションオーバーレイ -->
+<div class="mobile-nav-overlay" id="mobileNav">
+    <button class="mobile-menu-close" id="mobileMenuCloseBtn">
+        <i data-lucide="x"></i>
+    </button>
+    <div class="mobile-nav-content">
+        <a href="index.html" class="mobile-nav-item" data-translate="card1_title">Home</a>
+        <a href="terms.html" class="mobile-nav-item" data-translate="card_terms_title">Terms</a>
+    </div>
+    <div class="mobile-menu-footer">
+         <div class="lang-trigger-sidebar" id="mobileLangTrigger">
+             <span style="display:flex;align-items:center;gap:8px;">
+                 <i data-lucide="globe" style="width:16px;height:16px;"></i> 
+                 <span id="mobileCurrentLangLabel">日本語</span>
+             </span>
+             <i data-lucide="chevron-up" style="width:14px;height:14px;opacity:0.5;"></i>
+         </div>
+         <ul class="lang-list" id="mobileLangMenu">
+            <li class="lang-option" data-value="ja">日本語</li>
+            <li class="lang-option" data-value="en">English</li>
+            <li class="lang-option" data-value="zh">简体中文</li>
+            <li class="lang-option" data-value="zh-TW">繁體中文</li>
+            <li class="lang-option" data-value="ko">한국어</li>
+            <li class="lang-option" data-value="ru">Русский</li>
+         </ul>
+    </div>
+</div>
+
 <div class="rgl-wrapper">
     <!-- サイドバー -->
     <aside class="rgl-sidebar">
         <div class="rgl-brand-area">
+            <!-- ハンバーガーアイコン -->
+            <button class="mobile-menu-trigger" id="mobileMenuBtn">
+                <i data-lucide="menu"></i>
+            </button>
             <div class="rgl-brand">
                 <i data-lucide="globe-lock"></i> <span data-translate="brand_name">kiryu11 Pro</span>
             </div>
         </div>
         
+        <!-- PC用カプセルメニュー (スマホではCSSで非表示) -->
         <div class="capsule-menu">
             <a href="index.html" class="rgl-tab" data-translate="card1_title">Home</a>
             <a href="terms.html" class="rgl-tab active" data-translate="card_terms_title">Terms</a>
@@ -182,6 +243,7 @@ body {
 
         <div style="flex: 1;"></div> <!-- 余白調整 -->
 
+        <!-- PC用言語切り替え (スマホではCSSで非表示) -->
         <div class="rgl-bottom-controls">
             <div style="position:relative;">
                 <button class="lang-trigger-sidebar" id="langTrigger">
@@ -202,22 +264,11 @@ body {
             </div>
             <div style="margin-top:20px; font-size:10px; opacity:0.3; text-align:center;">© 2026 kiryu-sensya</div>
         </div>
-        
-        <!-- スマホ用簡易言語スイッチャー -->
-        <div class="mobile-lang-container" style="display: none;">
-             <select id="mobileLangSelect" style="width: 100%; padding: 10px; border-radius: 12px; background: var(--card-bg); color: var(--modal-text-main); border: 1px solid var(--card-border);">
-                <option value="ja">日本語</option>
-                <option value="en">English</option>
-                <option value="zh">简体中文</option>
-                <option value="zh-TW">繁體中文</option>
-                <option value="ko">한국어</option>
-                <option value="ru">Русский</option>
-             </select>
-        </div>
     </aside>
 
     <!-- メインエリア -->
     <main class="rgl-main">
+        <!-- ヘッダー（テーマ切り替え） -->
         <nav class="rgl-header">
             <div class="theme-pill" id="themeToggle">
                 <i data-lucide="moon" id="themeIcon"></i>
@@ -264,7 +315,6 @@ body {
                     </ol>
                 </div>
 
-                <!-- 新しく追加された 第5条 -->
                 <div class="tos-section">
                     <h2 data-translate="tos_s5_t">第5条（サービスの停止・アカウントの無効化）</h2>
                     <p data-translate="tos_s5_intro">当サイトは、ユーザーが以下のいずれかに該当すると判断した場合、事前の通知なく当該ユーザーに対するアクティベーションコードの無効化、および本サービスへのアクセス遮断を行うことができるものとします。</p>
@@ -445,7 +495,50 @@ document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
     initThemeAndParticles();
     initLanguageSwitcher();
+    initMobileMenu();
 });
+
+// スマホ用ハンバーガーメニュー制御
+function initMobileMenu() {
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileNav = document.getElementById('mobileNav');
+    const mobileMenuCloseBtn = document.getElementById('mobileMenuCloseBtn');
+    const mobileLangTrigger = document.getElementById('mobileLangTrigger');
+    const mobileLangMenu = document.getElementById('mobileLangMenu');
+
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileNav.classList.add('active');
+        });
+    }
+    if (mobileMenuCloseBtn) {
+        mobileMenuCloseBtn.addEventListener('click', () => {
+            mobileNav.classList.remove('active');
+        });
+    }
+    if (mobileLangTrigger) {
+        mobileLangTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            mobileLangMenu.classList.toggle('open');
+        });
+    }
+    
+    document.querySelectorAll('#mobileLangMenu .lang-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+            const val = opt.getAttribute('data-value');
+            localStorage.setItem('user_lang', val);
+            updateLanguage(val);
+            mobileLangMenu.classList.remove('open');
+            mobileNav.classList.remove('active');
+        });
+    });
+
+    document.addEventListener('click', (e) => {
+        if (mobileLangTrigger && !mobileLangTrigger.contains(e.target)) {
+            mobileLangMenu.classList.remove('open');
+        }
+    });
+}
 
 // テーマとパーティクル
 function initThemeAndParticles() {
@@ -483,49 +576,31 @@ function initThemeAndParticles() {
     window.addEventListener('resize', () => { canvas.width=innerWidth; canvas.height=innerHeight; }); animate();
 }
 
-// 言語スイッチャー
+// PC用言語スイッチャー
 function initLanguageSwitcher() {
     const langTrigger = document.getElementById('langTrigger');
     const langMenu = document.getElementById('langMenu');
-    const mobileSelect = document.getElementById('mobileLangSelect');
-    
-    // スマホ判定
-    if (window.innerWidth <= 768 && mobileSelect) {
-        document.querySelector('.mobile-lang-container').style.display = 'block';
-    }
 
     let currentLang = localStorage.getItem('user_lang') || 'ja';
     updateLanguage(currentLang);
 
-    // PC用ドロップダウン
     langTrigger.addEventListener('click', (e) => {
         e.stopPropagation();
         langMenu.classList.toggle('open');
     });
 
-    document.querySelectorAll('.lang-option').forEach(opt => {
+    document.querySelectorAll('#langMenu .lang-option').forEach(opt => {
         opt.addEventListener('click', () => {
             const val = opt.getAttribute('data-value');
             localStorage.setItem('user_lang', val);
             updateLanguage(val);
             langMenu.classList.remove('open');
-            if (mobileSelect) mobileSelect.value = val;
         });
     });
 
     document.addEventListener('click', (e) => {
         if (!langTrigger.contains(e.target)) langMenu.classList.remove('open');
     });
-
-    // スマホ用セレクトボックス
-    if (mobileSelect) {
-        mobileSelect.value = currentLang;
-        mobileSelect.addEventListener('change', (e) => {
-            const val = e.target.value;
-            localStorage.setItem('user_lang', val);
-            updateLanguage(val);
-        });
-    }
 }
 
 // 翻訳適用
@@ -540,8 +615,11 @@ function updateLanguage(lang) {
     });
 
     const langMap = { ja: '日本語', en: 'English', zh: '简体中文', 'zh-TW': '繁體中文', ko: '한국어', ru: 'Русский' };
-    const label = document.getElementById('currentLangLabel');
-    if (label) label.textContent = langMap[lang] || 'Language';
+    const pcLabel = document.getElementById('currentLangLabel');
+    const mobileLabel = document.getElementById('mobileCurrentLangLabel');
+    
+    if (pcLabel) pcLabel.textContent = langMap[lang] || 'Language';
+    if (mobileLabel) mobileLabel.textContent = langMap[lang] || 'Language';
 }
 </script>
 
