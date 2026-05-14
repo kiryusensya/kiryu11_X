@@ -348,8 +348,18 @@
 
   lucide.createIcons();
 
+  window.addEventListener('DOMContentLoaded', async () => {
+      if (checkCookie('admin_logged_in')) {
+          try {
+              await safeFetch({ type: 'admin_verify' });
+          } catch(e) {
+              // safeFetch内の認証エラーハンドリングで自動的にsignin.htmlにリダイレクトされます
+          }
+      }
+  });
+
   /* ======== 独自モーダル管理ロジック (非同期 Promise) ======== */
-  function showModal({ type, message, title = "通知", placeholder = "" }) {
+  function showModal({ type, message, title = "通知", placeholder = "", inputType = "text" }) {
       return new Promise((resolve) => {
           const overlay = document.getElementById('customModalOverlay');
           const titleEl = document.getElementById('customModalTitle');
@@ -361,6 +371,7 @@
           titleEl.textContent = title;
           msgEl.innerHTML = message;
           inputEl.value = '';
+          inputEl.type = inputType;
           inputEl.placeholder = placeholder;
           
           if (type === 'prompt') {
@@ -414,7 +425,7 @@
 
   const customAlert = (msg, title="通知") => showModal({ type: 'alert', message: msg, title });
   const customConfirm = (msg, title="確認") => showModal({ type: 'confirm', message: msg, title });
-  const customPrompt = (msg, placeholder="") => showModal({ type: 'prompt', message: msg, title: "入力", placeholder });
+  const customPrompt = (msg, placeholder="", inputType="text") => showModal({ type: 'prompt', message: msg, title: "入力", placeholder, inputType });
 
   /* ======== エンターキー連動ロジック ======== */
   function bindEnterKey(inputId, btnId) {
@@ -616,15 +627,21 @@
             });
 
             actionsDiv.querySelector('#btnDeleteUser').addEventListener('click', async (e) => {
+                // 1. 対象IDの確認
                 const confCode = await customPrompt(`【危険】本当に削除する場合は対象のID「${d.userId || u}」を入力してください。`, "IDを入力");
-                if (confCode === null) return; // キャンセル時
+                if (confCode === null) return;
                 if (confCode !== (d.userId || u)) return await customAlert("IDが一致しません。", "エラー");
                 
+                // 2. ★追加：管理者の再認証
+                const adminPass = await customPrompt("本人確認のため、あなたの管理者パスワードを入力してください。", "管理者パスワード", "password");
+                if (adminPass === null) return; // キャンセル時
+                if (!adminPass) return await customAlert("パスワードが未入力です。", "エラー");
+                
                 try {
-                    const delRes = await safeFetch({ type: 'admin_delete_user', targetEmail: d.userId || u });
+                    // ★ adminPassword をペイロードに追加
+                    const delRes = await safeFetch({ type: 'admin_delete_user', targetEmail: d.userId || u, adminPassword: adminPass });
                     if(delRes.success) { await customAlert("完全に削除しました。"); resEl.innerHTML = ''; } 
                     else await customAlert(`⚠エラー: ${delRes.message}`, "エラー");
-                } catch(err) { await customAlert('⚠通信エラー', "エラー"); }
             });
 
            if (!d.history || d.history.length === 0) {
