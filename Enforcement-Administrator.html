@@ -627,22 +627,25 @@
             });
 
             actionsDiv.querySelector('#btnDeleteUser').addEventListener('click', async (e) => {
-                // 1. 対象IDの確認
-                const confCode = await customPrompt(`【危険】本当に削除する場合は対象のID「${d.userId || u}」を入力してください。`, "IDを入力");
-                if (confCode === null) return;
-                if (confCode !== (d.userId || u)) return await customAlert("IDが一致しません。", "エラー");
-                
-                // 2. ★追加：管理者の再認証
-                const adminPass = await customPrompt("本人確認のため、あなたの管理者パスワードを入力してください。", "管理者パスワード", "password");
-                if (adminPass === null) return; // キャンセル時
-                if (!adminPass) return await customAlert("パスワードが未入力です。", "エラー");
-                
-                try {
-                    // ★ adminPassword をペイロードに追加
-                    const delRes = await safeFetch({ type: 'admin_delete_user', targetEmail: d.userId || u, adminPassword: adminPass });
-                    if(delRes.success) { await customAlert("完全に削除しました。"); resEl.innerHTML = ''; } 
-                    else await customAlert(`⚠エラー: ${delRes.message}`, "エラー");
-            });
+                // 1. 対象IDの確認
+                const confCode = await customPrompt(`【危険】本当に削除する場合は対象のID「${d.userId || u}」を入力してください。`, "IDを入力");
+                if (confCode === null) return;
+                if (confCode !== (d.userId || u)) return await customAlert("IDが一致しません。", "エラー");
+                
+                // 2. ★追加：管理者の再認証
+                const adminPass = await customPrompt("本人確認のため、あなたの管理者パスワードを入力してください。", "管理者パスワード", "password");
+                if (adminPass === null) return; // キャンセル時
+                if (!adminPass) return await customAlert("パスワードが未入力です。", "エラー");
+                
+                try {
+                    // ★ adminPassword をペイロードに追加
+                    const delRes = await safeFetch({ type: 'admin_delete_user', targetEmail: d.userId || u, adminPassword: adminPass });
+                    if(delRes.success) { await customAlert("完全に削除しました。"); resEl.innerHTML = ''; } 
+                    else await customAlert(`⚠エラー: ${delRes.message}`, "エラー");
+                } catch(err) {
+                    await customAlert('⚠通信エラー', "エラー");
+                }
+            });
 
            if (!d.history || d.history.length === 0) {
                 resEl.insertAdjacentHTML('beforeend', '<div style="text-align:center; color:var(--text-sub); padding:20px;">履歴なし</div>');
