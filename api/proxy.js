@@ -101,9 +101,17 @@ export default async function handler(req, res) {
     if (token) {
       try {
         const decoded = jwt.verify(token, JWT_SECRET);
+        // ブラックリスト（ログアウト済み）に登録されているか確認
+        const { data: revoked } = await supabase.from('revoked_tokens').select('id').eq('token', token).maybeSingle();
+        if (revoked) throw new Error("Token has been revoked");
+
         authUserId = decoded.userId;
         isAdmin = decoded.isAdmin || false;
-      } catch (e) {}
+      } catch (e) {
+        token = null; // 無効化
+        authUserId = null;
+        isAdmin = false;
+      }
     }
 
     // ==========================================
@@ -285,10 +293,30 @@ export default async function handler(req, res) {
     }
 
     if (type === 'admin_logout') {
+        if (token) {
+            try {
+                const decoded = jwt.decode(token);
+                if (decoded && decoded.exp) {
+                    const expiresAt = new Date(decoded.exp * 1000).toISOString();
+                    // ブラックリストに登録
+                    await supabase.from('revoked_tokens').insert([{ token: token, expires_at: expiresAt }]);
+                }
+            } catch (e) {}
+        }
         res.setHeader('Set-Cookie', [
             `admin_token=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0`,
             `admin_logged_in=; SameSite=Strict; Path=/; Max-Age=0`
         ]);
+        return res.status(200).json({ success: true });
+    }
+
+    // proxy.js の type判定の並び（admin_logoutの下など）に追加
+    if (type === 'admin_verify') {
+        if (!isAdmin || !authUserId) return res.status(401).json({ success: false, message: "Unauthorized" });
+        // 必要に応じてデータベース上で現在も管理者権限を持っているか再確認する
+        const { data: adminUser } = await supabase.from('users').select('is_admin').eq('id', authUserId).maybeSingle();
+        if (!adminUser || !adminUser.is_admin) return res.status(401).json({ success: false, message: "管理者権限が取り消されています" });
+        
         return res.status(200).json({ success: true });
     }
 
@@ -406,7 +434,15 @@ export default async function handler(req, res) {
 
         // 6. ユーザー削除
         if (type === 'admin_delete_user') {
-            const { targetEmail } = params;
+            const { targetEmail, adminPassword } = params;
+            
+            // 再認証: 送信された管理者のパスワードを検証
+            if (!adminPassword) return res.status(200).json({ success: false, message: "再認証のため管理者パスワードが必要です" });
+            const { data: adminUser } = await supabase.from('users').select('password').eq('id', authUserId).maybeSingle();
+            if (!adminUser || !(await bcrypt.compare(adminPassword, adminUser.password))) {
+                return res.status(200).json({ success: false, message: "管理者パスワードが間違っています。操作は取り消されました" });
+            }
+
             const { data: user } = await supabase.from('users').select('id').eq('email', targetEmail).maybeSingle();
             if (!user) return res.status(200).json({ success: false, message: "ユーザーが見つかりません" });
             const { error } = await supabase.from('users').delete().eq('email', targetEmail);
