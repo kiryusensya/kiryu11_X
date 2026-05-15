@@ -255,6 +255,10 @@ button, input, textarea { font-family: var(--font-stack); }
 [data-theme="dark"] .sidebar-settings-btn:hover { background: rgba(255, 255, 255, 0.15) !important; }
 
 /* 1段目: アカウントボタン */
+.settings-block-account {
+    position: relative;
+    width: 100%;
+}
 .sidebar-account-btn {
     width: 100%;
     padding: 0 16px;
@@ -273,10 +277,15 @@ button, input, textarea { font-family: var(--font-stack); }
 .theme-pill-sidebar {
     width: 50px;
     justify-content: center;
+    flex-shrink: 0;
+}
+.settings-block-lang {
+    position: relative;
+    flex: 1;
 }
 .lang-trigger-sidebar {
-    flex: 1;
-    padding: 0 16px;
+    width: 100%;
+    padding: 0 16px !important;
     justify-content: space-between;
 }
 
@@ -287,7 +296,7 @@ button, input, textarea { font-family: var(--font-stack); }
     transform: translateY(10px) scale(0.98);
 }
 .sidebar-settings-area .account-dropdown.open { transform: translateY(0) scale(1); }
-.sidebar-settings-row .lang-list { bottom: calc(100% + 10px); left: 0; width: 100%; }
+.settings-block-lang .lang-list { bottom: calc(100% + 10px); left: 0; width: 100%; }
 
 /* Sidebar Bottom Controls */
 .rgl-bottom-controls {
@@ -663,24 +672,24 @@ button, input, textarea { font-family: var(--font-stack); }
         position: absolute !important;
         top: 0; right: 0; width: auto; height: 70px;
         padding: 0 16px; border: none; background: transparent !important;
-        z-index: 200; flex-direction: row; align-items: center; justify-content: flex-end;
+        z-index: 200; flex-direction: row-reverse; /* アカウントを右、テーマを左にする */
+        align-items: center; justify-content: flex-end;
         gap: 10px; pointer-events: none;
     }
     .sidebar-settings-area > * { pointer-events: auto; }
     
-    /* コンテナの幅指定を解除してアイコン幅に合わせる */
-    .sidebar-settings-area > div { width: auto !important; }
-
+    .settings-block-account { width: auto !important; }
     .sidebar-settings-row { width: auto; gap: 10px; }
     
     /* スマホでは言語切替はモバイルメニュー内にあるので隠す */
-    .sidebar-settings-row .lang-trigger-sidebar { display: none !important; } 
+    .settings-block-lang { display: none !important; } 
     
     /* アカウントとテーマを丸いアイコンボタンにする */
     .sidebar-account-btn, .theme-pill-sidebar {
         width: 44px !important; height: 44px !important; border-radius: 50% !important; padding: 0 !important; justify-content: center !important;
     }
-    .sidebar-account-btn .account-btn-text, .sidebar-account-btn .chevron { display: none; }
+    .sidebar-account-btn .account-btn-text, .sidebar-account-btn .chevron { display: none !important; }
+    .sidebar-settings-btn i { margin: 0 !important; }
     
     /* ドロップダウンをスマホ中央に配置 */
     .sidebar-settings-area .account-dropdown {
@@ -832,7 +841,7 @@ button, input, textarea { font-family: var(--font-stack); }
         </div>
 
         <div class="sidebar-settings-area">
-            <div style="position:relative; width: 100%;">
+            <div class="settings-block-account">
                 <button class="sidebar-settings-btn sidebar-account-btn spotlight-hover" id="btnOpenAccount">
                     <i data-lucide="user-round" style="width:20px; height:20px;"></i>
                     <span class="account-btn-text" data-translate="menu_account">アカウント</span>
@@ -870,7 +879,7 @@ button, input, textarea { font-family: var(--font-stack); }
                 <div class="sidebar-settings-btn theme-pill-sidebar spotlight-hover" id="themeToggle">
                     <i data-lucide="moon" id="themeIcon"></i>
                 </div>
-                <div style="position:relative; flex:1;">
+                <div class="settings-block-lang">
                      <button class="sidebar-settings-btn lang-trigger-sidebar spotlight-hover" id="langTrigger">
                          <span style="display:flex;align-items:center;gap:8px;"><i data-lucide="globe" style="width:16px; height:16px;"></i> <span id="currentLangLabel">日本語</span></span>
                          <i data-lucide="chevron-up" style="width:14px; height:14px; opacity:0.5;"></i>
@@ -927,6 +936,170 @@ button, input, textarea { font-family: var(--font-stack); }
 
     </main>
 
+</div>
+
+    <div style="position: absolute; bottom: 16px; left: 16px; text-align: left;">
+        <button class="lang-trigger-sidebar" id="loginLangTrigger" style="width: auto; height: 36px; padding: 0 12px !important; border: none; background: transparent; color: var(--modal-text-main);">
+            <span style="display:flex;align-items:center;gap:6px;">
+                <i data-lucide="globe" style="width:16px; height:16px;"></i> 
+                <span id="loginLangLabel">日本語</span>
+            </span>
+        </button>
+        <ul class="lang-list" id="loginLangMenu" style="bottom: 40px; left: 0; width: 140px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+            <li class="lang-option" data-value="ja">日本語</li>
+            <li class="lang-option" data-value="en">English</li>
+            <li class="lang-option" data-value="zh">简体中文</li>
+            <li class="lang-option" data-value="zh-TW">繁體中文</li>
+            <li class="lang-option" data-value="ko">한국어</li>
+            <li class="lang-option" data-value="ru">Русский</li>
+        </ul>
+    </div>
+
+ <div id="accountModal" class="modal-overlay" style="z-index: 10005;">
+  <div class="modal-sheet" style="max-width: 450px; width: 90%; text-align: center; padding: 40px;">
+    <div style="position:absolute; top:20px; right:20px; cursor:pointer; opacity:0.6; z-index:10;" id="closeAccountModalBtn">
+        <i data-lucide="x"></i>
+    </div>
+    
+    <h2 style="font-size:24px; font-weight:800; margin: 0 0 20px 0; color: var(--modal-text-main);" data-translate="modal_acc_title">パスワード変更</h2>
+    
+    <div style="text-align: left; margin-bottom: 24px; background: rgba(128,128,128,0.05); padding: 16px; border-radius: 12px; border: 1px solid rgba(128,128,128,0.1);">
+        <label style="font-size:12px; font-weight:700; opacity:0.7; color:var(--modal-text-main); display:block; margin-bottom:4px;" data-translate="modal_acc_userid">ユーザーID</label>
+        <div id="accountModalUserId" style="font-size:16px; font-weight:800; color:var(--modal-text-main); word-break:break-all;">-</div>
+    </div>
+
+    <div style="text-align:left;">
+        <label style="font-size:14px; font-weight:800; color:var(--modal-text-main); display:block; margin-bottom:12px;" data-translate="modal_acc_change_pass">パスワードの変更</label>
+        <div class="form-group" style="margin-bottom:12px;">
+            <input type="password" id="accCurrentPass" class="form-input" placeholder="現在のパスワード" style="height: 50px;">
+        </div>
+        <div class="form-group" style="margin-bottom:12px;">
+            <input type="password" id="accNewPass" class="form-input" placeholder="新しいパスワード" style="height: 50px;">
+        </div>
+        <div class="form-group" style="margin-bottom:20px;">
+            <input type="password" id="accNewPassConfirm" class="form-input" placeholder="新しいパスワード (確認用)" style="height: 50px;">
+        </div>
+        
+        <div id="accStatusMessage" style="font-size:13px; font-weight: 700; margin-bottom:12px; min-height:18px; text-align:center;"></div>
+        <button id="btnSubmitAccPassChange" class="btn-primary" style="height:50px; font-size: 16px; border-radius: 25px; margin-top: 0;" data-translate="modal_acc_btn_change">パスワードを変更</button>
+    </div>
+  </div>
+ </div>
+
+  <div id="historyModal" class="modal-overlay" style="z-index: 10005;">
+  <div class="modal-sheet" style="max-width: 600px; width: 90%; text-align: left; padding: 40px; display: flex; flex-direction: column; max-height: 80vh;">
+    <div style="position:absolute; top:20px; right:20px; cursor:pointer; opacity:0.6; z-index:10;" id="closeHistoryModalBtn">
+        <i data-lucide="x"></i>
+    </div>
+    
+    <h2 style="font-size:24px; font-weight:800; margin: 0 0 20px 0; color: var(--modal-text-main);" data-translate="modal_history_title">利用履歴</h2>
+    
+    <div id="historyListContainer" style="overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; padding-right: 4px;">
+        </div>
+  </div>
+</div>
+
+<div id="langSwitchingOverlay" style="position:fixed; inset:0; background:var(--bg-color); z-index:9999; display:none; align-items:center; justify-content:center;">
+  <div class="loading-spinner"></div>
+</div>
+
+<div id="authModal" class="modal-overlay">
+  <div class="modal-sheet" id="modalContainer">
+    <div style="position:absolute; top:20px; right:20px; cursor:pointer; z-index:10;" id="modalCloseBtn"><i data-lucide="x"></i></div>
+    
+    <div id="phase-input" style="display: flex; opacity: 1;">
+      <h2 class="modal-title phase-input-title" data-translate="modal_title">アクティベーション</h2>
+      <p class="modal-sub phase-input-sub-mobile" id="mobileInputDesc" data-translate="modal_sub">アクティベーションコードを使用すると、コンテンツにアクセスできます。アクティベーションコードを利用するには、以下の入力欄に入力してください。</p>
+      
+      <div class="phase-input-body">
+          <div class="phase-input-left">
+              <img src="https://static.wixstatic.com/media/2f0694_38068f106089439b89c7902ef4fb3d2d~mv2.jpg" alt="Code Background">
+          </div>
+          <div class="phase-input-right">
+              <div class="phase-input-controls">
+                  <input type="text" id="activationCode" class="code-field" placeholder="アクティベーションコード" autocomplete="off">
+                  <button id="btnConfirm" class="btn-primary" data-translate="modal_btn_auth">確認</button>
+              </div>
+              <div class="modal-grey-box phase-input-desc-pc">
+                  <p class="modal-box-text" id="pcInputDesc" data-translate="modal_sub">アクティベーションコードを使用すると、コンテンツにアクセスできます。<br>アクティベーションコードを利用するには、以下の入力欄に入力してください。</p>
+              </div>
+          </div>
+      </div>
+    </div>
+
+    <div id="phase-preview" style="display: none; opacity: 0;" class="new-modal-layout">
+        <h2 class="modal-title-top" data-translate="preview_title">コンテンツ確認</h2>
+        <div class="modal-body-flex">
+            <div class="modal-left-col">
+                <img id="previewImage" src="" alt="Thumbnail">
+                <div id="previewTitleUnderImg" class="modal-thumb-title"></div>
+            </div>
+            <div class="modal-right-col">
+                <h2 class="mobile-title" data-translate="preview_title">コンテンツ確認</h2>
+                <p class="modal-label" data-translate="preview_desc">続行すると以下のコンテンツを受け取ります:</p>
+                <h3 id="previewTitle" class="modal-main-title"></h3>
+                <div class="modal-grey-box" id="previewWarningBox">
+                    <p class="modal-box-text is-warning" id="previewWarningText"></p>
+                </div>
+                <div class="modal-btn-row">
+                    <button class="btn-outline" id="btnPreviewClose" style="flex: 3;" data-translate="btn_close">閉じる</button>
+                    <button class="btn-solid" id="btnPreviewRedeem" style="flex: 7;" data-translate="btn_continue">認証する</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="phase-success" style="display: none; opacity: 0;" class="new-modal-layout">
+        <h2 class="modal-title-top" data-translate="success_title_final">認証成功!!</h2>
+        <div class="modal-body-flex">
+            <div class="modal-left-col">
+                <img id="successImage2" src="" alt="Thumbnail">
+                <div id="successTitleUnderImg" class="modal-thumb-title"></div>
+            </div>
+            <div class="modal-right-col">
+                <h2 class="mobile-title" data-translate="success_title_final">認証成功!!</h2>
+                <p class="modal-label" data-translate="success_desc">このコードで以下のコンテンツが認証されました:</p>
+                <h3 id="successBundleName" class="modal-main-title"></h3>
+                <div class="modal-grey-box">
+                    <p class="modal-box-text" id="successMessageText"></p>
+                    <p class="modal-box-time" id="successTime"></p>
+                </div>
+                <div class="modal-btn-row" id="successBtnRow">
+                    <button class="btn-outline" style="width: 100%; flex: none;" id="btnSuccessClose" data-translate="btn_close">閉じる</button>
+                    <a class="btn-solid" style="flex: 7; display: none; align-items:center; justify-content:center; text-decoration:none;" id="btnSuccessDownload" target="_blank"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="phase-error" style="display: none; opacity: 0;" class="new-modal-layout error-layout">
+        <h2 class="modal-title-top error-title-color">⚠ <span data-translate="error_title_prefix">エラー</span> <span id="errorCodeText"></span></h2>
+        <div class="modal-body-error">
+            <h3 id="errorMessage" class="modal-error-main-msg"></h3>
+            <div class="modal-grey-box" id="errorInfoBox" style="margin-bottom: 24px;">
+                <p class="modal-box-text" id="errorSubMessage"></p>
+                <p class="modal-box-time" id="errorTime"></p>
+            </div>
+            <div class="modal-btn-row" id="errorBtnRow">
+                <button class="btn-outline" style="width: 100%; flex: none;" id="btnErrorClose" data-translate="btn_close">閉じる</button>
+            </div>
+        </div>
+    </div>
+  </div>
+</div>
+
+<div id="manageModal" class="modal-overlay" style="z-index: 10006;">
+    <div class="modal-sheet" style="max-width: 600px; width: 90%; text-align: left; padding: 40px; display: flex; flex-direction: column; max-height: 80vh;">
+        <div style="position:absolute; top:20px; right:20px; cursor:pointer; opacity:0.6; z-index:10;" id="closeManageModalBtn">
+            <i data-lucide="x"></i>
+        </div>
+        
+        <h2 style="font-size:24px; font-weight:800; margin: 0 0 20px 0; color: var(--modal-text-main);" data-translate="manage_title">ダウンロード管理</h2>
+        <p style="font-size:14px; font-weight:700; color:var(--modal-text-main); margin: 0 0 16px 0;" data-translate="manage_desc">インストールするアイテムを選択してください:</p>
+        
+        <div id="manageContentList" style="overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; padding-right: 4px;">
+        </div>
+    </div>
 </div>
 <script>
 const GAS_API_URL="api/proxy"; 
