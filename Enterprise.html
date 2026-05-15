@@ -216,15 +216,87 @@ button, input, textarea { font-family: var(--font-stack); }
     font-size: 16px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     color: var(--sidebar-text);
 }
-.sidebar-game-status { display: none; } 
+
+
+/* =========================================
+   SIDEBAR SETTINGS AREA (Account, Theme, Lang)
+   ========================================= */
+.sidebar-settings-area {
+    padding: 20px 24px 10px 24px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    border-top: 1px solid rgba(128,128,128,0.1);
+}
+
+/* 共通ボタンカラー（ライトモード/ダークモード対応） */
+.sidebar-settings-btn {
+    height: 50px;
+    border-radius: 16px;
+    background: rgba(128, 128, 128, 0.08) !important;
+    border: 1px solid rgba(128, 128, 128, 0.15) !important;
+    color: var(--modal-text-main) !important;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    backdrop-filter: blur(10px);
+    font-family: var(--font-stack);
+    display: flex;
+    align-items: center;
+}
+.sidebar-settings-btn:hover { background: rgba(128,128,128,0.15) !important; }
+[data-theme="dark"] .sidebar-settings-btn {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: #fff !important;
+}
+[data-theme="dark"] .sidebar-settings-btn:hover { background: rgba(255, 255, 255, 0.15) !important; }
+
+/* 1段目: アカウントボタン */
+.sidebar-account-btn {
+    width: 100%;
+    padding: 0 16px;
+    gap: 12px;
+}
+.sidebar-account-btn svg { opacity: 0.8; }
+.sidebar-account-btn .chevron { margin-left: auto; opacity: 0.5; }
+
+/* 2段目: テーマ ＋ 言語 */
+.sidebar-settings-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    width: 100%;
+}
+.theme-pill-sidebar {
+    width: 50px;
+    justify-content: center;
+}
+.lang-trigger-sidebar {
+    flex: 1;
+    padding: 0 16px;
+    justify-content: space-between;
+}
+
+/* ドロップダウンを「下から上」へ展開 */
+.sidebar-settings-area .account-dropdown {
+    top: auto; bottom: calc(100% + 10px); right: 0; left: 0; width: 100%;
+    transform-origin: bottom center;
+    transform: translateY(10px) scale(0.98);
+}
+.sidebar-settings-area .account-dropdown.open { transform: translateY(0) scale(1); }
+.sidebar-settings-row .lang-list { bottom: calc(100% + 10px); left: 0; width: 100%; }
 
 /* Sidebar Bottom Controls */
 .rgl-bottom-controls {
   margin-top: auto;
-  padding: 20px 24px 30px 24px;
+  padding: 10px 24px 20px 24px;
   flex-shrink: 0;
-  border-top: 1px solid rgba(128,128,128,0.1);
+  border-top: none;
 }
+
 
 /* MAIN CONTENT AREA */
 .rgl-main {
@@ -235,28 +307,6 @@ button, input, textarea { font-family: var(--font-stack); }
   overflow-y: auto;
   background-color: var(--bg-color);
 }
-
-/* RGL Header / Tabs */
-.rgl-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  padding: 24px 40px;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 20px;
-}
-
-.theme-pill {
-  width: 44px; height: 44px; border-radius: 50%;
-  background: var(--card-bg); border: 1px solid rgba(128,128,128,0.2);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: transform 0.3s; backdrop-filter: blur(10px); color: var(--modal-text-main);
-}
-.theme-pill:hover { transform: scale(1.1); }
-[data-theme="dark"] .theme-pill { color: #fff; }
-
 
 /* Hero Section within Main */
 .rgl-hero {
@@ -285,11 +335,7 @@ button, input, textarea { font-family: var(--font-stack); }
     transition: background-image 0.5s ease-in-out;
 }
 
-.rgl-hero::before, .rgl-hero::after {
-    display: none !important;
-    background: none !important;
-    content: none !important;
-}
+.rgl-hero::before, .rgl-hero::after { display: none !important; }
 
 .rgl-hero-content {
     position: relative;
@@ -310,9 +356,7 @@ button, input, textarea { font-family: var(--font-stack); }
   text-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
 
-.rgl-desc {
-    display: none !important;
-}
+.rgl-desc { display: none !important; }
 
 /* Action Bar Area */
 .rgl-action-bar {
@@ -329,36 +373,24 @@ button, input, textarea { font-family: var(--font-stack); }
     height: 56px;
     min-width: 200px;
     padding: 0 40px;
-    
     background-color: var(--modal-text-main);
     color: var(--bg-color);
-    
     font-weight: 800;
     font-size: 18px;
     border-radius: 50px;
     cursor: pointer;
     text-transform: none !important;
-    
     transition: all 0.2s;
     border: none;
     box-shadow: 0 10px 20px rgba(0,0,0,0.1);
     font-family: var(--font-stack);
 }
-.rgl-cta-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-}
+.rgl-cta-btn:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(0,0,0,0.2); }
 [data-theme="dark"] .rgl-cta-btn { background: #fff; color: #000; }
 
-.rgl-cta-btn.is-download {
-    background-color: var(--primary);
-    color: #fff;
-}
-.rgl-cta-btn.is-download:hover {
-    box-shadow: 0 15px 30px rgba(0, 125, 255, 0.4);
-}
+.rgl-cta-btn.is-download { background-color: var(--primary); color: #fff; }
+.rgl-cta-btn.is-download:hover { box-shadow: 0 15px 30px rgba(0, 125, 255, 0.4); }
 
-/* --- 購入用ボタン (PC用) --- */
 .rgl-buy-btn {
     display: inline-flex;
     align-items: center;
@@ -366,70 +398,22 @@ button, input, textarea { font-family: var(--font-stack); }
     height: 56px;
     min-width: 200px;
     padding: 0 40px;
-    
-    /* ライトモード時: ボタン白 / 文字黒 */
     background-color: #FFFFFF;
     color: #000000;
-    
     font-weight: 800;
     font-size: 18px;
     border-radius: 50px;
     cursor: pointer;
     text-transform: none !important;
-    
     transition: all 0.2s;
     border: 1px solid rgba(0, 0, 0, 0.1);
     box-shadow: 0 10px 20px rgba(0,0,0,0.05);
     font-family: var(--font-stack);
 }
-.rgl-buy-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
-}
-/* ダークモード時: ボタン黒 / 文字白 */
-[data-theme="dark"] .rgl-buy-btn { 
-    background-color: #000000; 
-    color: #FFFFFF; 
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
+.rgl-buy-btn:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(0,0,0,0.15); }
+[data-theme="dark"] .rgl-buy-btn { background-color: #000000; color: #FFFFFF; border: 1px solid rgba(255, 255, 255, 0.2); }
 
-/* ★ PC用の購入ボタン等に追加されたスマホ用クラスを無効化（PC版の完全保護） */
 .mobile-store-view { display: none !important; }
-
-/* Sidebar Language Selector */
-.lang-trigger-sidebar {
-    width: 100%;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px !important;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--sidebar-text);
-    border-radius: 50px !important;
-    background: transparent;
-    transition: all 0.2s ease;
-    font-family: var(--font-stack);
-    border: 1px solid transparent;
-}
-.lang-trigger-sidebar:hover {
-    background: rgba(128, 128, 128, 0.15);
-}
-[data-theme="dark"] .lang-trigger-sidebar {
-    border: 1px solid rgba(255, 255, 255, 0.6) !important;
-    background: rgba(255, 255, 255, 0.05);
-}
-[data-theme="dark"] .lang-trigger-sidebar:hover {
-    border-color: #fff !important;
-    background: rgba(255, 255, 255, 0.15);
-}
-.lang-list { position: absolute; bottom: 80px; left: 24px; width: 200px; background: var(--card-bg); backdrop-filter: blur(20px); padding: 5px; border-radius: 12px; list-style: none; display: none; box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 200; border: 1px solid rgba(128,128,128,0.1); }
-.lang-list.open { display: block; animation: popIn 0.3s; }
-.lang-list li { padding: 10px 15px; cursor: pointer; border-radius: 8px; color: var(--modal-text-main); font-size: 13px; font-family: var(--font-stack); }
-.lang-list li:hover { background: rgba(128,128,128,0.1); }
-[data-theme="dark"] .lang-list li { color: #fff; }
 
 /* Keep Animations */
 @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
@@ -438,7 +422,13 @@ button, input, textarea { font-family: var(--font-stack); }
 .intro-theme-btn {
   position: absolute; top: 40px; right: 40px; z-index: 10002;
   border-color: var(--card-border);
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--card-bg); border: 1px solid rgba(128,128,128,0.2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: transform 0.3s; backdrop-filter: blur(10px); color: var(--modal-text-main);
 }
+.intro-theme-btn:hover { transform: scale(1.1); }
+[data-theme="dark"] .intro-theme-btn { color: #fff; }
 @media (max-width: 600px) { .intro-theme-btn { top: 24px; right: 24px; } }
 
 .intro-container {
@@ -447,16 +437,12 @@ button, input, textarea { font-family: var(--font-stack); }
   display: flex; flex-direction: column; justify-content: center; min-height: 80vh;
 }
 
-.intro-header { 
-  margin-bottom: 50px; opacity: 0; animation: fadeInUp 0.8s ease forwards;
-}
+.intro-header { margin-bottom: 50px; opacity: 0; animation: fadeInUp 0.8s ease forwards; }
 
 .intro-brand { 
   font-family: 'HarmonyOS Sans', sans-serif;
-  font-size: 14px; 
-  opacity: 0.5; font-weight: 700; 
-  margin-bottom: 16px; display: block; 
-  color: var(--modal-text-main);
+  font-size: 14px; opacity: 0.5; font-weight: 700; 
+  margin-bottom: 16px; display: block; color: var(--modal-text-main);
 }
 
 .intro-title {
@@ -466,9 +452,7 @@ button, input, textarea { font-family: var(--font-stack); }
 }
 [data-theme="dark"] .intro-title { color: #fff; }
 
-.lang-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 100%;
-}
+.lang-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 100%; }
 .lang-card {
   position: relative; background: var(--card-bg); border: 1px solid var(--card-border);
   border-radius: 24px; height: 120px; cursor: pointer; 
@@ -496,7 +480,7 @@ button, input, textarea { font-family: var(--font-stack); }
 .font-ru { font-family: 'HarmonyOS Sans', sans-serif; }
 
 /* ====================================================
-   ★ MODAL SYSTEM (Glassmorphism & Dynamic Island)
+   ★ MODAL SYSTEM
    ==================================================== */
 .modal-overlay {
   position: fixed; inset: 0; background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px);
@@ -505,7 +489,6 @@ button, input, textarea { font-family: var(--font-stack); }
 }
 .modal-overlay.active { opacity: 1; pointer-events: auto; }
 
-/* 1. 入力画面のモーダル */
 .modal-sheet {
   background: rgba(255, 255, 255, 0.7) !important;
   backdrop-filter: blur(40px);
@@ -517,16 +500,10 @@ button, input, textarea { font-family: var(--font-stack); }
   width: 90%; max-width: 470px; 
   padding: 40px;
   font-family: var(--font-stack);
-  
   clip-path: inset(80% 30% 0% 30% round 50px);
   transform: translateY(60px) scale(0.85);
   opacity: 0;
-  
-  transition: clip-path 0.7s cubic-bezier(0.34, 1.56, 0.64, 1),
-              transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1),
-              background-color 0.5s ease,
-              max-width 0.5s ease,
-              opacity 0.4s ease;
+  transition: clip-path 0.7s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.5s ease, max-width 0.5s ease, opacity 0.4s ease;
 }
 
 .modal-overlay.active .modal-sheet {
@@ -535,228 +512,65 @@ button, input, textarea { font-family: var(--font-stack); }
   opacity: 1;
 }
 
-/* 2. ワイド画面のモーダル（PCの確認・成功・エラー） */
-.modal-sheet.is-wide {
-  max-width: 900px;
-}
+.modal-sheet.is-wide { max-width: 900px; }
 
-/* ダークモード対応 */
 [data-theme="dark"] .modal-sheet {
   background: rgba(50, 50, 50, 0.7) !important;
   box-shadow: 0 30px 80px rgba(0,0,0,0.5);
 }
 
-.modal-overlay:not(.active) #phase-input,
-.modal-overlay:not(.active) #phase-preview,
-.modal-overlay:not(.active) #phase-success,
-.modal-overlay:not(.active) #phase-error {
-  opacity: 0 !important;
-  transform: scale(0.95);
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-.modal-overlay.active #phase-input,
-.modal-overlay.active #phase-preview,
-.modal-overlay.active #phase-success,
-.modal-overlay.active #phase-error {
-  transition: opacity 0.5s ease 0.2s, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s;
-}
+.modal-overlay:not(.active) #phase-input, .modal-overlay:not(.active) #phase-preview, .modal-overlay:not(.active) #phase-success, .modal-overlay:not(.active) #phase-error { opacity: 0 !important; transform: scale(0.95); transition: opacity 0.2s ease, transform 0.2s ease; }
+.modal-overlay.active #phase-input, .modal-overlay.active #phase-preview, .modal-overlay.active #phase-success, .modal-overlay.active #phase-error { transition: opacity 0.5s ease 0.2s, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s; }
 
-.modal-overlay:not(.active) #modalCloseBtn {
-  opacity: 0 !important;
-  transition: opacity 0.2s ease;
-}
-.modal-overlay.active #modalCloseBtn {
-  opacity: 0.6 !important;
-  transition: opacity 0.3s ease 0.4s;
-}
-.modal-overlay.active #modalCloseBtn:hover {
-  opacity: 1 !important;
-}
+.modal-overlay:not(.active) #modalCloseBtn { opacity: 0 !important; transition: opacity 0.2s ease; }
+.modal-overlay.active #modalCloseBtn { opacity: 0.6 !important; transition: opacity 0.3s ease 0.4s; }
+.modal-overlay.active #modalCloseBtn:hover { opacity: 1 !important; }
 
 /* INPUT PHASE */
-#phase-input { 
-  width: 100%; transition: opacity 0.3s ease; 
-  text-align: center; display: flex; flex-direction: column; align-items: center; position: relative; 
-}
+#phase-input { width: 100%; transition: opacity 0.3s ease; text-align: center; display: flex; flex-direction: column; align-items: center; position: relative; }
 .modal-title { margin:0 0 10px 0; font-size:24px; font-weight:800; color:var(--modal-text-main); text-align: center; }
 [data-theme="dark"] .modal-title { color: #fff; }
 .modal-sub { color:var(--modal-text-sub); margin:0; font-size:14px; text-align: center; }
 [data-theme="dark"] .modal-sub { color: #aaa; }
 
 .code-field {
-  width: 100%; border: none; background: rgba(128, 128, 128, 0.1);
-  height: 56px; border-radius: 16px; 
+  width: 100%; border: none; background: rgba(128, 128, 128, 0.1); height: 56px; border-radius: 16px; 
   text-align: center; outline: none; transition: 0.3s; margin-top: 24px;
-  color: var(--modal-text-main); font-family: var(--font-stack);
-  font-size: 17px; font-weight: 700; letter-spacing: 0; padding: 0 10px;
+  color: var(--modal-text-main); font-family: var(--font-stack); font-size: 17px; font-weight: 700; letter-spacing: 0; padding: 0 10px;
 }
 [data-theme="dark"] .code-field { color: #fff; background: rgba(255,255,255,0.1); }
 .code-field:focus { background: rgba(0, 125, 255, 0.1); color: var(--primary); }
 
 .btn-primary {
-  width: 100%; height: 50px; margin-top: 20px; border: none;
-  background: var(--primary); color: white; border-radius: 25px;
-  font-size: 16px; font-weight: 700; cursor: pointer;
-  transition: transform 0.2s; font-family: var(--font-stack);
-  border-radius: 50px !important;
+  width: 100%; height: 50px; margin-top: 20px; border: none; background: var(--primary); color: white;
+  font-size: 16px; font-weight: 700; cursor: pointer; transition: transform 0.2s; font-family: var(--font-stack); border-radius: 50px !important;
 }
 .btn-primary:active { transform: scale(0.96); }
 
-
 /* --- 新しいモーダルレイアウト (PC表示) --- */
-.new-modal-layout {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    text-align: left;
-    font-family: var(--font-stack);
-}
-.modal-title-top {
-    font-size: 26px;
-    font-weight: 800;
-    margin: 0 0 24px 0;
-    color: var(--modal-text-main);
-}
-.modal-body-flex {
-    display: flex;
-    gap: 30px;
-    align-items: stretch;
-}
-.modal-left-col {
-    width: 380px; 
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-}
-.modal-left-col img {
-    width: 100%;
-    flex: 1; 
-    border-radius: 16px;
-    object-fit: cover;
-    background: rgba(128,128,128,0.2);
-}
-.modal-thumb-title {
-    margin-top: 24px; 
-    height: 48px; 
-    line-height: 48px; 
-    font-size: 20px;
-    font-weight: 800;
-    color: var(--modal-text-main);
-    text-align: center;
-    width: 100%;
-    white-space: nowrap; 
-    overflow: hidden;
-    text-overflow: ellipsis; 
-}
-.modal-right-col {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-}
-.mobile-title {
-    display: none; /* PCでは非表示 */
-}
-.modal-label {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--modal-text-main);
-    margin: 0 0 4px 0;
-}
-.modal-main-title {
-    font-size: 24px;
-    font-weight: 800;
-    color: var(--modal-text-main);
-    margin: 0 0 20px 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.modal-grey-box {
-    background: rgba(128,128,128,0.1);
-    border-radius: 16px;
-    padding: 20px;
-    flex: 1; 
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    margin-bottom: 24px; 
-}
-.modal-box-text {
-    font-size: 13px;
-    font-weight: 700;
-    line-height: 1.5;
-    color: var(--modal-text-main);
-    margin: 0;
-    white-space: pre-wrap;
-}
-.modal-box-text.is-warning {
-    opacity: 0.7;
-    font-weight: normal;
-}
-.modal-box-time {
-    font-size: 16px;
-    font-weight: 800;
-    color: var(--modal-text-main);
-    margin: 20px 0 0 0; 
-}
-.modal-btn-row {
-    display: flex;
-    gap: 12px;
-    margin-top: auto; 
-    height: 48px; 
-}
-.btn-outline {
-    height: 48px;
-    border-radius: 24px;
-    border: 2px solid var(--modal-text-main);
-    background: transparent;
-    color: var(--modal-text-main);
-    font-weight: 800;
-    font-size: 16px;
-    cursor: pointer;
-    transition: 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex: 3;
-}
-.btn-outline:hover {
-    background: rgba(128,128,128,0.1);
-}
-.btn-solid {
-    height: 48px;
-    border-radius: 24px;
-    border: none;
-    background: var(--modal-text-main);
-    color: var(--bg-color);
-    font-weight: 800;
-    font-size: 16px;
-    cursor: pointer;
-    transition: 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    flex: 7;
-}
-.btn-solid:hover:not(:disabled) {
-    opacity: 0.8;
-}
+.new-modal-layout { display: flex; flex-direction: column; width: 100%; text-align: left; font-family: var(--font-stack); }
+.modal-title-top { font-size: 26px; font-weight: 800; margin: 0 0 24px 0; color: var(--modal-text-main); }
+.modal-body-flex { display: flex; gap: 30px; align-items: stretch; }
+.modal-left-col { width: 380px; flex-shrink: 0; display: flex; flex-direction: column; }
+.modal-left-col img { width: 100%; flex: 1; border-radius: 16px; object-fit: cover; background: rgba(128,128,128,0.2); }
+.modal-thumb-title { margin-top: 24px; height: 48px; line-height: 48px; font-size: 20px; font-weight: 800; color: var(--modal-text-main); text-align: center; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.modal-right-col { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.mobile-title { display: none; }
+.modal-label { font-size: 14px; font-weight: 700; color: var(--modal-text-main); margin: 0 0 4px 0; }
+.modal-main-title { font-size: 24px; font-weight: 800; color: var(--modal-text-main); margin: 0 0 20px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.modal-grey-box { background: rgba(128,128,128,0.1); border-radius: 16px; padding: 20px; flex: 1; display: flex; flex-direction: column; justify-content: center; margin-bottom: 24px; }
+.modal-box-text { font-size: 13px; font-weight: 700; line-height: 1.5; color: var(--modal-text-main); margin: 0; white-space: pre-wrap; }
+.modal-box-text.is-warning { opacity: 0.7; font-weight: normal; }
+.modal-box-time { font-size: 16px; font-weight: 800; color: var(--modal-text-main); margin: 20px 0 0 0; }
+.modal-btn-row { display: flex; gap: 12px; margin-top: auto; height: 48px; }
+.btn-outline { height: 48px; border-radius: 24px; border: 2px solid var(--modal-text-main); background: transparent; color: var(--modal-text-main); font-weight: 800; font-size: 16px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; flex: 3; }
+.btn-outline:hover { background: rgba(128,128,128,0.1); }
+.btn-solid { height: 48px; border-radius: 24px; border: none; background: var(--modal-text-main); color: var(--bg-color); font-weight: 800; font-size: 16px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; flex: 7; }
+.btn-solid:hover:not(:disabled) { opacity: 0.8; }
 
-.error-layout .error-title-color {
-    color: #FF3B30;
-}
-.modal-body-error {
-    display: flex;
-    flex-direction: column;
-}
-.modal-error-main-msg {
-    font-size: 18px;
-    font-weight: 800;
-    color: var(--modal-text-main);
-    margin: 0 0 20px 0;
-}
+.error-layout .error-title-color { color: #FF3B30; }
+.modal-body-error { display: flex; flex-direction: column; }
+.modal-error-main-msg { font-size: 18px; font-weight: 800; color: var(--modal-text-main); margin: 0 0 20px 0; }
 
 [data-theme="dark"] .error-layout .error-title-color { color: #FF453A; }
 [data-theme="dark"] .btn-outline { border-color: rgba(255,255,255,0.6); color: #fff; }
@@ -766,36 +580,23 @@ button, input, textarea { font-family: var(--font-stack); }
 
 /* --- ACCOUNT DROPDOWN STYLES --- */
 .account-dropdown {
-  position: absolute; top: 80px; right: 40px; width: 320px; 
+  position: absolute; width: 320px; 
   background: var(--dropdown-bg);
   backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
   border: 1px solid rgba(128,128,128,0.2); border-radius: 24px;
   box-shadow: 0 20px 60px rgba(0,0,0,0.2); padding: 24px;
-  z-index: 2000; opacity: 0; transform: translateY(-10px) scale(0.98);
-  pointer-events: none; transition: all 0.3s var(--spring-ease);
-  transform-origin: top right; text-align: left; display: flex; flex-direction: column;
+  z-index: 2000; opacity: 0; pointer-events: none; transition: all 0.3s var(--spring-ease);
+  text-align: left; display: flex; flex-direction: column;
 }
-.account-dropdown.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; visibility: visible; }
+.account-dropdown.open { opacity: 1; pointer-events: auto; visibility: visible; }
 
-/* Header inside Dropdown */
-.account-mini-header { 
-  display: flex; flex-direction: column; align-items: flex-start;
-  margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid rgba(128,128,128,0.1); 
-}
+.account-mini-header { display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid rgba(128,128,128,0.1); }
 .label-logged-in { font-size: 10px; font-weight: 700; opacity: 0.6; margin-bottom: 2px; text-transform: uppercase; }
 .mini-user-id { font-size: 16px; font-weight: 800; color: var(--modal-text-main); letter-spacing: -0.5px; word-break: break-all;}
-/* ポイント色：ライト時黒/ダーク時白に追従させるためカラーはvar()で指定 */
 #displayUserPoints { font-size:14px; font-weight:700; color:var(--modal-text-main); margin-top:4px; display:flex; align-items:center; gap:4px; }
 
-/* Menu List inside Dropdown */
 .menu-list { display: flex; flex-direction: column; gap: 4px; }
-.menu-btn {
-  background: transparent; border: none; text-align: left;
-  padding: 14px 12px; font-size: 16px; font-weight: 700;
-  color: var(--modal-text-main); cursor: pointer; border-radius: 12px;
-  display: flex; justify-content: space-between; align-items: center;
-  transition: background 0.2s; font-family: var(--font-stack);
-}
+.menu-btn { background: transparent; border: none; text-align: left; padding: 14px 12px; font-size: 16px; font-weight: 700; color: var(--modal-text-main); cursor: pointer; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; transition: background 0.2s; font-family: var(--font-stack); }
 .menu-btn:hover { background: rgba(128,128,128,0.08); }
 .menu-btn i { opacity: 0.5; }
 
@@ -804,159 +605,36 @@ button, input, textarea { font-family: var(--font-stack); }
 .form-input:focus { border-color: var(--primary); background: rgba(128,128,128,0.05); }
 
 
-/* ★ スマホ用表示のオーバーライド（PC用デザインは一切変えずにスマホだけ変える） */
+/* ★ スマホ用表示のオーバーライド */
 .mobile-menu-trigger { display: none; }
 .mobile-nav-overlay { display: none; }
 
 @media (max-width: 768px) {
-    /* ログイン状態に応じてHero(認証センター)とStore表示を切り替え */
     body.is-logged-in .rgl-hero { display: none !important; }
     body.is-logged-in .mobile-store-view { display: block !important; padding: 20px; position: relative; z-index: 10; }
-    
     body:not(.is-logged-in) .rgl-hero { display: flex !important; }
     body:not(.is-logged-in) .mobile-store-view { display: none !important; }
-    
-    /* PC用購入ボタンをスマホ画面では非表示 */
     .rgl-buy-btn { display: none !important; }
 
-    /* ストア用ヘッダーとコード引き換えボタン */
-    .mobile-store-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-        margin-top: 10px;
-    }
-  .sidebar-main-nav.capsule-menu {
-        display: none !important;
-    }
-    .mobile-store-redeem-btn {
-        background: transparent;
-        border: 1px solid var(--modal-text-main);
-        color: var(--modal-text-main);
-        font-size: 11px;
-        font-weight: 700;
-        padding: 6px 12px;
-        border-radius: 20px;
-        cursor: pointer;
-        font-family: var(--font-stack);
-    }
-    #historyModal .modal-sheet,
-    #manageModal .modal-sheet {
-        padding: 20px !important; /* ★余白をさらに狭くして中身を広くする */
-        width: 95% !important;    /* ★画面いっぱいに横幅を広げる */
-        max-height: 85vh;
-    }
+    .mobile-store-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; margin-top: 10px; }
+    .sidebar-main-nav.capsule-menu { display: none !important; }
+    .mobile-store-redeem-btn { background: transparent; border: 1px solid var(--modal-text-main); color: var(--modal-text-main); font-size: 11px; font-weight: 700; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-family: var(--font-stack); }
+    #historyModal .modal-sheet, #manageModal .modal-sheet { padding: 20px !important; width: 95% !important; max-height: 85vh; }
     
-    /* スマホ画面でのボックス内の微調整 */
-    .manage-item-row {
-        padding: 16px 12px;
-        gap: 8px;
-    }
-    .manage-item-info {
-        min-width: 0; /* ★タイトルが長すぎる場合にレイアウト崩れを防ぐ */
-    }
-    .mobile-store-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-        gap: 12px;
-    }
-    .mobile-store-card {
-        background: rgba(30, 30, 30, 0.6);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        padding: 8px;
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    }
-    [data-theme="light"] .mobile-store-card {
-        background: rgba(255, 255, 255, 0.8);
-        border: 1px solid rgba(0, 0, 0, 0.1);
-    }
-   .pc-only-text {
-      display: none !important;
-    }
-    .mobile-store-thumb {
-        width: 100%;
-        aspect-ratio: 21 / 9;
-        object-fit: cover;
-        border-radius: 8px;
-        background: rgba(128,128,128,0.2);
-    }
-    .mobile-store-title {
-        font-size: 12px;
-        font-weight: 800;
-        color: var(--modal-text-main);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        margin-top: 4px;
-        display: flex;
-        align-items: center;
-    }
-    .mobile-store-price {
-        font-size: 10px;
-        color: var(--primary);
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        font-weight: 700;
-    }
-    .mobile-store-btn {
-        width: 100%;
-        height: 26px;
-        border-radius: 6px;
-        background: var(--primary);
-        color: #fff;
-        border: none;
-        font-size: 10px;
-        font-weight: 700;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: 0.2s;
-    }
+    .manage-item-row { padding: 16px 12px; gap: 8px; }
+    .manage-item-info { min-width: 0; }
+    .mobile-store-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; }
+    .mobile-store-card { background: rgba(30, 30, 30, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+    [data-theme="light"] .mobile-store-card { background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(0, 0, 0, 0.1); }
+    .pc-only-text { display: none !important; }
+    .mobile-store-thumb { width: 100%; aspect-ratio: 21 / 9; object-fit: cover; border-radius: 8px; background: rgba(128,128,128,0.2); }
+    .mobile-store-title { font-size: 12px; font-weight: 800; color: var(--modal-text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px; display: flex; align-items: center; }
+    .mobile-store-price { font-size: 10px; color: var(--primary); display: flex; align-items: center; gap: 4px; font-weight: 700; }
+    .mobile-store-btn { width: 100%; height: 26px; border-radius: 6px; background: var(--primary); color: #fff; border: none; font-size: 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
     .mobile-store-btn:active { transform: scale(0.95); }
-    
-    /* 所有済みのダウンロードボタン */
-    .mobile-store-btn.is-owned-download {
-        background: rgba(0, 125, 255, 0.1);
-        color: var(--primary);
-        border: 1px solid rgba(0, 125, 255, 0.3);
-        cursor: pointer;
-    }
-    .mobile-store-btn.is-owned-download:active {
-        background: rgba(0, 125, 255, 0.2);
-    }
-    /* サイドバー設定エリアのスマホ用ヘッダー化（右上に配置） */
-    .sidebar-settings-area {
-        position: absolute !important;
-        top: 0; right: 0; width: auto; height: 70px;
-        padding: 0 16px; border: none; background: transparent !important;
-        z-index: 200; flex-direction: row; align-items: center; justify-content: flex-end;
-        gap: 10px; pointer-events: none;
-    }
-    .sidebar-settings-area > * { pointer-events: auto; }
-    .sidebar-settings-row { gap: 10px; width: auto; }
-    /* スマホの言語切替はモバイルメニュー内にあるのでここでは隠す */
-    .sidebar-settings-row > div:nth-child(2) { display: none !important; } 
-    
-    .sidebar-account-btn {
-        width: 44px; height: 44px; border-radius: 50%; padding: 0; justify-content: center;
-        background: var(--card-bg); border: 1px solid rgba(128,128,128,0.2);
-    }
-    .sidebar-account-btn .account-btn-text, .sidebar-account-btn svg:last-child { display: none; }
-    
-    .sidebar-settings-area .account-dropdown {
-        position: fixed; top: 70px; bottom: auto; right: 5%; width: 90%; left: auto;
-        transform-origin: top right;
-        transform: translateY(-10px);
-    }
-    .sidebar-settings-area .account-dropdown.open { transform: translateY(0); }
+    .mobile-store-btn.is-owned-download { background: rgba(0, 125, 255, 0.1); color: var(--primary); border: 1px solid rgba(0, 125, 255, 0.3); cursor: pointer; }
+    .mobile-store-btn.is-owned-download:active { background: rgba(0, 125, 255, 0.2); }
 
-    /* スマホメニューなど元々のスマホ用CSS */
     .mobile-menu-trigger { display: flex; align-items: center; justify-content: center; background: transparent; border: none; color: var(--sidebar-text); cursor: pointer; padding: 8px; margin-right: 4px; }
     .rgl-brand { order: 2; }
     .mobile-menu-trigger { order: 1; }
@@ -977,394 +655,103 @@ button, input, textarea { font-family: var(--font-stack); }
     .rgl-sidebar { width: 100%; height: auto; padding: 0; border-right: none; border-bottom: 1px solid rgba(128,128,128,0.1); overflow: visible; position: relative; z-index: 100; background-color: var(--sidebar-bg); }
     .rgl-brand-area { padding: 16px 12px; display: flex; align-items: center; justify-content: flex-start; gap: 8px; width: 100%; padding-right: 120px; }
     
-    /* サイドバー内のコンテンツ非表示 */
     .rgl-scroll-content, .rgl-bottom-controls { display: none !important; } 
     .rgl-main { position: static !important; }
 
-    /* ▼ fixed を absolute に変更 ▼ */
-    .rgl-header { 
-        position: absolute !important; 
-        top: 0; right: 0; width: auto; height: 70px; 
-        background: transparent !important; padding: 0 16px; 
-        z-index: 200; display: flex !important; 
-        align-items: center; justify-content: flex-end; 
-        gap: 10px; pointer-events: none; 
+    /* ▼ スマホ版：サイドバー設定エリアを右上のヘッダーとして再利用 ▼ */
+    .sidebar-settings-area {
+        position: absolute !important;
+        top: 0; right: 0; width: auto; height: 70px;
+        padding: 0 16px; border: none; background: transparent !important;
+        z-index: 200; flex-direction: row; align-items: center; justify-content: flex-end;
+        gap: 10px; pointer-events: none;
     }
-    .rgl-header > * { pointer-events: auto; }
-    .rgl-tabs { display: none !important; }
+    .sidebar-settings-area > * { pointer-events: auto; }
+    
+    /* コンテナの幅指定を解除してアイコン幅に合わせる */
+    .sidebar-settings-area > div { width: auto !important; }
+
+    .sidebar-settings-row { width: auto; gap: 10px; }
+    
+    /* スマホでは言語切替はモバイルメニュー内にあるので隠す */
+    .sidebar-settings-row .lang-trigger-sidebar { display: none !important; } 
+    
+    /* アカウントとテーマを丸いアイコンボタンにする */
+    .sidebar-account-btn, .theme-pill-sidebar {
+        width: 44px !important; height: 44px !important; border-radius: 50% !important; padding: 0 !important; justify-content: center !important;
+    }
+    .sidebar-account-btn .account-btn-text, .sidebar-account-btn .chevron { display: none; }
+    
+    /* ドロップダウンをスマホ中央に配置 */
+    .sidebar-settings-area .account-dropdown {
+        position: fixed; top: 70px; bottom: auto; right: 5%; width: 90%; left: auto;
+        transform-origin: top right;
+        transform: translateY(-10px);
+    }
+    .sidebar-settings-area .account-dropdown.open { transform: translateY(0); }
     
     .rgl-hero { padding: 30px 20px; min-height: 30vh; }
     .rgl-logo-text { font-size: 32px; }
-    .account-dropdown { position: fixed; top: 70px; right: 5%; width: 90%; left: auto; transform: translateY(-10px); }
-    .account-dropdown.open { transform: translateY(0); }
 
     /* モーダル用スマホ最適化 */
-    .modal-sheet.is-wide {
-        padding: 0 !important;
-        max-width: 92%;
-        border-radius: 24px;
-        height: auto;
-        max-height: 85vh;
-        overflow-y: auto;
-    }
+    .modal-sheet.is-wide { padding: 0 !important; max-width: 92%; border-radius: 24px; height: auto; max-height: 85vh; overflow-y: auto; }
     .modal-title-top { display: none !important; }
-    .mobile-title {
-        display: block; 
-        font-size: 22px;
-        font-weight: 800;
-        color: var(--modal-text-main);
-        margin: 0 0 16px 0;
-    }
+    .mobile-title { display: block; font-size: 22px; font-weight: 800; color: var(--modal-text-main); margin: 0 0 16px 0; }
     .modal-body-flex { flex-direction: column; gap: 0; align-items: stretch; }
     .modal-left-col { width: 100%; }
-    .modal-left-col img {
-        border-radius: 24px 24px 0 0;
-        height: 220px;
-        object-fit: cover;
-        flex: none;
-        width: 100%;
-    }
+    .modal-left-col img { border-radius: 24px 24px 0 0; height: 220px; object-fit: cover; flex: none; width: 100%; }
     .modal-thumb-title { display: none !important; }
     .modal-right-col { padding: 24px; }
     .modal-main-title { font-size: 20px; white-space: normal; }
-    .modal-grey-box {
-        background: rgba(128,128,128,0.05) !important; 
-        border: 1px solid rgba(128,128,128,0.1) !important;
-        padding: 16px !important;
-        margin-bottom: 24px;
-        border-radius: 12px;
-        flex: none;
-    }
-    [data-theme="dark"] .modal-grey-box {
-        background: rgba(255,255,255,0.05) !important;
-        border: 1px solid rgba(255,255,255,0.1) !important;
-    }
-    .modal-box-text.is-warning {
-        font-size: 13px;
-        font-weight: 500;
-        color: var(--modal-text-sub);
-        background: transparent; 
-        padding: 0;
-        border: none;
-        opacity: 1;
-    }
+    .modal-grey-box { background: rgba(128,128,128,0.05) !important; border: 1px solid rgba(128,128,128,0.1) !important; padding: 16px !important; margin-bottom: 24px; border-radius: 12px; flex: none; }
+    [data-theme="dark"] .modal-grey-box { background: rgba(255,255,255,0.05) !important; border: 1px solid rgba(255,255,255,0.1) !important; }
+    .modal-box-text.is-warning { font-size: 13px; font-weight: 500; color: var(--modal-text-sub); background: transparent; padding: 0; border: none; opacity: 1; }
     .modal-box-time { margin: 10px 0 0 0; }
     .modal-btn-row { margin-top: 0; height: 50px; }
     .btn-outline, .btn-solid { height: 50px; border-radius: 50px; }
-    #phase-error .modal-title-top {
-        display: block !important;
-        padding: 24px 24px 0 24px;
-        margin: 0;
-        font-size: 20px;
-    }
+    #phase-error .modal-title-top { display: block !important; padding: 24px 24px 0 24px; margin: 0; font-size: 20px; }
     #phase-error .modal-body-error { padding: 24px; }
 }
 
 .loading-spinner { display: inline-block; vertical-align: middle; width: 24px; height: 24px; border: 3px solid rgba(128,128,128,0.2); border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 8px; }
 @keyframes spin { to{transform: rotate(360deg);} }
 
-/* --- モーダル入力画面 (PC用2カラムレイアウト) --- */
-.phase-input-left { display: none; }
-.phase-input-desc-pc { display: none; }
-.phase-input-body { display: flex; flex-direction: column; align-items: center; width: 100%; }
-.phase-input-controls { width: 100%; display: flex; flex-direction: column; }
-
 @media (min-width: 769px) {
-  .modal-sheet.is-input-wide {
-    max-width: 980px;
-  }
-  .modal-sheet.is-input-wide #phase-input {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .modal-sheet.is-input-wide .phase-input-title {
-    text-align: left;
-    font-size: 26px;
-    margin: 0 0 24px 0;
-    width: 100%;
-  }
-  .modal-sheet.is-input-wide .phase-input-sub-mobile {
-    display: none;
-  }
-  .modal-sheet.is-input-wide .phase-input-body {
-    flex-direction: row;
-    gap: 30px;
-    align-items: stretch;
-  }
-  .modal-sheet.is-input-wide .phase-input-left {
-    display: flex;
-    width: 360px;
-    flex-shrink: 0;
-  }
-  .modal-sheet.is-input-wide .phase-input-left img {
-    width: 100%;
-    min-height: 220px;
-    border-radius: 16px;
-    object-fit: cover;
-    background: rgba(128,128,128,0.2);
-  }
-  .modal-sheet.is-input-wide .phase-input-right {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-  }
-  .modal-sheet.is-input-wide .phase-input-controls {
-    flex-direction: row;
-    gap: 12px;
-    align-items: center;
-    margin-bottom: 24px;
-  }
-  .modal-sheet.is-input-wide .phase-input-controls .code-field {
-    margin-top: 0;
-    flex: 1;
-    height: 56px;
-    text-align: left;
-    padding: 0 20px;
-    border-radius: 50px; /* ★修正 */
-  }
-  .modal-sheet.is-input-wide .phase-input-controls .btn-primary {
-    margin-top: 0;
-    width: 120px;
-    height: 56px;
-    border-radius: 50px !important; /* ★修正 */
-  }
-  .modal-sheet.is-input-wide .phase-input-desc-pc {
-    display: flex;
-    flex: 1;
-    margin-bottom: 0;
-    justify-content: flex-start; /* ★追加 */
-    align-items: flex-start;     /* ★追加 */
-    min-height: 140px;
-  }
-  .modal-sheet.is-input-wide .phase-input-desc-pc .modal-box-text {
-    text-align: left; /* ★追加 */
-    margin: 0;        /* ★追加 */
-  }
-}
-/* =========================================
-   Micro-Interactions & Unified Modal UI
-   ========================================= */
-/* 1. カプセル型メニュー */
-.capsule-menu {
-    display: flex;
-    background: rgba(128, 128, 128, 0.1);
-    border-radius: 50px;
-    padding: 6px !important;
-    margin: 0 24px 20px 24px;
-    gap: 4px;
-    border: none !important;
-}
-.capsule-menu .rgl-tab {
-    flex: 1;
-    text-align: center;
-    padding: 10px 0;
-    border-radius: 50px;
-    font-size: 13px;
-    font-weight: 800;
-    color: var(--sidebar-text);
-    opacity: 0.6;
-    transition: all 0.3s ease;
-    text-decoration: none;
-}
-.capsule-menu .rgl-tab.active {
-    opacity: 1;
-    background: var(--card-bg);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-[data-theme="dark"] .capsule-menu .rgl-tab.active {
-    background: rgba(255,255,255,0.15);
+  .modal-sheet.is-input-wide { max-width: 980px; }
+  .modal-sheet.is-input-wide #phase-input { flex-direction: column; align-items: flex-start; }
+  .modal-sheet.is-input-wide .phase-input-title { text-align: left; font-size: 26px; margin: 0 0 24px 0; width: 100%; }
+  .modal-sheet.is-input-wide .phase-input-sub-mobile { display: none; }
+  .modal-sheet.is-input-wide .phase-input-body { flex-direction: row; gap: 30px; align-items: stretch; }
+  .modal-sheet.is-input-wide .phase-input-left { display: flex; width: 360px; flex-shrink: 0; }
+  .modal-sheet.is-input-wide .phase-input-left img { width: 100%; min-height: 220px; border-radius: 16px; object-fit: cover; background: rgba(128,128,128,0.2); }
+  .modal-sheet.is-input-wide .phase-input-right { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .modal-sheet.is-input-wide .phase-input-controls { flex-direction: row; gap: 12px; align-items: center; margin-bottom: 24px; }
+  .modal-sheet.is-input-wide .phase-input-controls .code-field { margin-top: 0; flex: 1; height: 56px; text-align: left; padding: 0 20px; border-radius: 50px; }
+  .modal-sheet.is-input-wide .phase-input-controls .btn-primary { margin-top: 0; width: 120px; height: 56px; border-radius: 50px !important; }
+  .modal-sheet.is-input-wide .phase-input-desc-pc { display: flex; flex: 1; margin-bottom: 0; justify-content: flex-start; align-items: flex-start; min-height: 140px; }
+  .modal-sheet.is-input-wide .phase-input-desc-pc .modal-box-text { text-align: left; margin: 0; }
 }
 
-/* 3. スポットライト・ホバー効果（全ボタン対応） */
+.capsule-menu { display: flex; background: rgba(128, 128, 128, 0.1); border-radius: 50px; padding: 6px !important; margin: 0 24px 20px 24px; gap: 4px; border: none !important; }
+.capsule-menu .rgl-tab { flex: 1; text-align: center; padding: 10px 0; border-radius: 50px; font-size: 13px; font-weight: 800; color: var(--sidebar-text); opacity: 0.6; transition: all 0.3s ease; text-decoration: none; }
+.capsule-menu .rgl-tab.active { opacity: 1; background: var(--card-bg); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+[data-theme="dark"] .capsule-menu .rgl-tab.active { background: rgba(255,255,255,0.15); }
+
 .spotlight-hover { position: relative; overflow: hidden; }
-.spotlight-hover::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-    background: radial-gradient(150px circle at var(--x, 50%) var(--y, 50%), rgba(255,255,255,0.15), transparent 40%);
-    z-index: 0; pointer-events: none; opacity: 0; transition: opacity 0.3s ease;
-}
-[data-theme="light"] .spotlight-hover::before {
-    background: radial-gradient(150px circle at var(--x, 50%) var(--y, 50%), rgba(0,0,0,0.08), transparent 40%);
-}
+.spotlight-hover::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(150px circle at var(--x, 50%) var(--y, 50%), rgba(255,255,255,0.15), transparent 40%); z-index: 0; pointer-events: none; opacity: 0; transition: opacity 0.3s ease; }
+[data-theme="light"] .spotlight-hover::before { background: radial-gradient(150px circle at var(--x, 50%) var(--y, 50%), rgba(0,0,0,0.08), transparent 40%); }
 .spotlight-hover:hover::before { opacity: 1; }
 .spotlight-hover > * { position: relative; z-index: 1; }
-/* =========================================
-   Heroボタンのカスタムデザイン（各ボタンの役割ごとにカラーを固定）
-   ========================================= */
 
-/* ▼ 共通のホバー・フォーカス・クリック時の動き */
-.rgl-cta-btn, .rgl-buy-btn {
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
-}
-.rgl-cta-btn:hover, .rgl-cta-btn:focus,
-.rgl-buy-btn:hover, .rgl-buy-btn:focus {
-    transform: translateY(-2px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15) !important;
-    outline: none; /* デフォルトのフォーカス枠を消してスッキリさせる */
-}
-.rgl-cta-btn:active, .rgl-buy-btn:active {
-    transform: translateY(1px); /* クリック時は少し沈み込む */
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1) !important;
-}
-
-/* 1. コード引き換えボタン: 常に【ライトモード風の白ガラス ＋ 黒文字】 */
-.rgl-cta-btn:not(.is-download) {
-    background: rgba(255, 255, 255, 0.5) !important;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.8) !important;
-    color: #000000 !important;
-    text-shadow: none !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
-}
-.rgl-cta-btn:not(.is-download):hover,
-.rgl-cta-btn:not(.is-download):focus {
-    background: rgba(255, 255, 255, 0.8) !important;
-}
-
-/* 2. 購入するボタン: 常に【ダークモード風の黒ガラス ＋ 白文字】 */
-.rgl-buy-btn {
-    background: rgba(30, 30, 30, 0.6) !important;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    color: #FFFFFF !important;
-    text-shadow: none !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
-}
-.rgl-buy-btn:hover,
-.rgl-buy-btn:focus {
-    background: rgba(50, 50, 50, 0.8) !important;
-}
-
-/* 3. ダウンロードボタン: 【テーマに応じて白黒切り替え】 */
-/* ▼ ライトモード時 */
-.rgl-cta-btn.is-download {
-    background: rgba(255, 255, 255, 0.5) !important;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.8) !important;
-    color: #000000 !important;
-    text-shadow: none !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
-}
-.rgl-cta-btn.is-download:hover,
-.rgl-cta-btn.is-download:focus {
-    background: rgba(255, 255, 255, 0.8) !important;
-}
-
-/* ▼ ダークモード時 */
-[data-theme="dark"] .rgl-cta-btn.is-download {
-    background: rgba(30, 30, 30, 0.6) !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    color: #FFFFFF !important;
-}
-[data-theme="dark"] .rgl-cta-btn.is-download:hover,
-[data-theme="dark"] .rgl-cta-btn.is-download:focus {
-    background: rgba(50, 50, 50, 0.8) !important;
-}
-/* --- Content Management UI --- */
-.manage-item-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px;
-    background: rgba(128,128,128,0.1);
-    border-radius: 12px;
-    border: 1px solid rgba(128,128,128,0.2);
-    transition: background 0.2s, transform 0.1s;
-}
-[data-theme="dark"] .manage-item-row {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-}
-.manage-item-row:hover { 
-    background: rgba(128,128,128,0.15); 
-    transform: translateY(-2px);
-}
-[data-theme="dark"] .manage-item-row:hover {
-    background: rgba(255,255,255,0.1);
-}
+.manage-item-row { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: rgba(128,128,128,0.1); border-radius: 12px; border: 1px solid rgba(128,128,128,0.2); transition: background 0.2s, transform 0.1s; }
+[data-theme="dark"] .manage-item-row { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
+.manage-item-row:hover { background: rgba(128,128,128,0.15); transform: translateY(-2px); }
+[data-theme="dark"] .manage-item-row:hover { background: rgba(255,255,255,0.1); }
 .manage-item-info { display: flex; flex-direction: column; gap: 6px; }
 .manage-item-title { font-weight: 800; font-size: 16px; color: var(--modal-text-main); }
 .manage-item-type { font-size: 12px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 4px; }
-.btn-download-small {
-    background: var(--primary);
-    color: #fff;
-    border: none;
-    padding: 8px 20px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 800;
-    cursor: pointer;
-    text-decoration: none;
-    transition: 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    white-space: nowrap; /* ★追加: テキストの改行を防ぐ */
-    flex-shrink: 0;      /* ★追加: ボタン自体が縮まないようにする */
-}
+.btn-download-small { background: var(--primary); color: #fff; border: none; padding: 8px 20px; border-radius: 20px; font-size: 13px; font-weight: 800; cursor: pointer; text-decoration: none; transition: 0.2s; display: flex; align-items: center; gap: 6px; white-space: nowrap; flex-shrink: 0; }
 .btn-download-small:active { transform: scale(0.95); }
-/* --- サイドバー下部の設定エリア（案3） --- */
-.sidebar-settings-area {
-    padding: 20px 24px 10px 24px;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    border-top: 1px solid rgba(128,128,128,0.1);
-}
-.sidebar-settings-row {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    width: 100%;
-}
-.sidebar-settings-row .lang-trigger-sidebar {
-    flex: 1;
-    margin: 0;
-    height: 44px;
-    padding: 0 16px !important;
-    justify-content: space-between;
-}
-.sidebar-settings-row .theme-pill {
-    flex-shrink: 0;
-    margin: 0;
-}
-.sidebar-account-btn {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-    height: 50px;
-    padding: 0 16px;
-    border-radius: 16px;
-    background: var(--card-bg);
-    border: 1px solid rgba(128,128,128,0.2);
-    color: var(--modal-text-main);
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    backdrop-filter: blur(10px);
-    font-family: var(--font-stack);
-}
-.sidebar-account-btn:hover { background: rgba(128,128,128,0.15); }
-[data-theme="dark"] .sidebar-account-btn { background: rgba(255,255,255,0.05); }
-[data-theme="dark"] .sidebar-account-btn:hover { background: rgba(255,255,255,0.1); }
-
-/* ドロップダウンを「下から上」へ展開させる設定 */
-.sidebar-settings-area .account-dropdown {
-    top: auto; bottom: calc(100% + 10px); right: 0; left: 0; width: 100%;
-    transform-origin: bottom center;
-    transform: translateY(10px) scale(0.98);
-}
-.sidebar-settings-area .account-dropdown.open { transform: translateY(0) scale(1); }
-.sidebar-settings-row .lang-list { bottom: calc(100% + 10px); left: 0; width: 100%; }
-
-/* 既存のbottom-controlsの余白調整 */
-.rgl-bottom-controls { border-top: none; padding-top: 10px; }
 </style>
 </head>
 <body>
@@ -1372,7 +759,7 @@ button, input, textarea { font-family: var(--font-stack); }
 <canvas id="particleCanvas" width="1125" height="605"></canvas>
 
 <div id="langSelectionOverlay" class="modal-overlay active" style="opacity: 1; background: var(--bg-color); z-index: 10000; display: none;">
-  <div class="theme-pill intro-theme-btn" id="introThemeToggle"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="moon" aria-hidden="true" id="introThemeIcon" class="lucide lucide-moon lucide-sun"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path></svg></div>
+  <div class="theme-pill intro-theme-btn" id="introThemeToggle"><i data-lucide="moon"></i></div>
   <div class="intro-container">
     <div class="intro-header"><span class="intro-brand">kiryu10 Developers</span><h2 class="intro-title">Select Language</h2></div>
     <div class="lang-grid">
@@ -1387,7 +774,7 @@ button, input, textarea { font-family: var(--font-stack); }
 </div>
 
 <div class="mobile-nav-overlay" id="mobileNav">
-    <button class="mobile-menu-close" id="mobileMenuCloseBtn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
+    <button class="mobile-menu-close" id="mobileMenuCloseBtn"><i data-lucide="x"></i></button>
     <div class="mobile-nav-content">
         <a href="index.html" class="mobile-nav-item" data-translate="card1_title">Home</a>
         <a href="support.html" class="mobile-nav-item" data-translate="card3_title">Support</a>
@@ -1396,12 +783,12 @@ button, input, textarea { font-family: var(--font-stack); }
       <div style="margin-bottom: 24px; display: flex; justify-content: center;">
              <a href="terms-of-service.html" target="_blank" style="display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 700; color: var(--modal-text-main); opacity: 0.5; text-decoration: none; transition: opacity 0.2s;">
                  <span data-translate="footer_terms">利用規約</span>
-                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="external-link" aria-hidden="true" class="lucide lucide-external-link"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>
+                 <i data-lucide="external-link" style="width:14px; height:14px;"></i>
              </a>
          </div>
          <div class="lang-trigger-sidebar" id="mobileLangTrigger">
-             <span style="display:flex;align-items:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="globe" aria-hidden="true" size="16" class="lucide lucide-globe"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg> <span id="mobileCurrentLangLabel">日本語</span></span>
-             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-up" aria-hidden="true" size="14" style="opacity:0.5;" class="lucide lucide-chevron-up"><path d="m18 15-6-6-6 6"></path></svg>
+             <span style="display:flex;align-items:center;gap:8px;"><i data-lucide="globe" style="width:16px; height:16px;"></i> <span id="mobileCurrentLangLabel">日本語</span></span>
+             <i data-lucide="chevron-up" style="width:14px; height:14px; opacity:0.5;"></i>
          </div>
          <ul class="lang-list" id="mobileLangMenu">
             <li class="lang-option" data-value="ja">日本語</li>
@@ -1428,9 +815,9 @@ button, input, textarea { font-family: var(--font-stack); }
         </div>
         
         <div class="sidebar-main-nav capsule-menu">
-    <a href="index.html" class="rgl-tab active spotlight-hover" data-translate="card1_title">Home</a>
-    <a href="support.html" class="rgl-tab spotlight-hover" data-translate="card3_title">Support</a>
-</div>
+            <a href="index.html" class="rgl-tab active spotlight-hover" data-translate="card1_title">Home</a>
+            <a href="support.html" class="rgl-tab spotlight-hover" data-translate="card3_title">Support</a>
+        </div>
 
         <div class="rgl-scroll-content" style="padding-top: 10px;">
             <div class="rgl-menu-section" id="secAvailable" style="display: block;">
@@ -1445,14 +832,48 @@ button, input, textarea { font-family: var(--font-stack); }
         </div>
 
         <div class="sidebar-settings-area">
+            <div style="position:relative; width: 100%;">
+                <button class="sidebar-settings-btn sidebar-account-btn spotlight-hover" id="btnOpenAccount">
+                    <i data-lucide="user-round" style="width:20px; height:20px;"></i>
+                    <span class="account-btn-text" data-translate="menu_account">アカウント</span>
+                    <i data-lucide="chevron-up" class="chevron" style="width:16px; height:16px;"></i>
+                </button>
+
+                <div id="accountDropdown" class="account-dropdown">
+                    <div id="loggedInView" style="display: block;">
+                      <div class="account-mini-header">
+                        <span class="mini-user-id" id="displayUserEmail" style="font-size:16px; font-weight:800; word-break: break-all;">-</span>
+                        <span id="displayUserPoints">
+                            <i data-lucide="coins" style="width:16px; height:16px;"></i>
+                            <span id="ptValue">0</span> pt
+                        </span>
+                      </div>
+                      <div class="menu-list">
+                         <button class="menu-btn" id="btnMenuRedeem">
+                            <span data-translate="btn_redeem_code">コード引き換え</span> <i data-lucide="key-round" style="width:18px; height:18px;"></i>
+                         </button>
+                         <button class="menu-btn" id="btnMenuHistory">
+                            <span data-translate="btn_history">利用履歴</span> <i data-lucide="history" style="width:18px; height:18px;"></i>
+                         </button>
+                         <button class="menu-btn" id="btnMenuPassword">
+                            <span data-translate="modal_acc_change_pass">パスワード変更</span> <i data-lucide="lock" style="width:18px; height:18px;"></i>
+                         </button>
+                         <button class="menu-btn" id="btnLogout" style="color:#FF3B30;">
+                            <span data-translate="btn_logout">ログアウト</span> <i data-lucide="log-out" style="width:18px; height:18px;"></i>
+                         </button>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="sidebar-settings-row">
-                <div class="theme-pill" id="themeToggle">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="moon" id="themeIcon"></svg>
+                <div class="sidebar-settings-btn theme-pill-sidebar spotlight-hover" id="themeToggle">
+                    <i data-lucide="moon" id="themeIcon"></i>
                 </div>
                 <div style="position:relative; flex:1;">
-                     <button class="lang-trigger-sidebar" id="langTrigger">
-                         <span style="display:flex;align-items:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="globe"></svg> <span id="currentLangLabel">日本語</span></span>
-                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-up" style="opacity:0.5;"></svg>
+                     <button class="sidebar-settings-btn lang-trigger-sidebar spotlight-hover" id="langTrigger">
+                         <span style="display:flex;align-items:center;gap:8px;"><i data-lucide="globe" style="width:16px; height:16px;"></i> <span id="currentLangLabel">日本語</span></span>
+                         <i data-lucide="chevron-up" style="width:14px; height:14px; opacity:0.5;"></i>
                      </button>
                      <ul class="lang-list" id="langMenu">
                         <li class="lang-option" data-value="ja">日本語</li>
@@ -1464,46 +885,12 @@ button, input, textarea { font-family: var(--font-stack); }
                      </ul>
                 </div>
             </div>
-
-            <div style="position:relative;">
-                <button class="sidebar-account-btn spotlight-hover" id="btnOpenAccount">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg>
-                    <span class="account-btn-text" data-translate="menu_account">アカウント</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:auto; opacity:0.5;"><path d="m18 15-6-6-6 6"></path></svg>
-                </button>
-
-                <div id="accountDropdown" class="account-dropdown">
-                    <div id="loggedInView" style="display: block;">
-                      <div class="account-mini-header">
-                        <span class="mini-user-id" id="displayUserEmail" style="font-size:16px; font-weight:800; word-break: break-all;">-</span>
-                        <span id="displayUserPoints">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"></circle><path d="M18.09 10.37A6 6 0 1 1 10.34 18"></path><path d="M7 6h1v4"></path><path d="m16.71 13.88.7.71-2.82 2.82"></path></svg>
-                            <span id="ptValue">0</span> pt
-                        </span>
-                      </div>
-                      <div class="menu-list">
-                         <button class="menu-btn" id="btnMenuRedeem">
-                            <span data-translate="btn_redeem_code">コード引き換え</span> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"></path><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"></circle></svg>
-                         </button>
-                         <button class="menu-btn" id="btnMenuHistory">
-                            <span data-translate="btn_history">利用履歴</span> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
-                         </button>
-                         <button class="menu-btn" id="btnMenuPassword">
-                            <span data-translate="modal_acc_change_pass">パスワード変更</span> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                         </button>
-                         <button class="menu-btn" id="btnLogout" style="color:#FF3B30;">
-                            <span data-translate="btn_logout">ログアウト</span> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 17 5-5-5-5"></path><path d="M21 12H9"></path><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path></svg>
-                         </button>
-                      </div>
-                    </div>
-                </div>
-            </div>
         </div>
         <div class="rgl-bottom-controls">
             <div style="margin-bottom: 8px; display: flex; justify-content: center;">
                 <a href="terms-of-service.html" target="_blank" style="display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: var(--sidebar-text); opacity: 0.5; text-decoration: none; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.5'">
                     <span data-translate="footer_terms">利用規約</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-external-link"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>
+                    <i data-lucide="external-link" style="width:12px; height:12px;"></i>
                 </a>
             </div>
             <div style="font-size: 10px; opacity: 0.3; text-align: center;">
@@ -1515,49 +902,6 @@ button, input, textarea { font-family: var(--font-stack); }
     <main class="rgl-main">
         <div class="rgl-bg-image" id="heroBgImage"></div>
         
-        <nav class="rgl-header">
-            
-            <div class="theme-pill" id="themeToggle">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="moon" aria-hidden="true" id="themeIcon" class="lucide lucide-moon lucide-sun"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path></svg>
-            </div>
-
-            <div style="position:relative;">
-                <div class="theme-pill" id="btnOpenAccount" style="width:40px; height:40px; border:none;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="user-round" aria-hidden="true" size="20" class="lucide lucide-user-round"><circle cx="12" cy="8" r="5"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg> 
-                </div>
-
-                <div id="accountDropdown" class="account-dropdown">
-                    <div id="loggedInView" style="display: block;">
-                      <div class="account-mini-header">
-                        <span class="mini-user-id" id="displayUserEmail" style="font-size:16px; font-weight:800; word-break: break-all;">122</span>
-                        <span id="displayUserPoints">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-coins"><circle cx="8" cy="8" r="6"></circle><path d="M18.09 10.37A6 6 0 1 1 10.34 18"></path><path d="M7 6h1v4"></path><path d="m16.71 13.88.7.71-2.82 2.82"></path></svg>
-                            <span id="ptValue">0</span> pt
-                        </span>
-                      </div>
-                      <div class="menu-list">
-                         <button class="menu-btn" id="btnMenuRedeem">
-                            <span data-translate="btn_redeem_code">コード引き換え</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="key-round" aria-hidden="true" size="18" class="lucide lucide-key-round"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"></path><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"></circle></svg>
-                         </button>
-
-                         <button class="menu-btn" id="btnMenuHistory">
-                          <span data-translate="btn_history">利用履歴</span>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-history" size="18"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
-                    </button>
-
-                    <button class="menu-btn" id="btnMenuPassword">
-                    <span data-translate="modal_acc_change_pass">パスワード変更</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock" size="18"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                 </button>
-                         <button class="menu-btn" id="btnLogout" style="color:#FF3B30;">
-                            <span data-translate="btn_logout">ログアウト</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="log-out" aria-hidden="true" size="18" class="lucide lucide-log-out"><path d="m16 17 5-5-5-5"></path><path d="M21 12H9"></path><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path></svg>
-                         </button>
-                      </div>
-                    </div>
-                </div>
-            </div>
-        </nav>
-
         <div class="rgl-hero">
             <div class="rgl-hero-content">
                 <h1 class="rgl-logo-text" id="heroTitle" data-translate="hero_title">個人認証センター</h1>
@@ -1583,169 +927,6 @@ button, input, textarea { font-family: var(--font-stack); }
 
     </main>
 
-</div>
-
-    <div style="position: absolute; bottom: 16px; left: 16px; text-align: left;">
-        <button class="lang-trigger-sidebar" id="loginLangTrigger" style="width: auto; height: 36px; padding: 0 12px !important; border: none; background: transparent; color: var(--modal-text-main);">
-            <span style="display:flex;align-items:center;gap:6px;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg> 
-                <span id="loginLangLabel">日本語</span>
-            </span>
-        </button>
-        <ul class="lang-list" id="loginLangMenu" style="bottom: 40px; left: 0; width: 140px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
-            <li class="lang-option" data-value="ja">日本語</li>
-            <li class="lang-option" data-value="en">English</li>
-            <li class="lang-option" data-value="zh">简体中文</li>
-            <li class="lang-option" data-value="zh-TW">繁體中文</li>
-            <li class="lang-option" data-value="ko">한국어</li>
-            <li class="lang-option" data-value="ru">Русский</li>
-        </ul>
-    </div>
-
- <div id="accountModal" class="modal-overlay" style="z-index: 10005;">
-  <div class="modal-sheet" style="max-width: 450px; width: 90%; text-align: center; padding: 40px;">
-    <div style="position:absolute; top:20px; right:20px; cursor:pointer; opacity:0.6; z-index:10;" id="closeAccountModalBtn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
-    </div>
-    
-    <h2 style="font-size:24px; font-weight:800; margin: 0 0 20px 0; color: var(--modal-text-main);" data-translate="modal_acc_title">パスワード変更</h2>
-    
-    <div style="text-align: left; margin-bottom: 24px; background: rgba(128,128,128,0.05); padding: 16px; border-radius: 12px; border: 1px solid rgba(128,128,128,0.1);">
-        <label style="font-size:12px; font-weight:700; opacity:0.7; color:var(--modal-text-main); display:block; margin-bottom:4px;" data-translate="modal_acc_userid">ユーザーID</label>
-        <div id="accountModalUserId" style="font-size:16px; font-weight:800; color:var(--modal-text-main); word-break:break-all;">-</div>
-    </div>
-
-    <div style="text-align:left;">
-        <label style="font-size:14px; font-weight:800; color:var(--modal-text-main); display:block; margin-bottom:12px;" data-translate="modal_acc_change_pass">パスワードの変更</label>
-        <div class="form-group" style="margin-bottom:12px;">
-            <input type="password" id="accCurrentPass" class="form-input" placeholder="現在のパスワード" style="height: 50px;">
-        </div>
-        <div class="form-group" style="margin-bottom:12px;">
-            <input type="password" id="accNewPass" class="form-input" placeholder="新しいパスワード" style="height: 50px;">
-        </div>
-        <div class="form-group" style="margin-bottom:20px;">
-            <input type="password" id="accNewPassConfirm" class="form-input" placeholder="新しいパスワード (確認用)" style="height: 50px;">
-        </div>
-        
-        <div id="accStatusMessage" style="font-size:13px; font-weight: 700; margin-bottom:12px; min-height:18px; text-align:center;"></div>
-        <button id="btnSubmitAccPassChange" class="btn-primary" style="height:50px; font-size: 16px; border-radius: 25px; margin-top: 0;" data-translate="modal_acc_btn_change">パスワードを変更</button>
-    </div>
-  </div>
- </div>
-  <div id="historyModal" class="modal-overlay" style="z-index: 10005;">
-  <div class="modal-sheet" style="max-width: 600px; width: 90%; text-align: left; padding: 40px; display: flex; flex-direction: column; max-height: 80vh;">
-    <div style="position:absolute; top:20px; right:20px; cursor:pointer; opacity:0.6; z-index:10;" id="closeHistoryModalBtn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
-    </div>
-    
-    <h2 style="font-size:24px; font-weight:800; margin: 0 0 20px 0; color: var(--modal-text-main);" data-translate="modal_history_title">利用履歴</h2>
-    
-    <div id="historyListContainer" style="overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; padding-right: 4px;">
-        </div>
-  </div>
-</div>
-
-<div id="langSwitchingOverlay" style="position:fixed; inset:0; background:var(--bg-color); z-index:9999; display:none; align-items:center; justify-content:center;">
-  <div class="loading-spinner"></div>
-</div>
-
-<div id="authModal" class="modal-overlay">
-  <div class="modal-sheet" id="modalContainer">
-    <div style="position:absolute; top:20px; right:20px; cursor:pointer; z-index:10;" id="modalCloseBtn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" size="24" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></div>
-    
-    <div id="phase-input" style="display: flex; opacity: 1;">
-      <h2 class="modal-title phase-input-title" data-translate="modal_title">アクティベーション</h2>
-      <p class="modal-sub phase-input-sub-mobile" id="mobileInputDesc" data-translate="modal_sub">アクティベーションコードを使用すると、コンテンツにアクセスできます。アクティベーションコードを利用するには、以下の入力欄に入力してください。</p>
-      
-      <div class="phase-input-body">
-          <div class="phase-input-left">
-              <img src="https://static.wixstatic.com/media/2f0694_38068f106089439b89c7902ef4fb3d2d~mv2.jpg" alt="Code Background">
-          </div>
-          <div class="phase-input-right">
-              <div class="phase-input-controls">
-                  <input type="text" id="activationCode" class="code-field" placeholder="アクティベーションコード" autocomplete="off">
-                  <button id="btnConfirm" class="btn-primary" data-translate="modal_btn_auth">確認</button>
-              </div>
-              <div class="modal-grey-box phase-input-desc-pc">
-                  <p class="modal-box-text" id="pcInputDesc" data-translate="modal_sub">アクティベーションコードを使用すると、コンテンツにアクセスできます。<br>アクティベーションコードを利用するには、以下の入力欄に入力してください。</p>
-              </div>
-          </div>
-      </div>
-    </div>
-
-    <div id="phase-preview" style="display: none; opacity: 0;" class="new-modal-layout">
-        <h2 class="modal-title-top" data-translate="preview_title">コンテンツ確認</h2>
-        <div class="modal-body-flex">
-            <div class="modal-left-col">
-                <img id="previewImage" src="" alt="Thumbnail">
-                <div id="previewTitleUnderImg" class="modal-thumb-title"></div>
-            </div>
-            <div class="modal-right-col">
-                <h2 class="mobile-title" data-translate="preview_title">コンテンツ確認</h2>
-                <p class="modal-label" data-translate="preview_desc">続行すると以下のコンテンツを受け取ります:</p>
-                <h3 id="previewTitle" class="modal-main-title"></h3>
-                <div class="modal-grey-box" id="previewWarningBox">
-                    <p class="modal-box-text is-warning" id="previewWarningText"></p>
-                </div>
-                <div class="modal-btn-row">
-                    <button class="btn-outline" id="btnPreviewClose" style="flex: 3;" data-translate="btn_close">閉じる</button>
-                    <button class="btn-solid" id="btnPreviewRedeem" style="flex: 7;" data-translate="btn_continue">認証する</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="phase-success" style="display: none; opacity: 0;" class="new-modal-layout">
-        <h2 class="modal-title-top" data-translate="success_title_final">認証成功!!</h2>
-        <div class="modal-body-flex">
-            <div class="modal-left-col">
-                <img id="successImage2" src="" alt="Thumbnail">
-                <div id="successTitleUnderImg" class="modal-thumb-title"></div>
-            </div>
-            <div class="modal-right-col">
-                <h2 class="mobile-title" data-translate="success_title_final">認証成功!!</h2>
-                <p class="modal-label" data-translate="success_desc">このコードで以下のコンテンツが認証されました:</p>
-                <h3 id="successBundleName" class="modal-main-title"></h3>
-                <div class="modal-grey-box">
-                    <p class="modal-box-text" id="successMessageText"></p>
-                    <p class="modal-box-time" id="successTime"></p>
-                </div>
-                <div class="modal-btn-row" id="successBtnRow">
-                    <button class="btn-outline" style="width: 100%; flex: none;" id="btnSuccessClose" data-translate="btn_close">閉じる</button>
-                    <a class="btn-solid" style="flex: 7; display: none; align-items:center; justify-content:center; text-decoration:none;" id="btnSuccessDownload" target="_blank"></a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="phase-error" style="display: none; opacity: 0;" class="new-modal-layout error-layout">
-        <h2 class="modal-title-top error-title-color">⚠ <span data-translate="error_title_prefix">エラー</span> <span id="errorCodeText"></span></h2>
-        <div class="modal-body-error">
-            <h3 id="errorMessage" class="modal-error-main-msg"></h3>
-            <div class="modal-grey-box" id="errorInfoBox" style="margin-bottom: 24px;">
-                <p class="modal-box-text" id="errorSubMessage"></p>
-                <p class="modal-box-time" id="errorTime"></p>
-            </div>
-            <div class="modal-btn-row" id="errorBtnRow">
-                <button class="btn-outline" style="width: 100%; flex: none;" id="btnErrorClose" data-translate="btn_close">閉じる</button>
-            </div>
-        </div>
-    </div>
-  </div>
-</div>
-
-<div id="manageModal" class="modal-overlay" style="z-index: 10006;">
-    <div class="modal-sheet" style="max-width: 600px; width: 90%; text-align: left; padding: 40px; display: flex; flex-direction: column; max-height: 80vh;">
-        <div style="position:absolute; top:20px; right:20px; cursor:pointer; opacity:0.6; z-index:10;" id="closeManageModalBtn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
-        </div>
-        
-        <h2 style="font-size:24px; font-weight:800; margin: 0 0 20px 0; color: var(--modal-text-main);" data-translate="manage_title">ダウンロード管理</h2>
-        <p style="font-size:14px; font-weight:700; color:var(--modal-text-main); margin: 0 0 16px 0;" data-translate="manage_desc">インストールするアイテムを選択してください:</p>
-        
-        <div id="manageContentList" style="overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; padding-right: 4px;">
-        </div>
-    </div>
 </div>
 <script>
 const GAS_API_URL="api/proxy"; 
