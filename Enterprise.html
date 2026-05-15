@@ -2,7 +2,7 @@
 <html lang="ja" data-theme="dark"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>kiryu11 Enterprese</title>
+<title>kiryu11 Pro</title>
 <link rel="icon" href="https://static.wixstatic.com/media/2f0694_eb4d3063598a4cc5b6bd6b8e31cba915~mv2.png/v1/crop/x_248,y_0,w_1065,h_950/fill/w_816,h_728,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/1767545356653.png">
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
@@ -930,6 +930,31 @@ button, input, textarea { font-family: var(--font-stack); }
     .mobile-store-btn.is-owned-download:active {
         background: rgba(0, 125, 255, 0.2);
     }
+    /* サイドバー設定エリアのスマホ用ヘッダー化（右上に配置） */
+    .sidebar-settings-area {
+        position: absolute !important;
+        top: 0; right: 0; width: auto; height: 70px;
+        padding: 0 16px; border: none; background: transparent !important;
+        z-index: 200; flex-direction: row; align-items: center; justify-content: flex-end;
+        gap: 10px; pointer-events: none;
+    }
+    .sidebar-settings-area > * { pointer-events: auto; }
+    .sidebar-settings-row { gap: 10px; width: auto; }
+    /* スマホの言語切替はモバイルメニュー内にあるのでここでは隠す */
+    .sidebar-settings-row > div:nth-child(2) { display: none !important; } 
+    
+    .sidebar-account-btn {
+        width: 44px; height: 44px; border-radius: 50%; padding: 0; justify-content: center;
+        background: var(--card-bg); border: 1px solid rgba(128,128,128,0.2);
+    }
+    .sidebar-account-btn .account-btn-text, .sidebar-account-btn svg:last-child { display: none; }
+    
+    .sidebar-settings-area .account-dropdown {
+        position: fixed; top: 70px; bottom: auto; right: 5%; width: 90%; left: auto;
+        transform-origin: top right;
+        transform: translateY(-10px);
+    }
+    .sidebar-settings-area .account-dropdown.open { transform: translateY(0); }
 
     /* スマホメニューなど元々のスマホ用CSS */
     .mobile-menu-trigger { display: flex; align-items: center; justify-content: center; background: transparent; border: none; color: var(--sidebar-text); cursor: pointer; padding: 8px; margin-right: 4px; }
@@ -1281,6 +1306,65 @@ button, input, textarea { font-family: var(--font-stack); }
     flex-shrink: 0;      /* ★追加: ボタン自体が縮まないようにする */
 }
 .btn-download-small:active { transform: scale(0.95); }
+/* --- サイドバー下部の設定エリア（案3） --- */
+.sidebar-settings-area {
+    padding: 20px 24px 10px 24px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    border-top: 1px solid rgba(128,128,128,0.1);
+}
+.sidebar-settings-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    width: 100%;
+}
+.sidebar-settings-row .lang-trigger-sidebar {
+    flex: 1;
+    margin: 0;
+    height: 44px;
+    padding: 0 16px !important;
+    justify-content: space-between;
+}
+.sidebar-settings-row .theme-pill {
+    flex-shrink: 0;
+    margin: 0;
+}
+.sidebar-account-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    height: 50px;
+    padding: 0 16px;
+    border-radius: 16px;
+    background: var(--card-bg);
+    border: 1px solid rgba(128,128,128,0.2);
+    color: var(--modal-text-main);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    backdrop-filter: blur(10px);
+    font-family: var(--font-stack);
+}
+.sidebar-account-btn:hover { background: rgba(128,128,128,0.15); }
+[data-theme="dark"] .sidebar-account-btn { background: rgba(255,255,255,0.05); }
+[data-theme="dark"] .sidebar-account-btn:hover { background: rgba(255,255,255,0.1); }
+
+/* ドロップダウンを「下から上」へ展開させる設定 */
+.sidebar-settings-area .account-dropdown {
+    top: auto; bottom: calc(100% + 10px); right: 0; left: 0; width: 100%;
+    transform-origin: bottom center;
+    transform: translateY(10px) scale(0.98);
+}
+.sidebar-settings-area .account-dropdown.open { transform: translateY(0) scale(1); }
+.sidebar-settings-row .lang-list { bottom: calc(100% + 10px); left: 0; width: 100%; }
+
+/* 既存のbottom-controlsの余白調整 */
+.rgl-bottom-controls { border-top: none; padding-top: 10px; }
 </style>
 </head>
 <body>
@@ -1309,6 +1393,12 @@ button, input, textarea { font-family: var(--font-stack); }
         <a href="support.html" class="mobile-nav-item" data-translate="card3_title">Support</a>
     </div>
     <div class="mobile-menu-footer">
+      <div style="margin-bottom: 24px; display: flex; justify-content: center;">
+             <a href="terms-of-service.html" target="_blank" style="display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 700; color: var(--modal-text-main); opacity: 0.5; text-decoration: none; transition: opacity 0.2s;">
+                 <span data-translate="footer_terms">利用規約</span>
+                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="external-link" aria-hidden="true" class="lucide lucide-external-link"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>
+             </a>
+         </div>
          <div class="lang-trigger-sidebar" id="mobileLangTrigger">
              <span style="display:flex;align-items:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="globe" aria-hidden="true" size="16" class="lucide lucide-globe"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg> <span id="mobileCurrentLangLabel">日本語</span></span>
              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-up" aria-hidden="true" size="14" style="opacity:0.5;" class="lucide lucide-chevron-up"><path d="m18 15-6-6-6 6"></path></svg>
@@ -1332,8 +1422,8 @@ button, input, textarea { font-family: var(--font-stack); }
                 <i data-lucide="menu"></i>
             </button>
             <div class="rgl-brand">
-                <i data-lucide="graduation-cap"></i>
-                <span data-translate="brand_name">kiryu11 E1</span>
+                <i data-lucide="globe-lock"></i>
+                <span data-translate="brand_name">kiryu11 Pro</span>
             </div>
         </div>
         
@@ -1354,23 +1444,69 @@ button, input, textarea { font-family: var(--font-stack); }
             </div>
         </div>
 
-        <div class="rgl-bottom-controls">
-            <div style="position:relative;">
-                 <button class="lang-trigger-sidebar" id="langTrigger">
-                     <span style="display:flex;align-items:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="globe" aria-hidden="true" size="16" class="lucide lucide-globe"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg> <span id="currentLangLabel">日本語</span></span>
-                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-up" aria-hidden="true" size="14" style="opacity:0.5;" class="lucide lucide-chevron-up"><path d="m18 15-6-6-6 6"></path></svg>
-                 </button>
-                 <ul class="lang-list" id="langMenu">
-                    <li class="lang-option" data-value="ja">日本語</li>
-                    <li class="lang-option" data-value="en">English</li>
-                    <li class="lang-option" data-value="zh">简体中文</li>
-                    <li class="lang-option" data-value="zh-TW">繁體中文</li>
-                    <li class="lang-option" data-value="ko">한국어</li>
-                    <li class="lang-option" data-value="ru">Русский</li>
-                 </ul>
+        <div class="sidebar-settings-area">
+            <div class="sidebar-settings-row">
+                <div class="theme-pill" id="themeToggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="moon" id="themeIcon"></svg>
+                </div>
+                <div style="position:relative; flex:1;">
+                     <button class="lang-trigger-sidebar" id="langTrigger">
+                         <span style="display:flex;align-items:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="globe"></svg> <span id="currentLangLabel">日本語</span></span>
+                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-up" style="opacity:0.5;"></svg>
+                     </button>
+                     <ul class="lang-list" id="langMenu">
+                        <li class="lang-option" data-value="ja">日本語</li>
+                        <li class="lang-option" data-value="en">English</li>
+                        <li class="lang-option" data-value="zh">简体中文</li>
+                        <li class="lang-option" data-value="zh-TW">繁體中文</li>
+                        <li class="lang-option" data-value="ko">한국어</li>
+                        <li class="lang-option" data-value="ru">Русский</li>
+                     </ul>
+                </div>
             </div>
-            
-            <div style="margin-top:20px; font-size:10px; opacity:0.3; text-align:center;">
+
+            <div style="position:relative;">
+                <button class="sidebar-account-btn spotlight-hover" id="btnOpenAccount">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg>
+                    <span class="account-btn-text" data-translate="menu_account">アカウント</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:auto; opacity:0.5;"><path d="m18 15-6-6-6 6"></path></svg>
+                </button>
+
+                <div id="accountDropdown" class="account-dropdown">
+                    <div id="loggedInView" style="display: block;">
+                      <div class="account-mini-header">
+                        <span class="mini-user-id" id="displayUserEmail" style="font-size:16px; font-weight:800; word-break: break-all;">-</span>
+                        <span id="displayUserPoints">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"></circle><path d="M18.09 10.37A6 6 0 1 1 10.34 18"></path><path d="M7 6h1v4"></path><path d="m16.71 13.88.7.71-2.82 2.82"></path></svg>
+                            <span id="ptValue">0</span> pt
+                        </span>
+                      </div>
+                      <div class="menu-list">
+                         <button class="menu-btn" id="btnMenuRedeem">
+                            <span data-translate="btn_redeem_code">コード引き換え</span> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"></path><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"></circle></svg>
+                         </button>
+                         <button class="menu-btn" id="btnMenuHistory">
+                            <span data-translate="btn_history">利用履歴</span> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+                         </button>
+                         <button class="menu-btn" id="btnMenuPassword">
+                            <span data-translate="modal_acc_change_pass">パスワード変更</span> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                         </button>
+                         <button class="menu-btn" id="btnLogout" style="color:#FF3B30;">
+                            <span data-translate="btn_logout">ログアウト</span> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 17 5-5-5-5"></path><path d="M21 12H9"></path><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path></svg>
+                         </button>
+                      </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="rgl-bottom-controls">
+            <div style="margin-bottom: 8px; display: flex; justify-content: center;">
+                <a href="terms-of-service.html" target="_blank" style="display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: var(--sidebar-text); opacity: 0.5; text-decoration: none; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.5'">
+                    <span data-translate="footer_terms">利用規約</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-external-link"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>
+                </a>
+            </div>
+            <div style="font-size: 10px; opacity: 0.3; text-align: center;">
                 © 2026 kiryu-sensya
            </div>
         </div>
@@ -1749,7 +1885,7 @@ function generateErrorCode() {
 
 const TRANSLATIONS={
  ja:{
-  header_brand:"kiryu11 E1", hero_title:"個人認証センター", hero_sub:"アクセス権限とリソースの管理。コードを入力してコンテンツを解除してください。",
+  header_brand:"kiryu11 Pro", hero_title:"個人認証センター", hero_sub:"アクセス権限とリソースの管理。コードを入力してコンテンツを解除してください。",
   card1_title:"ホーム", tab_store:"ストア", card3_title:"サポート",
   modal_title:"コード引き換え",modal_sub:"コードを引き換えると、コンテンツにアクセスできます。<span class=\"pc-only-text\"><br>コードのフォーマット方式は以下のとおりです:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"引き換えコード",modal_btn_auth:"確認",
   msg_verifying:"確認中",msg_success_btn:"成功",
@@ -1795,10 +1931,10 @@ const TRANSLATIONS={
   msg_login_empty: "ユーザー名とパスワードを入力してください。",
   msg_login_invalid: "無効なユーザー名またはパスワードです。",
   modal_acc_title:"パスワード変更", modal_acc_userid:"個人識別子", modal_acc_change_pass:"パスワードの変更", modal_acc_btn_change:"パスワードを変更", acc_pass_curr:"現在のパスワード", acc_pass_new:"新しいパスワード", acc_pass_conf:"新しいパスワード (確認用)", msg_acc_err_empty:"すべての項目を入力してください", msg_acc_err_len:"パスワードは6文字以上にしてください", msg_acc_err_match:"パスワードが一致しません", msg_acc_changing:"変更中...", msg_acc_success:"パスワードを変更しました！", btn_history: "利用履歴", modal_history_title: "利用履歴", history_empty: "履歴がありません。",
-  manage_title: "ダウンロード管理", manage_desc: "ダウンロードするコンテンツを選択してください:"
+  manage_title: "ダウンロード管理", manage_desc: "ダウンロードするコンテンツを選択してください:", footer_terms: "利用規約"
  },
  en:{
-  header_brand:"kiryu11 E1", hero_title:"Personal Activation Center", hero_sub:"Manage your access and resources. Redeem your code to unlock exclusive content.",
+  header_brand:"kiryu11 Pro", hero_title:"Personal Activation Center", hero_sub:"Manage your access and resources. Redeem your code to unlock exclusive content.",
   card1_title:"Home", tab_store:"Store", card3_title:"Support",
   modal_title:"Redeem Code",modal_sub:"Redeem the code to download the content.<span class=\"pc-only-text\"><br>Codes areformatted like:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"Redeem Code",modal_btn_auth:"CHECK",
   msg_verifying:"Checking",msg_success_btn:"Success",
@@ -1844,10 +1980,10 @@ const TRANSLATIONS={
   msg_login_empty: "Please enter Personal Identifier and password.",
   msg_login_invalid: "Invalid Personal Identifier or password.",
   modal_acc_title:"Change password", modal_acc_userid:"Personal Identifier", modal_acc_change_pass:"Change Password", modal_acc_btn_change:"Update Password", acc_pass_curr:"Current Password", acc_pass_new:"New Password", acc_pass_conf:"Confirm New Password", msg_acc_err_empty:"Please fill in all fields", msg_acc_err_len:"Password must be at least 6 characters", msg_acc_err_match:"Passwords do not match", msg_acc_changing:"Updating...", msg_acc_success:"Password changed successfully!", btn_history: "Usage History", modal_history_title: "Usage History", history_empty: "No history found.",
-  manage_title: "Manage Downloads", manage_desc: "Please select the content you want to download:"
+  manage_title: "Manage Downloads", manage_desc: "Please select the content you want to download:", footer_terms: "Terms of Service"
  },
  zh:{ 
-  header_brand:"kiryu11 E1", hero_title:"个人代码检查中心", hero_sub:"管理您的访问权限和资源。兑換产品代码以解锁独家内容。", 
+  header_brand:"kiryu11 Pro", hero_title:"个人代码检查中心", hero_sub:"管理您的访问权限和资源。兑換产品代码以解锁独家内容。", 
   card1_title:"首页", tab_store:"商店", card3_title:"支持", 
   modal_title:"兑换代码",modal_sub:"兑换代码即可下载内容。<span class=\"pc-only-text\"><br>代码格式如下:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"兑換代码",modal_btn_auth:"检查", 
   msg_verifying:"正在检查",msg_success_btn:"成功", 
@@ -1893,10 +2029,10 @@ const TRANSLATIONS={
   msg_login_empty: "请输入用户名和密码。",
   msg_login_invalid: "用户名或密码无效。",
   modal_acc_title:"更改密码", modal_acc_userid:"个人标识符", modal_acc_change_pass:"修改密码", modal_acc_btn_change:"修改密码", acc_pass_curr:"当前密码", acc_pass_new:"新密码", acc_pass_conf:"确认新密码", msg_acc_err_empty:"请填写所有字段", msg_acc_err_len:"密码长度至少为6个字符", msg_acc_err_match:"两次输入的新密码不一致", msg_acc_changing:"正在修改...", msg_acc_success:"密码修改成功！", btn_history: "使用记录", modal_history_title: "使用记录", history_empty: "没有记录。",
-  manage_title: "下载管理", manage_desc: "请选择要下载的内容:"
+  manage_title: "下载管理", manage_desc: "请选择要下载的内容:", footer_terms: "服务条款"
  },
  "zh-TW":{ 
-  header_brand:"kiryu11 E1", hero_title:"個人代碼檢查中心", hero_sub:"管理您的存取權限與資源。兌換產品代碼以解鎖獨家內容。", 
+  header_brand:"kiryu11 Pro", hero_title:"個人代碼檢查中心", hero_sub:"管理您的存取權限與資源。兌換產品代碼以解鎖獨家內容。", 
   card1_title:"首頁", tab_store:"商店", card3_title:"支援", 
   modal_title:"兌換代碼",modal_sub:"兌換代碼以下載內容。<span class=\"pc-only-text\"><br>代碼格式如下:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"兌換代碼",modal_btn_auth:"檢查", 
   msg_verifying:"正在檢查",msg_success_btn:"成功", 
@@ -1942,10 +2078,10 @@ const TRANSLATIONS={
   msg_login_empty: "請輸入使用者名稱和密碼。",
   msg_login_invalid: "使用者名稱或密碼無效。",
   modal_acc_title:"更改密碼", modal_acc_userid:"個人識別碼", modal_acc_change_pass:"修改密碼", modal_acc_btn_change:"提交修改", acc_pass_curr:"當前密碼", acc_pass_new:"新密碼", acc_pass_conf:"確認新密碼", msg_acc_err_empty:"請填寫所有欄位", msg_acc_err_len:"密碼長度至少為6個字符", msg_acc_err_match:"兩次輸入的新密碼不一致", msg_acc_changing:"正在修改...", msg_acc_success:"密碼修改成功！", btn_history: "使用紀錄", modal_history_title: "使用紀錄", history_empty: "沒有紀錄。",
-  manage_title: "下載管理", manage_desc: "請選擇要下載的内容:"
+  manage_title: "下載管理", manage_desc: "請選擇要下載的内容:", footer_terms: "服務條款"
  },
  ko:{ 
-  header_brand:"kiryu11 E1", hero_title:"개인 코드 검사 센터", hero_sub:"액세스 권한 및 리소스 관리. 제품 코드를 사용하여 콘텐츠 잠금을 해제하세요.", 
+  header_brand:"kiryu11 Pro", hero_title:"개인 코드 검사 센터", hero_sub:"액세스 권한 및 리소스 관리. 제품 코드를 사용하여 콘텐츠 잠금을 해제하세요.", 
   card1_title:"홈", tab_store:"상점", card3_title:"지원", 
   modal_title:"교환 코드",modal_sub:"코드를 입력하여 콘텐츠를 다운로드하세요.<span class=\"pc-only-text\"><br>코드 형식은 다음과 같습니다:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"활성화 코드",modal_btn_auth:"확인", 
   msg_verifying:"확인 중",msg_success_btn:"성공", 
@@ -1991,12 +2127,12 @@ const TRANSLATIONS={
   msg_login_empty: "사용자 이름과 비밀번호를 입력해 주세요.",
   msg_login_invalid: "사용자 이름 또는 비밀번호가 올바르지 않습니다.",
   modal_acc_title:"비밀번호 변경", modal_acc_userid:"개인 식별자", modal_acc_change_pass:"비밀번호 변경", modal_acc_btn_change:"비밀번호 변경", acc_pass_curr:"현재 비밀번호", acc_pass_new:"새 비밀번호", acc_pass_conf:"새 비밀번호 확인", msg_acc_err_empty:"모든 항목을 입력해주세요", msg_acc_err_len:"비밀번호는 6자 이상이어야 합니다", msg_acc_err_match:"새 비밀번호가 일치하지 않습니다", msg_acc_changing:"변경 중...", msg_acc_success:"비밀번호가 변경되었습니다!", btn_history: "이용 내역", modal_history_title: "이용 내역", history_empty: "내역이 없습니다.",
-  manage_title: "다운로드 관리", manage_desc: "다운로드할 콘텐츠를 선택해 주세요:"
+  manage_title: "다운로드 관리", manage_desc: "다운로드할 콘텐츠를 선택해 주세요:", footer_terms: "이용약관"
  },
  ru:{ 
-  header_brand:"kiryu11 E1", hero_title:"Центр личной активации", hero_sub:"Управление доступом и ресурсами. Активируйте код продукта для разблокировки.", 
+  header_brand:"kiryu11 Pro", hero_title:"Центр личной активации", hero_sub:"Управление доступом и ресурсами. Активируйте код продукта для разблокировки.", 
   card1_title:"Главная", tab_store:"Магазин", card3_title:"Поддержка", 
-  modal_title:"Проверка",modal_sub:"Введите код, чтобы загрузить контент.<span class=\"pc-only-text\"><br>Коды имеют следующий формат:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"Код активации",modal_btn_auth:"Проверить", 
+  modal_title:"Kод активации",modal_sub:"Введите код, чтобы загрузить контент.<span class=\"pc-only-text\"><br>Коды имеют следующий формат:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"Код активации",modal_btn_auth:"Проверить", 
   msg_verifying:"Подтверждение",msg_success_btn:"Успех", 
   msg_invalid:"Неверный код.",msg_used:"Этот код уже активирован.",msg_error:"Ошибка", 
   msg_already_owned: "Вы уже владеете этим контентом.", msg_already_owned_mobile: "Выберите контент и загрузите.", btn_open_library: "Открыть библиотеку",
@@ -2040,7 +2176,7 @@ const TRANSLATIONS={
   msg_login_empty: "Пожалуйста, введите имя пользователя и пароль.",
   msg_login_invalid: "Неверное имя пользователя или пароль.",
   modal_acc_title:"Изменить пароль", modal_acc_userid:"Идентификатор пользователя", modal_acc_change_pass:"Изменить пароль", modal_acc_btn_change:"Сохранить", acc_pass_curr:"Текущий пароль", acc_pass_new:"Новый пароль", acc_pass_conf:"Подтвердите пароль", msg_acc_err_empty:"Пожалуйста, заполните все поля", msg_acc_err_len:"Пароль должен содержать не менее 6 символов", msg_acc_err_match:"Пароли не совпадают", msg_acc_changing:"Сохранение...", msg_acc_success:"Пароль успешно изменен!", btn_history: "История использования", modal_history_title: "История использования", history_empty: "История пуста.",
-  manage_title: "Управление загрузками", manage_desc: "Выберите контент для загрузки:"
+  manage_title: "Управление загрузками", manage_desc: "Выберите контент для загрузки:", footer_terms: "Условия использования"
  }
 };
 
