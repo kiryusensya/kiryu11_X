@@ -20,28 +20,19 @@
 @font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
 @font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
 
-/* --- FUTURISTIC THEME VARIABLES --- */
+/* --- FUTURISTIC TERMINAL VARIABLES --- */
 :root {
   --primary: #00f0ff;
   --primary-glow: rgba(0, 240, 255, 0.6);
   --bright-green: #04CF22;
-  --bg-color: #e0f7fa;
-  --cyber-grid: rgba(0, 240, 255, 0.1);
-  --card-bg: rgba(255, 255, 255, 0.7);
-  --card-border: rgba(0, 240, 255, 0.5);
-  --modal-text-main: #004d40;
-  --modal-text-sub: #00695c;
-  --btn-close-border: #004d40;
-  --btn-close-text: #004d40;
-  --radius-xl: 0px;
-  --radius-l: 0px;
-  --spring-ease: cubic-bezier(0.33, 1, 0.68, 1);
-  --shadow-soft: 0 0 20px rgba(0, 240, 255, 0.3);
-   
-  /* Account System */
-  --dropdown-bg: rgba(255, 255, 255, 0.9);
-  --modal-bg-standard: #FFFFFF;
-
+  --bg-color: #02060d;
+  --cyber-grid: rgba(0, 240, 255, 0.05);
+  --panel-bg: rgba(2, 8, 16, 0.85);
+  --panel-border: rgba(0, 240, 255, 0.3);
+  --text-main: #e0f7fa;
+  --text-sub: #4dd0e1;
+  --text-alert: #ff003c;
+  
   --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
 }
 
@@ -52,616 +43,345 @@
 :root:lang(ko) { --font-stack: 'HarmonyOS Sans', 'Noto Sans KR', sans-serif; }
 :root:lang(ru) { --font-stack: 'HarmonyOS Sans', sans-serif; }
 
-[data-theme="dark"] {
-  --primary: #00f0ff;
-  --primary-glow: rgba(0, 240, 255, 0.8);
-  --bg-color: #050a15;
-  --cyber-grid: rgba(0, 240, 255, 0.05);
-  --card-bg: rgba(5, 15, 30, 0.85);
-  --card-border: rgba(0, 240, 255, 0.3);
-  --modal-text-main: #e0f7fa;
-  --modal-text-sub: #80deea;
-  --btn-close-border: #00f0ff;
-  --btn-close-text: #00f0ff;
-  --shadow-soft: 0 0 30px rgba(0, 240, 255, 0.2);
-   
-  /* Account System */
-  --dropdown-bg: rgba(5, 15, 30, 0.95);
-  --modal-bg-standard: #050a15;
+[data-theme="light"] {
+  --primary: #0088aa;
+  --primary-glow: rgba(0, 136, 170, 0.4);
+  --bg-color: #f0f8ff;
+  --cyber-grid: rgba(0, 136, 170, 0.1);
+  --panel-bg: rgba(255, 255, 255, 0.9);
+  --panel-border: rgba(0, 136, 170, 0.4);
+  --text-main: #003344;
+  --text-sub: #006688;
+  --text-alert: #d32f2f;
 }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 0px; box-shadow: 0 0 10px var(--primary); }
+::-webkit-scrollbar-thumb { background: var(--primary); }
 
 *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 body {
   margin: 0; padding: 0;
   background-color: var(--bg-color);
-  color: var(--modal-text-main);
+  color: var(--text-main);
   font-family: var(--font-stack);
   height: 100vh; height: 100dvh;
   overflow: hidden; 
-  display: flex; 
   transition: background-color 0.5s ease;
   background-image: 
     linear-gradient(var(--cyber-grid) 1px, transparent 1px),
     linear-gradient(90deg, var(--cyber-grid) 1px, transparent 1px);
-  background-size: 40px 40px;
+  background-size: 50px 50px;
   background-position: center center;
 }
 
-/* Scanline Effect */
+/* Scanlines */
 body::after {
-  content: " ";
-  display: block;
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-  z-index: 2;
-  background-size: 100% 2px, 3px 100%;
-  pointer-events: none;
+  content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+  z-index: 9999; background-size: 100% 3px; pointer-events: none;
 }
-
-button, input, textarea { font-family: var(--font-stack); }
 
 #particleCanvas {
-  position: fixed; inset: 0; width: 100%; height: 100%;
-  z-index: 0; opacity: 0.6; pointer-events: none;
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  z-index: 0; opacity: 0.4; pointer-events: none;
 }
 
-/* --- RGL LAYOUT STRUCTURE (Rebuilt for pure Auth) --- */
-.rgl-wrapper {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
+/* --- RADICAL LAYOUT: GRID --- */
+.cyber-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
   height: 100%;
-  z-index: 5;
-  position: relative;
-}
-
-.rgl-main {
-  flex: 1;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  overflow-y: auto;
-}
-
-/* Header / Navigation */
-.rgl-header {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  z-index: 50;
-  padding: 24px 40px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid var(--card-border);
-  background: linear-gradient(to bottom, var(--card-bg), transparent);
-}
-
-.brand-title {
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: 2px;
-  color: var(--primary);
-  text-shadow: 0 0 10px var(--primary-glow);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-transform: uppercase;
-}
-
-.header-controls {
-  display: flex;
-  gap: 20px;
-  align-items: center;
-}
-
-.theme-pill {
-  width: 44px; height: 44px;
-  background: var(--card-bg); border: 1px solid var(--card-border);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: all 0.3s; backdrop-filter: blur(10px); color: var(--primary);
-  box-shadow: inset 0 0 10px rgba(0, 240, 255, 0.1);
-  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-}
-.theme-pill:hover { box-shadow: 0 0 15px var(--primary-glow), inset 0 0 15px var(--primary-glow); }
-
-/* Hero Section / Main Terminal */
-.rgl-hero {
-  padding: 40px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
   width: 100%;
-  max-width: 800px;
   position: relative;
   z-index: 10;
 }
 
-.rgl-logo-text {
-  font-size: 48px;
-  font-weight: 800;
-  line-height: 1.1;
-  margin-bottom: 10px;
-  text-transform: uppercase !important;
-  color: var(--modal-text-main);
-  text-shadow: 0 0 20px var(--primary-glow);
-  letter-spacing: 4px;
-}
-
-.rgl-desc {
-  font-size: 16px;
-  color: var(--modal-text-sub);
-  margin-bottom: 40px;
-  letter-spacing: 1px;
-}
-
-/* --- Cybernetic Buttons --- */
-.rgl-cta-btn, .btn-primary, .btn-solid, .btn-outline {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 56px;
-  padding: 0 40px;
-  background-color: rgba(0, 240, 255, 0.1) !important;
-  color: var(--primary) !important;
-  font-weight: 800;
-  font-size: 16px;
-  letter-spacing: 2px;
-  cursor: pointer;
-  text-transform: uppercase !important;
-  transition: all 0.3s;
-  border: 1px solid var(--primary) !important;
-  box-shadow: 0 0 15px rgba(0, 240, 255, 0.2), inset 0 0 10px rgba(0, 240, 255, 0.1) !important;
-  font-family: var(--font-stack);
+/* --- SIDEBAR (HUD Left Panel) --- */
+.cyber-sidebar {
+  background: var(--panel-bg);
+  border-right: 1px solid var(--panel-border);
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  padding: 30px 20px;
   position: relative;
-  overflow: hidden;
-  clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
-  border-radius: 0 !important;
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
 }
 
-.rgl-cta-btn::before, .btn-primary::before, .btn-solid::before {
-  content: '';
-  position: absolute;
-  top: 0; left: -100%;
-  width: 50%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.5), transparent);
-  transform: skewX(-20deg);
-  transition: 0.5s;
+.brand-title {
+  font-size: 22px; font-weight: 800; letter-spacing: 2px;
+  color: var(--primary); text-shadow: 0 0 10px var(--primary-glow);
+  display: flex; align-items: center; gap: 10px; text-transform: uppercase;
+  margin-bottom: 40px;
 }
 
-.rgl-cta-btn:hover::before, .btn-primary:hover::before, .btn-solid:hover::before {
-  left: 150%;
+.hud-box {
+  border: 1px solid var(--panel-border);
+  background: rgba(0, 240, 255, 0.03);
+  padding: 15px;
+  margin-bottom: 20px;
+  position: relative;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
 }
 
-.rgl-cta-btn:hover, .btn-primary:hover, .btn-solid:hover {
-  background-color: rgba(0, 240, 255, 0.2) !important;
-  box-shadow: 0 0 25px var(--primary-glow), inset 0 0 15px var(--primary-glow) !important;
-  transform: scale(1.02);
+.hud-box::before {
+  content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%;
+  background: var(--primary); box-shadow: 0 0 10px var(--primary);
 }
 
-.btn-outline {
-  background: transparent !important;
-  border: 1px solid var(--modal-text-sub) !important;
-  color: var(--modal-text-sub) !important;
-  box-shadow: none !important;
-}
-.btn-outline:hover {
-  border-color: var(--primary) !important;
-  color: var(--primary) !important;
-  box-shadow: 0 0 15px var(--primary-glow) !important;
+.hud-label {
+  font-size: 10px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px;
 }
 
-/* Language List (Sci-Fi adjustments) */
+.hud-value {
+  font-size: 16px; font-weight: 800; color: var(--text-main); word-break: break-all;
+}
+
+.sys-status { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--bright-green); text-shadow: 0 0 8px rgba(4, 207, 34, 0.6); }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bright-green); box-shadow: 0 0 8px var(--bright-green); animation: pulse 2s infinite; }
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+
+.sidebar-controls { margin-top: auto; display: flex; flex-direction: column; gap: 15px; }
+
+/* Cyber Buttons */
+.cyber-btn {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+  background: transparent; color: var(--primary); border: 1px solid var(--primary);
+  padding: 12px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px;
+  cursor: pointer; transition: 0.3s; position: relative;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+.cyber-btn:hover {
+  background: rgba(0, 240, 255, 0.15); box-shadow: inset 0 0 15px var(--primary-glow);
+}
+.cyber-btn.danger { border-color: var(--text-alert); color: var(--text-alert); }
+.cyber-btn.danger:hover { background: rgba(255, 0, 60, 0.1); box-shadow: inset 0 0 15px rgba(255, 0, 60, 0.5); }
+.cyber-btn.solid { background: rgba(0, 240, 255, 0.1); box-shadow: inset 0 0 10px rgba(0, 240, 255, 0.2); }
+.cyber-btn.solid:hover { background: rgba(0, 240, 255, 0.2); box-shadow: inset 0 0 20px var(--primary-glow); }
+
+/* Lang Dropdown inside Sidebar */
+.lang-selector-wrapper { position: relative; width: 100%; }
 .lang-list { 
-  position: absolute; bottom: 80px; right: 40px; width: 200px; 
-  background: var(--card-bg); backdrop-filter: blur(20px); 
-  padding: 5px; border: 1px solid var(--card-border); list-style: none; display: none; 
-  box-shadow: var(--shadow-soft); z-index: 200; 
+  position: absolute; bottom: 100%; left: 0; width: 100%; margin-bottom: 5px;
+  background: var(--panel-bg); border: 1px solid var(--panel-border); 
+  list-style: none; display: none; padding: 0;
   clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
 }
-.lang-list.open { display: block; animation: popIn 0.3s; }
-.lang-list li { padding: 10px 15px; cursor: pointer; color: var(--modal-text-main); font-size: 13px; transition: 0.2s;}
-.lang-list li:hover { background: rgba(0, 240, 255, 0.2); color: var(--primary); text-shadow: 0 0 5px var(--primary); }
+.lang-list.open { display: block; }
+.lang-list li { padding: 12px; cursor: pointer; color: var(--text-main); font-size: 13px; text-align: center; border-bottom: 1px solid rgba(0,240,255,0.1); }
+.lang-list li:hover { background: rgba(0, 240, 255, 0.2); color: var(--primary); }
 
-@keyframes popIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-/* ====================================================
-   ★ MODAL SYSTEM (Futuristic Glass & Angles)
-   ==================================================== */
-.modal-overlay {
-  position: fixed; inset: 0; background: rgba(0, 5, 10, 0.8); backdrop-filter: blur(5px);
-  z-index: 9999; display: flex; justify-content: center; align-items: center;
-  opacity: 0; pointer-events: none; transition: opacity 0.5s ease;
-}
-.modal-overlay.active { opacity: 1; pointer-events: auto; }
-
-.modal-sheet {
-  background: var(--card-bg) !important;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--card-border) !important; 
-  box-shadow: 0 0 40px rgba(0, 240, 255, 0.15), inset 0 0 20px rgba(0, 240, 255, 0.05);
-  position: relative; overflow: hidden;
-  width: 90%; max-width: 500px; 
-  padding: 40px;
-  font-family: var(--font-stack);
-  
-  clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
-  transform: translateY(40px) scale(0.95);
-  opacity: 0;
-  
-  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1),
-              opacity 0.4s ease;
+/* --- MAIN AREA (Terminal View) --- */
+.cyber-main {
+  position: relative; display: flex; align-items: center; justify-content: center; padding: 40px; overflow-y: auto;
 }
 
-.modal-overlay.active .modal-sheet {
-  transform: translateY(0) scale(1);
-  opacity: 1;
+.terminal-frame {
+  width: 100%; max-width: 800px; min-height: 500px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.05), inset 0 0 50px rgba(0, 0, 0, 0.8);
+  position: relative; padding: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
 
-.modal-sheet.is-wide {
-  max-width: 900px;
+/* Corner Decorators */
+.terminal-frame::before, .terminal-frame::after { content: ''; position: absolute; width: 30px; height: 30px; border: 2px solid var(--primary); opacity: 0.5; pointer-events: none; }
+.terminal-frame::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+.terminal-frame::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+
+/* Views */
+.view-panel { width: 100%; display: none; flex-direction: column; align-items: center; text-align: center; animation: bootUp 0.4s ease-out forwards; }
+.view-panel.active { display: flex; }
+
+@keyframes bootUp { 
+    0% { opacity: 0; transform: scaleY(0.01) scaleX(0.9); filter: blur(10px); } 
+    50% { transform: scaleY(1.05) scaleX(1); filter: blur(0px); } 
+    100% { opacity: 1; transform: scaleY(1) scaleX(1); } 
 }
 
-#modalCloseBtn { color: var(--primary); }
-#modalCloseBtn:hover { filter: drop-shadow(0 0 5px var(--primary)); }
+/* Text Styles */
+.term-title { font-size: 32px; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 4px; text-shadow: 0 0 15px var(--primary-glow); margin: 0 0 10px 0; }
+.term-sub { font-size: 14px; color: var(--text-sub); letter-spacing: 2px; margin: 0 0 40px 0; }
+.term-alert { color: var(--text-alert); text-shadow: 0 0 10px rgba(255,0,60,0.5); }
 
-/* INPUT PHASE */
-.modal-title { margin:0 0 10px 0; font-size:24px; font-weight:800; color:var(--primary); text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px var(--primary-glow);}
-.modal-sub { color:var(--modal-text-main); margin:0; font-size:14px; text-align: center; }
-
-.code-field, .form-input {
-  width: 100%; border: 1px solid var(--card-border); background: rgba(0, 0, 0, 0.5);
-  height: 56px; 
-  text-align: center; outline: none; transition: 0.3s; margin-top: 24px;
-  color: var(--primary); font-family: var(--font-stack);
-  font-size: 18px; font-weight: 700; letter-spacing: 2px; padding: 0 20px;
-  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+/* Input Field */
+.cyber-input {
+  width: 100%; max-width: 500px; height: 60px;
+  background: rgba(0, 240, 255, 0.05); border: 1px solid var(--primary);
+  color: var(--primary); font-size: 22px; font-weight: 700; text-align: center; letter-spacing: 4px;
+  outline: none; margin-bottom: 30px; font-family: var(--font-stack);
+  box-shadow: inset 0 0 10px rgba(0,240,255,0.1);
+  transition: 0.3s;
 }
-.code-field:focus, .form-input:focus { border-color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); background: rgba(0, 240, 255, 0.05); }
+.cyber-input:focus { background: rgba(0, 240, 255, 0.1); box-shadow: 0 0 20px var(--primary-glow), inset 0 0 15px var(--primary-glow); }
 
-/* PC Modal Layout */
-.new-modal-layout { display: flex; flex-direction: column; width: 100%; text-align: left; }
-.modal-title-top { font-size: 26px; font-weight: 800; margin: 0 0 24px 0; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px var(--primary-glow);}
-.modal-body-flex { display: flex; gap: 30px; align-items: stretch; }
-.modal-left-col { width: 380px; flex-shrink: 0; display: flex; flex-direction: column; }
-.modal-left-col img { width: 100%; flex: 1; object-fit: cover; border: 1px solid var(--card-border); clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px); }
-.modal-thumb-title { margin-top: 24px; font-size: 20px; font-weight: 800; color: var(--primary); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.modal-right-col { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-.modal-label { font-size: 14px; font-weight: 700; color: var(--modal-text-sub); margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 1px;}
-.modal-main-title { font-size: 24px; font-weight: 800; color: var(--modal-text-main); margin: 0 0 20px 0; }
-.modal-grey-box { background: rgba(0, 240, 255, 0.05); border: 1px solid var(--card-border); padding: 20px; flex: 1; display: flex; flex-direction: column; justify-content: center; margin-bottom: 24px; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); }
-.modal-box-text { font-size: 13px; font-weight: 700; line-height: 1.5; color: var(--modal-text-main); margin: 0; white-space: pre-wrap; }
-.modal-box-text.is-warning { color: #ff003c; text-shadow: 0 0 5px rgba(255,0,60,0.5); }
-.modal-box-time { font-size: 16px; font-weight: 800; color: var(--primary); margin: 20px 0 0 0; }
-.modal-btn-row { display: flex; gap: 12px; margin-top: auto; height: 48px; }
-
-.error-layout .error-title-color { color: #ff003c; text-shadow: 0 0 10px rgba(255,0,60,0.6); border-color: #ff003c;}
-.error-layout .modal-grey-box { border-color: rgba(255,0,60,0.5); background: rgba(255,0,60,0.05); }
-
-/* --- ACCOUNT DROPDOWN STYLES --- */
-.account-dropdown {
-  position: absolute; top: 80px; right: 40px; width: 320px; 
-  background: var(--dropdown-bg);
-  backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
-  border: 1px solid var(--card-border);
-  box-shadow: 0 0 30px rgba(0, 240, 255, 0.2); padding: 24px;
-  z-index: 2000; opacity: 0; transform: translateY(-10px);
-  pointer-events: none; transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-  clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+/* Data Display (Preview / Success) */
+.data-box {
+  width: 100%; border: 1px dashed var(--panel-border); background: rgba(0,0,0,0.5);
+  display: flex; gap: 30px; padding: 30px; margin-bottom: 40px; text-align: left;
 }
-.account-dropdown.open { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.data-img { width: 200px; height: 200px; object-fit: cover; border: 1px solid var(--panel-border); filter: drop-shadow(0 0 10px var(--primary-glow)); }
+.data-info { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.data-label { font-size: 12px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+.data-title { font-size: 24px; font-weight: 800; color: var(--text-main); margin: 0 0 15px 0; }
+.data-desc { font-size: 14px; color: var(--text-sub); line-height: 1.6; }
 
-.account-mini-header { border-bottom: 1px solid var(--card-border); margin-bottom: 15px; padding-bottom: 15px; }
-.label-logged-in { font-size: 10px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 1px;}
-.mini-user-id { font-size: 18px; font-weight: 800; color: var(--modal-text-main); }
+.btn-row { display: flex; gap: 20px; width: 100%; max-width: 500px; }
+.btn-row .cyber-btn { flex: 1; height: 50px; }
 
-.menu-list { display: flex; flex-direction: column; gap: 4px; }
-.menu-btn {
-  background: transparent; border: none; text-align: left;
-  padding: 14px 12px; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
-  color: var(--modal-text-main); cursor: pointer; 
-  display: flex; justify-content: space-between; align-items: center;
-  transition: all 0.2s; font-family: var(--font-stack);
-  border-left: 2px solid transparent;
-}
-.menu-btn:hover { background: rgba(0, 240, 255, 0.1); border-left: 2px solid var(--primary); color: var(--primary); padding-left: 18px;}
-
-/* Content Management / History List */
-.manage-item-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 16px; background: rgba(0, 240, 255, 0.05);
-    border: 1px solid var(--card-border);
-    transition: all 0.2s; margin-bottom: 8px;
-    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-}
-.manage-item-row:hover { background: rgba(0, 240, 255, 0.15); box-shadow: 0 0 15px rgba(0,240,255,0.2); }
-.manage-item-info { display: flex; flex-direction: column; gap: 6px; }
-.manage-item-title { font-weight: 800; font-size: 16px; color: var(--modal-text-main); }
-.manage-item-type { font-size: 12px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 4px; text-transform: uppercase;}
-
-/* Mobile Overrides */
+/* Responsive Mobile */
 @media (max-width: 768px) {
-    .rgl-header { padding: 16px 20px; }
-    .account-dropdown { top: 70px; right: 5%; width: 90%; }
-    .rgl-logo-text { font-size: 32px; }
-    .modal-sheet { padding: 24px; clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px); }
-    .modal-sheet.is-wide { padding: 0 !important; max-width: 92%; max-height: 85vh; overflow-y: auto; }
-    .modal-title-top { display: none !important; }
-    .mobile-title { display: block; font-size: 22px; font-weight: 800; color: var(--primary); margin: 0 0 16px 0; text-transform: uppercase; letter-spacing: 1px;}
-    .modal-body-flex { flex-direction: column; gap: 0; }
-    .modal-left-col { width: 100%; }
-    .modal-left-col img { clip-path: none; height: 220px; object-fit: cover; }
-    .modal-right-col { padding: 24px; }
+  .cyber-layout { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  .cyber-sidebar { flex-direction: row; flex-wrap: wrap; padding: 15px; align-items: center; justify-content: space-between; border-right: none; border-bottom: 1px solid var(--panel-border); }
+  .brand-title { margin-bottom: 0; font-size: 18px; width: 100%; justify-content: center; margin-bottom: 15px;}
+  .hud-box { margin-bottom: 0; padding: 10px; width: 48%; }
+  .sidebar-controls { flex-direction: row; width: 100%; margin-top: 15px; }
+  .cyber-main { padding: 20px; }
+  .terminal-frame { padding: 25px 15px; min-height: 400px; }
+  .data-box { flex-direction: column; align-items: center; padding: 15px; text-align: center; }
+  .data-info { align-items: center; }
 }
 
-.loading-spinner { display: inline-block; vertical-align: middle; width: 24px; height: 24px; border: 3px solid rgba(0,240,255,0.2); border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 8px; }
+.loading-spinner { display: inline-block; width: 24px; height: 24px; border: 2px solid rgba(0,240,255,0.2); border-top: 2px solid var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to{transform: rotate(360deg);} }
-
-/* 2-Column Input for Wide Screens */
-.phase-input-left { display: none; }
-.phase-input-desc-pc { display: none; }
-.phase-input-body { display: flex; flex-direction: column; align-items: center; width: 100%; }
-.phase-input-controls { width: 100%; display: flex; flex-direction: column; }
-
-@media (min-width: 769px) {
-  .modal-sheet.is-input-wide { max-width: 900px; }
-  .modal-sheet.is-input-wide #phase-input { flex-direction: column; align-items: flex-start; }
-  .modal-sheet.is-input-wide .phase-input-title { text-align: left; font-size: 26px; margin: 0 0 24px 0; width: 100%; }
-  .modal-sheet.is-input-wide .phase-input-sub-mobile { display: none; }
-  .modal-sheet.is-input-wide .phase-input-body { flex-direction: row; gap: 30px; align-items: stretch; }
-  .modal-sheet.is-input-wide .phase-input-left { display: flex; width: 320px; flex-shrink: 0; }
-  .modal-sheet.is-input-wide .phase-input-left img { width: 100%; min-height: 220px; object-fit: cover; border: 1px solid var(--card-border); clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);}
-  .modal-sheet.is-input-wide .phase-input-right { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-  .modal-sheet.is-input-wide .phase-input-controls { flex-direction: row; gap: 12px; align-items: center; margin-bottom: 24px; }
-  .modal-sheet.is-input-wide .phase-input-controls .code-field { margin-top: 0; flex: 1; height: 56px; text-align: left; }
-  .modal-sheet.is-input-wide .phase-input-controls .btn-primary { margin-top: 0; width: 160px; height: 56px; }
-  .modal-sheet.is-input-wide .phase-input-desc-pc { display: flex; flex: 1; margin-bottom: 0; justify-content: flex-start; align-items: flex-start; min-height: 140px; }
-}
-
-/* Footer positioning */
-.footer-lang {
-    position: absolute; bottom: 20px; right: 40px; z-index: 100;
-}
-.lang-trigger-btn {
-    background: transparent; border: 1px solid var(--card-border); color: var(--primary);
-    padding: 8px 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;
-    clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
-    transition: all 0.2s; background: var(--card-bg); backdrop-filter: blur(5px);
-}
-.lang-trigger-btn:hover { background: rgba(0,240,255,0.1); box-shadow: 0 0 10px var(--primary-glow); }
-
 </style>
 </head>
 <body>
 
 <canvas id="particleCanvas"></canvas>
 
-<div class="rgl-wrapper" id="mainContainer">
+<div class="cyber-layout" id="mainContainer">
     
-    <header class="rgl-header">
+    <!-- LEFT HUD -->
+    <aside class="cyber-sidebar">
         <div class="brand-title">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
-            <span data-translate="header_brand">kiryu11 Pro</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+            <span data-translate="header_brand">kiryu11 Security</span>
+        </div>
+
+        <div class="hud-box">
+            <div class="hud-label" data-translate="label_welcome">SYS_READY</div>
+            <div class="sys-status"><div class="status-dot"></div> ONLINE</div>
+        </div>
+
+        <div class="hud-box">
+            <div class="hud-label" data-translate="label_logged_in">CONNECTED ID</div>
+            <div class="hud-value" id="displayUserEmail">-</div>
         </div>
         
-        <div class="header-controls">
-            <div class="theme-pill" id="themeToggle">
-                <i data-lucide="sun"></i>
+        <div class="sidebar-controls">
+            <button class="cyber-btn" id="themeToggle">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                THEME
+            </button>
+
+            <div class="lang-selector-wrapper">
+                <button class="cyber-btn" id="langTrigger">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg> 
+                    <span id="currentLangLabel">日本語</span>
+                </button>
+                <ul class="lang-list" id="langMenu">
+                    <li class="lang-option" data-value="ja">日本語</li>
+                    <li class="lang-option" data-value="en">English</li>
+                    <li class="lang-option" data-value="zh">简体中文</li>
+                    <li class="lang-option" data-value="zh-TW">繁體中文</li>
+                    <li class="lang-option" data-value="ko">한국어</li>
+                    <li class="lang-option" data-value="ru">Русский</li>
+                </ul>
             </div>
-            <div style="position:relative;">
-                <div class="theme-pill" id="btnOpenAccount">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> 
-                </div>
 
-                <div id="accountDropdown" class="account-dropdown">
-                    <div id="loggedInView" style="display: block;">
-                      <div class="account-mini-header">
-                        <span class="label-logged-in" data-translate="label_logged_in">USER ID</span><br>
-                        <span class="mini-user-id" id="displayUserEmail" style="word-break: break-all;">-</span>
-                      </div>
-                      <div class="menu-list">
-                         <button class="menu-btn" id="btnMenuRedeem">
-                            <span data-translate="btn_redeem_code">Code Redeem</span> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>
-                         </button>
-
-                         <button class="menu-btn" id="btnMenuHistory">
-                          <span data-translate="btn_history">History</span>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-database"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-                         </button>
-
-                         <button class="menu-btn" id="btnMenuPassword">
-                          <span data-translate="modal_acc_change_pass">Change Password</span>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                         </button>
-
-                         <button class="menu-btn" id="btnLogout" style="color:#ff003c; border-left-color: transparent;">
-                            <span data-translate="btn_logout">Logout</span> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-power"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/></svg>
-                         </button>
-                      </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <main class="rgl-main">
-        <div class="rgl-hero">
-            <h1 class="rgl-logo-text" data-translate="hero_title">Activation Terminal</h1>
-            <p class="rgl-desc" data-translate="hero_sub">Securely authenticate your access codes to unlock restricted resources.</p>
-            <button id="heroActionBtn" class="rgl-cta-btn" onclick="openAuthModal()">
-                <span data-translate="btn_redeem_code">Initialize Auth</span>
+            <button class="cyber-btn danger" id="btnLogout" style="margin-top: 20px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/></svg>
+                <span data-translate="btn_logout">DISCONNECT</span>
             </button>
         </div>
+    </aside>
+
+    <!-- MAIN TERMINAL AREA -->
+    <main class="cyber-main">
+        <div class="terminal-frame">
+            
+            <!-- STATE: STANDBY (HERO) -->
+            <div id="view-standby" class="view-panel active">
+                <h1 class="term-title" data-translate="hero_title">SECURITY TERMINAL</h1>
+                <p class="term-sub" data-translate="hero_sub">Awaiting command. Initialize authentication to unlock payload.</p>
+                <button id="btnInitAuth" class="cyber-btn solid" style="max-width: 300px; height: 60px; font-size: 16px;">
+                    <span data-translate="btn_redeem_code">INITIATE AUTH</span>
+                </button>
+            </div>
+
+            <!-- STATE: INPUT -->
+            <div id="view-input" class="view-panel">
+                <h2 class="term-title" data-translate="modal_title">SYSTEM ACCESS</h2>
+                <p class="term-sub" id="inputDesc" data-translate="modal_sub">Enter your assigned security sequence.</p>
+                <input type="text" id="activationCode" class="cyber-input" placeholder="XXXX-XXXX-XXXX" autocomplete="off">
+                <div class="btn-row">
+                    <button class="cyber-btn" id="btnCancelAuth" data-translate="btn_close">ABORT</button>
+                    <button class="cyber-btn solid" id="btnConfirmAuth" data-translate="modal_btn_auth">VERIFY</button>
+                </div>
+            </div>
+
+            <!-- STATE: PREVIEW -->
+            <div id="view-preview" class="view-panel">
+                <h2 class="term-title" data-translate="preview_title">CONFIRM PAYLOAD</h2>
+                <p class="term-sub" data-translate="preview_desc">Target data located. Ready for deployment.</p>
+                
+                <div class="data-box">
+                    <img id="previewImage" src="" class="data-img" alt="Payload">
+                    <div class="data-info">
+                        <div class="data-label" id="previewMessage">SIGNATURE</div>
+                        <div class="data-title" id="previewTitle">PAYLOAD TITLE</div>
+                        <div class="data-desc" id="previewDesc"></div>
+                    </div>
+                </div>
+
+                <div class="btn-row">
+                    <button class="cyber-btn" id="btnPreviewCancel" data-translate="btn_close">ABORT</button>
+                    <button class="cyber-btn solid" id="btnPreviewExecute" data-translate="btn_continue">EXECUTE</button>
+                </div>
+            </div>
+
+            <!-- STATE: SUCCESS -->
+            <div id="view-success" class="view-panel">
+                <h2 class="term-title" style="color: var(--bright-green); text-shadow: 0 0 15px rgba(4,207,34,0.6);" data-translate="success_title_final">ACCESS GRANTED</h2>
+                <p class="term-sub" data-translate="success_desc">Decryption successful. Data allocated to local node.</p>
+                
+                <div class="data-box" style="border-color: var(--bright-green);">
+                    <img id="successImage" src="" class="data-img" style="border-color: var(--bright-green); box-shadow: 0 0 15px rgba(4,207,34,0.3);" alt="Payload">
+                    <div class="data-info">
+                        <div class="data-label" id="successMessage" style="color: var(--bright-green);">SIGNATURE</div>
+                        <div class="data-title" id="successTitle">PAYLOAD TITLE</div>
+                        <div class="data-desc" id="successDescBox" data-translate="success_msg_box">Session established. Resource available.</div>
+                        <div class="data-desc" id="successTime" style="margin-top: 10px; opacity: 0.5;"></div>
+                    </div>
+                </div>
+
+                <div class="btn-row">
+                    <button class="cyber-btn" id="btnSuccessClose" data-translate="btn_close">RETURN</button>
+                    <a class="cyber-btn solid" id="btnSuccessDownload" target="_blank" style="text-decoration: none; display: none;">
+                        <span data-translate="btn_download">TRANSFER</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- STATE: ERROR -->
+            <div id="view-error" class="view-panel">
+                <h2 class="term-title term-alert">⚠ <span data-translate="error_title_prefix">SYS_ERR</span> <span id="errorCodeText"></span></h2>
+                <p class="term-sub term-alert" id="errorMainMsg">Authentication Failed.</p>
+                
+                <div class="data-box" style="border-color: var(--text-alert); background: rgba(255,0,60,0.05); flex-direction: column; align-items: center; text-align: center;">
+                    <div class="data-desc term-alert" id="errorSubMsg" style="font-size: 16px; font-weight: 700;">Details here</div>
+                    <div class="data-desc" id="errorTime" style="opacity: 0.5; margin-top: 10px;"></div>
+                </div>
+
+                <button class="cyber-btn" id="btnErrorClose" style="max-width: 300px;" data-translate="btn_close">ACKNOWLEDGE</button>
+            </div>
+
+        </div>
     </main>
-
-    <div class="footer-lang">
-        <button class="lang-trigger-btn" id="langTrigger">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg> 
-            <span id="currentLangLabel">日本語</span>
-        </button>
-        <ul class="lang-list" id="langMenu">
-            <li class="lang-option" data-value="ja">日本語</li>
-            <li class="lang-option" data-value="en">English</li>
-            <li class="lang-option" data-value="zh">简体中文</li>
-            <li class="lang-option" data-value="zh-TW">繁體中文</li>
-            <li class="lang-option" data-value="ko">한국어</li>
-            <li class="lang-option" data-value="ru">Русский</li>
-        </ul>
-    </div>
-</div>
-
-<!-- ================= MODALS ================= -->
-
-<!-- AUTH MODAL -->
-<div id="authModal" class="modal-overlay">
-  <div class="modal-sheet" id="modalContainer">
-    <div style="position:absolute; top:20px; right:20px; cursor:pointer; z-index:10;" id="modalCloseBtn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-    </div>
-    
-    <!-- PHASE: INPUT -->
-    <div id="phase-input" style="display: flex; opacity: 1;">
-      <h2 class="modal-title phase-input-title" data-translate="modal_title">Activate Code</h2>
-      <p class="modal-sub phase-input-sub-mobile" id="mobileInputDesc" data-translate="modal_sub">Enter your secure code to proceed.</p>
-      
-      <div class="phase-input-body">
-          <div class="phase-input-left">
-              <img src="https://static.wixstatic.com/media/2f0694_38068f106089439b89c7902ef4fb3d2d~mv2.jpg" alt="Security Grid">
-          </div>
-          <div class="phase-input-right">
-              <div class="phase-input-controls">
-                  <input type="text" id="activationCode" class="code-field" placeholder="XXXX-XXXX-XXXX" autocomplete="off">
-                  <button id="btnConfirm" class="btn-primary" data-translate="modal_btn_auth">VERIFY</button>
-              </div>
-              <div class="modal-grey-box phase-input-desc-pc">
-                  <p class="modal-box-text" id="pcInputDesc" data-translate="modal_sub">Input the authentication sequence to unlock your assigned digital assets.</p>
-              </div>
-          </div>
-      </div>
-    </div>
-
-    <!-- PHASE: PREVIEW -->
-    <div id="phase-preview" style="display: none; opacity: 0;" class="new-modal-layout">
-        <h2 class="modal-title-top" data-translate="preview_title">Confirm Identity</h2>
-        <div class="modal-body-flex">
-            <div class="modal-left-col">
-                <img id="previewImage" src="" alt="Thumbnail">
-                <div id="previewTitleUnderImg" class="modal-thumb-title"></div>
-            </div>
-            <div class="modal-right-col">
-                <h2 class="mobile-title" data-translate="preview_title">Confirm Identity</h2>
-                <p class="modal-label" data-translate="preview_desc">Target Payload Discovered:</p>
-                <h3 id="previewTitle" class="modal-main-title"></h3>
-                <div class="modal-grey-box" id="previewWarningBox">
-                    <p class="modal-box-text is-warning" id="previewWarningText"></p>
-                </div>
-                <div class="modal-btn-row">
-                    <button class="btn-outline" id="btnPreviewClose" style="flex: 3;" data-translate="btn_close">ABORT</button>
-                    <button class="btn-solid" id="btnPreviewRedeem" style="flex: 7;" data-translate="btn_continue">EXECUTE</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- PHASE: SUCCESS -->
-    <div id="phase-success" style="display: none; opacity: 0;" class="new-modal-layout">
-        <h2 class="modal-title-top" data-translate="success_title_final" style="color:var(--bright-green); text-shadow:0 0 10px rgba(4,207,34,0.5);">Auth Success</h2>
-        <div class="modal-body-flex">
-            <div class="modal-left-col">
-                <img id="successImage2" src="" alt="Thumbnail">
-                <div id="successTitleUnderImg" class="modal-thumb-title" style="color:var(--bright-green);"></div>
-            </div>
-            <div class="modal-right-col">
-                <h2 class="mobile-title" data-translate="success_title_final" style="color:var(--bright-green);">Auth Success</h2>
-                <p class="modal-label" data-translate="success_desc">Payload Decrypted & Assigned:</p>
-                <h3 id="successBundleName" class="modal-main-title"></h3>
-                <div class="modal-grey-box">
-                    <p class="modal-box-text" id="successMessageText"></p>
-                    <p class="modal-box-time" id="successTime"></p>
-                </div>
-                <div class="modal-btn-row" id="successBtnRow">
-                    <button class="btn-outline" style="width: 100%; flex: none;" id="btnSuccessClose" data-translate="btn_close">CLOSE</button>
-                    <a class="btn-solid" style="flex: 7; display: none; align-items:center; justify-content:center; text-decoration:none;" id="btnSuccessDownload" target="_blank"></a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- PHASE: ERROR -->
-    <div id="phase-error" style="display: none; opacity: 0;" class="new-modal-layout error-layout">
-        <h2 class="modal-title-top error-title-color">⚠ <span data-translate="error_title_prefix">SYS_ERR</span> <span id="errorCodeText"></span></h2>
-        <div class="modal-body-error">
-            <h3 id="errorMessage" class="modal-error-main-msg"></h3>
-            <div class="modal-grey-box" id="errorInfoBox" style="margin-bottom: 24px;">
-                <p class="modal-box-text" id="errorSubMessage"></p>
-                <p class="modal-box-time" id="errorTime"></p>
-            </div>
-            <div class="modal-btn-row" id="errorBtnRow">
-                <button class="btn-outline" style="width: 100%; flex: none;" id="btnErrorClose" data-translate="btn_close">ACKNOWLEDGE</button>
-            </div>
-        </div>
-    </div>
-  </div>
-</div>
-
-<!-- ACCOUNT SETTINGS MODAL -->
-<div id="accountModal" class="modal-overlay" style="z-index: 10005;">
-  <div class="modal-sheet" style="max-width: 450px; text-align: center;">
-    <div style="position:absolute; top:20px; right:20px; cursor:pointer;" id="closeAccountModalBtn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-    </div>
-    
-    <h2 class="modal-title" data-translate="modal_acc_title">Update Credentials</h2>
-    
-    <div class="modal-grey-box" style="text-align: left; padding: 16px;">
-        <label class="modal-label" data-translate="modal_acc_userid">USER ID</label>
-        <div id="accountModalUserId" style="font-size:18px; font-weight:800; color:var(--primary); word-break:break-all;">-</div>
-    </div>
-
-    <div style="text-align:left;">
-        <div class="form-group" style="margin-bottom:12px;">
-            <input type="password" id="accCurrentPass" class="form-input" placeholder="Current Key">
-        </div>
-        <div class="form-group" style="margin-bottom:12px;">
-            <input type="password" id="accNewPass" class="form-input" placeholder="New Key">
-        </div>
-        <div class="form-group" style="margin-bottom:20px;">
-            <input type="password" id="accNewPassConfirm" class="form-input" placeholder="Confirm New Key">
-        </div>
-        
-        <div id="accStatusMessage" style="font-size:13px; font-weight: 700; margin-bottom:12px; min-height:18px; text-align:center;"></div>
-        <button id="btnSubmitAccPassChange" class="btn-primary" style="width: 100%;" data-translate="modal_acc_btn_change">UPDATE</button>
-    </div>
-  </div>
-</div>
-
-<!-- HISTORY MODAL -->
-<div id="historyModal" class="modal-overlay" style="z-index: 10005;">
-  <div class="modal-sheet is-wide" style="display: flex; flex-direction: column; max-height: 80vh; padding: 40px;">
-    <div style="position:absolute; top:20px; right:20px; cursor:pointer;" id="closeHistoryModalBtn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-    </div>
-    
-    <h2 class="modal-title" data-translate="modal_history_title" style="text-align: left;">Access Log</h2>
-    
-    <div id="historyListContainer" style="overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; padding-right: 4px;">
-        <!-- Items render here -->
-    </div>
-  </div>
 </div>
 
 <script>
@@ -669,13 +389,10 @@ const GAS_API_URL="api/proxy";
 
 let CURRENT_LANG="ja";
 let currentUser = null; 
-let pendingActivationCode = null;
-let modalDownloadTimer = null; 
-
-let els = {};
 let currentAuthRequestId = 0;
 let currentContentData = {};
 let currentAuthTime = "";
+let modalDownloadTimer = null; 
 
 const gId = (i) => document.getElementById(i);
 const setListener = (el, ev, fn) => { if(el) el.addEventListener(ev, fn); };
@@ -734,19 +451,12 @@ function formatLocalTime(dateObj, lang) {
     } catch (e) { return dateObj.toLocaleString(); }
 }
 function getFormattedCurrentTime(lang) { return formatLocalTime(new Date(), lang); }
-function formatSavedTime(timeStr, lang) {
-    if (!timeStr) return "";
-    let d = new Date(timeStr);
-    if (isNaN(d.getTime())) d = new Date(timeStr.replace(/-/g, '/').replace(/ JST| KST| CST/gi, ''));
-    if (isNaN(d.getTime())) return timeStr;
-    return formatLocalTime(d, lang);
-}
 
 function generateErrorCode() {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+';
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let code = '';
-    for(let i=0; i<16; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
-    return code + '.' + Math.floor(Math.random()*10);
+    for(let i=0; i<8; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+    return code;
 }
 
 const TRANSLATIONS={
@@ -763,87 +473,87 @@ const TRANSLATIONS={
   error_owned_msg: "取得済みのデータです。",
   btn_close:"切断",btn_continue:"実行",btn_download:"データ転送", 
   label_logged_in: "接続済み ID", label_welcome: "SYS_READY",
-  btn_redeem_code: "キー認証", btn_logout: "セッション終了",
-  modal_acc_title:"セキュリティ更新", modal_acc_userid:"アカウント", modal_acc_change_pass:"パスフレーズの変更", modal_acc_btn_change:"更新実行", 
-  acc_pass_curr:"現在のパスフレーズ", acc_pass_new:"新規パスフレーズ", acc_pass_conf:"新規パスフレーズ確認", 
-  msg_acc_err_empty:"全フィールドが必要です", msg_acc_err_len:"6文字以上必要です", msg_acc_err_match:"不一致", msg_acc_changing:"更新中...", msg_acc_success:"更新完了", 
-  btn_history: "アクセスログ", modal_history_title: "システムログ", history_empty: "ログ記録がありません。"
+  btn_redeem_code: "キー認証", btn_logout: "セッション終了"
  },
  en:{
-  header_brand:"kiryu11 Security", hero_title:"Activation Terminal", hero_sub:"Securely authenticate your access codes to unlock restricted resources.",
-  modal_title:"System Access",modal_sub:"Enter your assigned security key to proceed.<br>Format: AAAA-BBBB-CCCC", modal_placeholder:"SECURE KEY",modal_btn_auth:"VERIFY",
+  header_brand:"kiryu11 Security", hero_title:"SECURITY TERMINAL", hero_sub:"Securely authenticate your access codes to unlock restricted resources.",
+  modal_title:"SYSTEM ACCESS",modal_sub:"Enter your assigned security key to proceed.<br>Format: AAAA-BBBB-CCCC", modal_placeholder:"SECURE KEY",modal_btn_auth:"VERIFY",
   msg_invalid:"Invalid key sequence.",msg_used:"Key already consumed.",msg_error:"System Error.", 
   msg_already_owned: "Payload already assigned to your profile.",
-  preview_title: "Confirm Auth", preview_desc: "Target payload ready for deployment:",
-  success_title_final: "Access Granted", success_desc: "Payload decrypted and assigned:",
-  success_msg_box: "Session established.\nResource is now available for transfer.",
+  preview_title: "CONFIRM PAYLOAD", preview_desc: "Target payload ready for deployment:",
+  success_title_final: "ACCESS GRANTED", success_desc: "Payload decrypted and assigned:",
+  success_msg_box: "Session established.<br>Resource is now available for transfer.",
   error_title_prefix: "SYS_ERR", error_used_msg: "Key already consumed.", error_locked_msg: "Clearance not met.",
   error_expired_msg: "Resource TTL expired.", btn_expired: "UNAVAILABLE",
   error_owned_msg: "Data already acquired.",
   btn_close:"ABORT",btn_continue:"EXECUTE",btn_download:"TRANSFER", 
   label_logged_in: "CONNECTED ID", label_welcome: "SYS_READY",
-  btn_redeem_code: "INITIATE AUTH", btn_logout: "TERMINATE",
-  modal_acc_title:"Update Credentials", modal_acc_userid:"ACCOUNT", modal_acc_change_pass:"Modify Passphrase", modal_acc_btn_change:"UPDATE", 
-  acc_pass_curr:"Current Passphrase", acc_pass_new:"New Passphrase", acc_pass_conf:"Confirm New", 
-  msg_acc_err_empty:"All fields required", msg_acc_err_len:"Minimum 6 chars", msg_acc_err_match:"Mismatch", msg_acc_changing:"Processing...", msg_acc_success:"Updated successfully", 
-  btn_history: "Access Log", modal_history_title: "System Log", history_empty: "No logs found."
+  btn_redeem_code: "INITIATE AUTH", btn_logout: "TERMINATE"
+ },
+ zh:{
+  header_brand:"kiryu11 Security", hero_title:"安全认证终端", hero_sub:"管理您的访问权限。验证安全密钥以解锁受限资源。",
+  modal_title:"系统访问",modal_sub:"请输入分配给您的安全密钥。<br>格式: AAAA-BBBB-CCCC", modal_placeholder:"安全密钥",modal_btn_auth:"验证",
+  msg_invalid:"无效的密钥序列。",msg_used:"密钥已被消耗。",msg_error:"系统错误。", 
+  msg_already_owned: "数据已分配至您的配置中。",
+  preview_title: "确认认证", preview_desc: "目标数据已准备好部署:",
+  success_title_final: "访问允许", success_desc: "数据已解密并分配:",
+  success_msg_box: "会话已建立。<br>目标资源现在可供传输。",
+  error_title_prefix: "SYS_ERR", error_used_msg: "密钥已被消耗。", error_locked_msg: "权限不足。",
+  error_expired_msg: "资源已过期。", btn_expired: "不可用",
+  error_owned_msg: "数据已获取。",
+  btn_close:"中止",btn_continue:"执行",btn_download:"数据传输", 
+  label_logged_in: "已连接ID", label_welcome: "SYS_READY",
+  btn_redeem_code: "启动认证", btn_logout: "终止会话"
+ },
+ "zh-TW":{
+  header_brand:"kiryu11 Security", hero_title:"安全認證終端", hero_sub:"管理您的訪問權限。驗證安全密鑰以解鎖受限資源。",
+  modal_title:"系統訪問",modal_sub:"請輸入分配給您的安全密鑰。<br>格式: AAAA-BBBB-CCCC", modal_placeholder:"安全密鑰",modal_btn_auth:"驗證",
+  msg_invalid:"無效的密鑰序列。",msg_used:"密鑰已被消耗。",msg_error:"系統錯誤。", 
+  msg_already_owned: "數據已分配至您的配置中。",
+  preview_title: "確認認證", preview_desc: "目標數據已準備好部署:",
+  success_title_final: "訪問允許", success_desc: "數據已解密並分配:",
+  success_msg_box: "會話已建立。<br>目標資源現在可供傳輸。",
+  error_title_prefix: "SYS_ERR", error_used_msg: "密鑰已被消耗。", error_locked_msg: "權限不足。",
+  error_expired_msg: "資源已過期。", btn_expired: "不可用",
+  error_owned_msg: "數據已獲取。",
+  btn_close:"中止",btn_continue:"執行",btn_download:"數據傳輸", 
+  label_logged_in: "已連接ID", label_welcome: "SYS_READY",
+  btn_redeem_code: "啟動認證", btn_logout: "終止會話"
+ },
+ ko:{
+  header_brand:"kiryu11 Security", hero_title:"보안 인증 터미널", hero_sub:"액세스 권한을 관리합니다. 보안 키를 인증하여 제한된 리소스를 잠금 해제하십시오.",
+  modal_title:"시스템 액세스",modal_sub:"할당된 보안 키를 입력하십시오.<br>형식: AAAA-BBBB-CCCC", modal_placeholder:"보안 키",modal_btn_auth:"인증",
+  msg_invalid:"유효하지 않은 키 시퀀스입니다.",msg_used:"이미 소비된 키입니다.",msg_error:"시스템 오류.", 
+  msg_already_owned: "페이로드가 이미 프로필에 할당되었습니다.",
+  preview_title: "인증 확인", preview_desc: "대상 페이로드 배포 준비 완료:",
+  success_title_final: "액세스 허용됨", success_desc: "페이로드 복호화 및 할당 완료:",
+  success_msg_box: "세션이 설정되었습니다.<br>이제 리소스를 전송할 수 있습니다.",
+  error_title_prefix: "SYS_ERR", error_used_msg: "이미 소비된 키입니다.", error_locked_msg: "권한이 없습니다.",
+  error_expired_msg: "리소스가 만료되었습니다.", btn_expired: "사용 불가",
+  error_owned_msg: "이미 획득한 데이터입니다.",
+  btn_close:"중단",btn_continue:"실행",btn_download:"데이터 전송", 
+  label_logged_in: "연결된 ID", label_welcome: "SYS_READY",
+  btn_redeem_code: "인증 시작", btn_logout: "세션 종료"
+ },
+ ru:{
+  header_brand:"kiryu11 Security", hero_title:"ТЕРМИНАЛ АКТИВАЦИИ", hero_sub:"Безопасная аутентификация для доступа к закрытым ресурсам.",
+  modal_title:"ДОСТУП К СИСТЕМЕ",modal_sub:"Введите назначенный ключ безопасности.<br>Формат: AAAA-BBBB-CCCC", modal_placeholder:"СЕКРЕТНЫЙ КЛЮЧ",modal_btn_auth:"ПРОВЕРКА",
+  msg_invalid:"Неверная последовательность.",msg_used:"Ключ уже использован.",msg_error:"Системная ошибка.", 
+  msg_already_owned: "Данные уже назначены вашему профилю.",
+  preview_title: "ПОДТВЕРЖДЕНИЕ", preview_desc: "Данные готовы к развертыванию:",
+  success_title_final: "ДОСТУП РАЗРЕШЕН", success_desc: "Данные расшифрованы и назначены:",
+  success_msg_box: "Сессия установлена.<br>Ресурс готов к передаче.",
+  error_title_prefix: "SYS_ERR", error_used_msg: "Ключ уже использован.", error_locked_msg: "Недостаточно прав.",
+  error_expired_msg: "Срок действия ресурса истек.", btn_expired: "НЕДОСТУПНО",
+  error_owned_msg: "Данные уже получены.",
+  btn_close:"ОТМЕНА",btn_continue:"ВЫПОЛНИТЬ",btn_download:"ПЕРЕДАЧА", 
+  label_logged_in: "ПОДКЛЮЧЕННЫЙ ID", label_welcome: "SYS_READY",
+  btn_redeem_code: "АВТОРИЗАЦИЯ", btn_logout: "ОТКЛЮЧИТЬСЯ"
  }
- // ZH, TW, KO, RU follow similar minimal mappings, defaulting to EN if omitted for brevity in this pure auth scope.
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-  els = {
-    openAccount: gId('btnOpenAccount'),
-    accountDropdown: gId('accountDropdown'),
-    btnMenuRedeem: gId('btnMenuRedeem'),
-    btnLogout: gId('btnLogout'),
-    closeAuth: gId('modalCloseBtn'),
-    btnPreviewClose: gId('btnPreviewClose'),
-    btnSuccessClose: gId('btnSuccessClose'),
-    btnErrorClose: gId('btnErrorClose'),
-    authModal: gId('authModal'),
-    confirm: gId('btnConfirm'),
-    code: gId('activationCode'),
-    langTrigger: gId('langTrigger'),
-    langMenu: gId('langMenu'),
-    currentLangLabel: gId('currentLangLabel'),
-    modalCon: gId('modalContainer'),
-    phaseInput: gId('phase-input'),
-    phasePreview: gId('phase-preview'),
-    phaseSuccess: gId('phase-success'),
-    phaseError: gId('phase-error'),
-    errorCodeText: gId('errorCodeText'),
-    errorTime: gId('errorTime'),
-    errorMessage: gId('errorMessage'),
-    errorSubMessage: gId('errorSubMessage'),
-    errorInfoBox: gId('errorInfoBox'),
-    previewImage: gId('previewImage'),
-    previewTitleUnderImg: gId('previewTitleUnderImg'),
-    previewTitle: gId('previewTitle'),
-    previewWarningText: gId('previewWarningText'),
-    previewWarningBox: gId('previewWarningBox'),
-    btnPreviewRedeem: gId('btnPreviewRedeem'),
-    successImage: gId('successImage2'),
-    successTitleUnderImg: gId('successTitleUnderImg'),
-    successBundleName: gId('successBundleName'),
-    successMessageText: gId('successMessageText'),
-    successTime: gId('successTime'),
-    btnSuccessDownload: gId('btnSuccessDownload'),
-    loggedInView: gId('loggedInView'),
-    displayUserEmail: gId('displayUserEmail'),
-    pcInputDesc: gId('pcInputDesc'),         
-    mobileInputDesc: gId('mobileInputDesc'), 
-    btnMenuHistory: gId('btnMenuHistory'),
-    btnMenuPassword: gId('btnMenuPassword'),
-    historyModal: gId('historyModal'),
-    closeHistoryModalBtn: gId('closeHistoryModalBtn'),
-    historyListContainer: gId('historyListContainer')
-  };
-
-  try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
-  
-  let sLang = localStorage.getItem('user_lang');
-  if (!sLang) sLang = 'en'; // default english for sci-fi feel
+  let sLang = localStorage.getItem('user_lang') || 'en';
   setInitialLanguage(sLang);
 
   const sUser = localStorage.getItem('user_session_identity');
@@ -856,119 +566,53 @@ document.addEventListener('DOMContentLoaded', () => {
   setupEventListeners();
 });
 
-function setupEventListeners() {
-  setListener(els.openAccount, 'click', (e) => {
-    e.stopPropagation(); 
-    toggleDropdown(); 
-  });
-
-  document.addEventListener('click', (e) => {
-    if (els.accountDropdown && !els.accountDropdown.contains(e.target) && !els.openAccount.contains(e.target)) {
-        toggleDropdown(false);
+// View Navigation Logic
+function switchView(viewId) {
+    document.querySelectorAll('.view-panel').forEach(panel => {
+        panel.classList.remove('active');
+    });
+    const target = gId(viewId);
+    if(target) {
+        // trigger reflow for animation
+        void target.offsetWidth; 
+        target.classList.add('active');
     }
-    if (els.langMenu && !els.langTrigger.contains(e.target)) els.langMenu.classList.remove('open'); 
+}
+
+function setupEventListeners() {
+  // Navigation
+  setListener(gId('btnInitAuth'), 'click', () => {
+      gId('activationCode').value = '';
+      switchView('view-input');
+      gId('activationCode').focus();
   });
-
-  if (els.btnMenuRedeem) {
-      els.btnMenuRedeem.addEventListener('click', (e) => {
-          e.stopPropagation();
-          toggleDropdown(false);
-          openAuthModal();
-      });
-  }
-
-  if (els.btnLogout) {
-      els.btnLogout.addEventListener('click', (e) => {
-        if(e) e.preventDefault(); e.stopPropagation();
-        logout();
-      });
-  }
-
-  const accountModal = document.getElementById('accountModal');
-  const closeAccountModalBtn = document.getElementById('closeAccountModalBtn');
-  const btnSubmitAccPassChange = document.getElementById('btnSubmitAccPassChange');
-
-  if (els.btnMenuPassword) {
-      els.btnMenuPassword.addEventListener('click', (e) => {
-          e.stopPropagation();
-          toggleDropdown(false);
-          if (currentUser) document.getElementById('accountModalUserId').textContent = currentUser.email;
-          document.getElementById('accCurrentPass').value = '';
-          document.getElementById('accNewPass').value = '';
-          document.getElementById('accNewPassConfirm').value = '';
-          document.getElementById('accStatusMessage').textContent = '';
-          accountModal.classList.add('active');
-      });
-  }
-
-  if (closeAccountModalBtn) closeAccountModalBtn.addEventListener('click', () => accountModal.classList.remove('active'));
   
-  if (els.btnMenuHistory) {
-      els.btnMenuHistory.addEventListener('click', (e) => {
-          e.stopPropagation();
-          toggleDropdown(false);
-          renderHistoryModal();
-          els.historyModal.classList.add('active');
-      });
+  const resetToHome = () => switchView('view-standby');
+  setListener(gId('btnCancelAuth'), 'click', resetToHome);
+  setListener(gId('btnPreviewCancel'), 'click', resetToHome);
+  setListener(gId('btnSuccessClose'), 'click', resetToHome);
+  setListener(gId('btnErrorClose'), 'click', resetToHome);
+
+  // Auth Flow
+  setListener(gId('btnConfirmAuth'), 'click', () => performAuth(gId('activationCode').value, 'check'));
+  setListener(gId('btnPreviewExecute'), 'click', () => performAuth(gId('activationCode').value, 'redeem'));
+  
+  const codeInput = gId('activationCode');
+  if(codeInput) {
+      setListener(codeInput, 'keydown', (e) => { if(e.key === 'Enter') gId('btnConfirmAuth').click(); });
+      setListener(codeInput, 'input', () => { codeInput.value = formatCodeInput(codeInput.value); });
   }
 
-  if (els.closeHistoryModalBtn) els.closeHistoryModalBtn.addEventListener('click', () => els.historyModal.classList.remove('active'));
+  // Logout
+  setListener(gId('btnLogout'), 'click', logout);
 
-  if (btnSubmitAccPassChange) {
-      btnSubmitAccPassChange.addEventListener('click', async () => {
-          const oldP = document.getElementById('accCurrentPass').value.trim();
-          const newP = document.getElementById('accNewPass').value.trim();
-          const confP = document.getElementById('accNewPassConfirm').value.trim();
-          const status = document.getElementById('accStatusMessage');
-          const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.en;
-
-          if (!oldP || !newP || !confP) { status.style.color = "#ff003c"; status.textContent = t.msg_acc_err_empty || "Fields missing"; return; }
-          if (newP.length < 6) { status.style.color = "#ff003c"; status.textContent = t.msg_acc_err_len || "Too short"; return; }
-          if (newP !== confP) { status.style.color = "#ff003c"; status.textContent = t.msg_acc_err_match || "Mismatch"; return; }
-
-          btnSubmitAccPassChange.textContent = t.msg_acc_changing || "Updating...";
-          btnSubmitAccPassChange.disabled = true;
-
-          try {
-              const d = await safeFetch({ type: 'change_password', userId: currentUser.userId, oldPassword: oldP, newPassword: newP });
-              if (d.success) {
-                  status.style.color = "var(--primary)";
-                  status.textContent = t.msg_acc_success || "Success";
-                  setTimeout(() => {
-                      accountModal.classList.remove('active');
-                      btnSubmitAccPassChange.textContent = t.modal_acc_btn_change || "UPDATE";
-                      btnSubmitAccPassChange.disabled = false;
-                  }, 1500);
-              } else {
-                  status.style.color = "#ff003c";
-                  status.textContent = d.message || "Invalid";
-                  btnSubmitAccPassChange.textContent = t.modal_acc_btn_change || "UPDATE";
-                  btnSubmitAccPassChange.disabled = false;
-              }
-          } catch(e) {
-              status.style.color = "#ff003c";
-              status.textContent = "SYS_ERR";
-              btnSubmitAccPassChange.textContent = t.modal_acc_btn_change || "UPDATE";
-              btnSubmitAccPassChange.disabled = false;
-          }
-      });
-  }
-
-  setListener(els.closeAuth, 'click', closeAuthModal);
-  setListener(els.btnPreviewClose, 'click', closeAuthModal);
-  setListener(els.btnSuccessClose, 'click', closeAuthModal);
-  setListener(els.btnErrorClose, 'click', closeAuthModal);
-
-  setListener(els.confirm, 'click', () => performAuth(els.code.value));
-  if(els.code) {
-      setListener(els.code, 'keydown', (e) => { if(e.key === 'Enter') els.confirm.click(); });
-      setListener(els.code, 'input', (e) => { els.code.value = formatCodeInput(els.code.value); });
-  }
-
-  if (els.langTrigger) {
-        els.langTrigger.addEventListener('click', (e) => { 
+  // Language
+  const langTrigger = gId('langTrigger');
+  const langMenu = gId('langMenu');
+  if (langTrigger) {
+        langTrigger.addEventListener('click', (e) => { 
             e.stopPropagation(); 
-            els.langMenu.classList.toggle('open'); 
+            langMenu.classList.toggle('open'); 
         });
   }
   document.querySelectorAll('.lang-option').forEach(opt => {
@@ -976,26 +620,20 @@ function setupEventListeners() {
             const val = opt.getAttribute('data-value');
             localStorage.setItem('user_lang', val);
             updateLanguage(val);
-            if(currentUser) fetchUserHistory();
-            els.langMenu.classList.remove('open');
+            langMenu.classList.remove('open');
         });
   });
 
+  document.addEventListener('click', (e) => {
+    if (langMenu && !langTrigger.contains(e.target)) langMenu.classList.remove('open'); 
+  });
+  
   document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' || e.key === 'Esc') {
-          if (els.authModal && els.authModal.classList.contains('active')) closeAuthModal();
-          if (els.historyModal && els.historyModal.classList.contains('active')) els.historyModal.classList.remove('active');
-          if (accountModal && accountModal.classList.contains('active')) accountModal.classList.remove('active');
-          if (els.accountDropdown && els.accountDropdown.classList.contains('open')) toggleDropdown(false);
-          if (els.langMenu) els.langMenu.classList.remove('open');
+          switchView('view-standby');
+          if (langMenu) langMenu.classList.remove('open');
       }
   });
-}
-
-function toggleDropdown(forceState) {
-    if (forceState === undefined) els.accountDropdown.classList.toggle('open');
-    else if (forceState) els.accountDropdown.classList.add('open');
-    else els.accountDropdown.classList.remove('open');
 }
 
 function setInitialLanguage(lang){
@@ -1019,73 +657,19 @@ function updateLanguage(lang){
     if(t[k]) el.innerHTML = t[k]; 
   });
   const langMap = { ja: '日本語', en: 'English', zh: '简体中文', 'zh-TW': '繁體中文', ko: '한국어', ru: 'Русский' };
-  if(els.currentLangLabel) els.currentLangLabel.textContent = langMap[lang] || 'Language';
-  if(t.modal_placeholder && els.code) els.code.placeholder = t.modal_placeholder;
-  updateAccountUI();
-}
-
-function openAuthModal(){ 
-  els.authModal.classList.add('active'); 
-  els.modalCon.classList.add('is-input-wide'); 
-  resetAuthModal(); 
-  els.code.focus(); 
-}
-
-function closeAuthModal(){ 
-  els.authModal.classList.remove('active'); 
-  setTimeout(()=> { 
-      els.modalCon.classList.remove('is-wide'); 
-      els.modalCon.classList.remove('is-input-wide'); 
-  }, 500); 
-}
-
-function resetAuthModal(){
-  currentAuthRequestId++; 
-  els.phaseInput.style.display = 'flex'; els.phaseInput.style.opacity = '1';
-  els.phasePreview.style.display = 'none'; els.phasePreview.style.opacity = '0';
-  els.phaseSuccess.style.display = 'none'; els.phaseSuccess.style.opacity = '0';
-  els.phaseError.style.display = 'none'; els.phaseError.style.opacity = '0';
-  els.modalCon.classList.remove('is-wide');
-
-  els.code.value=""; els.code.disabled=false; els.confirm.disabled=false;
-  els.confirm.textContent=TRANSLATIONS[CURRENT_LANG].modal_btn_auth || "VERIFY";
+  const labelEl = gId('currentLangLabel');
+  if(labelEl) labelEl.textContent = langMap[lang] || 'Language';
   
-  els.btnSuccessClose.style.flex = "none";
-  els.btnSuccessClose.style.width = "100%";
-  els.btnSuccessDownload.style.display = "none";
-  
-  els.btnErrorClose.style.flex = "none";
-  els.btnErrorClose.style.width = "100%";
-
-  try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+  const codeEl = gId('activationCode');
+  if(t.modal_placeholder && codeEl) codeEl.placeholder = t.modal_placeholder;
 }
 
-function showMobileItemDetail(item, isNewRedeem = false) {
+function showDownloadButton(item) {
     if(modalDownloadTimer) clearInterval(modalDownloadTimer); 
     
-    els.authModal.classList.add('active');
-    currentAuthRequestId++;
-    els.phaseInput.style.display='none'; 
-    els.phasePreview.style.display='none';
-    els.phaseError.style.display='none';
-    
-    els.phaseSuccess.style.display='flex'; 
-    setTimeout(() => els.phaseSuccess.style.opacity='1', 50);
-    els.modalCon.classList.add('is-wide');
-    
+    const btnDown = gId('btnSuccessDownload');
     const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.en;
-    
-    els.successBundleName.textContent = item.bundleLabel || item.title;
-    els.successTitleUnderImg.textContent = item.message || item.title;
-    
-    if (isNewRedeem) els.successTime.textContent = currentAuthTime;
-    else els.successTime.textContent = formatSavedTime(item.authTime || item.date, CURRENT_LANG);
-
-    els.successImage.src = (item.imageUrl && item.imageUrl.startsWith("http")) ? item.imageUrl : "https://static.wixstatic.com/media/2f0694_38068f106089439b89c7902ef4fb3d2d~mv2.jpg"; 
-
-    els.btnSuccessClose.style.flex = "3";
-    els.btnSuccessClose.style.width = "auto";
-    els.btnSuccessDownload.style.display = "flex";
+    btnDown.style.display = "flex";
     
     const startModalTimer = () => {
         const now = new Date();
@@ -1093,35 +677,31 @@ function showMobileItemDetail(item, isNewRedeem = false) {
 
         if (expireDate && expireDate <= now) {
             if (modalDownloadTimer) clearInterval(modalDownloadTimer);
-            els.btnSuccessDownload.style.pointerEvents = 'auto';
-            els.btnSuccessDownload.style.opacity = '0.6';
-            els.btnSuccessDownload.style.background = 'rgba(255,0,60,0.2)';
-            els.btnSuccessDownload.style.color = '#ff003c';
-            els.btnSuccessDownload.style.borderColor = '#ff003c';
-            els.btnSuccessDownload.removeAttribute('href');
-            els.btnSuccessDownload.innerHTML = `<span>${t.btn_expired || "UNAVAILABLE"}</span>`;
-            els.btnSuccessDownload.onclick = (e) => { e.preventDefault(); };
+            btnDown.style.pointerEvents = 'auto';
+            btnDown.style.background = 'rgba(255,0,60,0.2)';
+            btnDown.style.color = 'var(--text-alert)';
+            btnDown.style.borderColor = 'var(--text-alert)';
+            btnDown.removeAttribute('href');
+            btnDown.innerHTML = `<span>${t.btn_expired || "UNAVAILABLE"}</span>`;
+            btnDown.onclick = (e) => { e.preventDefault(); };
             return;
         }
 
         if(modalDownloadTimer) clearInterval(modalDownloadTimer);
-        els.btnSuccessDownload.style.pointerEvents = 'auto';
-        els.btnSuccessDownload.style.opacity = '1';
+        btnDown.style.pointerEvents = 'auto';
+        btnDown.style.opacity = '1';
 
         const targetUrl = item.url || item.actionUrl;
         
         if (targetUrl) {
             const token = localStorage.getItem('user_session_token') || "";
-            els.btnSuccessDownload.href = `/api/proxy?type=download&code=${item.code}&token=${token}`;
-            els.btnSuccessDownload.onclick = null; 
-            els.btnSuccessDownload.target = "_blank";
+            btnDown.href = `/api/proxy?type=download&code=${item.code}&token=${token}`;
+            btnDown.onclick = null; 
+            btnDown.target = "_blank";
         }
 
         const btnLabel = item.buttonLabel || t.btn_download || "TRANSFER";
-        const btnIcon = item.icon || "download";
-        els.btnSuccessDownload.innerHTML = `<span>${btnLabel}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="${btnIcon}" class="lucide lucide-${btnIcon}" style="margin-left:8px;"></svg>`;
-        
-        try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+        btnDown.innerHTML = `<span>${btnLabel}</span> <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>`;
     };
 
     startModalTimer();
@@ -1130,19 +710,22 @@ function showMobileItemDetail(item, isNewRedeem = false) {
 
 async function performAuth(code, mode = 'check') {
   const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.en;
-  const thisRequestId = currentAuthRequestId;
+  const thisRequestId = ++currentAuthRequestId;
   const safeCode = formatCodeInput(code);
   const spinnerHtml = `<span class="loading-spinner"></span>`;
+  const btnC = gId(mode === 'check' ? 'btnConfirmAuth' : 'btnPreviewExecute');
+  const codeIn = gId('activationCode');
 
-  if (mode === 'check') {
-    if(!safeCode) return;
-    els.code.disabled = true; els.confirm.disabled = true;
-    els.confirm.innerHTML = spinnerHtml;
-  } else if (mode === 'redeem') {
-    els.btnPreviewRedeem.disabled = true;
-    els.btnPreviewRedeem.innerHTML = spinnerHtml;
-    currentAuthTime = getFormattedCurrentTime(CURRENT_LANG);
+  if(!safeCode) {
+      gId('inputDesc').innerHTML = `<span class="term-alert">KEY REQUIRED.</span>`;
+      return;
   }
+
+  btnC.disabled = true;
+  const originalText = btnC.innerHTML;
+  btnC.innerHTML = spinnerHtml;
+  if(mode === 'check') codeIn.disabled = true;
+  else currentAuthTime = getFormattedCurrentTime(CURRENT_LANG);
 
   try {
     const d = await safeFetch({
@@ -1159,50 +742,34 @@ async function performAuth(code, mode = 'check') {
     if (mode === 'check') {
       if (d.success) {
         currentContentData = {
-            bundleLabel: d.bundleLabel || "Unknown Data",
-            message: d.message || "Unknown Signature",
-            detailedTitle: d.detailedTitle || "Payload Data",
+            bundleLabel: d.bundleLabel || "UNKNOWN_DATA",
+            message: d.message || "UNKNOWN_SIG",
+            detailedTitle: d.detailedTitle || "PAYLOAD_READY",
             detailedDesc: d.detailedDesc || "",
             imageUrl: d.imageUrl || "https://static.wixstatic.com/media/2f0694_38068f106089439b89c7902ef4fb3d2d~mv2.jpg"
         };
         
-        els.confirm.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>`;
-        await new Promise(r => setTimeout(r, 600));
-        if (thisRequestId !== currentAuthRequestId) return;
+        btnC.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>`;
+        await new Promise(r => setTimeout(r, 400));
         
-        els.previewImage.src = escapeHTML(currentContentData.imageUrl);
-        els.previewTitleUnderImg.textContent = currentContentData.message;
-        els.previewTitle.textContent = currentContentData.detailedTitle;
+        gId('previewImage').src = escapeHTML(currentContentData.imageUrl);
+        gId('previewMessage').textContent = currentContentData.message;
+        gId('previewTitle').textContent = currentContentData.detailedTitle;
         
         if (currentContentData.detailedDesc) {
-            els.previewWarningText.innerHTML = escapeHTML(currentContentData.detailedDesc).replace(/\n/g, '<br>');
-            els.previewWarningBox.style.display = 'flex';
+            gId('previewDesc').innerHTML = escapeHTML(currentContentData.detailedDesc).replace(/\n/g, '<br>');
         } else {
-            els.previewWarningBox.style.display = 'none';
+            gId('previewDesc').innerHTML = "";
         }
         
-        els.modalCon.classList.add('is-wide');
-        els.phaseInput.style.opacity = '0';
-        setTimeout(() => {
-          if (thisRequestId !== currentAuthRequestId) return;
-          els.phaseInput.style.display = 'none';
-          els.phasePreview.style.display = 'flex';
-          setTimeout(() => els.phasePreview.style.opacity = '1', 50);
-        }, 400);
+        switchView('view-preview');
+        btnC.disabled = false;
+        btnC.innerHTML = originalText;
+        codeIn.disabled = false;
         
-        els.btnPreviewRedeem.disabled = false;
-        els.btnPreviewRedeem.innerHTML = t.btn_continue || "EXECUTE";
-        const newBtn = els.btnPreviewRedeem.cloneNode(true);
-        els.btnPreviewRedeem.parentNode.replaceChild(newBtn, els.btnPreviewRedeem);
-        els.btnPreviewRedeem = newBtn;
-        els.btnPreviewRedeem.addEventListener('click', (e) => { 
-            e.preventDefault();
-            performAuth(safeCode, 'redeem'); 
-        });
       } else { throw new Error(d.message); }
     } else if (mode === 'redeem') {
       if (d.success) { 
-        await saveUnlockedItemLocal(d, safeCode);
         const item = {
              title: d.bundleLabel || d.message,
              message: d.message,
@@ -1212,90 +779,53 @@ async function performAuth(code, mode = 'check') {
              expireDateIso: d.expireDateIso,
              code: safeCode
         };
-        showMobileItemDetail(item, true); // Use this to render the final success with download button
-      } else {
-        try {
-            let specificErrorCode = generateErrorCode(); 
-            const msg = d.message || "";
-            
-            if (msg.includes("already been used") || msg.includes("used")) {
-                els.errorMessage.textContent = t.error_used_msg || "Key Consumed.";
-                specificErrorCode = "1013"; 
-            } else if (d.isAlreadyOwned || msg.includes("Already owned") || msg.includes("owned")) {
-                els.errorMessage.textContent = t.error_owned_msg || "Already Assignd.";
-                specificErrorCode = "1011"; 
-            } else {
-                els.errorMessage.textContent = t.msg_invalid || "Invalid Seq.";
-                specificErrorCode = "1012"; 
-            }
-            
-            els.btnErrorClose.style.flex = "none";
-            els.btnErrorClose.style.width = "100%";
-            els.errorCodeText.innerHTML = `${specificErrorCode}`;
-            els.errorTime.textContent = currentAuthTime;
-            els.errorSubMessage.textContent = msg;
-            els.errorInfoBox.style.display = msg ? 'flex' : 'none';
+        
+        gId('successImage').src = escapeHTML(currentContentData.imageUrl);
+        gId('successMessage').textContent = currentContentData.message;
+        gId('successTitle').textContent = currentContentData.bundleLabel;
+        gId('successTime').textContent = currentAuthTime;
+        
+        switchView('view-success');
+        btnC.disabled = false;
+        btnC.innerHTML = originalText;
 
-        } catch(err) {
-            els.errorMessage.textContent = "SYS_ERR";
-        } finally {
-            els.phasePreview.style.opacity = '0';
-            setTimeout(() => {
-              if (thisRequestId !== currentAuthRequestId) return;
-              els.phasePreview.style.display = 'none';
-              els.phaseError.style.display = 'flex';
-              setTimeout(() => els.phaseError.style.opacity = '1', 50);
-            }, 400);
-        }
+        showDownloadButton(item);
+      } else {
+        throw new Error(d.message);
       }
     }
   } catch (e) {
     if (thisRequestId !== currentAuthRequestId) return;
-    if (mode === 'check') {
-       els.code.disabled = false; els.confirm.disabled = false; 
-       els.confirm.textContent = t.modal_btn_auth || "VERIFY";
-       const errorHtml = `<span style="color:#ff003c; font-size:14px; font-weight:700;">SYS_ERR: Invalid key seq.</span>`;
-       if (els.pcInputDesc) els.pcInputDesc.innerHTML = errorHtml;
-       if (els.mobileInputDesc) els.mobileInputDesc.innerHTML = errorHtml;
+    
+    let specificErrorCode = generateErrorCode(); 
+    const msg = e.message || "";
+    const eMain = gId('errorMainMsg');
+    
+    if (msg.includes("already been used") || msg.includes("used")) {
+        eMain.textContent = t.error_used_msg || "Key Consumed.";
+    } else if (msg.includes("Already owned") || msg.includes("owned")) {
+        eMain.textContent = t.error_owned_msg || "Already Assigned.";
     } else {
-       els.btnPreviewRedeem.disabled = false;
-       els.btnPreviewRedeem.innerHTML = t.btn_continue || "EXECUTE";
+        eMain.textContent = t.msg_invalid || "Invalid Sequence.";
     }
+    
+    gId('errorCodeText').innerHTML = `${specificErrorCode}`;
+    gId('errorTime').textContent = getFormattedCurrentTime(CURRENT_LANG);
+    gId('errorSubMsg').textContent = msg || "UNKNOWN FATAL ERROR";
+    
+    switchView('view-error');
+
+    btnC.disabled = false;
+    btnC.innerHTML = originalText;
+    codeIn.disabled = false;
   }
 }
 
 function updateAccountUI() {
   if (currentUser) {
-    if(els.displayUserEmail) els.displayUserEmail.textContent = currentUser.email || 'USER';
+    const el = gId('displayUserEmail');
+    if(el) el.textContent = currentUser.email || 'GUEST_USER';
   }
-}
-
-async function saveUnlockedItemLocal(data, code) {
-  if (!currentUser) currentUser = { userId: "GUEST", email: "Guest", history: [] };
-  const newItem = {
-    code: code, 
-    title: data.bundleLabel || data.message || "Unknown Content", 
-    message: data.message,
-    url: data.actionUrl, 
-    date: new Date().toLocaleDateString(), 
-    authTime: currentAuthTime, 
-    imageUrl: data.imageUrl
-  };
-  const idx = currentUser.history.findIndex(h => h.code === code);
-  if (idx > -1) currentUser.history.splice(idx, 1);
-  currentUser.history.unshift(newItem);
-  updateAccountUI();
-}
-
-async function fetchUserHistory() {
-  if (!currentUser) return;
-  try { 
-    const data = await safeFetch({ type: 'get_history', lang: CURRENT_LANG, app_tier: 'enterprise' });
-    if (data.success && Array.isArray(data.history)) {
-      currentUser.history = data.history; 
-      updateAccountUI();
-    } 
-  } catch (e) { console.error(e); } 
 }
 
 function initThemeAndParticles() {
@@ -1304,8 +834,6 @@ function initThemeAndParticles() {
   
   function applyTheme(theme) {
     htmlEl.setAttribute('data-theme', theme);
-    if (btn) btn.innerHTML = theme === 'light' ? `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>` 
-                                               : `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
   }
 
   const saved = localStorage.getItem('user_theme') || 'dark';
@@ -1323,7 +851,7 @@ function initThemeAndParticles() {
     update() { this.x+=this.speedX; this.y+=this.speedY; if(this.x<0||this.x>canvas.width)this.speedX*=-1; if(this.y<0||this.y>canvas.height)this.speedY*=-1; }
     draw() { ctx.fillStyle=`rgba(0, 240, 255, ${this.opacity})`; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); }
   }
-  let p = []; for(let i=0;i<50;i++) p.push(new Particle());
+  let p = []; for(let i=0;i<40;i++) p.push(new Particle());
   function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); p.forEach(i=>{i.update();i.draw();}); requestAnimationFrame(animate); }
   window.addEventListener('resize', () => { canvas.width=innerWidth; canvas.height=innerHeight; }); animate();
 }
@@ -1333,46 +861,9 @@ async function resumeSession() {
   if (!sUser) return; 
   try {
       const identity = JSON.parse(sUser);
-      currentUser = { userId: identity.userId, email: identity.email, history: [] };
+      currentUser = { userId: identity.userId, email: identity.email };
       updateAccountUI();
-      await fetchUserHistory(); 
   } catch (e) { logout(); }
-}
-
-function renderHistoryModal() {
-    const container = els.historyListContainer;
-    container.innerHTML = '';
-    const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.en;
-
-    if (!currentUser || !currentUser.history || currentUser.history.length === 0) {
-        container.innerHTML = `<div style="text-align:center; opacity:0.5; padding:60px 20px; font-weight:700;">No Auth Logs Found.</div>`;
-        return;
-    }
-
-    currentUser.history.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'manage-item-row';
-        div.style.cursor = 'pointer';
-
-        const imgUrl = (item.imageUrl && item.imageUrl.startsWith('http')) ? item.imageUrl : 'https://static.wixstatic.com/media/2f0694_38068f106089439b89c7902ef4fb3d2d~mv2.jpg';
-        const timeString = formatSavedTime(item.authTime || item.date, CURRENT_LANG);
-
-        div.innerHTML = `
-            <img src="${escapeHTML(imgUrl)}" style="width: 48px; height: 48px; object-fit: cover; flex-shrink: 0; border: 1px solid var(--card-border); clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);">
-            <div style="flex: 1; margin-left: 15px; display: flex; flex-direction: column; gap: 4px;">
-                <div style="font-weight: 800; font-size: 14px; color: var(--primary);">${escapeHTML(item.title || item.message)}</div>
-                <div style="font-size: 10px; font-family: monospace; color: var(--modal-text-sub); opacity: 0.8;">[${escapeHTML(formatDisplayCode(item.code))}]</div>
-            </div>
-            <div style="font-size: 10px; opacity: 0.5; text-align:right;">${timeString}</div>
-        `;
-        
-        div.addEventListener('click', () => {
-             els.historyModal.classList.remove('active');
-             showMobileItemDetail(item, false);
-        });
-
-        container.appendChild(div);
-    });
 }
 </script>
 </body>
