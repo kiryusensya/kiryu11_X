@@ -319,8 +319,13 @@
 <script>
   lucide.createIcons();
   
-  if (localStorage.getItem('user_session_token')) {
+  // 両方のデータが揃っている場合のみメイン画面へ
+  if (localStorage.getItem('user_session_token') && localStorage.getItem('user_session_identity')) {
       window.location.replace('index.html');
+  } else {
+      // どちらか片方しかない不完全な状態なら、確実に消去（無限ループ防止）
+      localStorage.removeItem('user_session_token');
+      localStorage.removeItem('user_session_identity');
   }
 
   // ===== テーマ設定 (端末設定に追従) =====
