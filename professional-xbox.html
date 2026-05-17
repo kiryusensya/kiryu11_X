@@ -2424,7 +2424,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (sUser) {
       resumeSession();
   } else {
-      // 未ログイン時は強制的にリダイレクト
+      // 未ログイン時は、確実にゴミデータを消去してからリダイレクト（無限ループ防止）
+      localStorage.removeItem('user_session_token');
       window.location.href = 'Access.html' + window.location.search;
   }
   initThemeAndParticles();
