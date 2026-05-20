@@ -2876,6 +2876,30 @@ function openManageModal(item) {
     subItems.forEach(sub => {
         const row = document.createElement('div');
         row.className = 'manage-item-row';
+        let isDlcPurchase = false;
+        let dlcItemData = null;
+
+        if (sub.content_id) {
+            dlcItemData = allContentsData.find(c => String(c.code) === String(sub.content_id));
+            if (dlcItemData) {
+                sub.title = sub.title || dlcItemData.title;
+                // デラックス版(sub.urlがある)ならそれを優先し、なければDLC単体のURLを補完する
+                sub.url = sub.url || dlcItemData.url; 
+                sub.releaseDateIso = sub.releaseDateIso || dlcItemData.releaseDateIso;
+                sub.expireDateIso = sub.expireDateIso || dlcItemData.expireDateIso;
+                
+                // 1. DLCを単体で直接購入したか？
+                const directlyOwned = currentUser && currentUser.history.some(h => String(h.code) === String(dlcItemData.code));
+                // 2. この親(デラックス版)のJSON内に最初からURLが書かれていたか？
+                const ownedViaParent = !!JSON.parse(item.url || "[]").find(s => s.content_id == sub.content_id)?.url;
+                
+                if (!directlyOwned && !ownedViaParent) {
+                    isDlcPurchase = true;
+                }
+            } else {
+                return; // DBに見つからない場合は非表示
+            }
+        }
 
         let isDlcPurchase = false;
         let dlcItemData = null;
@@ -3459,7 +3483,7 @@ async function performAuth(code, mode = 'check') {
   }
 }
   
-function setHeroButtonState(state, forceUnlock = false) {
+function setHeroButtonState(state, forceUnlock = false, isPrereqMet = true) {
     if (window.innerWidth <= 768) return;
 
     const btn = els.heroActionBtn;
@@ -3504,6 +3528,26 @@ function setHeroButtonState(state, forceUnlock = false) {
         btn.innerHTML = `<span data-translate="btn_redeem_code">${t.btn_redeem_code}</span>`;
         btn.classList.remove('is-download');
         currentHeroContext = 'available';
+        if (isPrereqMet === false) {
+            btn.innerHTML = `<span>本編が必要です</span>`;
+            btn.style.opacity = '0.5';
+            btn.style.cursor = 'not-allowed';
+            btn.disabled = true;
+            btn.classList.remove('is-download');
+            if(buyBtn) buyBtn.style.display = 'none';
+        } else {
+            btn.innerHTML = `<span data-translate="btn_redeem_code">${t.btn_redeem_code}</span>`;
+            btn.classList.remove('is-download');
+            
+            if(selectedHeroItem && selectedHeroItem.price > 0) {
+                if(buyBtn) {
+                    buyBtn.style.display = 'inline-flex';
+                    gId('heroBuyBtnText').textContent = `${selectedHeroItem.price}`;
+                }
+            } else {
+                if(buyBtn) buyBtn.style.display = 'none';
+            }
+        }
 
         if(selectedHeroItem && selectedHeroItem.price > 0) {
             if(buyBtn) {
@@ -3730,11 +3774,11 @@ async function saveUnlockedItemLocal(data, code) {
   fetchAvailableContent();
 }
 
-function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
+function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles, ownedDlcsViaDeluxe = new Set()) {
     const mobileList = gId('mobileStoreGrid');
     if (!mobileList) return;
 
-    const isActuallyOwned = (item.groupId && ownedGroups.has(item.groupId)) || (!item.groupId && ownedCodes.has(item.code)) || (item.title && ownedTitles.has(item.title));
+    const isActuallyOwned = (item.groupId && ownedGroups.has(item.groupId)) || (!item.groupId && ownedCodes.has(item.code)) || (item.title && ownedTitles.has(item.title)) || ownedDlcsViaDeluxe.has(String(item.code));
     const isFree = (!item.price || item.price <= 0);
     const treatAsOwned = isActuallyOwned || isFree;
 
@@ -3753,9 +3797,13 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
     const isLocked = releaseDate && releaseDate > now;
 
     if (treatAsOwned) {
-        checkMarkHtml = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px; vertical-align:middle; flex-shrink:0;"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-        btnHtml = `<button class="mobile-store-btn is-owned-download"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>${t.btn_download || "ダウンロード"}</button>`;
+        checkMarkHtml = `<svg ...`;
+        btnHtml = `<button class="mobile-store-btn is-owned-download">...`;
+    } else if (item.isPrereqMet === false) {
+        // 本編を持っていないため買えない場合
+        btnHtml = `<button class="mobile-store-btn" style="background:rgba(128,128,128,0.2); color:var(--modal-text-main); border:1px solid transparent; cursor:not-allowed;" onclick="event.stopPropagation(); alert('このコンテンツを購入するには、先に本編を所有している必要があります。');">本編が必要です</button>`;
     } else {
+        // 通常の購入ボタン
         btnHtml = `<button class="mobile-store-btn">${item.price} pt</button>`;
     }
     
