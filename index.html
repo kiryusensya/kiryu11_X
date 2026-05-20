@@ -3941,9 +3941,50 @@ async function fetchAvailableContent() {
 
         if(d.success && d.items && d.items.length > 0) {
             allContentsData = d.items;
+            const ownedDlcsViaDeluxe = new Set();
+            const dlcParentMap = {}; 
+            
+            if (currentUser && currentUser.history) {
+                allContentsData.forEach(c => {
+                    try {
+                        const subItems = JSON.parse(c.url);
+                        // この親コンテンツ(本編)をユーザーが所有しているか
+                        const isParentOwned = currentUser.history.some(h => String(h.code) === String(c.code) || (c.groupId && h.groupId == c.groupId));
+                        
+                        subItems.forEach(sub => {
+                            if (sub.content_id) {
+                                const dlcId = String(sub.content_id);
+                                if (!dlcParentMap[dlcId]) dlcParentMap[dlcId] = [];
+                                dlcParentMap[dlcId].push(c); // 親を登録
+                                
+                                // 親を所有していて、かつJSON内に実体(url)が含まれている(＝デラックス版)なら所有済み
+                                if (isParentOwned && sub.url) {
+                                    ownedDlcsViaDeluxe.add(dlcId);
+                                }
+                            }
+                        });
+                    } catch(e) {}
+                });
+            }
             d.items.forEach((item, index) => {
-                const isOwned = (item.groupId && ownedGroups.has(item.groupId)) || (!item.groupId && ownedCodes.has(item.code)) || (item.title && ownedTitles.has(item.title));
+                let isOwned = (item.groupId && ownedGroups.has(item.groupId)) || (!item.groupId && ownedCodes.has(item.code)) || (item.title && ownedTitles.has(item.title));
                 
+                // ▼▼▼ 2. 追加: デラックス版経由で持っている場合も所有済みにする ▼▼▼
+                if (ownedDlcsViaDeluxe.has(String(item.code))) {
+                    isOwned = true;
+                }
+
+                // ▼▼▼ 3. 追加: 本編必須（前提条件）の判定 ▼▼▼
+                let isPrereqMet = true;
+                const parentList = dlcParentMap[String(item.code)];
+                if (parentList && parentList.length > 0) {
+                    // このアイテムはDLCである。本編（親）のどれか1つでも所有しているか？
+                    const ownsAnyParent = parentList.some(p => currentUser && currentUser.history.some(h => String(h.code) === String(p.code) || (p.groupId && h.groupId == p.groupId)));
+                    if (!ownsAnyParent) {
+                        isPrereqMet = false; // 本編を持っていない
+                    }
+                }
+                item.isPrereqMet = isPrereqMet;
                 if (!isOwned) {
                     renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles);
                     hasMobileItems = true;
