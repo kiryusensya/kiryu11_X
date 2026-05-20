@@ -2333,10 +2333,6 @@ function setupEventListeners() {
         const targetUrl = selectedHeroItem.url || selectedHeroItem.actionUrl;
         let isMulti = false;
         try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
-
-        const targetUrl = selectedHeroItem.url || selectedHeroItem.actionUrl;
-        let isMulti = false;
-        // ▼ 修正: JSON配列かどうかを確実に判定する
         if (targetUrl && typeof targetUrl === 'string' && targetUrl.trim().startsWith('[')) {
             isMulti = true;
         }
