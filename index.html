@@ -1629,6 +1629,7 @@ const GAS_API_URL="api/proxy";
 let CURRENT_LANG="ja";
 let currentUser = null; 
 let pendingActivationCode = null;
+let allContentsData = [];
 let pendingAction = null;
 let libraryTimerId = null;
 let heroTimer = null;
@@ -2875,6 +2876,26 @@ function openManageModal(item) {
     subItems.forEach(sub => {
         const row = document.createElement('div');
         row.className = 'manage-item-row';
+
+        let isDlcPurchase = false;
+        let dlcItemData = null;
+
+        if (sub.content_id) {
+            dlcItemData = allContentsData.find(c => String(c.code) === String(sub.content_id));
+            if (dlcItemData) {
+                sub.title = sub.title || dlcItemData.title;
+                sub.url = dlcItemData.url; 
+                sub.releaseDateIso = sub.releaseDateIso || dlcItemData.releaseDateIso;
+                sub.expireDateIso = sub.expireDateIso || dlcItemData.expireDateIso;
+                
+                // ユーザーがこのDLCを所有していない場合は購入モードにする
+                if (!dlcItemData.isOwned) {
+                    isDlcPurchase = true;
+                }
+            } else {
+                return; // DBに見つからない場合は非表示
+            }
+        }
         
         const localizedTitle = getLocalizedText(sub.title, item.title);
         const localizedType = getLocalizedText(sub.type, 'アドオン');
@@ -2900,6 +2921,31 @@ function openManageModal(item) {
 
         const actionBtn = document.createElement('button');
         actionBtn.className = 'btn-download-small';
+
+        if (isDlcPurchase) {
+            const dlcPrice = dlcItemData.price || 0;
+            actionBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart" style="margin-right:4px;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>${dlcPrice} pt`;
+            
+            actionBtn.style.background = 'transparent';
+            actionBtn.style.border = '2px solid var(--primary)';
+            actionBtn.style.color = 'var(--primary)';
+
+            actionBtn.onclick = (e) => {
+                e.stopPropagation();
+                if (!currentUser) { toggleDropdown(true); return; }
+                
+                // モーダルを閉じて購入確認画面を開く
+                els.manageModal.classList.remove('active');
+                if (window.manageModalTimer) clearInterval(window.manageModalTimer);
+                
+                showPurchasePreview(dlcItemData, dlcPrice);
+            };
+
+            row.appendChild(infoDiv);
+            row.appendChild(actionBtn);
+            list.appendChild(row);
+            return; // 以下のタイマー処理等は不要なのでここで抜ける
+        }
 
         const subReleaseDate = sub.releaseDateIso ? new Date(sub.releaseDateIso) : null;
         const subExpireDate = sub.expireDateIso ? new Date(sub.expireDateIso) : null;
@@ -3826,91 +3872,6 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
     }
 }
 
-async function fetchAvailableContent() {
-    const list = els.availableListSidebar;
-    const t = TRANSLATIONS[CURRENT_LANG];
-    
-    list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">Loading...</div>`;
-    const mobileList = gId('mobileStoreGrid');
-
-    try {
-        const d = await safeFetch({
-            type: 'get_available',
-            lang: CURRENT_LANG,
-            app_tier: 'enterprise'
-        });
-        
-        list.innerHTML = '';
-        if (mobileList) mobileList.innerHTML = '';
-        
-        const ownedGroups = new Set(); const ownedCodes = new Set(); const ownedTitles = new Set();
-        let hasMobileItems = false;
-        let hasItems = false; 
-        
-        if (currentUser && currentUser.history) {
-            currentUser.history.forEach(h => {
-                if (h.groupId) ownedGroups.add(h.groupId); 
-                if (h.code) ownedCodes.add(h.code);
-                if (h.title) ownedTitles.add(h.title);         
-                
-                renderMobileStoreItem(h, ownedGroups, ownedCodes, ownedTitles);
-                hasMobileItems = true;
-            });
-        }
-
-        if(d.success && d.items && d.items.length > 0) {
-            d.items.forEach((item, index) => {
-                const isOwned = (item.groupId && ownedGroups.has(item.groupId)) || (!item.groupId && ownedCodes.has(item.code)) || (item.title && ownedTitles.has(item.title));
-                
-                if (!isOwned) {
-                    renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles);
-                    hasMobileItems = true;
-                }
-
-                if (isOwned) return; 
-                
-                hasItems = true;
-                const div = document.createElement('div');
-                div.className = 'sidebar-game-item';
-                div.setAttribute('data-code', item.code);
-                if(item.groupId) div.setAttribute('data-group-id', item.groupId);
-                if(item.title) div.setAttribute('data-title', item.title);
-                
-                div.onclick = () => {
-                    document.querySelectorAll('.sidebar-game-item').forEach(el => el.classList.remove('active'));
-                    div.classList.add('active');
-                    updateHeroView(item, false); 
-                };
-                
-                div.innerHTML = `<div class="sidebar-game-info"><img src="${escapeHTML(item.imageUrl)}" class="sidebar-game-thumb"><div class="sidebar-game-text"><div class="sidebar-game-title">${escapeHTML(item.message || item.title)}</div></div></div>`;
-                list.appendChild(div);
-                
-                if (!selectedHeroItem && !document.querySelector('.sidebar-game-item.active') && (!currentUser || !currentUser.history.length)) {
-                    updateHeroView(item, false);
-                    div.classList.add('active');
-                }
-            });
-        } 
-        
-        const totalItems = (currentUser && currentUser.history ? currentUser.history.length : 0) + (hasItems ? 1 : 0);
-        if (totalItems === 0) {
-            resetHeroToDefault();
-        }
-
-        if (!hasItems) {
-             list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">${t.msg_empty_lib || "No content"}</div>`;
-        }
-        
-        if (!hasMobileItems && mobileList) {
-             mobileList.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px; grid-column: 1 / -1; text-align:center;">${t.msg_empty_lib || "No content"}</div>`;
-        }
-    } catch(e) {
-        console.error("Fetch Error:", e);
-        list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">-</div>`;
-        if (mobileList) mobileList.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px; grid-column: 1 / -1; text-align:center;">-</div>`;
-    }
-}
-
 async function fetchUserHistory() {
   if (!currentUser) {
       fetchAvailableContent();
@@ -3979,6 +3940,7 @@ async function fetchAvailableContent() {
         }
 
         if(d.success && d.items && d.items.length > 0) {
+            allContentsData = d.items;
             d.items.forEach((item, index) => {
                 const isOwned = (item.groupId && ownedGroups.has(item.groupId)) || (!item.groupId && ownedCodes.has(item.code)) || (item.title && ownedTitles.has(item.title));
                 
