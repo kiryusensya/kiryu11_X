@@ -2334,6 +2334,13 @@ function setupEventListeners() {
         let isMulti = false;
         try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
 
+        const targetUrl = selectedHeroItem.url || selectedHeroItem.actionUrl;
+        let isMulti = false;
+        // ▼ 修正: JSON配列かどうかを確実に判定する
+        if (targetUrl && typeof targetUrl === 'string' && targetUrl.trim().startsWith('[')) {
+            isMulti = true;
+        }
+
         if (isMulti) {
             openManageModal(selectedHeroItem); // 複数なら独立モーダルを開く
         } else if (targetUrl) {
@@ -3144,7 +3151,10 @@ function showMobileItemDetail(item, isNewRedeem = false) {
 
             const targetUrl = item.url || item.actionUrl;
             let isMulti = false;
-            try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
+            // ▼ 修正: JSON配列かどうかを確実に判定する
+            if (targetUrl && typeof targetUrl === 'string' && targetUrl.trim().startsWith('[')) {
+                isMulti = true;
+            }
 
             if (isMulti) {
                 // 複数ある場合、ボタンを押すと独立モーダルが開く
@@ -3839,11 +3849,14 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles, owned
                         if (!currentUser) { toggleDropdown(true); return; }
                         const targetUrl = item.url || item.actionUrl;
                         let isMulti = false;
-                        try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(err){}
+                        // ▼ 修正: JSON配列かどうかを確実に判定する
+                        if (targetUrl && typeof targetUrl === 'string' && targetUrl.trim().startsWith('[')) {
+                            isMulti = true;
+                        }
                         
                         if (isMulti) { 
                             openManageModal(item); 
-                        } else if (targetUrl) { 
+                        } else if (targetUrl) {
                             const isYouTube = targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be');
                             if (isYouTube) {
                                 window.open(`videos.html?code=${item.code}&target=${encodeURIComponent(targetUrl)}`, '_blank');
