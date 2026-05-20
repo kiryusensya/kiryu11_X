@@ -2853,29 +2853,24 @@ function openManageModal(item) {
     
     const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja; 
 
-    // ★ 期限切れ用の多言語辞書
     const expiredTextMap = {
-        ja: "配信終了",
-        en: "No longer available",
-        zh: "停止提供",
-        'zh-TW': "結束配信",
-        ko: "제공 종료",
-        ru: "Раздача окончена"
+        ja: "配信終了", en: "No longer available", zh: "停止提供",
+        'zh-TW': "結束配信", ko: "제공 종료", ru: "Раздача окончена"
     };
     const expiredLabel = expiredTextMap[CURRENT_LANG] || "Expired";
 
-    // 言語判定用ヘルパー関数
     const getLocalizedText = (fieldData, fallback) => {
         if (!fieldData) return escapeHTML(fallback);
         if (typeof fieldData === 'string') return escapeHTML(fieldData);
         return escapeHTML(fieldData[CURRENT_LANG] || fieldData['ja'] || fieldData['en'] || fallback);
     };
     
-    const timers = []; // 個別カウントダウン用
+    const timers = []; 
 
     subItems.forEach(sub => {
         const row = document.createElement('div');
         row.className = 'manage-item-row';
+        
         let isDlcPurchase = false;
         let dlcItemData = null;
 
@@ -2883,37 +2878,14 @@ function openManageModal(item) {
             dlcItemData = allContentsData.find(c => String(c.code) === String(sub.content_id));
             if (dlcItemData) {
                 sub.title = sub.title || dlcItemData.title;
-                // デラックス版(sub.urlがある)ならそれを優先し、なければDLC単体のURLを補完する
                 sub.url = sub.url || dlcItemData.url; 
                 sub.releaseDateIso = sub.releaseDateIso || dlcItemData.releaseDateIso;
                 sub.expireDateIso = sub.expireDateIso || dlcItemData.expireDateIso;
                 
-                // 1. DLCを単体で直接購入したか？
                 const directlyOwned = currentUser && currentUser.history.some(h => String(h.code) === String(dlcItemData.code));
-                // 2. この親(デラックス版)のJSON内に最初からURLが書かれていたか？
                 const ownedViaParent = !!JSON.parse(item.url || "[]").find(s => s.content_id == sub.content_id)?.url;
                 
                 if (!directlyOwned && !ownedViaParent) {
-                    isDlcPurchase = true;
-                }
-            } else {
-                return; // DBに見つからない場合は非表示
-            }
-        }
-
-        let isDlcPurchase = false;
-        let dlcItemData = null;
-
-        if (sub.content_id) {
-            dlcItemData = allContentsData.find(c => String(c.code) === String(sub.content_id));
-            if (dlcItemData) {
-                sub.title = sub.title || dlcItemData.title;
-                sub.url = dlcItemData.url; 
-                sub.releaseDateIso = sub.releaseDateIso || dlcItemData.releaseDateIso;
-                sub.expireDateIso = sub.expireDateIso || dlcItemData.expireDateIso;
-                
-                // ユーザーがこのDLCを所有していない場合は購入モードにする
-                if (!dlcItemData.isOwned) {
                     isDlcPurchase = true;
                 }
             } else {
@@ -2925,14 +2897,11 @@ function openManageModal(item) {
         const localizedType = getLocalizedText(sub.type, 'アドオン');
         const typeStrForIcon = typeof sub.type === 'string' ? sub.type : (sub.type ? (sub.type['ja'] || sub.type['en'] || '') : '');
         
-        // アイコンの判定 兼 デフォルトボタン名の判定（「ゲーム」か「Game」が含まれているか）
         const isGame = (typeStrForIcon.includes('ゲーム') || typeStrForIcon.includes('Game'));
-        
         const typeIcon = isGame 
             ? '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>'
             : '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>';
 
-        // JSONに「buttonLabel」が指定されていれば優先。なければ自動判定（ダウンロード or 開く）
         const defaultBtnLabel = isGame ? (t.btn_download || "ダウンロード") : (t.btn_open || "開く");
         const btnLabel = sub.buttonLabel ? getLocalizedText(sub.buttonLabel, defaultBtnLabel) : defaultBtnLabel;
 
@@ -2958,7 +2927,6 @@ function openManageModal(item) {
                 e.stopPropagation();
                 if (!currentUser) { toggleDropdown(true); return; }
                 
-                // モーダルを閉じて購入確認画面を開く
                 els.manageModal.classList.remove('active');
                 if (window.manageModalTimer) clearInterval(window.manageModalTimer);
                 
@@ -2968,13 +2936,12 @@ function openManageModal(item) {
             row.appendChild(infoDiv);
             row.appendChild(actionBtn);
             list.appendChild(row);
-            return; // 以下のタイマー処理等は不要なのでここで抜ける
+            return; 
         }
 
         const subReleaseDate = sub.releaseDateIso ? new Date(sub.releaseDateIso) : null;
         const subExpireDate = sub.expireDateIso ? new Date(sub.expireDateIso) : null;
 
-        // 解禁日、または親・子の有効期限のいずれかが設定されていれば監視対象に入れる
         if (subReleaseDate || subExpireDate || parentExpireDate) {
             timers.push({ 
                 btn: actionBtn, 
@@ -2984,15 +2951,12 @@ function openManageModal(item) {
                 label: btnLabel 
             });
         } else {
-            // 時間の縛りが一切ない（最初からずっとダウンロード可能）場合
             actionBtn.innerHTML = btnLabel;
             actionBtn.onclick = () => {
                 const isYouTube = sub.url && (sub.url.includes('youtube.com') || sub.url.includes('youtu.be'));
                 if (isYouTube) {
-                    // YouTube等の動画リンクはプロキシを通さず直接開く（または自前のプレイヤー画面を開く）
                     window.open(sub.url, '_blank');
                 } else {
-                    // 通常のファイルはAPIプロキシを経由して安全にダウンロード
                     const token = localStorage.getItem('user_session_token') || "";
                     const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(sub.url)}&token=${token}`;
                     window.open(dlUrl, '_blank');
@@ -3004,7 +2968,6 @@ function openManageModal(item) {
         list.appendChild(row);
     });
     
-    // リアルタイム更新用関数
     const updateManageTimers = () => {
         const now = new Date();
         const isParentExpired = parentExpireDate && now >= parentExpireDate;
@@ -3012,7 +2975,6 @@ function openManageModal(item) {
         timers.forEach(tData => {
             const isSubExpired = tData.expireDate && now >= tData.expireDate;
             
-            // ★ 親アイテム または 個別アイテム の有効期限が切れているか？
             if (isParentExpired || isSubExpired) {
                 tData.btn.style.background = 'rgba(128,128,128,0.2)';
                 tData.btn.style.color = 'var(--modal-text-main)';
@@ -3021,28 +2983,25 @@ function openManageModal(item) {
                 tData.btn.innerHTML = expiredLabel;
                 tData.btn.onclick = (e) => { e.preventDefault(); };
             
-            // まだ期限内、かつ「解禁日(releaseDate)」が設定されている場合
             } else if (tData.releaseDate) {
                 const diff = tData.releaseDate - now;
                 if (diff <= 0) {
-                    // 解禁完了
                     tData.btn.style.background = '';
                     tData.btn.style.color = '';
                     tData.btn.style.opacity = '1';
                     tData.btn.style.cursor = 'pointer';
                     tData.btn.innerHTML = tData.label; 
                     tData.btn.onclick = () => {
-                    const isYouTube = tData.url && (tData.url.includes('youtube.com') || tData.url.includes('youtu.be'));
-                    if (isYouTube) {
-                        window.open(`videos.html?code=${item.code}&target=${encodeURIComponent(tData.url)}`, '_blank');
-                    } else {
-                        const token = localStorage.getItem('user_session_token') || "";
-                        const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(tData.url)}&token=${token}`;
-                        window.open(dlUrl, '_blank');
-                    }
-                };
-                }else {
-                    // 解禁前
+                        const isYouTube = tData.url && (tData.url.includes('youtube.com') || tData.url.includes('youtu.be'));
+                        if (isYouTube) {
+                            window.open(`videos.html?code=${item.code}&target=${encodeURIComponent(tData.url)}`, '_blank');
+                        } else {
+                            const token = localStorage.getItem('user_session_token') || "";
+                            const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(tData.url)}&token=${token}`;
+                            window.open(dlUrl, '_blank');
+                        }
+                    };
+                } else {
                     tData.btn.style.background = 'rgba(128,128,128,0.2)';
                     tData.btn.style.color = 'var(--modal-text-main)';
                     tData.btn.style.opacity = '1';
@@ -3052,7 +3011,7 @@ function openManageModal(item) {
                         e.stopPropagation();
                         els.manageModal.classList.remove('active'); 
                         if (window.manageModalTimer) clearInterval(window.manageModalTimer);
-                        showLockedError(); // エラー3001（解禁前）
+                        showLockedError(); 
                     };
 
                     const oneDay = 24 * 60 * 60 * 1000;
@@ -3792,13 +3751,13 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles, owned
     let priceText = item.price > 0 ? `${item.price} pt` : (t.status_owned || `所有済み`);
 
     const releaseDate = item.releaseDateIso ? new Date(item.releaseDateIso) : null;
-    const expireDate = item.expireDateIso ? new Date(item.expireDateIso) : null; // 未定義エラーを防ぐために追加
+    const expireDate = item.expireDateIso ? new Date(item.expireDateIso) : null; 
     const now = new Date();
     const isLocked = releaseDate && releaseDate > now;
 
     if (treatAsOwned) {
-        checkMarkHtml = `<svg ...`;
-        btnHtml = `<button class="mobile-store-btn is-owned-download">...`;
+        checkMarkHtml = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px; vertical-align:middle; flex-shrink:0;"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+        btnHtml = `<button class="mobile-store-btn is-owned-download"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>${t.btn_download || "ダウンロード"}</button>`;
     } else if (item.isPrereqMet === false) {
         // 本編を持っていないため買えない場合
         btnHtml = `<button class="mobile-store-btn" style="background:rgba(128,128,128,0.2); color:var(--modal-text-main); border:1px solid transparent; cursor:not-allowed;" onclick="event.stopPropagation(); alert('このコンテンツを購入するには、先に本編を所有している必要があります。');">本編が必要です</button>`;
@@ -3817,7 +3776,6 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles, owned
         ${btnHtml}
     `;
     
-    // ★ 修正1: 要素を先にDOMに追加する。これでタイマー内の contains(dlBtn) が正常に true になります。
     mobileList.appendChild(mDiv);
 
     if (treatAsOwned) {
@@ -3831,7 +3789,7 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles, owned
                 dlBtn.innerHTML = `${t.btn_expired || "期限切れ"}`;
                 dlBtn.onclick = (e) => {
                     e.stopPropagation();
-                    e.preventDefault(); // ★ 追加: 念のためデフォルトのリンク遷移をブロック
+                    e.preventDefault(); 
                     if (!currentUser) { toggleDropdown(true); return; }
                     showExpiredError(); // エラー3002
                 };
@@ -3843,13 +3801,11 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles, owned
                 const diffExpire = expireDate ? expireDate - currentNow : 1;
                 const diffRelease = releaseDate ? releaseDate - currentNow : -1;
 
-                // 期限切れ
                 if (expireDate && diffExpire <= 0) {
                     setExpiredStyle();
-                    return true; // 停止
+                    return true; 
                 }
 
-                // 解禁前
                 if (releaseDate && diffRelease > 0) {
                     dlBtn.style.background = 'rgba(128, 128, 128, 0.2)';
                     dlBtn.style.color = 'var(--modal-text-main)';
@@ -3869,9 +3825,8 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles, owned
                         const h = Math.floor(diffRelease / (1000 * 60 * 60)); const m = Math.floor((diffRelease % (1000 * 60 * 60)) / (1000 * 60)); const s = Math.floor((diffRelease % (1000 * 60)) / 1000);
                         dlBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> <span>${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span>`;
                     }
-                    return false; // 継続
+                    return false; 
                 } 
-                // ダウンロード可能状態
                 else {
                     dlBtn.style.pointerEvents = 'auto';
                     dlBtn.style.background = 'rgba(0, 125, 255, 0.1)';
@@ -3898,7 +3853,7 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles, owned
                             }
                         }
                     };
-                    return expireDate ? false : true; // 期限があるならタイマー継続
+                    return expireDate ? false : true; 
                 }
             };
 
@@ -3914,12 +3869,12 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles, owned
             mBtn.onclick = (e) => {
                 e.stopPropagation();
                 if (!currentUser) { toggleDropdown(true); return; }
+                if (item.isPrereqMet === false) { return; } // 本編未所有なら無効化
                 showPurchasePreview(item, item.price);
             };
         }
     }
 }
-
 async function fetchUserHistory() {
   if (!currentUser) {
       fetchAvailableContent();
@@ -3966,7 +3921,8 @@ async function fetchAvailableContent() {
     try {
         const d = await safeFetch({
             type: 'get_available',
-            lang: CURRENT_LANG
+            lang: CURRENT_LANG,
+            app_tier: 'enterprise'
         });
         
         list.innerHTML = '';
@@ -3996,16 +3952,14 @@ async function fetchAvailableContent() {
                 allContentsData.forEach(c => {
                     try {
                         const subItems = JSON.parse(c.url);
-                        // この親コンテンツ(本編)をユーザーが所有しているか
                         const isParentOwned = currentUser.history.some(h => String(h.code) === String(c.code) || (c.groupId && h.groupId == c.groupId));
                         
                         subItems.forEach(sub => {
                             if (sub.content_id) {
                                 const dlcId = String(sub.content_id);
                                 if (!dlcParentMap[dlcId]) dlcParentMap[dlcId] = [];
-                                dlcParentMap[dlcId].push(c); // 親を登録
+                                dlcParentMap[dlcId].push(c); 
                                 
-                                // 親を所有していて、かつJSON内に実体(url)が含まれている(＝デラックス版)なら所有済み
                                 if (isParentOwned && sub.url) {
                                     ownedDlcsViaDeluxe.add(dlcId);
                                 }
@@ -4017,24 +3971,21 @@ async function fetchAvailableContent() {
             d.items.forEach((item, index) => {
                 let isOwned = (item.groupId && ownedGroups.has(item.groupId)) || (!item.groupId && ownedCodes.has(item.code)) || (item.title && ownedTitles.has(item.title));
                 
-                // ▼▼▼ 2. 追加: デラックス版経由で持っている場合も所有済みにする ▼▼▼
                 if (ownedDlcsViaDeluxe.has(String(item.code))) {
                     isOwned = true;
                 }
 
-                // ▼▼▼ 3. 追加: 本編必須（前提条件）の判定 ▼▼▼
                 let isPrereqMet = true;
                 const parentList = dlcParentMap[String(item.code)];
                 if (parentList && parentList.length > 0) {
-                    // このアイテムはDLCである。本編（親）のどれか1つでも所有しているか？
                     const ownsAnyParent = parentList.some(p => currentUser && currentUser.history.some(h => String(h.code) === String(p.code) || (p.groupId && h.groupId == p.groupId)));
                     if (!ownsAnyParent) {
-                        isPrereqMet = false; // 本編を持っていない
+                        isPrereqMet = false; 
                     }
                 }
                 item.isPrereqMet = isPrereqMet;
                 if (!isOwned) {
-                    renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles);
+                    renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles, ownedDlcsViaDeluxe);
                     hasMobileItems = true;
                 }
 
@@ -4063,7 +4014,7 @@ async function fetchAvailableContent() {
             });
         } 
         
-        const totalItems = (currentUser && currentUser.history ? currentUser.history.length : 0) + (hasItems ? 1 : 0); // ← 途切れていた閉じカッコ
+        const totalItems = (currentUser && currentUser.history ? currentUser.history.length : 0) + (hasItems ? 1 : 0); 
         if (totalItems === 0) {
             resetHeroToDefault();
         }
