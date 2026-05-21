@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>HarmonyOS Clock</title>
+
+<style>
+/* --- FONT FACE DEFINITIONS --- */
+
+@font-face {
+  font-family: 'HarmonyOS Sans';
+  src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff');
+  font-weight: 400;
+}
+@font-face {
+  font-family: 'HarmonyOS Sans';
+  src: url('assets/fonts/HarmonyOS_Sans_Medium.woff') format('woff');
+  font-weight: 500;
+}
+@font-face {
+  font-family: 'HarmonyOS Sans';
+  src: url('assets/fonts/HarmonyOS_Sans_Bold.woff') format('woff');
+  font-weight: 700;
+}
+
+:root:lang(ja) {
+  --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+  background: #000;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: var(--font-stack);
+}
+
+/* コンテナ */
+.clock {
+  text-align: center;
+}
+
+/* 日付 */
+.date {
+  font-size: 40px;
+  opacity: 0.8;
+}
+
+/* 時間（デカく） */
+.time {
+  font-size: 120px;
+  font-weight: 700;
+  margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="clock">
+  <div class="date" id="date"></div>
+  <div class="time" id="time"></div>
+</div>
+
+<script>
+function updateClock() {
+  const now = new Date();
+
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+
+  // 日本語形式
+  document.getElementById("date").textContent =
+    `${year}年${month}月${day}日`;
+
+  document.getElementById("time").textContent =
+    `${hours}:${minutes}:${seconds}`;
+}
+
+// 初回実行 & 1秒ごと更新
+updateClock();
+setInterval(updateClock, 1000);
+</script>
+
+</body>
+</html>
