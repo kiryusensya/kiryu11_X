@@ -1629,7 +1629,6 @@ const GAS_API_URL="api/proxy";
 let CURRENT_LANG="ja";
 let currentUser = null; 
 let pendingActivationCode = null;
-let allContentsData = [];
 let pendingAction = null;
 let libraryTimerId = null;
 let heroTimer = null;
@@ -2202,6 +2201,7 @@ function setupEventListeners() {
   const closeAccountModalBtn = document.getElementById('closeAccountModalBtn');
   const btnSubmitAccPassChange = document.getElementById('btnSubmitAccPassChange');
 
+  // 1. パスワード変更モーダルの開く処理（btnMenuAccount から変更）
   if (els.btnMenuPassword) {
       els.btnMenuPassword.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -2215,6 +2215,7 @@ function setupEventListeners() {
       });
   }
 
+  // 2. パスワード変更モーダルの閉じる処理（※元のコードをそのまま残す）
   if (closeAccountModalBtn) {
       closeAccountModalBtn.addEventListener('click', () => accountModal.classList.remove('active'));
   }
@@ -2224,11 +2225,12 @@ function setupEventListeners() {
       });
   }
 
+  // 3. 【新規追加】利用履歴モーダルの開閉処理
   if (els.btnMenuHistory) {
       els.btnMenuHistory.addEventListener('click', (e) => {
           e.stopPropagation();
           toggleDropdown(false);
-          renderHistoryModal();
+          renderHistoryModal(); // モーダルを開く前に履歴を生成
           els.historyModal.classList.add('active');
       });
   }
@@ -2322,27 +2324,21 @@ function setupEventListeners() {
         if (selectedHeroItem.releaseDateIso) {
             const releaseDate = new Date(selectedHeroItem.releaseDateIso);
             if (releaseDate > new Date()) {
-                showLockedError();
+                showLockedError(); // ★修正：エラー3001を表示させる
                 return; 
             }
         }
         
-        // ▼ 修正: JSON判定を強固に（urlではなく、データ自体の文字列を検査）
-        const rawUrl = selectedHeroItem.url || selectedHeroItem.actionUrl || "";
+        const targetUrl = selectedHeroItem.url || selectedHeroItem.actionUrl;
         let isMulti = false;
-        try {
-            if (typeof rawUrl === 'string' && rawUrl.trim().startsWith('[')) {
-                JSON.parse(rawUrl); // 実際にパースできるか確認
-                isMulti = true;
-            }
-        } catch(err) { isMulti = false; }
+        try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
 
         if (isMulti) {
-            openManageModal(selectedHeroItem); 
-        } else if (rawUrl) {
-            const isYouTube = rawUrl.includes('youtube.com') || rawUrl.includes('youtu.be');
+            openManageModal(selectedHeroItem); // 複数なら独立モーダルを開く
+        } else if (targetUrl) {
+            const isYouTube = targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be');
             if (isYouTube) {
-               window.open(`videos.html?code=${selectedHeroItem.code}&target=${encodeURIComponent(rawUrl)}`, '_blank');
+               window.open(`videos.html?code=${selectedHeroItem.code}&target=${encodeURIComponent(targetUrl)}`, '_blank');
             } else {
                 const token = localStorage.getItem('user_session_token') || "";
                 window.open(`/api/proxy?type=download&code=${selectedHeroItem.code}&token=${token}`, '_blank');
@@ -2388,16 +2384,33 @@ function setupEventListeners() {
   }
   document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' || e.key === 'Esc') {
-          if (els.authModal && els.authModal.classList.contains('active')) closeAuthModal();
+          // 1. 認証・プレビュー・成功・エラーモーダル
+          if (els.authModal && els.authModal.classList.contains('active')) {
+              closeAuthModal();
+          }
+          // 2. ダウンロード管理モーダル
           if (els.manageModal && els.manageModal.classList.contains('active')) {
               els.manageModal.classList.remove('active');
               if (window.manageModalTimer) clearInterval(window.manageModalTimer);
           }
-          if (els.historyModal && els.historyModal.classList.contains('active')) els.historyModal.classList.remove('active');
+          // 3. 利用履歴モーダル
+          if (els.historyModal && els.historyModal.classList.contains('active')) {
+              els.historyModal.classList.remove('active');
+          }
+          // 4. パスワード変更モーダル
           const accountModal = document.getElementById('accountModal');
-          if (accountModal && accountModal.classList.contains('active')) accountModal.classList.remove('active');
-          if (els.accountDropdown && els.accountDropdown.classList.contains('open')) toggleDropdown(false);
-          if (els.mobileNav && els.mobileNav.classList.contains('active')) els.mobileNav.classList.remove('active');
+          if (accountModal && accountModal.classList.contains('active')) {
+              accountModal.classList.remove('active');
+          }
+          // 5. アカウント ドロップダウンメニュー
+          if (els.accountDropdown && els.accountDropdown.classList.contains('open')) {
+              toggleDropdown(false);
+          }
+          // 6. スマホ用 ナビゲーションメニュー
+          if (els.mobileNav && els.mobileNav.classList.contains('active')) {
+              els.mobileNav.classList.remove('active');
+          }
+          // 7. 各種 言語選択メニュー
           if (els.langMenu) els.langMenu.classList.remove('open');
           if (els.loginLangMenu) els.loginLangMenu.classList.remove('open');
           const mobileLangMenu = document.getElementById('mobileLangMenu');
@@ -2839,55 +2852,42 @@ function openManageModal(item) {
     
     const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja; 
 
+    // ★ 期限切れ用の多言語辞書
     const expiredTextMap = {
-        ja: "配信終了", en: "No longer available", zh: "停止提供",
-        'zh-TW': "結束配信", ko: "제공 종료", ru: "Раздача окончена"
+        ja: "配信終了",
+        en: "No longer available",
+        zh: "停止提供",
+        'zh-TW': "結束配信",
+        ko: "제공 종료",
+        ru: "Раздача окончена"
     };
     const expiredLabel = expiredTextMap[CURRENT_LANG] || "Expired";
 
+    // 言語判定用ヘルパー関数
     const getLocalizedText = (fieldData, fallback) => {
         if (!fieldData) return escapeHTML(fallback);
         if (typeof fieldData === 'string') return escapeHTML(fieldData);
         return escapeHTML(fieldData[CURRENT_LANG] || fieldData['ja'] || fieldData['en'] || fallback);
     };
     
-    const timers = []; 
+    const timers = []; // 個別カウントダウン用
 
     subItems.forEach(sub => {
         const row = document.createElement('div');
         row.className = 'manage-item-row';
         
-        let isDlcPurchase = false;
-        let dlcItemData = null;
-
-        if (sub.content_id) {
-            dlcItemData = allContentsData.find(c => String(c.code) === String(sub.content_id));
-            if (dlcItemData) {
-                sub.title = sub.title || dlcItemData.title;
-                sub.url = sub.url || dlcItemData.url; 
-                sub.releaseDateIso = sub.releaseDateIso || dlcItemData.releaseDateIso;
-                sub.expireDateIso = sub.expireDateIso || dlcItemData.expireDateIso;
-                
-                const directlyOwned = currentUser && currentUser.history.some(h => String(h.code) === String(dlcItemData.code));
-                const ownedViaParent = !!JSON.parse(item.url || "[]").find(s => s.content_id == sub.content_id)?.url;
-                
-                if (!directlyOwned && !ownedViaParent) {
-                    isDlcPurchase = true;
-                }
-            } else {
-                return; // DBに見つからない場合は非表示
-            }
-        }
-        
         const localizedTitle = getLocalizedText(sub.title, item.title);
         const localizedType = getLocalizedText(sub.type, 'アドオン');
         const typeStrForIcon = typeof sub.type === 'string' ? sub.type : (sub.type ? (sub.type['ja'] || sub.type['en'] || '') : '');
         
+        // アイコンの判定 兼 デフォルトボタン名の判定（「ゲーム」か「Game」が含まれているか）
         const isGame = (typeStrForIcon.includes('ゲーム') || typeStrForIcon.includes('Game'));
+        
         const typeIcon = isGame 
             ? '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>'
             : '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>';
 
+        // JSONに「buttonLabel」が指定されていれば優先。なければ自動判定（ダウンロード or 開く）
         const defaultBtnLabel = isGame ? (t.btn_download || "ダウンロード") : (t.btn_open || "開く");
         const btnLabel = sub.buttonLabel ? getLocalizedText(sub.buttonLabel, defaultBtnLabel) : defaultBtnLabel;
 
@@ -2901,33 +2901,10 @@ function openManageModal(item) {
         const actionBtn = document.createElement('button');
         actionBtn.className = 'btn-download-small';
 
-        if (isDlcPurchase) {
-            const dlcPrice = dlcItemData.price || 0;
-            actionBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart" style="margin-right:4px;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>${dlcPrice} pt`;
-            
-            actionBtn.style.background = 'transparent';
-            actionBtn.style.border = '2px solid var(--primary)';
-            actionBtn.style.color = 'var(--primary)';
-
-            actionBtn.onclick = (e) => {
-                e.stopPropagation();
-                if (!currentUser) { toggleDropdown(true); return; }
-                
-                els.manageModal.classList.remove('active');
-                if (window.manageModalTimer) clearInterval(window.manageModalTimer);
-                
-                showPurchasePreview(dlcItemData, dlcPrice);
-            };
-
-            row.appendChild(infoDiv);
-            row.appendChild(actionBtn);
-            list.appendChild(row);
-            return; 
-        }
-
         const subReleaseDate = sub.releaseDateIso ? new Date(sub.releaseDateIso) : null;
         const subExpireDate = sub.expireDateIso ? new Date(sub.expireDateIso) : null;
 
+        // 解禁日、または親・子の有効期限のいずれかが設定されていれば監視対象に入れる
         if (subReleaseDate || subExpireDate || parentExpireDate) {
             timers.push({ 
                 btn: actionBtn, 
@@ -2937,12 +2914,15 @@ function openManageModal(item) {
                 label: btnLabel 
             });
         } else {
+            // 時間の縛りが一切ない（最初からずっとダウンロード可能）場合
             actionBtn.innerHTML = btnLabel;
             actionBtn.onclick = () => {
                 const isYouTube = sub.url && (sub.url.includes('youtube.com') || sub.url.includes('youtu.be'));
                 if (isYouTube) {
+                    // YouTube等の動画リンクはプロキシを通さず直接開く（または自前のプレイヤー画面を開く）
                     window.open(sub.url, '_blank');
                 } else {
+                    // 通常のファイルはAPIプロキシを経由して安全にダウンロード
                     const token = localStorage.getItem('user_session_token') || "";
                     const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(sub.url)}&token=${token}`;
                     window.open(dlUrl, '_blank');
@@ -2954,6 +2934,7 @@ function openManageModal(item) {
         list.appendChild(row);
     });
     
+    // リアルタイム更新用関数
     const updateManageTimers = () => {
         const now = new Date();
         const isParentExpired = parentExpireDate && now >= parentExpireDate;
@@ -2961,6 +2942,7 @@ function openManageModal(item) {
         timers.forEach(tData => {
             const isSubExpired = tData.expireDate && now >= tData.expireDate;
             
+            // ★ 親アイテム または 個別アイテム の有効期限が切れているか？
             if (isParentExpired || isSubExpired) {
                 tData.btn.style.background = 'rgba(128,128,128,0.2)';
                 tData.btn.style.color = 'var(--modal-text-main)';
@@ -2969,25 +2951,28 @@ function openManageModal(item) {
                 tData.btn.innerHTML = expiredLabel;
                 tData.btn.onclick = (e) => { e.preventDefault(); };
             
+            // まだ期限内、かつ「解禁日(releaseDate)」が設定されている場合
             } else if (tData.releaseDate) {
                 const diff = tData.releaseDate - now;
                 if (diff <= 0) {
+                    // 解禁完了
                     tData.btn.style.background = '';
                     tData.btn.style.color = '';
                     tData.btn.style.opacity = '1';
                     tData.btn.style.cursor = 'pointer';
                     tData.btn.innerHTML = tData.label; 
                     tData.btn.onclick = () => {
-                        const isYouTube = tData.url && (tData.url.includes('youtube.com') || tData.url.includes('youtu.be'));
-                        if (isYouTube) {
-                            window.open(`videos.html?code=${item.code}&target=${encodeURIComponent(tData.url)}`, '_blank');
-                        } else {
-                            const token = localStorage.getItem('user_session_token') || "";
-                            const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(tData.url)}&token=${token}`;
-                            window.open(dlUrl, '_blank');
-                        }
-                    };
-                } else {
+                    const isYouTube = tData.url && (tData.url.includes('youtube.com') || tData.url.includes('youtu.be'));
+                    if (isYouTube) {
+                        window.open(`videos.html?code=${item.code}&target=${encodeURIComponent(tData.url)}`, '_blank');
+                    } else {
+                        const token = localStorage.getItem('user_session_token') || "";
+                        const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(tData.url)}&token=${token}`;
+                        window.open(dlUrl, '_blank');
+                    }
+                };
+                }else {
+                    // 解禁前
                     tData.btn.style.background = 'rgba(128,128,128,0.2)';
                     tData.btn.style.color = 'var(--modal-text-main)';
                     tData.btn.style.opacity = '1';
@@ -2997,7 +2982,7 @@ function openManageModal(item) {
                         e.stopPropagation();
                         els.manageModal.classList.remove('active'); 
                         if (window.manageModalTimer) clearInterval(window.manageModalTimer);
-                        showLockedError(); 
+                        showLockedError(); // エラー3001（解禁前）
                     };
 
                     const oneDay = 24 * 60 * 60 * 1000;
@@ -3082,10 +3067,11 @@ function showMobileItemDetail(item, isNewRedeem = false) {
         const releaseDate = item.releaseDateIso ? new Date(item.releaseDateIso) : null;
         const expireDate = item.expireDateIso ? new Date(item.expireDateIso) : null;
 
+        // ★ 期限切れなら「期限切れ」ボタンに変更し、エラー3002を出す
         if (expireDate && expireDate <= now) {
             if (modalDownloadTimer) clearInterval(modalDownloadTimer);
             
-            els.btnSuccessDownload.style.pointerEvents = 'auto'; 
+            els.btnSuccessDownload.style.pointerEvents = 'auto'; // クリック可能に
             els.btnSuccessDownload.style.opacity = '0.6';
             els.btnSuccessDownload.style.background = 'rgba(128,128,128,0.2)';
             els.btnSuccessDownload.style.color = 'var(--modal-text-main)';
@@ -3094,7 +3080,7 @@ function showMobileItemDetail(item, isNewRedeem = false) {
 
             els.btnSuccessDownload.onclick = (e) => {
                 e.preventDefault();
-                showExpiredError(); 
+                showExpiredError(); // クリックでエラー3002を表示
             };
             return;
         }
@@ -3127,30 +3113,27 @@ function showMobileItemDetail(item, isNewRedeem = false) {
             els.btnSuccessDownload.style.pointerEvents = 'auto';
             els.btnSuccessDownload.style.opacity = '1';
 
-            // ▼ 修正: JSON判定を強固に
-            const rawUrl = item.url || item.actionUrl || "";
+            const targetUrl = item.url || item.actionUrl;
             let isMulti = false;
-            try {
-                if (typeof rawUrl === 'string' && rawUrl.trim().startsWith('[')) {
-                    JSON.parse(rawUrl);
-                    isMulti = true;
-                }
-            } catch(err) { isMulti = false; }
+            try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
 
             if (isMulti) {
+                // 複数ある場合、ボタンを押すと独立モーダルが開く
                 els.btnSuccessDownload.removeAttribute('href');
                 els.btnSuccessDownload.onclick = (e) => {
                     e.preventDefault();
                     openManageModal(item);
                 };
             } else {
-                const isYouTube = rawUrl && (rawUrl.includes('youtube.com') || rawUrl.includes('youtu.be'));
+                const isYouTube = targetUrl && (targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be'));
                 
                 if (isYouTube) {
-                    els.btnSuccessDownload.href = rawUrl;
+                    // YouTubeの場合はそのままリンクを設定する（ボタン名を「視聴する」等に変えてもOK）
+                    els.btnSuccessDownload.href = targetUrl;
                     els.btnSuccessDownload.onclick = null;
                     els.btnSuccessDownload.target = "_blank";
                 } else {
+                    // 単一ファイルの場合、APIを経由させる
                     const token = localStorage.getItem('user_session_token') || "";
                     els.btnSuccessDownload.href = `/api/proxy?type=download&code=${item.code}&token=${token}`;
                     els.btnSuccessDownload.onclick = null; 
@@ -3430,7 +3413,7 @@ async function performAuth(code, mode = 'check') {
   }
 }
   
-function setHeroButtonState(state, forceUnlock = false, isPrereqMet = true) {
+function setHeroButtonState(state, forceUnlock = false) {
     if (window.innerWidth <= 768) return;
 
     const btn = els.heroActionBtn;
@@ -3475,26 +3458,6 @@ function setHeroButtonState(state, forceUnlock = false, isPrereqMet = true) {
         btn.innerHTML = `<span data-translate="btn_redeem_code">${t.btn_redeem_code}</span>`;
         btn.classList.remove('is-download');
         currentHeroContext = 'available';
-        if (isPrereqMet === false) {
-            btn.innerHTML = `<span>本編が必要です</span>`;
-            btn.style.opacity = '0.5';
-            btn.style.cursor = 'not-allowed';
-            btn.disabled = true;
-            btn.classList.remove('is-download');
-            if(buyBtn) buyBtn.style.display = 'none';
-        } else {
-            btn.innerHTML = `<span data-translate="btn_redeem_code">${t.btn_redeem_code}</span>`;
-            btn.classList.remove('is-download');
-            
-            if(selectedHeroItem && selectedHeroItem.price > 0) {
-                if(buyBtn) {
-                    buyBtn.style.display = 'inline-flex';
-                    gId('heroBuyBtnText').textContent = `${selectedHeroItem.price}`;
-                }
-            } else {
-                if(buyBtn) buyBtn.style.display = 'none';
-            }
-        }
 
         if(selectedHeroItem && selectedHeroItem.price > 0) {
             if(buyBtn) {
@@ -3721,11 +3684,11 @@ async function saveUnlockedItemLocal(data, code) {
   fetchAvailableContent();
 }
 
-function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles, ownedDlcsViaDeluxe = new Set()) {
+function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
     const mobileList = gId('mobileStoreGrid');
     if (!mobileList) return;
 
-    const isActuallyOwned = (item.groupId && ownedGroups.has(item.groupId)) || (!item.groupId && ownedCodes.has(item.code)) || (item.title && ownedTitles.has(item.title)) || ownedDlcsViaDeluxe.has(String(item.code));
+    const isActuallyOwned = (item.groupId && ownedGroups.has(item.groupId)) || (!item.groupId && ownedCodes.has(item.code)) || (item.title && ownedTitles.has(item.title));
     const isFree = (!item.price || item.price <= 0);
     const treatAsOwned = isActuallyOwned || isFree;
 
@@ -3739,14 +3702,13 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles, owned
     let priceText = item.price > 0 ? `${item.price} pt` : (t.status_owned || `所有済み`);
 
     const releaseDate = item.releaseDateIso ? new Date(item.releaseDateIso) : null;
-    const expireDate = item.expireDateIso ? new Date(item.expireDateIso) : null; 
+    const expireDate = item.expireDateIso ? new Date(item.expireDateIso) : null; // 未定義エラーを防ぐために追加
     const now = new Date();
+    const isLocked = releaseDate && releaseDate > now;
 
     if (treatAsOwned) {
         checkMarkHtml = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px; vertical-align:middle; flex-shrink:0;"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
         btnHtml = `<button class="mobile-store-btn is-owned-download"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>${t.btn_download || "ダウンロード"}</button>`;
-    } else if (item.isPrereqMet === false) {
-        btnHtml = `<button class="mobile-store-btn" style="background:rgba(128,128,128,0.2); color:var(--modal-text-main); border:1px solid transparent; cursor:not-allowed;" onclick="event.stopPropagation(); alert('このコンテンツを購入するには、先に本編を所有している必要があります。');">本編が必要です</button>`;
     } else {
         btnHtml = `<button class="mobile-store-btn">${item.price} pt</button>`;
     }
@@ -3761,6 +3723,7 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles, owned
         ${btnHtml}
     `;
     
+    // ★ 修正1: 要素を先にDOMに追加する。これでタイマー内の contains(dlBtn) が正常に true になります。
     mobileList.appendChild(mDiv);
 
     if (treatAsOwned) {
@@ -3774,9 +3737,9 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles, owned
                 dlBtn.innerHTML = `${t.btn_expired || "期限切れ"}`;
                 dlBtn.onclick = (e) => {
                     e.stopPropagation();
-                    e.preventDefault(); 
+                    e.preventDefault(); // ★ 追加: 念のためデフォルトのリンク遷移をブロック
                     if (!currentUser) { toggleDropdown(true); return; }
-                    showExpiredError(); 
+                    showExpiredError(); // エラー3002
                 };
             };
 
@@ -3786,11 +3749,13 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles, owned
                 const diffExpire = expireDate ? expireDate - currentNow : 1;
                 const diffRelease = releaseDate ? releaseDate - currentNow : -1;
 
+                // 期限切れ
                 if (expireDate && diffExpire <= 0) {
                     setExpiredStyle();
-                    return true; 
+                    return true; // 停止
                 }
 
+                // 解禁前
                 if (releaseDate && diffRelease > 0) {
                     dlBtn.style.background = 'rgba(128, 128, 128, 0.2)';
                     dlBtn.style.color = 'var(--modal-text-main)';
@@ -3799,7 +3764,7 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles, owned
                     dlBtn.onclick = (e) => {
                         e.stopPropagation();
                         if (!currentUser) { toggleDropdown(true); return; }
-                        showLockedError(); 
+                        showLockedError(); // エラー3001
                     };
 
                     const oneDay = 24 * 60 * 60 * 1000;
@@ -3810,8 +3775,9 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles, owned
                         const h = Math.floor(diffRelease / (1000 * 60 * 60)); const m = Math.floor((diffRelease % (1000 * 60 * 60)) / (1000 * 60)); const s = Math.floor((diffRelease % (1000 * 60)) / 1000);
                         dlBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> <span>${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span>`;
                     }
-                    return false; 
+                    return false; // 継続
                 } 
+                // ダウンロード可能状態
                 else {
                     dlBtn.style.pointerEvents = 'auto';
                     dlBtn.style.background = 'rgba(0, 125, 255, 0.1)';
@@ -3822,30 +3788,23 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles, owned
                     dlBtn.onclick = (e) => {
                         e.stopPropagation();
                         if (!currentUser) { toggleDropdown(true); return; }
-                        
-                        // ▼ 修正: JSON判定を強固に
-                        const rawUrl = item.url || item.actionUrl || "";
+                        const targetUrl = item.url || item.actionUrl;
                         let isMulti = false;
-                        try {
-                            if (typeof rawUrl === 'string' && rawUrl.trim().startsWith('[')) {
-                                JSON.parse(rawUrl);
-                                isMulti = true;
-                            }
-                        } catch(err) { isMulti = false; }
+                        try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(err){}
                         
                         if (isMulti) { 
                             openManageModal(item); 
-                        } else if (rawUrl) { 
-                            const isYouTube = rawUrl.includes('youtube.com') || rawUrl.includes('youtu.be');
+                        } else if (targetUrl) { 
+                            const isYouTube = targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be');
                             if (isYouTube) {
-                                window.open(`videos.html?code=${item.code}&target=${encodeURIComponent(rawUrl)}`, '_blank');
+                                window.open(`videos.html?code=${item.code}&target=${encodeURIComponent(targetUrl)}`, '_blank');
                             } else {
                                 const token = localStorage.getItem('user_session_token') || "";
                                 window.open(`/api/proxy?type=download&code=${item.code}&token=${token}`, '_blank');
                             }
                         }
                     };
-                    return expireDate ? false : true; 
+                    return expireDate ? false : true; // 期限があるならタイマー継続
                 }
             };
 
@@ -3861,12 +3820,97 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles, owned
             mBtn.onclick = (e) => {
                 e.stopPropagation();
                 if (!currentUser) { toggleDropdown(true); return; }
-                if (item.isPrereqMet === false) { return; } 
                 showPurchasePreview(item, item.price);
             };
         }
     }
 }
+
+async function fetchAvailableContent() {
+    const list = els.availableListSidebar;
+    const t = TRANSLATIONS[CURRENT_LANG];
+    
+    list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">Loading...</div>`;
+    const mobileList = gId('mobileStoreGrid');
+
+    try {
+        const d = await safeFetch({
+            type: 'get_available',
+            lang: CURRENT_LANG,
+            app_tier: 'enterprise'
+        });
+        
+        list.innerHTML = '';
+        if (mobileList) mobileList.innerHTML = '';
+        
+        const ownedGroups = new Set(); const ownedCodes = new Set(); const ownedTitles = new Set();
+        let hasMobileItems = false;
+        let hasItems = false; 
+        
+        if (currentUser && currentUser.history) {
+            currentUser.history.forEach(h => {
+                if (h.groupId) ownedGroups.add(h.groupId); 
+                if (h.code) ownedCodes.add(h.code);
+                if (h.title) ownedTitles.add(h.title);         
+                
+                renderMobileStoreItem(h, ownedGroups, ownedCodes, ownedTitles);
+                hasMobileItems = true;
+            });
+        }
+
+        if(d.success && d.items && d.items.length > 0) {
+            d.items.forEach((item, index) => {
+                const isOwned = (item.groupId && ownedGroups.has(item.groupId)) || (!item.groupId && ownedCodes.has(item.code)) || (item.title && ownedTitles.has(item.title));
+                
+                if (!isOwned) {
+                    renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles);
+                    hasMobileItems = true;
+                }
+
+                if (isOwned) return; 
+                
+                hasItems = true;
+                const div = document.createElement('div');
+                div.className = 'sidebar-game-item';
+                div.setAttribute('data-code', item.code);
+                if(item.groupId) div.setAttribute('data-group-id', item.groupId);
+                if(item.title) div.setAttribute('data-title', item.title);
+                
+                div.onclick = () => {
+                    document.querySelectorAll('.sidebar-game-item').forEach(el => el.classList.remove('active'));
+                    div.classList.add('active');
+                    updateHeroView(item, false); 
+                };
+                
+                div.innerHTML = `<div class="sidebar-game-info"><img src="${escapeHTML(item.imageUrl)}" class="sidebar-game-thumb"><div class="sidebar-game-text"><div class="sidebar-game-title">${escapeHTML(item.message || item.title)}</div></div></div>`;
+                list.appendChild(div);
+                
+                if (!selectedHeroItem && !document.querySelector('.sidebar-game-item.active') && (!currentUser || !currentUser.history.length)) {
+                    updateHeroView(item, false);
+                    div.classList.add('active');
+                }
+            });
+        } 
+        
+        const totalItems = (currentUser && currentUser.history ? currentUser.history.length : 0) + (hasItems ? 1 : 0);
+        if (totalItems === 0) {
+            resetHeroToDefault();
+        }
+
+        if (!hasItems) {
+             list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">${t.msg_empty_lib || "No content"}</div>`;
+        }
+        
+        if (!hasMobileItems && mobileList) {
+             mobileList.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px; grid-column: 1 / -1; text-align:center;">${t.msg_empty_lib || "No content"}</div>`;
+        }
+    } catch(e) {
+        console.error("Fetch Error:", e);
+        list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">-</div>`;
+        if (mobileList) mobileList.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px; grid-column: 1 / -1; text-align:center;">-</div>`;
+    }
+}
+
 async function fetchUserHistory() {
   if (!currentUser) {
       fetchAvailableContent();
@@ -3913,8 +3957,7 @@ async function fetchAvailableContent() {
     try {
         const d = await safeFetch({
             type: 'get_available',
-            lang: CURRENT_LANG,
-            app_tier: 'enterprise'
+            lang: CURRENT_LANG
         });
         
         list.innerHTML = '';
@@ -3936,48 +3979,11 @@ async function fetchAvailableContent() {
         }
 
         if(d.success && d.items && d.items.length > 0) {
-            allContentsData = d.items;
-            const ownedDlcsViaDeluxe = new Set();
-            const dlcParentMap = {}; 
-            
-            if (currentUser && currentUser.history) {
-                allContentsData.forEach(c => {
-                    try {
-                        const subItems = JSON.parse(c.url);
-                        const isParentOwned = currentUser.history.some(h => String(h.code) === String(c.code) || (c.groupId && h.groupId == c.groupId));
-                        
-                        subItems.forEach(sub => {
-                            if (sub.content_id) {
-                                const dlcId = String(sub.content_id);
-                                if (!dlcParentMap[dlcId]) dlcParentMap[dlcId] = [];
-                                dlcParentMap[dlcId].push(c); 
-                                
-                                if (isParentOwned && sub.url) {
-                                    ownedDlcsViaDeluxe.add(dlcId);
-                                }
-                            }
-                        });
-                    } catch(e) {}
-                });
-            }
             d.items.forEach((item, index) => {
-                let isOwned = (item.groupId && ownedGroups.has(item.groupId)) || (!item.groupId && ownedCodes.has(item.code)) || (item.title && ownedTitles.has(item.title));
+                const isOwned = (item.groupId && ownedGroups.has(item.groupId)) || (!item.groupId && ownedCodes.has(item.code)) || (item.title && ownedTitles.has(item.title));
                 
-                if (ownedDlcsViaDeluxe.has(String(item.code))) {
-                    isOwned = true;
-                }
-
-                let isPrereqMet = true;
-                const parentList = dlcParentMap[String(item.code)];
-                if (parentList && parentList.length > 0) {
-                    const ownsAnyParent = parentList.some(p => currentUser && currentUser.history.some(h => String(h.code) === String(p.code) || (p.groupId && h.groupId == p.groupId)));
-                    if (!ownsAnyParent) {
-                        isPrereqMet = false; 
-                    }
-                }
-                item.isPrereqMet = isPrereqMet;
                 if (!isOwned) {
-                    renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles, ownedDlcsViaDeluxe);
+                    renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles);
                     hasMobileItems = true;
                 }
 
@@ -4006,7 +4012,7 @@ async function fetchAvailableContent() {
             });
         } 
         
-        const totalItems = (currentUser && currentUser.history ? currentUser.history.length : 0) + (hasItems ? 1 : 0); 
+        const totalItems = (currentUser && currentUser.history ? currentUser.history.length : 0) + (hasItems ? 1 : 0); // ← 途切れていた閉じカッコ
         if (totalItems === 0) {
             resetHeroToDefault();
         }
