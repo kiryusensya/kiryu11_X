@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>kiryu11 Pro — Redeem</title>
+  <link rel="icon" href="https://static.wixstatic.com/media/2f0694_eb4d3063598a4cc5b6bd6b8e31cba915~mv2.png/v1/crop/x_248,y_0,w_1065,h_950/fill/w_816,h_728,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/1767545356653.png" />
+
+  <!-- (フォント指定は一切変更しない) : 既存ファイルと同一のフォント読み込み/定義を保持 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com/" />
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* --- FONT FACE DEFINITIONS (keep) --- */
+    @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+    @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Medium.woff') format('woff'); font-weight: 500; font-style: normal; }
+    @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+    @font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+    @font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+    @font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+    @font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+
+    /* --- THEME VARIABLES --- */
+    :root {
+      --primary: #007DFF;
+      --danger: #FF3B30;
+      --ok: #04CF22;
+      --bg-color: #F1F3F5;
+      --card-bg: rgba(255, 255, 255, 0.6);
+      --card-border: rgba(255, 255, 255, 0.6);
+      --text-main: #000000;
+      --text-sub: #666666;
+      --shadow-soft: 0 10px 30px rgba(0,0,0,0.06);
+      --shadow-strong: 0 30px 80px rgba(0,0,0,0.14);
+      --radius-xl: 28px;
+      --radius-l: 18px;
+      --spring-ease: cubic-bezier(0.33, 1, 0.68, 1);
+      --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
+    }
+    :root:lang(ja) { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
+    :root:lang(en) { --font-stack: 'HarmonyOS Sans', sans-serif; }
+    :root:lang(zh) { --font-stack: 'HarmonyOS Sans SC', 'Microsoft YaHei', sans-serif; }
+    :root:lang(zh-TW) { --font-stack: 'HarmonyOS Sans TC', 'Microsoft JhengHei', sans-serif; }
+    :root:lang(ko) { --font-stack: 'HarmonyOS Sans', 'Noto Sans KR', sans-serif; }
+    :root:lang(ru) { --font-stack: 'HarmonyOS Sans', sans-serif; }
+
+    [data-theme="dark"] {
+      --bg-color: #0F1012;
+      --card-bg: rgba(40, 40, 40, 0.45);
+      --card-border: rgba(255, 255, 255, 0.12);
+      --text-main: #FFFFFF;
+      --text-sub: rgba(255,255,255,0.65);
+      --shadow-soft: 0 18px 50px rgba(0,0,0,0.5);
+      --shadow-strong: 0 40px 100px rgba(0,0,0,0.72);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      background: var(--bg-color);
+      color: var(--text-main);
+      font-family: var(--font-stack);
+    }
+    button, input { font-family: var(--font-stack); }
+
+    /* Background */
+    #particleCanvas {
+      position: fixed; inset: 0; width: 100%; height: 100%;
+      z-index: 0; pointer-events: none;
+      opacity: 0.55;
+      filter: blur(70px);
+    }
+
+    .app {
+      position: relative;
+      z-index: 2;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 22px;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.18), rgba(0,0,0,0));
+      backdrop-filter: blur(10px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      user-select: none;
+    }
+    .brand .dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #fff, var(--primary));
+      box-shadow: 0 0 0 6px rgba(0,125,255,0.12);
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: auto;
+    }
+
+    .pill {
+      height: 40px;
+      min-width: 40px;
+      border-radius: 999px;
+      background: var(--card-bg);
+      border: 1px solid rgba(128,128,128,0.22);
+      color: var(--text-main);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 12px;
+      cursor: pointer;
+      transition: transform 0.2s var(--spring-ease), background 0.2s;
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow-soft);
+      user-select: none;
+    }
+    .pill:hover { transform: translateY(-1px); }
+    .pill:active { transform: translateY(1px) scale(0.98); }
+
+    #topClock {
+      font-size: 12px;
+      font-weight: 800;
+      opacity: 0.85;
+      white-space: nowrap;
+      letter-spacing: -0.2px;
+    }
+
+    /* Dropdowns */
+    .menu-wrap { position: relative; }
+    .menu {
+      position: absolute;
+      right: 0;
+      top: 48px;
+      width: 220px;
+      background: color-mix(in srgb, var(--card-bg) 88%, transparent);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      box-shadow: var(--shadow-strong);
+      padding: 8px;
+      display: none;
+      transform-origin: top right;
+      backdrop-filter: blur(24px);
+      overflow: hidden;
+    }
+    .menu.open { display: block; animation: pop 0.18s var(--spring-ease); }
+    @keyframes pop { from { transform: translateY(-6px) scale(0.98); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+
+    .menu-item {
+      width: 100%;
+      border: none;
+      background: transparent;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 12px 12px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .menu-item:hover { background: rgba(128,128,128,0.10); }
+    .menu-item.danger { color: var(--danger); }
+
+    .menu-head {
+      padding: 12px 12px 10px 12px;
+      border-bottom: 1px solid rgba(128,128,128,0.14);
+      margin-bottom: 6px;
+    }
+    .menu-head .label {
+      font-size: 10px;
+      opacity: 0.6;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+    .menu-head .uid {
+      margin-top: 4px;
+      font-size: 13px;
+      font-weight: 800;
+      word-break: break-all;
+    }
+
+    /* Main */
+    .main {
+      flex: 1;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+    }
+
+    .hero-card {
+      width: min(860px, 100%);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--card-border);
+      background: linear-gradient(135deg,
+        color-mix(in srgb, var(--card-bg) 85%, transparent),
+        color-mix(in srgb, var(--card-bg) 55%, transparent)
+      );
+      box-shadow: var(--shadow-strong);
+      overflow: hidden;
+      position: relative;
+      backdrop-filter: blur(28px);
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      background: radial-gradient(600px circle at 20% 20%, rgba(0,125,255,0.35), transparent 55%),
+                  radial-gradient(500px circle at 80% 40%, rgba(255,255,255,0.14), transparent 60%),
+                  radial-gradient(450px circle at 65% 90%, rgba(4,207,34,0.18), transparent 60%);
+      z-index: 0;
+      opacity: 0.95;
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      padding: 46px 46px 38px 46px;
+      display: grid;
+      grid-template-columns: 1.35fr 0.65fr;
+      gap: 26px;
+      align-items: center;
+    }
+
+    .hero-title {
+      margin: 0 0 10px 0;
+      font-size: 44px;
+      font-weight: 900;
+      letter-spacing: -1.2px;
+      line-height: 1.08;
+    }
+
+    .hero-sub {
+      margin: 0 0 22px 0;
+      color: var(--text-sub);
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.6;
+      max-width: 52ch;
+    }
+
+    .cta-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn-primary {
+      height: 52px;
+      padding: 0 22px;
+      border-radius: 999px;
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 900;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 18px 40px rgba(0,125,255,0.28);
+      transition: transform 0.2s var(--spring-ease), box-shadow 0.2s;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 22px 52px rgba(0,125,255,0.38); }
+    .btn-primary:active { transform: translateY(1px) scale(0.98); }
+
+    .btn-ghost {
+      height: 52px;
+      padding: 0 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(128,128,128,0.28);
+      background: rgba(255,255,255,0.08);
+      color: var(--text-main);
+      font-size: 13px;
+      font-weight: 900;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: transform 0.2s var(--spring-ease), background 0.2s;
+    }
+    .btn-ghost:hover { transform: translateY(-1px); background: rgba(255,255,255,0.14); }
+    .btn-ghost:active { transform: translateY(1px) scale(0.98); }
+
+    .hero-side {
+      border-radius: var(--radius-l);
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.12);
+      padding: 18px;
+      display: grid;
+      gap: 12px;
+      min-height: 170px;
+    }
+    [data-theme="light"] .hero-side { background: rgba(255,255,255,0.42); }
+
+    .hint {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      color: var(--text-sub);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.5;
+    }
+    .hint .badge {
+      flex: 0 0 auto;
+      width: 28px;
+      height: 28px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      background: rgba(0,125,255,0.14);
+      border: 1px solid rgba(0,125,255,0.20);
+      color: var(--primary);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.38);
+      backdrop-filter: blur(14px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 18px;
+    }
+    .modal-overlay.active { display: flex; }
+
+    .modal {
+      width: min(920px, 100%);
+      border-radius: 30px;
+      border: 1px solid var(--card-border);
+      background: color-mix(in srgb, var(--card-bg) 90%, transparent);
+      backdrop-filter: blur(34px);
+      box-shadow: var(--shadow-strong);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      border: 1px solid rgba(128,128,128,0.24);
+      background: rgba(255,255,255,0.08);
+      color: var(--text-main);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      opacity: 0.9;
+    }
+    .modal-close:hover { opacity: 1; }
+
+    .modal-body {
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: 0;
+      min-height: 420px;
+    }
+
+    .modal-media {
+      background: radial-gradient(800px circle at 30% 20%, rgba(0,125,255,0.35), transparent 60%),
+                  radial-gradient(600px circle at 70% 80%, rgba(4,207,34,0.18), transparent 60%),
+                  linear-gradient(135deg, rgba(255,255,255,0.08), rgba(0,0,0,0.08));
+      padding: 26px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-right: 1px solid rgba(128,128,128,0.12);
+    }
+
+    .modal-media h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.3px;
+    }
+    .modal-media p {
+      margin: 12px 0 0 0;
+      color: var(--text-sub);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.6;
+    }
+
+    .formats {
+      margin-top: 14px;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.3px;
+      opacity: 0.9;
+    }
+
+    .format-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.10);
+      margin-top: 10px;
+    }
+
+    .modal-main {
+      padding: 28px 28px 22px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .modal-title {
+      margin: 0;
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: -0.6px;
+    }
+
+    .modal-sub {
+      margin: 0;
+      color: var(--text-sub);
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.6;
+    }
+
+    .field-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      align-items: center;
+    }
+
+    .code-input {
+      flex: 1;
+      height: 56px;
+      border-radius: 999px;
+      border: 1px solid rgba(128,128,128,0.22);
+      background: rgba(255,255,255,0.08);
+      color: var(--text-main);
+      outline: none;
+      padding: 0 18px;
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+    }
+    .code-input:focus {
+      border-color: rgba(0,125,255,0.55);
+      box-shadow: 0 0 0 6px rgba(0,125,255,0.15);
+    }
+
+    .btn-check {
+      width: 140px;
+      height: 56px;
+      border-radius: 999px;
+      border: none;
+      background: var(--text-main);
+      color: var(--bg-color);
+      font-size: 14px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform 0.2s var(--spring-ease), opacity 0.2s;
+    }
+    [data-theme="dark"] .btn-check { background: #fff; color: #000; }
+    .btn-check:active { transform: scale(0.98); }
+    .btn-check:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .status {
+      min-height: 18px;
+      font-size: 12px;
+      font-weight: 800;
+      margin-top: 8px;
+    }
+
+    .panel {
+      margin-top: 14px;
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(128,128,128,0.16);
+      background: rgba(255,255,255,0.06);
+    }
+
+    .preview-row {
+      display: grid;
+      grid-template-columns: 108px 1fr;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .thumb {
+      width: 108px;
+      height: 72px;
+      border-radius: 14px;
+      background: rgba(128,128,128,0.16);
+      border: 1px solid rgba(128,128,128,0.16);
+      object-fit: cover;
+    }
+
+    .preview-title {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 900;
+      line-height: 1.3;
+    }
+
+    .preview-desc {
+      margin: 6px 0 0 0;
+      color: var(--text-sub);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .btn-outline {
+      flex: 1;
+      height: 52px;
+      border-radius: 999px;
+      border: 2px solid rgba(128,128,128,0.35);
+      background: transparent;
+      color: var(--text-main);
+      font-weight: 900;
+      cursor: pointer;
+    }
+    .btn-solid {
+      flex: 2;
+      height: 52px;
+      border-radius: 999px;
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 900;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 18px 40px rgba(0,125,255,0.25);
+    }
+    .btn-solid:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
+
+    .error-code {
+      font-weight: 900;
+      color: var(--danger);
+      text-decoration: underline;
+    }
+
+    .time-line {
+      margin-top: 10px;
+      font-size: 12px;
+      font-weight: 900;
+      opacity: 0.9;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 3px solid rgba(128,128,128,0.24);
+      border-top: 3px solid var(--primary);
+      animation: spin 0.8s linear infinite;
+      vertical-align: -4px;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Responsive */
+    @media (max-width: 860px) {
+      .hero-inner { grid-template-columns: 1fr; }
+      .hero-side { min-height: unset; }
+      .hero-title { font-size: 38px; }
+      .modal-body { grid-template-columns: 1fr; }
+      .modal-media { border-right: none; border-bottom: 1px solid rgba(128,128,128,0.12); }
+    }
+    @media (max-width: 520px) {
+      .topbar { padding: 14px 14px; }
+      .pill { height: 38px; min-width: 38px; padding: 0 10px; }
+      #topClock { display: none; } /* 超小画面は時計をメニュー内にも表示 */
+      .hero-inner { padding: 28px 18px 20px 18px; }
+      .hero-title { font-size: 32px; }
+      .btn-check { width: 120px; }
+      .preview-row { grid-template-columns: 96px 1fr; }
+      .thumb { width: 96px; height: 64px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="particleCanvas"></canvas>
+
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="dot" aria-hidden="true"></span>
+        <span data-translate="brand">kiryu11 Pro</span>
+      </div>
+
+      <div class="topbar-right">
+        <div class="pill" id="topClock" title="Local time"></div>
+
+        <div class="menu-wrap">
+          <button class="pill" id="langBtn" aria-haspopup="true" aria-expanded="false" title="Language">
+            <i data-lucide="globe" style="width:18px;height:18px;"></i>
+            <span id="langLabel" style="margin-left:8px;font-size:12px;font-weight:900;">日本語</span>
+          </button>
+          <div class="menu" id="langMenu" role="menu">
+            <button class="menu-item" data-lang="ja">日本語 <span style="opacity:.6">JA</span></button>
+            <button class="menu-item" data-lang="en">English <span style="opacity:.6">EN</span></button>
+            <button class="menu-item" data-lang="zh">简体中文 <span style="opacity:.6">ZH</span></button>
+            <button class="menu-item" data-lang="zh-TW">繁體中文 <span style="opacity:.6">ZH-TW</span></button>
+            <button class="menu-item" data-lang="ko">한국어 <span style="opacity:.6">KO</span></button>
+            <button class="menu-item" data-lang="ru">Русский <span style="opacity:.6">RU</span></button>
+          </div>
+        </div>
+
+        <button class="pill" id="themeToggle" title="Theme" aria-label="Theme">
+          <i data-lucide="moon" id="themeIcon" style="width:18px;height:18px;"></i>
+        </button>
+
+        <div class="menu-wrap">
+          <button class="pill" id="accountBtn" aria-haspopup="true" aria-expanded="false" title="Account">
+            <i data-lucide="user-round" style="width:18px;height:18px;"></i>
+          </button>
+          <div class="menu" id="accountMenu" role="menu">
+            <div class="menu-head">
+              <div class="label" data-translate="account_label">USER</div>
+              <div class="uid" id="userIdText">-</div>
+              <div class="time-line" id="clockInMenu" style="opacity:.65"></div>
+            </div>
+            <button class="menu-item" id="menuRedeem">
+              <span data-translate="redeem">Redeem Code</span>
+              <i data-lucide="key-round" style="width:18px;height:18px;opacity:.55"></i>
+            </button>
+            <button class="menu-item danger" id="menuLogout">
+              <span data-translate="logout">Logout</span>
+              <i data-lucide="log-out" style="width:18px;height:18px;opacity:.55"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="hero-card" aria-label="Redeem">
+        <div class="hero-inner">
+          <div>
+            <h1 class="hero-title" data-translate="hero_title">個人認証センター</h1>
+            <p class="hero-sub" data-translate="hero_sub">コードを入力して認証してください。認証後、コンテンツへのアクセスが有効になります。</p>
+
+            <div class="cta-row">
+              <button class="btn-primary" id="openRedeem">
+                <i data-lucide="sparkles" style="width:18px;height:18px;"></i>
+                <span data-translate="btn_open">コード認証を開始</span>
+              </button>
+              <button class="btn-ghost" id="copySupport" type="button">
+                <i data-lucide="life-buoy" style="width:18px;height:18px;"></i>
+                <span data-translate="btn_help">サポートURLをコピー</span>
+              </button>
+            </div>
+          </div>
+
+          <aside class="hero-side">
+            <div class="hint">
+              <div class="badge"><i data-lucide="shield-check" style="width:16px;height:16px;"></i></div>
+              <div>
+                <div style="font-weight:900; margin-bottom:4px;" data-translate="hint_secure_title">安全な認証</div>
+                <div data-translate="hint_secure">セッション・トークン付きのAPI経由で認証を行います。</div>
+              </div>
+            </div>
+            <div class="hint">
+              <div class="badge"><i data-lucide="keyboard" style="width:16px;height:16px;"></i></div>
+              <div>
+                <div style="font-weight:900; margin-bottom:4px;" data-translate="hint_format_title">自動フォーマット</div>
+                <div data-translate="hint_format">入力中に自動でハイフン整形します。</div>
+              </div>
+            </div>
+            <div class="hint">
+              <div class="badge"><i data-lucide="clock" style="width:16px;height:16px;"></i></div>
+              <div>
+                <div style="font-weight:900; margin-bottom:4px;" data-translate="hint_clock_title">時刻ログ</div>
+                <div data-translate="hint_clock">右上の時計は言語に合わせて表記が変わります。</div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Redeem Modal (input / preview / success / error) -->
+  <div class="modal-overlay" id="redeemModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Redeem Modal">
+      <button class="modal-close" id="closeModal" aria-label="Close">
+        <i data-lucide="x" style="width:18px;height:18px;"></i>
+      </button>
+
+      <div class="modal-body">
+        <div class="modal-media">
+          <div>
+            <h3 data-translate="modal_side_title">Redeem</h3>
+            <p data-translate="modal_side_desc">入力したコードは、確認 → 認証 の2段階で処理されます。</p>
+            <div class="formats" data-translate="modal_formats">対応フォーマット</div>
+            <div class="format-chip">AAAA-BBBB-CCCC</div>
+            <div class="format-chip">AAAA-BBBB-CCCC-DDDD</div>
+            <div class="format-chip">AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</div>
+          </div>
+          <div style="color:var(--text-sub); font-size:12px; font-weight:800; line-height:1.6;">
+            <div data-translate="modal_note">※ 認証結果はこの画面に表示されます。</div>
+          </div>
+        </div>
+
+        <div class="modal-main">
+          <h2 class="modal-title" id="phaseTitle" data-translate="modal_title">コード引き換え</h2>
+          <p class="modal-sub" id="phaseSub" data-translate="modal_sub">コードを入力してください。確認後にコンテンツの内容が表示されます。</p>
+
+          <div class="field-row" id="inputRow">
+            <input class="code-input" id="codeInput" autocomplete="off" inputmode="text" placeholder="AAAA-BBBB-CCCC" />
+            <button class="btn-check" id="btnCheck"><span data-translate="btn_check">確認</span></button>
+          </div>
+          <div class="status" id="statusLine"></div>
+
+          <div class="panel" id="previewPanel" style="display:none;">
+            <div class="preview-row">
+              <img class="thumb" id="previewImg" alt="thumbnail" src="" />
+              <div>
+                <p class="preview-title" id="previewName">-</p>
+                <p class="preview-desc" id="previewDesc">-</p>
+              </div>
+            </div>
+
+            <div class="actions" id="previewActions">
+              <button class="btn-outline" id="btnBack" data-translate="btn_back">戻る</button>
+              <button class="btn-solid" id="btnRedeem"><i data-lucide="check" style="width:18px;height:18px;"></i><span data-translate="btn_redeem">認証する</span></button>
+            </div>
+          </div>
+
+          <div class="panel" id="resultPanel" style="display:none;">
+            <div class="preview-row">
+              <img class="thumb" id="resultImg" alt="thumbnail" src="" />
+              <div>
+                <p class="preview-title" id="resultTitle">-</p>
+                <p class="preview-desc" id="resultMessage">-</p>
+                <p class="time-line" id="resultTime">-</p>
+              </div>
+            </div>
+            <div class="actions" id="resultActions" style="margin-top:16px;">
+              <button class="btn-outline" id="btnDone" data-translate="btn_close">閉じる</button>
+              <a class="btn-solid" id="btnOpen" target="_blank" style="text-decoration:none; display:none;"><i data-lucide="download" style="width:18px;height:18px;"></i><span data-translate="btn_open_content">開く</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ====== Config / State ======
+    const GAS_API_URL = "api/proxy";
+    let CURRENT_LANG = 'ja';
+    let currentUser = null;
+    let pendingCode = null;
+    let currentPreview = null;
+    let timeTicker = null;
+
+    const $ = (id) => document.getElementById(id);
+    const htmlEl = document.documentElement;
+
+    // ====== i18n (必要最小限) ======
+    const T = {
+      ja: {
+        brand: 'kiryu11 Pro',
+        hero_title: '個人認証センター',
+        hero_sub: 'コードを入力して認証してください。認証後、コンテンツへのアクセスが有効になります。',
+        btn_open: 'コード認証を開始',
+        btn_help: 'サポートURLをコピー',
+        hint_secure_title: '安全な認証',
+        hint_secure: 'セッション・トークン付きのAPI経由で認証を行います。',
+        hint_format_title: '自動フォーマット',
+        hint_format: '入力中に自動でハイフン整形します。',
+        hint_clock_title: '時刻ログ',
+        hint_clock: '右上の時計は言語に合わせて表記が変わります。',
+        account_label: '個人識別子',
+        redeem: 'コード認証',
+        logout: 'ログアウト',
+        modal_side_title: '認証',
+        modal_side_desc: '入力したコードは、確認 → 認証 の2段階で処理されます。',
+        modal_formats: '対応フォーマット',
+        modal_note: '※ 認証結果はこの画面に表示されます。',
+        modal_title: 'コード引き換え',
+        modal_sub: 'コードを入力してください。確認後にコンテンツの内容が表示されます。',
+        btn_check: '確認',
+        btn_back: '戻る',
+        btn_redeem: '認証する',
+        btn_close: '閉じる',
+        btn_open_content: '開く',
+        msg_checking: '確認中…',
+        msg_redeeming: '認証中…',
+        msg_need_code: 'コードを入力してください。',
+        msg_network: '通信エラーが発生しました。',
+        msg_invalid: 'このコードは無効です。',
+        msg_used: 'このコードは引き換え済みです。',
+        msg_owned: 'このコンテンツは既に所有しています。',
+        msg_success: '認証に成功しました。',
+        msg_error: 'エラーが発生しました。',
+        copied: 'コピーしました',
+      },
+      en: {
+        brand: 'kiryu11 Pro',
+        hero_title: 'Personal Activation Center',
+        hero_sub: 'Enter your code to verify. After verification, your access becomes available.',
+        btn_open: 'Start Verification',
+        btn_help: 'Copy Support URL',
+        hint_secure_title: 'Secure Verification',
+        hint_secure: 'Verification is processed via API with your session token.',
+        hint_format_title: 'Auto Formatting',
+        hint_format: 'Hyphens are inserted automatically as you type.',
+        hint_clock_title: 'Timestamp',
+        hint_clock: 'The clock on the top-right is localized for your language.',
+        account_label: 'USER ID',
+        redeem: 'Redeem Code',
+        logout: 'Logout',
+        modal_side_title: 'Redeem',
+        modal_side_desc: 'Your code is processed in two steps: Check → Redeem.',
+        modal_formats: 'Supported formats',
+        modal_note: 'Results are shown in this window.',
+        modal_title: 'Redeem Code',
+        modal_sub: 'Enter your code. You will see a preview before redeeming.',
+        btn_check: 'CHECK',
+        btn_back: 'Back',
+        btn_redeem: 'REDEEM',
+        btn_close: 'Close',
+        btn_open_content: 'Open',
+        msg_checking: 'Checking…',
+        msg_redeeming: 'Redeeming…',
+        msg_need_code: 'Please enter a code.',
+        msg_network: 'Network error occurred.',
+        msg_invalid: 'This code is invalid.',
+        msg_used: 'This code has already been redeemed.',
+        msg_owned: 'You already own this content.',
+        msg_success: 'Verified successfully.',
+        msg_error: 'An error occurred.',
+        copied: 'Copied',
+      },
+      zh: {
+        brand: 'kiryu11 Pro',
+        hero_title: '个人代码检查中心',
+        hero_sub: '输入代码进行检查。检查通过后即可访问内容。',
+        btn_open: '开始检查',
+        btn_help: '复制支持链接',
+        hint_secure_title: '安全检查',
+        hint_secure: '通过带会话令牌的 API 进行处理。',
+        hint_format_title: '自动格式化',
+        hint_format: '输入时自动插入连字符。',
+        hint_clock_title: '时间戳',
+        hint_clock: '右上角时钟会根据语言显示。',
+        account_label: '用户ID',
+        redeem: '兑换代码',
+        logout: '退出',
+        modal_side_title: '兑换',
+        modal_side_desc: '两步处理：检查 → 兑换。',
+        modal_formats: '支持格式',
+        modal_note: '结果将在此窗口显示。',
+        modal_title: '兑换代码',
+        modal_sub: '请输入代码。兑换前会显示内容预览。',
+        btn_check: '检查',
+        btn_back: '返回',
+        btn_redeem: '兑换',
+        btn_close: '关闭',
+        btn_open_content: '打开',
+        msg_checking: '正在检查…',
+        msg_redeeming: '正在兑换…',
+        msg_need_code: '请输入代码。',
+        msg_network: '网络错误。',
+        msg_invalid: '该代码无效。',
+        msg_used: '此代码已被兑换。',
+        msg_owned: '您已经拥有此内容。',
+        msg_success: '检查成功。',
+        msg_error: '发生错误。',
+        copied: '已复制',
+      },
+      'zh-TW': {
+        brand: 'kiryu11 Pro',
+        hero_title: '個人代碼檢查中心',
+        hero_sub: '輸入代碼進行檢查。檢查通過後即可存取內容。',
+        btn_open: '開始檢查',
+        btn_help: '複製支援連結',
+        hint_secure_title: '安全檢查',
+        hint_secure: '透過附帶工作階段權杖的 API 處理。',
+        hint_format_title: '自動格式化',
+        hint_format: '輸入時自動加入連字號。',
+        hint_clock_title: '時間戳',
+        hint_clock: '右上角時鐘會依語言顯示。',
+        account_label: '用戶ID',
+        redeem: '兌換代碼',
+        logout: '退出',
+        modal_side_title: '兌換',
+        modal_side_desc: '兩步處理：檢查 → 兌換。',
+        modal_formats: '支援格式',
+        modal_note: '結果會顯示在此視窗。',
+        modal_title: '兌換代碼',
+        modal_sub: '請輸入代碼。兌換前會顯示內容預覽。',
+        btn_check: '檢查',
+        btn_back: '返回',
+        btn_redeem: '兌換',
+        btn_close: '關閉',
+        btn_open_content: '開啟',
+        msg_checking: '正在檢查…',
+        msg_redeeming: '正在兌換…',
+        msg_need_code: '請輸入代碼。',
+        msg_network: '網路錯誤。',
+        msg_invalid: '該代碼無效。',
+        msg_used: '此代碼已兌換。',
+        msg_owned: '您已擁有此內容。',
+        msg_success: '檢查成功。',
+        msg_error: '發生錯誤。',
+        copied: '已複製',
+      },
+      ko: {
+        brand: 'kiryu11 Pro',
+        hero_title: '개인 코드 검사 센터',
+        hero_sub: '코드를 입력해 확인하세요. 확인 후 콘텐츠 접근이 활성화됩니다.',
+        btn_open: '인증 시작',
+        btn_help: '지원 URL 복사',
+        hint_secure_title: '안전한 인증',
+        hint_secure: '세션 토큰이 포함된 API로 처리합니다.',
+        hint_format_title: '자동 포맷',
+        hint_format: '입력 중 하이픈이 자동으로 추가됩니다.',
+        hint_clock_title: '타임스탬프',
+        hint_clock: '오른쪽 상단 시계는 언어에 맞게 표시됩니다.',
+        account_label: '사용자 ID',
+        redeem: '코드 교환',
+        logout: '로그아웃',
+        modal_side_title: '교환',
+        modal_side_desc: '2단계 처리: 확인 → 교환.',
+        modal_formats: '지원 형식',
+        modal_note: '결과는 이 창에 표시됩니다.',
+        modal_title: '교환 코드',
+        modal_sub: '코드를 입력하세요. 교환 전에 미리보기가 표시됩니다.',
+        btn_check: '확인',
+        btn_back: '뒤로',
+        btn_redeem: '교환',
+        btn_close: '닫기',
+        btn_open_content: '열기',
+        msg_checking: '확인 중…',
+        msg_redeeming: '교환 중…',
+        msg_need_code: '코드를 입력해 주세요.',
+        msg_network: '네트워크 오류.',
+        msg_invalid: '유효하지 않은 코드입니다.',
+        msg_used: '이미 사용된 코드입니다.',
+        msg_owned: '이미 소유한 콘텐츠입니다.',
+        msg_success: '성공적으로 처리되었습니다.',
+        msg_error: '오류가 발생했습니다.',
+        copied: '복사됨',
+      },
+      ru: {
+        brand: 'kiryu11 Pro',
+        hero_title: 'Центр личной активации',
+        hero_sub: 'Введите код для проверки. После проверки доступ к контенту станет доступен.',
+        btn_open: 'Начать проверку',
+        btn_help: 'Скопировать ссылку поддержки',
+        hint_secure_title: 'Безопасная проверка',
+        hint_secure: 'Обработка через API с токеном сессии.',
+        hint_format_title: 'Автоформат',
+        hint_format: 'Дефисы добавляются автоматически при вводе.',
+        hint_clock_title: 'Время',
+        hint_clock: 'Часы справа сверху локализованы под язык.',
+        account_label: 'ID пользователя',
+        redeem: 'Активировать код',
+        logout: 'Выход',
+        modal_side_title: 'Активация',
+        modal_side_desc: 'Два шага: Проверить → Активировать.',
+        modal_formats: 'Форматы',
+        modal_note: 'Результат отображается здесь.',
+        modal_title: 'Код активации',
+        modal_sub: 'Введите код. Перед активацией будет показан предпросмотр.',
+        btn_check: 'Проверить',
+        btn_back: 'Назад',
+        btn_redeem: 'Активировать',
+        btn_close: 'Закрыть',
+        btn_open_content: 'Открыть',
+        msg_checking: 'Проверка…',
+        msg_redeeming: 'Активация…',
+        msg_need_code: 'Введите код.',
+        msg_network: 'Ошибка сети.',
+        msg_invalid: 'Неверный код.',
+        msg_used: 'Код уже активирован.',
+        msg_owned: 'У вас уже есть этот контент.',
+        msg_success: 'Успешно.',
+        msg_error: 'Произошла ошибка.',
+        copied: 'Скопировано',
+      }
+    };
+
+    function tr(key) {
+      const dict = T[CURRENT_LANG] || T.ja;
+      return dict[key] ?? (T.ja[key] ?? key);
+    }
+
+    function applyTranslations() {
+      document.querySelectorAll('[data-translate]').forEach(el => {
+        const k = el.getAttribute('data-translate');
+        el.textContent = tr(k);
+      });
+      $('langLabel').textContent = ({ja:'日本語',en:'English',zh:'简体中文','zh-TW':'繁體中文',ko:'한국어',ru:'Русский'}[CURRENT_LANG] || '日本語');
+      $('phaseTitle').textContent = tr('modal_title');
+      $('phaseSub').textContent = tr('modal_sub');
+      // update placeholder (keep font; placeholder text only)
+      $('codeInput').placeholder = 'AAAA-BBBB-CCCC';
+    }
+
+    // ====== Time formatting (same idea as existing file) ======
+    function formatLocalTime(dateObj, lang) {
+      try {
+        const formatter = new Intl.DateTimeFormat('en-US', {
+          year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+        });
+        const parts = formatter.formatToParts(dateObj);
+        const p = {};
+        parts.forEach(part => { p[part.type] = part.value; });
+        const hr = p.hour === '24' ? '00' : p.hour;
+        const offset = -dateObj.getTimezoneOffset();
+        const sign = offset >= 0 ? '+' : '-';
+        const pad = n => String(Math.floor(Math.abs(n))).padStart(2, '0');
+        const gmt = `GMT${sign}${pad(offset / 60)}:${pad(offset % 60)}`;
+        const mInt = parseInt(p.month, 10) - 1;
+        const enMonths = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+        const ruMonths = ["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+        switch(lang) {
+          case 'ja': case 'zh': case 'zh-TW':
+            return `${p.year}年${p.month}月${p.day}日 ${hr}:${p.minute}:${p.second} ${gmt}`;
+          case 'ko':
+            return `${p.year}년 ${p.month}월 ${p.day}일 ${hr}:${p.minute}:${p.second} ${gmt}`;
+          case 'ru':
+            return `${p.day} ${ruMonths[mInt]} ${p.year} г. ${hr}:${p.minute}:${p.second} ${gmt}`;
+          case 'en': default:
+            return `${enMonths[mInt]} ${p.day}, ${p.year} ${hr}:${p.minute}:${p.second} ${gmt}`;
+        }
+      } catch(e) {
+        return dateObj.toLocaleString();
+      }
+    }
+
+    function tickClock() {
+      const now = new Date();
+      const text = formatLocalTime(now, CURRENT_LANG);
+      const top = $('topClock');
+      const inMenu = $('clockInMenu');
+      if (top) top.textContent = text;
+      if (inMenu) inMenu.textContent = text;
+    }
+
+    // ====== Helpers ======
+    const escapeHTML = (str) => {
+      if (!str) return "";
+      return String(str).replace(/[&<>"']/g, (m) => ({
+        '&': '&', '<': '<', '>': '>', '"': '"', "'": "'"
+      })[m]);
+    };
+
+    async function safeFetch(bodyObj) {
+      const token = localStorage.getItem('user_session_token') || "";
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      try {
+        const res = await fetch(GAS_API_URL, { method: 'POST', headers, body: JSON.stringify(bodyObj) });
+        return await res.json();
+      } catch(e) {
+        return { success: false, message: 'Network error' };
+      }
+    }
+
+    const formatCodeInput = (val) => {
+      if (!val) return "";
+      const clean = val.toUpperCase().replace(/[^A-Z0-9]/g, '');
+      const sz = clean.length >= 25 ? 5 : 4;
+      let res = '';
+      for (let i = 0; i < clean.length; i++) {
+        if (i > 0 && i % sz === 0) res += '-';
+        res += clean[i];
+      }
+      return res;
+    };
+
+    function codeFromInput() {
+      return ($('codeInput').value || '').trim();
+    }
+
+    function setStatus(text, color) {
+      const el = $('statusLine');
+      el.textContent = text || '';
+      el.style.color = color || '';
+    }
+
+    function showPanel(which) {
+      $('previewPanel').style.display = (which === 'preview') ? 'block' : 'none';
+      $('resultPanel').style.display = (which === 'result') ? 'block' : 'none';
+    }
+
+    function openModal() {
+      $('redeemModal').classList.add('active');
+      $('redeemModal').setAttribute('aria-hidden', 'false');
+      resetModal();
+      setTimeout(() => $('codeInput').focus(), 60);
+    }
+
+    function closeModal() {
+      $('redeemModal').classList.remove('active');
+      $('redeemModal').setAttribute('aria-hidden', 'true');
+    }
+
+    function resetModal() {
+      $('phaseTitle').textContent = tr('modal_title');
+      $('phaseSub').textContent = tr('modal_sub');
+      $('inputRow').style.display = 'flex';
+      $('btnCheck').disabled = false;
+      $('btnRedeem').disabled = false;
+      $('btnOpen').style.display = 'none';
+      $('btnOpen').removeAttribute('href');
+      $('previewImg').src = '';
+      $('resultImg').src = '';
+      $('previewName').textContent = '-';
+      $('previewDesc').textContent = '-';
+      $('resultTitle').textContent = '-';
+      $('resultMessage').textContent = '-';
+      $('resultTime').textContent = '-';
+      setStatus('', '');
+      showPanel(null);
+      currentPreview = null;
+      pendingCode = null;
+    }
+
+    function toggleMenu(btn, menu) {
+      const open = menu.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+
+    function closeMenus() {
+      $('langMenu').classList.remove('open');
+      $('accountMenu').classList.remove('open');
+      $('langBtn').setAttribute('aria-expanded','false');
+      $('accountBtn').setAttribute('aria-expanded','false');
+    }
+
+    // ====== Session (account reused; history/password change removed) ======
+    function loadSessionOrRedirect() {
+      const sUser = localStorage.getItem('user_session_identity');
+      if (!sUser) {
+        localStorage.removeItem('user_session_token');
+        // Same behavior as existing system: redirect to Access page.
+        window.location.href = 'Access.html' + window.location.search;
+        return;
+      }
+      try {
+        currentUser = JSON.parse(sUser);
+      } catch(e) {
+        currentUser = { email: String(sUser) };
+      }
+      const uid = currentUser.email || currentUser.userId || currentUser.id || '-';
+      $('userIdText').textContent = uid;
+    }
+
+    function logout() {
+      localStorage.removeItem('user_session_token');
+      localStorage.removeItem('user_session_identity');
+      window.location.href = 'Access.html' + window.location.search;
+    }
+
+    // ====== Redeem flow (check -> redeem) ======
+    function normalizeApiError(d) {
+      // expected codes: 1011 owned, 1012 invalid, 1013 used
+      const code = (d && (d.code || d.errorCode)) ? String(d.code || d.errorCode) : '';
+      if (code === '1011') return { code, msg: tr('msg_owned') };
+      if (code === '1012') return { code, msg: tr('msg_invalid') };
+      if (code === '1013') return { code, msg: tr('msg_used') };
+      return { code, msg: (d && d.message) ? String(d.message) : tr('msg_error') };
+    }
+
+    async function doCheck() {
+      const code = codeFromInput();
+      if (!code) { setStatus(tr('msg_need_code'), 'var(--danger)'); return; }
+      pendingCode = code;
+
+      setStatus(tr('msg_checking'), '');
+      $('btnCheck').disabled = true;
+
+      const payload = {
+        type: 'check',
+        userId: currentUser.userId || currentUser.id || currentUser.email || '',
+        code: code,
+        lang: CURRENT_LANG,
+        app_tier: 'enterprise'
+      };
+
+      const d = await safeFetch(payload);
+      $('btnCheck').disabled = false;
+
+      if (!d || !d.success) {
+        const e = normalizeApiError(d);
+        renderError(e.code || 'ERR', e.msg, d && d.message);
+        return;
+      }
+
+      currentPreview = {
+        title: d.detailedTitle || d.bundleLabel || d.title || 'Content',
+        desc: d.detailedDesc || d.message || '',
+        image: d.imageUrl || d.thumbUrl || '',
+        actionUrl: d.actionUrl || d.url || ''
+      };
+
+      $('previewName').textContent = escapeHTML(currentPreview.title);
+      $('previewDesc').textContent = escapeHTML(currentPreview.desc);
+      $('previewImg').src = currentPreview.image || '';
+      showPanel('preview');
+      setStatus('', '');
+    }
+
+    async function doRedeem() {
+      if (!pendingCode) pendingCode = codeFromInput();
+      if (!pendingCode) { setStatus(tr('msg_need_code'), 'var(--danger)'); return; }
+
+      $('btnRedeem').disabled = true;
+      setStatus(tr('msg_redeeming'), '');
+
+      const payload = {
+        type: 'redeem',
+        userId: currentUser.userId || currentUser.id || currentUser.email || '',
+        code: pendingCode,
+        lang: CURRENT_LANG,
+        app_tier: 'enterprise'
+      };
+
+      const d = await safeFetch(payload);
+      $('btnRedeem').disabled = false;
+
+      if (!d || !d.success) {
+        const e = normalizeApiError(d);
+        renderError(e.code || 'ERR', e.msg, d && d.message);
+        return;
+      }
+
+      const title = d.detailedTitle || (currentPreview && currentPreview.title) || d.bundleLabel || 'Success';
+      const msg = d.message || tr('msg_success');
+      const image = d.imageUrl || (currentPreview && currentPreview.image) || '';
+      const actionUrl = d.actionUrl || (currentPreview && currentPreview.actionUrl) || '';
+      renderSuccess(title, msg, image, actionUrl);
+    }
+
+    function renderError(code, msg, sub) {
+      $('inputRow').style.display = 'none';
+      showPanel('result');
+
+      const link = (code && code !== 'ERR') ? `error.html?code=${encodeURIComponent(code)}` : null;
+      const title = code ? `${tr('msg_error')} (${code})` : tr('msg_error');
+
+      $('resultTitle').innerHTML = link
+        ? `<a class="error-code" href="${link}" target="_blank">${escapeHTML(title)}</a>`
+        : `<span style="color:var(--danger); font-weight:900;">${escapeHTML(title)}</span>`;
+
+      $('resultMessage').textContent = msg || tr('msg_error');
+      $('resultTime').textContent = formatLocalTime(new Date(), CURRENT_LANG);
+      $('resultImg').src = '';
+      $('btnOpen').style.display = 'none';
+      setStatus('', '');
+    }
+
+    function resolveOpenUrl(actionUrl) {
+      if (!actionUrl) return null;
+      const url = String(actionUrl);
+      const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
+      if (isYouTube) return url;
+      // Use proxy download URL pattern if possible
+      const token = localStorage.getItem('user_session_token') || '';
+      return `/api/proxy?type=download&code=${encodeURIComponent(pendingCode || '')}&token=${encodeURIComponent(token)}`;
+    }
+
+    function renderSuccess(title, msg, image, actionUrl) {
+      $('inputRow').style.display = 'none';
+      showPanel('result');
+
+      $('resultTitle').textContent = title || tr('msg_success');
+      $('resultMessage').textContent = msg || tr('msg_success');
+      $('resultTime').textContent = formatLocalTime(new Date(), CURRENT_LANG);
+      $('resultImg').src = image || '';
+
+      const openUrl = resolveOpenUrl(actionUrl);
+      if (openUrl) {
+        $('btnOpen').style.display = 'inline-flex';
+        $('btnOpen').setAttribute('href', openUrl);
+      } else {
+        $('btnOpen').style.display = 'none';
+      }
+      setStatus('', '');
+    }
+
+    // ====== Theme ======
+    function initTheme() {
+      const saved = localStorage.getItem('ui_theme');
+      if (saved === 'light' || saved === 'dark') {
+        htmlEl.setAttribute('data-theme', saved);
+      }
+      updateThemeIcon();
+    }
+
+    function toggleTheme() {
+      const cur = htmlEl.getAttribute('data-theme') || 'dark';
+      const next = (cur === 'dark') ? 'light' : 'dark';
+      htmlEl.setAttribute('data-theme', next);
+      localStorage.setItem('ui_theme', next);
+      updateThemeIcon();
+    }
+
+    function updateThemeIcon() {
+      const cur = htmlEl.getAttribute('data-theme') || 'dark';
+      const icon = $('themeIcon');
+      icon.setAttribute('data-lucide', cur === 'dark' ? 'moon' : 'sun');
+      try { lucide.createIcons(); } catch(e) {}
+    }
+
+    // ====== Language ======
+    function initLang() {
+      let s = localStorage.getItem('user_lang');
+      if (!s) {
+        const bl = (navigator.language || '').toLowerCase();
+        if (bl.startsWith('ja')) s = 'ja';
+        else if (bl.includes('zh-tw') || bl.includes('zh-hk') || bl.includes('zh-hant')) s = 'zh-TW';
+        else if (bl.startsWith('zh')) s = 'zh';
+        else if (bl.startsWith('ko')) s = 'ko';
+        else if (bl.startsWith('ru')) s = 'ru';
+        else s = 'en';
+      }
+      setLang(s);
+    }
+
+    function setLang(lang) {
+      CURRENT_LANG = (T[lang] ? lang : 'ja');
+      localStorage.setItem('user_lang', CURRENT_LANG);
+      htmlEl.setAttribute('lang', CURRENT_LANG);
+      applyTranslations();
+      tickClock();
+    }
+
+    // ====== Particles (simple gradient blobs) ======
+    function initParticles() {
+      const canvas = $('particleCanvas');
+      const ctx = canvas.getContext('2d');
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+
+      const blobs = Array.from({length: 7}).map((_, i) => ({
+        x: Math.random(),
+        y: Math.random(),
+        r: 0.18 + Math.random()*0.22,
+        vx: (Math.random()*0.0006 + 0.0002) * (Math.random() < 0.5 ? -1 : 1),
+        vy: (Math.random()*0.0006 + 0.0002) * (Math.random() < 0.5 ? -1 : 1),
+        hue: i*55 + Math.random()*40
+      }));
+
+      function resize() {
+        canvas.width = Math.floor(window.innerWidth * dpr);
+        canvas.height = Math.floor(window.innerHeight * dpr);
+        canvas.style.width = window.innerWidth + 'px';
+        canvas.style.height = window.innerHeight + 'px';
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      let raf;
+      function draw() {
+        const w = canvas.width, h = canvas.height;
+        ctx.clearRect(0,0,w,h);
+
+        for (const b of blobs) {
+          b.x += b.vx;
+          b.y += b.vy;
+          if (b.x < -0.2 || b.x > 1.2) b.vx *= -1;
+          if (b.y < -0.2 || b.y > 1.2) b.vy *= -1;
+
+          const gx = b.x * w;
+          const gy = b.y * h;
+          const gr = b.r * Math.min(w,h);
+          const grad = ctx.createRadialGradient(gx, gy, 0, gx, gy, gr);
+
+          const dark = (htmlEl.getAttribute('data-theme') || 'dark') === 'dark';
+          const a1 = dark ? 0.22 : 0.14;
+          const a2 = 0;
+          grad.addColorStop(0, `hsla(${b.hue}, 90%, 60%, ${a1})`);
+          grad.addColorStop(1, `hsla(${b.hue}, 90%, 60%, ${a2})`);
+
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(gx, gy, gr, 0, Math.PI*2);
+          ctx.fill();
+        }
+
+        raf = requestAnimationFrame(draw);
+      }
+      draw();
+      return () => cancelAnimationFrame(raf);
+    }
+
+    // ====== Events ======
+    function wire() {
+      // lucide icons
+      try { lucide.createIcons(); } catch(e) {}
+
+      $('openRedeem').addEventListener('click', openModal);
+      $('menuRedeem').addEventListener('click', () => { closeMenus(); openModal(); });
+      $('closeModal').addEventListener('click', closeModal);
+      $('btnDone').addEventListener('click', closeModal);
+
+      $('redeemModal').addEventListener('click', (e) => { if (e.target === $('redeemModal')) closeModal(); });
+
+      $('btnCheck').addEventListener('click', doCheck);
+      $('btnRedeem').addEventListener('click', doRedeem);
+      $('btnBack').addEventListener('click', () => {
+        // back to input
+        $('inputRow').style.display = 'flex';
+        showPanel(null);
+        setStatus('', '');
+        $('codeInput').focus();
+      });
+
+      $('codeInput').addEventListener('input', () => {
+        $('codeInput').value = formatCodeInput($('codeInput').value);
+        setStatus('', '');
+      });
+      $('codeInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); doCheck(); }
+      });
+
+      $('themeToggle').addEventListener('click', () => { toggleTheme(); tickClock(); });
+
+      $('langBtn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleMenu($('langBtn'), $('langMenu'));
+        $('accountMenu').classList.remove('open');
+      });
+      $('accountBtn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleMenu($('accountBtn'), $('accountMenu'));
+        $('langMenu').classList.remove('open');
+      });
+
+      document.addEventListener('click', () => closeMenus());
+
+      $('langMenu').addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-lang]');
+        if (!btn) return;
+        setLang(btn.getAttribute('data-lang'));
+        closeMenus();
+      });
+
+      $('menuLogout').addEventListener('click', logout);
+
+      // Support URL copy
+      $('copySupport').addEventListener('click', async () => {
+        const url = new URL(window.location.href);
+        url.pathname = url.pathname.replace(/[^/]*$/, 'support.html');
+        try {
+          await navigator.clipboard.writeText(url.toString());
+          $('copySupport').querySelector('span').textContent = tr('copied');
+          setTimeout(() => $('copySupport').querySelector('span').textContent = tr('btn_help'), 1200);
+        } catch(e) {
+          // fallback
+          const tmp = document.createElement('textarea');
+          tmp.value = url.toString();
+          document.body.appendChild(tmp);
+          tmp.select();
+          try { document.execCommand('copy'); } catch(_) {}
+          tmp.remove();
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' || e.key === 'Esc') {
+          closeMenus();
+          if ($('redeemModal').classList.contains('active')) closeModal();
+        }
+      });
+    }
+
+    // ====== Boot ======
+    document.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      initLang();
+      loadSessionOrRedirect();
+      initParticles();
+      wire();
+
+      tickClock();
+      timeTicker = setInterval(tickClock, 1000);
+    });
+  </script>
+</body>
+</html>
