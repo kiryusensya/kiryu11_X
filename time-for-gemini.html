@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HarmonyOS Clock/Gemini</title>
+  <style>
+    /* --- FONT FACE DEFINITIONS --- */
+    @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+    @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Medium.woff') format('woff'); font-weight: 500; font-style: normal; }
+    @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+    @font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+    @font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+    @font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+    @font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+
+    :root:lang(ja) { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
+    :root:lang(en) { --font-stack: 'HarmonyOS Sans', sans-serif; }
+    :root:lang(zh) { --font-stack: 'HarmonyOS Sans SC', 'Microsoft YaHei', sans-serif; }
+    :root:lang(zh-TW) { --font-stack: 'HarmonyOS Sans TC', 'Microsoft JhengHei', sans-serif; }
+    :root:lang(ko) { --font-stack: 'HarmonyOS Sans', 'Noto Sans KR', sans-serif; }
+    :root:lang(ru) { --font-stack: 'HarmonyOS Sans', sans-serif; }
+
+    /* --- APP STYLES --- */
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #121212; /* ダークモード背景 */
+      color: #ffffff;
+      font-family: var(--font-stack);
+      overflow: hidden;
+    }
+
+    .clock-container {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .date {
+      font-size: 2.5rem;
+      font-weight: 400;
+      color: #b3b3b3;
+      letter-spacing: 2px;
+    }
+
+    .time {
+      font-size: 10rem;
+      font-weight: 700;
+      line-height: 1;
+      /* 秒数が変わった時に文字幅の変動でガタつかないようにする設定 */
+      font-variant-numeric: tabular-nums; 
+    }
+
+    /* 画面が小さい端末向けのリサイズ調整 */
+    @media (max-width: 768px) {
+      .date { font-size: 1.5rem; }
+      .time { font-size: 5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="clock-container">
+    <div class="date" id="date"></div>
+    <div class="time" id="time"></div>
+  </div>
+
+  <script>
+    function updateClock() {
+      const now = new Date();
+      
+      // 日付の取得と0埋め
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      
+      // 時間の取得と0埋め
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+
+      // DOMの更新
+      document.getElementById('date').textContent = `${year}年${month}月${day}日`;
+      document.getElementById('time').textContent = `${hours}:${minutes}:${seconds}`;
+    }
+
+    // 初回実行と1秒ごとのループ設定
+    updateClock();
+    setInterval(updateClock, 1000);
+  </script>
+
+</body>
+</html>
