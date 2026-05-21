@@ -2202,7 +2202,6 @@ function setupEventListeners() {
   const closeAccountModalBtn = document.getElementById('closeAccountModalBtn');
   const btnSubmitAccPassChange = document.getElementById('btnSubmitAccPassChange');
 
-  // 1. パスワード変更モーダルの開く処理（btnMenuAccount から変更）
   if (els.btnMenuPassword) {
       els.btnMenuPassword.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -2216,7 +2215,6 @@ function setupEventListeners() {
       });
   }
 
-  // 2. パスワード変更モーダルの閉じる処理（※元のコードをそのまま残す）
   if (closeAccountModalBtn) {
       closeAccountModalBtn.addEventListener('click', () => accountModal.classList.remove('active'));
   }
@@ -2226,12 +2224,11 @@ function setupEventListeners() {
       });
   }
 
-  // 3. 【新規追加】利用履歴モーダルの開閉処理
   if (els.btnMenuHistory) {
       els.btnMenuHistory.addEventListener('click', (e) => {
           e.stopPropagation();
           toggleDropdown(false);
-          renderHistoryModal(); // モーダルを開く前に履歴を生成
+          renderHistoryModal();
           els.historyModal.classList.add('active');
       });
   }
@@ -2325,24 +2322,27 @@ function setupEventListeners() {
         if (selectedHeroItem.releaseDateIso) {
             const releaseDate = new Date(selectedHeroItem.releaseDateIso);
             if (releaseDate > new Date()) {
-                showLockedError(); // ★修正：エラー3001を表示させる
+                showLockedError();
                 return; 
             }
         }
         
-        const targetUrl = selectedHeroItem.url || selectedHeroItem.actionUrl;
+        // ▼ 修正: JSON判定を強固に（urlではなく、データ自体の文字列を検査）
+        const rawUrl = selectedHeroItem.url || selectedHeroItem.actionUrl || "";
         let isMulti = false;
-        try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
-        if (targetUrl && typeof targetUrl === 'string' && targetUrl.trim().startsWith('[')) {
-            isMulti = true;
-        }
+        try {
+            if (typeof rawUrl === 'string' && rawUrl.trim().startsWith('[')) {
+                JSON.parse(rawUrl); // 実際にパースできるか確認
+                isMulti = true;
+            }
+        } catch(err) { isMulti = false; }
 
         if (isMulti) {
-            openManageModal(selectedHeroItem); // 複数なら独立モーダルを開く
-        } else if (targetUrl) {
-            const isYouTube = targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be');
+            openManageModal(selectedHeroItem); 
+        } else if (rawUrl) {
+            const isYouTube = rawUrl.includes('youtube.com') || rawUrl.includes('youtu.be');
             if (isYouTube) {
-               window.open(`videos.html?code=${selectedHeroItem.code}&target=${encodeURIComponent(targetUrl)}`, '_blank');
+               window.open(`videos.html?code=${selectedHeroItem.code}&target=${encodeURIComponent(rawUrl)}`, '_blank');
             } else {
                 const token = localStorage.getItem('user_session_token') || "";
                 window.open(`/api/proxy?type=download&code=${selectedHeroItem.code}&token=${token}`, '_blank');
@@ -2388,33 +2388,16 @@ function setupEventListeners() {
   }
   document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' || e.key === 'Esc') {
-          // 1. 認証・プレビュー・成功・エラーモーダル
-          if (els.authModal && els.authModal.classList.contains('active')) {
-              closeAuthModal();
-          }
-          // 2. ダウンロード管理モーダル
+          if (els.authModal && els.authModal.classList.contains('active')) closeAuthModal();
           if (els.manageModal && els.manageModal.classList.contains('active')) {
               els.manageModal.classList.remove('active');
               if (window.manageModalTimer) clearInterval(window.manageModalTimer);
           }
-          // 3. 利用履歴モーダル
-          if (els.historyModal && els.historyModal.classList.contains('active')) {
-              els.historyModal.classList.remove('active');
-          }
-          // 4. パスワード変更モーダル
+          if (els.historyModal && els.historyModal.classList.contains('active')) els.historyModal.classList.remove('active');
           const accountModal = document.getElementById('accountModal');
-          if (accountModal && accountModal.classList.contains('active')) {
-              accountModal.classList.remove('active');
-          }
-          // 5. アカウント ドロップダウンメニュー
-          if (els.accountDropdown && els.accountDropdown.classList.contains('open')) {
-              toggleDropdown(false);
-          }
-          // 6. スマホ用 ナビゲーションメニュー
-          if (els.mobileNav && els.mobileNav.classList.contains('active')) {
-              els.mobileNav.classList.remove('active');
-          }
-          // 7. 各種 言語選択メニュー
+          if (accountModal && accountModal.classList.contains('active')) accountModal.classList.remove('active');
+          if (els.accountDropdown && els.accountDropdown.classList.contains('open')) toggleDropdown(false);
+          if (els.mobileNav && els.mobileNav.classList.contains('active')) els.mobileNav.classList.remove('active');
           if (els.langMenu) els.langMenu.classList.remove('open');
           if (els.loginLangMenu) els.loginLangMenu.classList.remove('open');
           const mobileLangMenu = document.getElementById('mobileLangMenu');
@@ -3099,11 +3082,10 @@ function showMobileItemDetail(item, isNewRedeem = false) {
         const releaseDate = item.releaseDateIso ? new Date(item.releaseDateIso) : null;
         const expireDate = item.expireDateIso ? new Date(item.expireDateIso) : null;
 
-        // ★ 期限切れなら「期限切れ」ボタンに変更し、エラー3002を出す
         if (expireDate && expireDate <= now) {
             if (modalDownloadTimer) clearInterval(modalDownloadTimer);
             
-            els.btnSuccessDownload.style.pointerEvents = 'auto'; // クリック可能に
+            els.btnSuccessDownload.style.pointerEvents = 'auto'; 
             els.btnSuccessDownload.style.opacity = '0.6';
             els.btnSuccessDownload.style.background = 'rgba(128,128,128,0.2)';
             els.btnSuccessDownload.style.color = 'var(--modal-text-main)';
@@ -3112,7 +3094,7 @@ function showMobileItemDetail(item, isNewRedeem = false) {
 
             els.btnSuccessDownload.onclick = (e) => {
                 e.preventDefault();
-                showExpiredError(); // クリックでエラー3002を表示
+                showExpiredError(); 
             };
             return;
         }
@@ -3145,30 +3127,30 @@ function showMobileItemDetail(item, isNewRedeem = false) {
             els.btnSuccessDownload.style.pointerEvents = 'auto';
             els.btnSuccessDownload.style.opacity = '1';
 
-            const targetUrl = item.url || item.actionUrl;
+            // ▼ 修正: JSON判定を強固に
+            const rawUrl = item.url || item.actionUrl || "";
             let isMulti = false;
-            // ▼ 修正: JSON配列かどうかを確実に判定する
-            if (targetUrl && typeof targetUrl === 'string' && targetUrl.trim().startsWith('[')) {
-                isMulti = true;
-            }
+            try {
+                if (typeof rawUrl === 'string' && rawUrl.trim().startsWith('[')) {
+                    JSON.parse(rawUrl);
+                    isMulti = true;
+                }
+            } catch(err) { isMulti = false; }
 
             if (isMulti) {
-                // 複数ある場合、ボタンを押すと独立モーダルが開く
                 els.btnSuccessDownload.removeAttribute('href');
                 els.btnSuccessDownload.onclick = (e) => {
                     e.preventDefault();
                     openManageModal(item);
                 };
             } else {
-                const isYouTube = targetUrl && (targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be'));
+                const isYouTube = rawUrl && (rawUrl.includes('youtube.com') || rawUrl.includes('youtu.be'));
                 
                 if (isYouTube) {
-                    // YouTubeの場合はそのままリンクを設定する（ボタン名を「視聴する」等に変えてもOK）
-                    els.btnSuccessDownload.href = targetUrl;
+                    els.btnSuccessDownload.href = rawUrl;
                     els.btnSuccessDownload.onclick = null;
                     els.btnSuccessDownload.target = "_blank";
                 } else {
-                    // 単一ファイルの場合、APIを経由させる
                     const token = localStorage.getItem('user_session_token') || "";
                     els.btnSuccessDownload.href = `/api/proxy?type=download&code=${item.code}&token=${token}`;
                     els.btnSuccessDownload.onclick = null; 
@@ -3739,7 +3721,7 @@ async function saveUnlockedItemLocal(data, code) {
   fetchAvailableContent();
 }
 
-function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles, ownedDlcsViaDeluxe = new Set()) {
+ffunction renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles, ownedDlcsViaDeluxe = new Set()) {
     const mobileList = gId('mobileStoreGrid');
     if (!mobileList) return;
 
@@ -3759,16 +3741,13 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles, owned
     const releaseDate = item.releaseDateIso ? new Date(item.releaseDateIso) : null;
     const expireDate = item.expireDateIso ? new Date(item.expireDateIso) : null; 
     const now = new Date();
-    const isLocked = releaseDate && releaseDate > now;
 
     if (treatAsOwned) {
         checkMarkHtml = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px; vertical-align:middle; flex-shrink:0;"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
         btnHtml = `<button class="mobile-store-btn is-owned-download"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>${t.btn_download || "ダウンロード"}</button>`;
     } else if (item.isPrereqMet === false) {
-        // 本編を持っていないため買えない場合
         btnHtml = `<button class="mobile-store-btn" style="background:rgba(128,128,128,0.2); color:var(--modal-text-main); border:1px solid transparent; cursor:not-allowed;" onclick="event.stopPropagation(); alert('このコンテンツを購入するには、先に本編を所有している必要があります。');">本編が必要です</button>`;
     } else {
-        // 通常の購入ボタン
         btnHtml = `<button class="mobile-store-btn">${item.price} pt</button>`;
     }
     
@@ -3797,7 +3776,7 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles, owned
                     e.stopPropagation();
                     e.preventDefault(); 
                     if (!currentUser) { toggleDropdown(true); return; }
-                    showExpiredError(); // エラー3002
+                    showExpiredError(); 
                 };
             };
 
@@ -3820,7 +3799,7 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles, owned
                     dlBtn.onclick = (e) => {
                         e.stopPropagation();
                         if (!currentUser) { toggleDropdown(true); return; }
-                        showLockedError(); // エラー3001
+                        showLockedError(); 
                     };
 
                     const oneDay = 24 * 60 * 60 * 1000;
@@ -3843,19 +3822,23 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles, owned
                     dlBtn.onclick = (e) => {
                         e.stopPropagation();
                         if (!currentUser) { toggleDropdown(true); return; }
-                        const targetUrl = item.url || item.actionUrl;
+                        
+                        // ▼ 修正: JSON判定を強固に
+                        const rawUrl = item.url || item.actionUrl || "";
                         let isMulti = false;
-                        // ▼ 修正: JSON配列かどうかを確実に判定する
-                        if (targetUrl && typeof targetUrl === 'string' && targetUrl.trim().startsWith('[')) {
-                            isMulti = true;
-                        }
+                        try {
+                            if (typeof rawUrl === 'string' && rawUrl.trim().startsWith('[')) {
+                                JSON.parse(rawUrl);
+                                isMulti = true;
+                            }
+                        } catch(err) { isMulti = false; }
                         
                         if (isMulti) { 
                             openManageModal(item); 
-                        } else if (targetUrl) {
-                            const isYouTube = targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be');
+                        } else if (rawUrl) { 
+                            const isYouTube = rawUrl.includes('youtube.com') || rawUrl.includes('youtu.be');
                             if (isYouTube) {
-                                window.open(`videos.html?code=${item.code}&target=${encodeURIComponent(targetUrl)}`, '_blank');
+                                window.open(`videos.html?code=${item.code}&target=${encodeURIComponent(rawUrl)}`, '_blank');
                             } else {
                                 const token = localStorage.getItem('user_session_token') || "";
                                 window.open(`/api/proxy?type=download&code=${item.code}&token=${token}`, '_blank');
@@ -3878,7 +3861,7 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles, owned
             mBtn.onclick = (e) => {
                 e.stopPropagation();
                 if (!currentUser) { toggleDropdown(true); return; }
-                if (item.isPrereqMet === false) { return; } // 本編未所有なら無効化
+                if (item.isPrereqMet === false) { return; } 
                 showPurchasePreview(item, item.price);
             };
         }
