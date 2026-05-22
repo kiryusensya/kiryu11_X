@@ -1,854 +1,1444 @@
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>kiryu10 // Secure Gateway</title>
-<link rel="preconnect" href="https://fonts.googleapis.com/">
-<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/lucide@latest"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Redeem Center</title>
 
-<style>
-/* --- FONT FACE DEFINITIONS --- */
-@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
-@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Medium.woff') format('woff'); font-weight: 500; font-style: normal; }
-@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
-@font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
-@font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
-@font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
-@font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+  <!-- フォント指定は変更しない（元HTMLの構成を維持） -->
+  <link rel="preconnect" href="https://fonts.googleapis.com/" />
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
 
-/* --- THEME VARIABLES --- */
-:root {
-  --primary: #FFFFFF;
-  --bg-color: #050505; /* より深い黒へ */
-  --card-bg: rgba(15, 15, 15, 0.4);
-  --card-border: rgba(255, 255, 255, 0.1);
-  --modal-text-main: #FFFFFF;
-  --modal-text-sub: #A0A0A0;
-  --dropdown-bg: rgba(15, 15, 15, 0.95);
-  
-  /* Neon Colors */
-  --error-color: #FF2D55;
-  --error-glow: rgba(255, 45, 85, 0.5);
-  --success-color: #04CF22;
-  --success-glow: rgba(4, 207, 34, 0.5);
-  
-  --spring-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
-}
+  <style>
+    /* --- FONT FACE DEFINITIONS（変更しない） --- */
+    @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+    @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Medium.woff') format('woff'); font-weight: 500; font-style: normal; }
+    @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+    @font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+    @font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+    @font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+    @font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
 
-:root:lang(ja) { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
-:root:lang(en) { --font-stack: 'HarmonyOS Sans', sans-serif; }
-:root:lang(zh) { --font-stack: 'HarmonyOS Sans SC', 'Microsoft YaHei', sans-serif; }
-:root:lang(zh-TW) { --font-stack: 'HarmonyOS Sans TC', 'Microsoft JhengHei', sans-serif; }
-:root:lang(ko) { --font-stack: 'HarmonyOS Sans', 'Noto Sans KR', sans-serif; }
-:root:lang(ru) { --font-stack: 'HarmonyOS Sans', sans-serif; }
+    :root {
+      --primary: #007DFF;
+      --ok: #04CF22;
+      --danger: #FF3B30;
 
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
+      --bg: #121212;
+      --panel: rgba(40,40,40,0.55);
+      --panel2: rgba(255,255,255,0.06);
+      --border: rgba(255,255,255,0.12);
+      --text: #fff;
+      --sub: rgba(255,255,255,0.65);
+      --shadow: 0 20px 80px rgba(0,0,0,0.55);
 
-*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+      --radius-xl: 28px;
+      --radius-l: 18px;
+      --spring: cubic-bezier(0.33, 1, 0.68, 1);
 
-body {
-  margin: 0; padding: 0;
-  background-color: var(--bg-color);
-  color: var(--modal-text-main);
-  font-family: var(--font-stack);
-  height: 100vh; height: 100dvh;
-  display: flex; flex-direction: column;
-  overflow: hidden;
-}
-
-/* Background Blurs */
-.bg-blobs {
-  position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  background: 
-    radial-gradient(circle at 15% 50%, rgba(255,255,255,0.03) 0%, transparent 40%),
-    radial-gradient(circle at 85% 30%, rgba(255,255,255,0.02) 0%, transparent 40%);
-}
-
-/* --- HEADER --- */
-header {
-  position: relative; z-index: 100;
-  padding: 20px 40px; display: flex; justify-content: space-between; align-items: center;
-}
-.brand { 
-  font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 10px; 
-  letter-spacing: 1px; color: #FFFFFF;
-}
-.header-actions { display: flex; gap: 15px; align-items: center; }
-
-.icon-btn {
-  width: 44px; height: 44px; border-radius: 50%;
-  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: 0.3s; color: var(--modal-text-main);
-  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-}
-.icon-btn:hover { background: rgba(255, 255, 255, 0.1); transform: scale(1.05); }
-
-/* --- DROPDOWNS --- */
-.dropdown-menu {
-  position: absolute; top: 75px; right: 40px; width: 300px;
-  background: var(--dropdown-bg); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
-  border: 1px solid var(--card-border); border-radius: 16px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.8); padding: 20px;
-  z-index: 2000; opacity: 0; transform: translateY(-10px); pointer-events: none;
-  transition: 0.3s var(--spring-ease);
-}
-.dropdown-menu.open { opacity: 1; transform: translateY(0); pointer-events: auto; }
-.lang-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
-.lang-list li { padding: 12px 15px; cursor: pointer; border-radius: 8px; font-weight: 700; font-size: 14px; transition: 0.2s; color: #fff;}
-.lang-list li:hover { background: rgba(255,255,255,0.1); }
-
-.account-info { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 15px; }
-.mini-user-id { font-size: 16px; font-weight: 800; word-break: break-all; display: block; margin-bottom: 5px;}
-.pts-display { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 5px; opacity: 0.8; }
-
-.menu-btn {
-  width: 100%; background: transparent; border: none; text-align: left;
-  padding: 12px; font-size: 15px; font-weight: 700; color: var(--modal-text-main);
-  cursor: pointer; border-radius: 8px; display: flex; justify-content: space-between;
-  align-items: center; transition: 0.2s; font-family: var(--font-stack);
-}
-.menu-btn:hover { background: rgba(255,255,255,0.1); }
-.menu-btn.logout { color: var(--error-color); margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); border-radius: 0 0 8px 8px; padding-top: 15px;}
-.menu-btn.logout:hover { background: rgba(255, 45, 85, 0.1); }
-
-/* --- MAIN REDEEM AREA --- */
-main {
-  flex: 1; display: flex; align-items: center; justify-content: center;
-  position: relative; z-index: 10; padding: 20px; overflow-y: auto;
-}
-
-/* Base Card (Frosted Glass, No Neon) */
-.redeem-card {
-  background: var(--card-bg); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
-  border: 1px solid var(--card-border); border-radius: 20px;
-  padding: 50px; width: 100%; max-width: 550px;
-  box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 0 20px rgba(255,255,255,0.02); 
-  position: relative; overflow: hidden;
-  transition: max-width 0.4s var(--spring-ease), border-color 0.4s, box-shadow 0.4s;
-}
-.redeem-card.is-wide { max-width: 750px; }
-
-/* Dynamic Glow States (Triggered via JS) */
-.redeem-card.glow-error {
-  border-color: rgba(255, 45, 85, 0.5);
-  box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 30px rgba(255, 45, 85, 0.1), inset 0 0 20px rgba(255, 45, 85, 0.1);
-}
-.redeem-card.glow-success {
-  border-color: rgba(4, 207, 34, 0.5);
-  box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 30px rgba(4, 207, 34, 0.1), inset 0 0 20px rgba(4, 207, 34, 0.1);
-}
-
-/* Phase Containers */
-.phase-container { display: none; opacity: 0; transition: opacity 0.3s ease; flex-direction: column; position: relative; z-index: 2; }
-.phase-container.active { display: flex; opacity: 1; }
-
-/* 1. Input Phase (Strict & Solid) */
-.keyhole-icon { text-align: center; margin-bottom: 20px; opacity: 0.8; }
-.phase-title { font-size: 24px; font-weight: 800; margin: 0 0 10px; text-align: center; letter-spacing: 2px; }
-.phase-desc { font-size: 13px; color: var(--modal-text-sub); margin: 0 0 40px; text-align: center; font-weight: 500; }
-
-.secure-input-group { margin-bottom: 30px; }
-.secure-input {
-  width: 100%; height: 70px; border-radius: 12px;
-  background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15);
-  text-align: center; font-size: 24px; font-weight: 800; letter-spacing: 4px;
-  color: #fff; outline: none; transition: 0.3s;
-  font-family: monospace, var(--font-stack); text-transform: uppercase;
-}
-.secure-input::placeholder { color: rgba(255,255,255,0.2); font-weight: 500; letter-spacing: 2px; }
-.secure-input:focus { border-color: rgba(255,255,255,0.6); background: rgba(0,0,0,0.8); }
-
-/* Buttons */
-.action-btn {
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  height: 56px; border-radius: 12px; font-size: 16px; font-weight: 800;
-  cursor: pointer; transition: 0.3s; font-family: var(--font-stack); text-decoration: none;
-  flex: 1; /* バグ修正: 全てのボタンの幅を均等に */
-}
-.action-btn:active { transform: translateY(1px); }
-.action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-.btn-solid-white { background: #FFFFFF; color: #000000; border: none; }
-.btn-solid-white:hover { background: #E0E0E0; transform: translateY(-2px); }
-
-.btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.3); color: #FFFFFF; }
-.btn-outline:hover { background: rgba(255,255,255,0.1); border-color: #FFFFFF; }
-
-/* Neon Buttons (For Error/Success) */
-.btn-neon-red { background: var(--error-color); color: #FFFFFF; border: none; box-shadow: 0 0 20px var(--error-glow); }
-.btn-neon-red:hover { filter: brightness(1.2); box-shadow: 0 0 30px var(--error-glow); transform: translateY(-2px); }
-
-/* Split Layout (For Preview, Success, Error) */
-.split-layout { display: flex; gap: 40px; text-align: left; align-items: stretch; }
-.split-left { width: 320px; flex-shrink: 0; display: flex; flex-direction: column; }
-.split-left img { width: 100%; height: 100%; border-radius: 12px; object-fit: cover; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
-.split-right { flex: 1; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
-
-.content-label { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.5); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
-.content-title { font-size: 24px; font-weight: 800; margin: 0 0 20px; line-height: 1.4; word-break: break-word; }
-
-/* Info Boxes */
-.info-box { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; margin-bottom: 25px; font-size: 14px; font-weight: 500; line-height: 1.6; white-space: pre-wrap; }
-.info-box.error { background: rgba(255, 45, 85, 0.05); border-color: rgba(255, 45, 85, 0.3); color: #FFFFFF; }
-.time-stamp { font-size: 12px; font-weight: 700; margin-top: 15px; letter-spacing: 1px; }
-
-.action-row { display: flex; gap: 15px; width: 100%; margin-top: auto; }
-
-/* 2. Error Phase (Matches Screenshot) */
-.error-neon-title {
-  font-size: 26px; font-weight: 800; margin-bottom: 25px;
-  color: var(--error-color); text-shadow: 0 0 15px var(--error-glow);
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-}
-.error-denied-label { color: var(--error-color); font-size: 12px; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-
-/* 3. Success Phase */
-.success-neon-title {
-  font-size: 26px; font-weight: 800; margin-bottom: 20px; text-align: left;
-  color: var(--success-color); text-shadow: 0 0 15px var(--success-glow);
-  display: flex; align-items: center; gap: 10px;
-}
-.success-info-box { background: rgba(4, 207, 34, 0.05); border: 1px solid rgba(4, 207, 34, 0.3); border-radius: 12px; padding: 20px; margin-bottom: 25px; font-size: 14px; }
-
-/* Mobile Optimization */
-@media (max-width: 768px) {
-  header { padding: 15px 20px; }
-  .brand { font-size: 18px; }
-  main { padding: 15px; align-items: flex-start; }
-  .redeem-card { padding: 30px 20px; border-radius: 16px; border: none; background: transparent; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
-  
-  .secure-input { height: 60px; font-size: 20px; letter-spacing: 2px; }
-  .action-btn { height: 50px; font-size: 14px; }
-  
-  .split-layout { flex-direction: column; gap: 20px; }
-  .split-left { width: 100%; }
-  .split-left img { height: 180px; }
-  .content-title { font-size: 20px; }
-  
-  /* スマホ時はボタンを縦並びに（バグ修正） */
-  .action-row { flex-direction: column-reverse; gap: 10px; }
-  .dropdown-menu { width: 260px; right: 20px; top: 65px; }
-  .error-neon-title { font-size: 22px; }
-}
-
-/* Modals for Account/History */
-.sys-modal {
-  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-  z-index: 9999; display: flex; justify-content: center; align-items: center;
-  opacity: 0; pointer-events: none; transition: 0.4s;
-}
-.sys-modal.active { opacity: 1; pointer-events: auto; }
-.sys-modal-content {
-  background: var(--card-bg); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
-  border: 1px solid var(--card-border); border-radius: 20px;
-  padding: 40px; width: 90%; max-width: 500px; position: relative;
-  transform: translateY(30px) scale(0.95); transition: 0.4s var(--spring-ease);
-  box-shadow: var(--shadow-base); max-height: 85vh; display: flex; flex-direction: column;
-}
-.sys-modal.active .sys-modal-content { transform: translateY(0) scale(1); }
-.close-modal { position: absolute; top: 20px; right: 20px; cursor: pointer; opacity: 0.5; transition: 0.2s; }
-.close-modal:hover { opacity: 1; color: #fff; }
-
-.form-group { margin-bottom: 15px; text-align: left; }
-.form-input { 
-  width: 100%; height: 50px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); 
-  background: rgba(0,0,0,0.5); padding: 0 15px; color: #fff; font-family: inherit; font-size: 14px; outline: none; transition: 0.3s;
-}
-.form-input:focus { border-color: rgba(255,255,255,0.5); }
-
-.history-list { overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 5px; }
-.history-item { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 15px; display: flex; gap: 15px; align-items: center; transition: 0.2s;}
-.history-item:hover { border-color: rgba(255,255,255,0.2); }
-.history-item img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); }
-.history-info { flex: 1; min-width: 0; }
-.history-title { font-weight: 800; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 5px;}
-.history-meta { font-size: 11px; font-weight: 700; opacity: 0.6; display: flex; justify-content: space-between;}
-
-.loading-spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.2); border-top: 3px solid currentColor; border-radius: 50%; animation: spin 0.8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-</style>
-</head>
-<body>
-
-<div class="bg-blobs"></div>
-
-<header>
-  <div class="brand"><i data-lucide="scan-line"></i> kiryu10</div>
-  <div class="header-actions">
-    <div style="position: relative;">
-      <button class="icon-btn" id="langToggle" title="Language">
-        <i data-lucide="globe"></i>
-      </button>
-      <div class="dropdown-menu" id="langMenu">
-        <ul class="lang-list">
-          <li data-val="ja">日本語</li>
-          <li data-val="en">English</li>
-          <li data-val="zh">简体中文</li>
-          <li data-val="zh-TW">繁體中文</li>
-          <li data-val="ko">한국어</li>
-          <li data-val="ru">Русский</li>
-        </ul>
-      </div>
-    </div>
-    <div style="position: relative;">
-      <button class="icon-btn" id="accountToggle" title="Account">
-        <i data-lucide="fingerprint"></i>
-      </button>
-      <div class="dropdown-menu" id="accountMenu">
-        <div class="account-info">
-          <span style="font-size:11px; font-weight:700; opacity:0.5; margin-bottom:4px; display:block;" data-translate="label_logged_in">USER ID</span>
-          <span class="mini-user-id" id="dispUserId">-</span>
-          <span class="pts-display"><i data-lucide="zap" style="width:14px;height:14px;"></i> <span id="dispPoints">0</span> pt</span>
-        </div>
-        <button class="menu-btn" id="btnHistory"><span data-translate="btn_history">利用履歴</span> <i data-lucide="history" style="width:16px; opacity:0.5;"></i></button>
-        <button class="menu-btn" id="btnPassword"><span data-translate="modal_acc_change_pass">パスワード変更</span> <i data-lucide="key-round" style="width:16px; opacity:0.5;"></i></button>
-        <button class="menu-btn logout" id="btnLogout"><span data-translate="btn_logout">ログアウト</span> <i data-lucide="power" style="width:16px; opacity:0.5;"></i></button>
-      </div>
-    </div>
-  </div>
-</header>
-
-<main>
-  <div class="redeem-card" id="mainCard">
-    
-    <div class="phase-container active" id="phaseInput">
-      <div class="keyhole-icon"><i data-lucide="key-round" style="width:40px;height:40px;color:#fff;"></i></div>
-      <h1 class="phase-title" data-translate="modal_title">コード引き換え</h1>
-      <p class="phase-desc" data-translate="modal_sub">プロダクトキーを入力してアクセス権限を証明してください。</p>
-      
-      <div class="secure-input-group">
-        <input type="text" id="activationCode" class="secure-input" placeholder="XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false">
-      </div>
-      
-      <button class="action-btn btn-solid-white" id="btnCheck">
-        <i data-lucide="unlock" style="width:18px;height:18px;"></i> <span data-translate="modal_btn_auth">確認</span>
-      </button>
-    </div>
-
-    <div class="phase-container" id="phasePreview">
-      <h2 class="phase-title" style="text-align:left; font-size:22px; margin-bottom:20px;" data-translate="preview_title">引き換えの確認</h2>
-      <div class="split-layout">
-        <div class="split-left">
-          <img id="prevImg" src="" alt="Preview">
-        </div>
-        <div class="split-right">
-          <p class="content-label"><i data-lucide="info" style="width:12px; vertical-align:text-bottom;"></i> <span data-translate="preview_desc">続行すると以下のコンテンツを受け取ります:</span></p>
-          <h3 class="content-title" id="prevTitle">Title</h3>
-          <div class="info-box" id="prevWarning" style="display:none; padding:15px; border:none;"></div>
-          <div class="action-row">
-            <button class="action-btn btn-outline" onclick="resetToInput(false)" data-translate="btn_close">キャンセル</button>
-            <button class="action-btn btn-solid-white" id="btnRedeem"><span data-translate="btn_continue">認証する</span></button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="phase-container" id="phaseSuccess">
-      <h2 class="success-neon-title"><i data-lucide="check-circle" style="width:28px;height:28px;"></i> <span data-translate="success_title_final">認証成功!!</span></h2>
-      <div class="split-layout">
-        <div class="split-left">
-          <img id="succImg" src="" alt="Success">
-        </div>
-        <div class="split-right">
-          <p class="content-label" style="color:var(--success-color);"><span data-translate="success_desc">以下のコンテンツが有効になりました:</span></p>
-          <h3 class="content-title" id="succTitle">Title</h3>
-          <div class="success-info-box">
-            <span id="succMsg"></span>
-            <div class="time-stamp" id="succTime" style="color:var(--success-color);"></div>
-          </div>
-          <div class="action-row">
-            <button class="action-btn btn-outline" onclick="resetToInput(true)" data-translate="btn_close">閉じる</button>
-            <a href="#" class="action-btn btn-solid-white" id="btnDownload" target="_blank">
-              <span data-translate="btn_download">ダウンロード</span> <i data-lucide="download" style="width:18px;"></i>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="phase-container" id="phaseError">
-      <h2 class="error-neon-title">
-        ⚠ <span data-translate="error_title_prefix">エラー</span> <span id="errCode"></span>
-      </h2>
-      <div style="width:100%; text-align:left;">
-        <p class="error-denied-label">⚠ ACCESS DENIED</p>
-        <h3 class="content-title" id="errTitle">Error Title</h3>
-        
-        <div class="info-box error">
-          <div id="errMsg" style="margin-bottom: 20px;"></div>
-          <div class="time-stamp" id="errTime" style="color: var(--error-color); margin-top:0;"></div>
-        </div>
-        
-        <div class="action-row" id="errorBtnRow"></div>
-      </div>
-    </div>
-
-  </div>
-</main>
-
-<div class="sys-modal" id="modHistory">
-  <div class="sys-modal-content">
-    <i data-lucide="x" class="close-modal" onclick="closeModal('modHistory')"></i>
-    <h2 style="margin:0 0 20px; font-size: 20px; font-weight:800; display:flex; align-items:center; gap:8px;">
-      <i data-lucide="history"></i> <span data-translate="modal_history_title">利用履歴</span>
-    </h2>
-    <div class="history-list" id="historyList"></div>
-  </div>
-</div>
-
-<div class="sys-modal" id="modPass">
-  <div class="sys-modal-content" style="max-width: 400px;">
-    <i data-lucide="x" class="close-modal" onclick="closeModal('modPass')"></i>
-    <h2 style="margin:0 0 20px; font-size: 20px; font-weight:800; display:flex; align-items:center; gap:8px;">
-      <i data-lucide="key-round"></i> <span data-translate="modal_acc_change_pass">パスワード変更</span>
-    </h2>
-    <div class="form-group">
-      <input type="password" id="passOld" class="form-input" placeholder="現在のパスワード">
-    </div>
-    <div class="form-group">
-      <input type="password" id="passNew" class="form-input" placeholder="新しいパスワード">
-    </div>
-    <div class="form-group">
-      <input type="password" id="passConf" class="form-input" placeholder="新しいパスワード (確認用)">
-    </div>
-    <div id="passMsg" style="color:var(--error-color); font-size:13px; font-weight:700; margin-bottom:15px; min-height: 18px; text-align:center;"></div>
-    <button class="action-btn btn-solid-white" id="btnSubmitPass" style="width:100%;" data-translate="modal_acc_btn_change">変更を保存</button>
-  </div>
-</div>
-
-<script>
-const GAS_API_URL = "api/proxy"; 
-let CURRENT_LANG = "ja";
-let currentUser = null; 
-let currentContentData = {};
-
-// Translations Dictionary
-const TRANSLATIONS={
- ja:{
-  modal_title:"コード引き換え",modal_sub:"プロダクトキーを入力してアクセス権限を証明してください。", modal_btn_auth:"確認",
-  msg_verifying:"確認中",msg_success_btn:"成功", msg_invalid:"コードが無効です",msg_used:"このコードは使用済みです",msg_error:"エラーが発生しました", 
-  preview_title: "引き換えの確認", preview_desc: "続行すると以下のコンテンツを受け取ります:",
-  success_title_final: "認証成功!!", success_desc: "以下のコンテンツが有効になりました:",
-  success_msg_box: "コードが正常に認証されました。",
-  error_title_prefix: "エラー", error_used_msg: "コードが使用済みです", error_locked_msg: "このコンテンツは解禁していません。", error_owned_msg: "既に所有しているようです。",
-  btn_close:"閉じる",btn_continue:"認証する",btn_download:"ダウンロード", btn_retry:"再度入力する", btn_go_home:"ホームへ移動",
-  label_logged_in: "USER ID", btn_logout: "ログアウト", btn_history: "利用履歴",
-  modal_acc_change_pass:"パスワード変更", modal_acc_btn_change:"変更を保存", history_empty: "履歴がありません。",
-  msg_acc_err_empty:"すべての項目を入力してください", msg_acc_err_len:"パスワードは6文字以上にしてください", msg_acc_err_match:"パスワードが一致しません", msg_acc_changing:"変更中...", msg_acc_success:"パスワードを変更しました！"
- },
- en:{
-  modal_title:"Redeem Code",modal_sub:"Enter your activation key to verify access.", modal_btn_auth:"CHECK",
-  msg_verifying:"Checking",msg_success_btn:"Success", msg_invalid:"This code is invalid.",msg_used:"This code has already been used.",msg_error:"Error occurred", 
-  preview_title: "Confirm Redemption", preview_desc: "If you continue, you will receive the following content:",
-  success_title_final: "Redeem Successful!!", success_desc: "The following content has been activated:",
-  success_msg_box: "Redeem Code successfully verified.",
-  error_title_prefix: "Error", error_used_msg: "This code has already been used.", error_locked_msg: "This content is not yet unlocked.", error_owned_msg: "You already own it.",
-  btn_close:"Close",btn_continue:"Redeem",btn_download:"Download", btn_retry:"Try Again", btn_go_home:"Go to Home",
-  label_logged_in: "USER ID", btn_logout: "Log Out", btn_history: "Usage History",
-  modal_acc_change_pass:"Change Password", modal_acc_btn_change:"Save Changes", history_empty: "No history found.",
-  msg_acc_err_empty:"Please fill in all fields", msg_acc_err_len:"Password must be at least 6 characters", msg_acc_err_match:"Passwords do not match", msg_acc_changing:"Updating...", msg_acc_success:"Password changed successfully!"
- },
- zh:{ 
-  modal_title:"兑換代码",modal_sub:"请输入激活密钥以证明您的访问权限。", modal_btn_auth:"检查", 
-  msg_verifying:"正在检查",msg_success_btn:"成功", msg_invalid:"该代码无效。",msg_used:"该代码已被使用。",msg_error:"错误", 
-  preview_title: "确认内容", preview_desc: "如果您继续，您将收到以下内容:",
-  success_title_final: "激活成功!!", success_desc: "该代码已兑换以下内容:", success_msg_box: "代码已成功兑换。",
-  error_title_prefix: "错误", error_used_msg: "该代码已被使用。", error_locked_msg: "此内容尚未解锁。", error_owned_msg: "您已经有了。",
-  btn_close:"关闭",btn_continue:"兑換",btn_download:"下载", btn_retry:"再试一次", btn_go_home:"移至主页",
-  label_logged_in: "USER ID", btn_logout: "退出", btn_history: "使用记录",
-  modal_acc_change_pass:"修改密码", modal_acc_btn_change:"保存更改", history_empty: "没有记录。",
-  msg_acc_err_empty:"请填写所有字段", msg_acc_err_len:"密码长度至少为6个字符", msg_acc_err_match:"两次输入的新密码不一致", msg_acc_changing:"正在修改...", msg_acc_success:"密码修改成功！"
- },
- "zh-TW":{ 
-  modal_title:"兌換代碼",modal_sub:"請輸入啟用密鑰以證明您的存取權限。", modal_btn_auth:"檢查", 
-  msg_verifying:"正在檢查",msg_success_btn:"成功", msg_invalid:"該代碼無效",msg_used:"該代碼已被使用",msg_error:"錯誤", 
-  preview_title: "確認內容", preview_desc: "如果您繼續，您將收到以下內容:",
-  success_title_final: "兌換成功!!", success_desc: "該代碼已兌換以下內容:", success_msg_box: "代碼已成功兌換。",
-  error_title_prefix: "錯誤", error_used_msg: "該代碼已被使用。", error_locked_msg: "此內容尚未解鎖。", error_owned_msg: "你已經擁有了。",
-  btn_close:"關閉",btn_continue:"兌換",btn_download:"下載", btn_retry:"再試一次", btn_go_home:"移至首頁",
-  label_logged_in: "USER ID", btn_logout: "登出", btn_history: "使用紀錄",
-  modal_acc_change_pass:"修改密碼", modal_acc_btn_change:"保存更改", history_empty: "沒有紀錄。",
-  msg_acc_err_empty:"請填寫所有欄位", msg_acc_err_len:"密碼長度至少為6個字符", msg_acc_err_match:"兩次輸入的新密碼不一致", msg_acc_changing:"正在修改...", msg_acc_success:"密碼修改成功！"
- },
- ko:{ 
-  modal_title:"교환 코드",modal_sub:"접근 권한을 증명하려면 인증 키를 입력하세요.", modal_btn_auth:"확인", 
-  msg_verifying:"확인 중",msg_success_btn:"성공", msg_invalid:"유효하지 않은 코드입니다.",msg_used:"이미 사용된 코드입니다.",msg_error:"오류", 
-  preview_title: "콘텐츠 확인", preview_desc: "계속하면 다음 콘텐츠를 받게됩니다:",
-  success_title_final: "활성화 완료!!", success_desc: "다음 콘텐츠가 활성화되었습니다:", success_msg_box: "코드가 성공적으로 인증되었습니다.",
-  error_title_prefix: "오류", error_used_msg: "이미 사용된 코드입니다.", error_locked_msg: "이 콘텐츠는 아직 해제되지 않았습니다.", error_owned_msg: "이미 가지고 있습니다.",
-  btn_close:"닫기",btn_continue:"사용",btn_download:"다운로드", btn_retry:"다시 입력", btn_go_home:"홈으로 이동",
-  label_logged_in: "USER ID", btn_logout: "로그아웃", btn_history: "이용 내역",
-  modal_acc_change_pass:"비밀번호 변경", modal_acc_btn_change:"변경 사항 저장", history_empty: "내역이 없습니다.",
-  msg_acc_err_empty:"모든 항목을 입력해주세요", msg_acc_err_len:"비밀번호는 6자 이상이어야 합니다", msg_acc_err_match:"새 비밀번호가 일치하지 않습니다", msg_acc_changing:"변경 중...", msg_acc_success:"비밀번호가 변경되었습니다!"
- },
- ru:{ 
-  modal_title:"Активация кода",modal_sub:"Введите ключ активации, чтобы подтвердить доступ.", modal_btn_auth:"проверить", 
-  msg_verifying:"Подтверждение",msg_success_btn:"Успех", msg_invalid:"Неверный код",msg_used:"Этот код уже был использован.",msg_error:"Ошибка", 
-  preview_title: "Подтверждение", preview_desc: "Вы получите следующее содержимое:",
-  success_title_final: "Успешно!!", success_desc: "Вы получите следующий контент:", success_msg_box: "Код успешно проверен.",
-  error_title_prefix: "Ошибка", error_used_msg: "Этот код уже был использован.", error_locked_msg: "Этот контент еще не разблокирован.", error_owned_msg: "Оно у вас уже есть.",
-  btn_close:"Закрыть",btn_continue:"Погасить",btn_download:"Скачать", btn_retry:"Повторить", btn_go_home:"На главную",
-  label_logged_in: "USER ID", btn_logout: "Выйти", btn_history: "История",
-  modal_acc_change_pass:"Изменить пароль", modal_acc_btn_change:"Сохранить", history_empty: "История пуста.",
-  msg_acc_err_empty:"Пожалуйста, заполните все поля", msg_acc_err_len:"Пароль должен содержать не менее 6 символов", msg_acc_err_match:"Пароли не совпадают", msg_acc_changing:"Сохранение...", msg_acc_success:"Пароль успешно изменен!"
- }
-};
-
-// Utilities
-const gId = id => document.getElementById(id);
-const escapeHTML = str => String(str || "").replace(/[&<>"']/g, m => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[m]));
-
-function formatCodeInput(val) {
-    let clean = (val||"").toUpperCase().replace(/[^A-Z0-9]/g, '');
-    let sz = clean.length >= 25 ? 5 : 4; 
-    let res = '';
-    for(let i=0; i<clean.length; i++) {
-        if(i > 0 && i % sz === 0) res += '-';
-        res += clean[i];
+      --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
     }
-    return res;
-}
 
-function formatLocalTime(dateObj) {
-    try {
+    :root:lang(ja)    { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
+    :root:lang(en)    { --font-stack: 'HarmonyOS Sans', sans-serif; }
+    :root:lang(zh)    { --font-stack: 'HarmonyOS Sans SC', 'Microsoft YaHei', sans-serif; }
+    :root:lang(zh-TW) { --font-stack: 'HarmonyOS Sans TC', 'Microsoft JhengHei', sans-serif; }
+    :root:lang(ko)    { --font-stack: 'HarmonyOS Sans', 'Noto Sans KR', sans-serif; }
+    :root:lang(ru)    { --font-stack: 'HarmonyOS Sans', sans-serif; }
+
+    [data-theme="light"]{
+      --bg: #F1F3F5;
+      --panel: rgba(255,255,255,0.70);
+      --panel2: rgba(0,0,0,0.04);
+      --border: rgba(0,0,0,0.10);
+      --text: #000;
+      --sub: rgba(0,0,0,0.55);
+      --shadow: 0 20px 80px rgba(0,0,0,0.14);
+    }
+
+    *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: var(--font-stack);
+      background: var(--bg);
+      color: var(--text);
+      overflow:hidden;
+    }
+    button,input{ font-family: var(--font-stack); }
+
+    /* ===== Background ===== */
+    #bgCanvas{
+      position:fixed; inset:0;
+      width:100%; height:100%;
+      z-index:0;
+      opacity:0.55;
+      filter: blur(60px);
+      pointer-events:none;
+    }
+    .bg-blobs{
+      position:fixed; inset:-20%;
+      background:
+        radial-gradient(500px 500px at 20% 30%, rgba(0,125,255,0.35), transparent 60%),
+        radial-gradient(500px 500px at 80% 20%, rgba(4,207,34,0.22), transparent 60%),
+        radial-gradient(700px 700px at 70% 80%, rgba(255,59,48,0.18), transparent 60%),
+        radial-gradient(600px 600px at 30% 85%, rgba(255,200,0,0.14), transparent 60%);
+      z-index:0;
+      transform: translateZ(0);
+      animation: floatBg 14s var(--spring) infinite alternate;
+      pointer-events:none;
+    }
+    @keyframes floatBg{
+      from{ transform: translate3d(-1.5%, -1.2%, 0) scale(1); }
+      to  { transform: translate3d(1.5%, 1.2%, 0) scale(1.03); }
+    }
+
+    /* ===== Layout ===== */
+    .wrap{
+      position:relative;
+      z-index:2;
+      height:100%;
+      display:flex;
+      flex-direction:column;
+    }
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:10;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: 18px 20px;
+      gap: 14px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.18), transparent);
+      backdrop-filter: blur(8px);
+    }
+    [data-theme="light"] .topbar{
+      background: linear-gradient(to bottom, rgba(255,255,255,0.65), transparent);
+    }
+
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      font-weight:800;
+      letter-spacing:-0.4px;
+      min-width: 140px;
+      user-select:none;
+    }
+    .brand-badge{
+      width:34px; height:34px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(0,125,255,0.9), rgba(0,125,255,0.3));
+      border: 1px solid var(--border);
+      box-shadow: 0 12px 30px rgba(0,125,255,0.25);
+      display:grid; place-items:center;
+    }
+    .brand-badge svg{ width:18px; height:18px; }
+    .brand small{
+      display:block;
+      font-size:11px;
+      color: var(--sub);
+      font-weight:700;
+      letter-spacing:0.2px;
+      margin-top:2px;
+    }
+
+    .top-actions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .pill{
+      height: 42px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 10px 35px rgba(0,0,0,0.22);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      color: var(--text);
+      cursor:pointer;
+      user-select:none;
+      transition: transform .25s var(--spring), background .25s var(--spring);
+      white-space:nowrap;
+    }
+    .pill:hover{ transform: translateY(-1px) scale(1.01); }
+    .pill:active{ transform: translateY(0) scale(0.98); }
+    .pill svg{ width:18px; height:18px; opacity:0.9; }
+
+    .clock{
+      font-weight:800;
+      font-size: 12.5px;
+      letter-spacing: 0.1px;
+      color: var(--text);
+      max-width: 420px;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+
+    .main{
+      flex:1;
+      display:grid;
+      place-items:center;
+      padding: 14px 18px 28px;
+      overflow:auto;
+    }
+
+    .card{
+      width:min(820px, 100%);
+      border-radius: var(--radius-xl);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 30px;
+      position:relative;
+      overflow:hidden;
+      backdrop-filter: blur(26px);
+      -webkit-backdrop-filter: blur(26px);
+    }
+    .card::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(240px 240px at 20% 10%, rgba(0,125,255,0.35), transparent 60%),
+        radial-gradient(240px 240px at 80% 30%, rgba(4,207,34,0.22), transparent 60%),
+        radial-gradient(300px 300px at 60% 90%, rgba(255,59,48,0.16), transparent 60%);
+      opacity:0.9;
+      pointer-events:none;
+      filter: blur(0px);
+    }
+    .card-inner{
+      position:relative;
+      z-index:2;
+      display:flex;
+      flex-direction:column;
+      gap: 18px;
+    }
+
+    .headline{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 18px;
+    }
+    .title{
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: -0.9px;
+      margin: 0;
+      line-height: 1.1;
+    }
+    .subtitle{
+      margin: 10px 0 0;
+      font-size: 13.5px;
+      color: var(--sub);
+      font-weight: 700;
+      line-height: 1.6;
+      max-width: 56ch;
+    }
+
+    .inputRow{
+      display:flex;
+      gap: 12px;
+      align-items:center;
+      margin-top: 6px;
+    }
+    .codeInput{
+      flex:1;
+      height: 56px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      padding: 0 18px;
+      outline:none;
+      font-weight: 800;
+      font-size: 17px;
+      letter-spacing: 0.5px;
+      transition: background .25s var(--spring), border-color .25s var(--spring);
+    }
+    [data-theme="light"] .codeInput{ background: rgba(0,0,0,0.04); }
+    .codeInput:focus{
+      border-color: rgba(0,125,255,0.65);
+      background: rgba(0,125,255,0.12);
+    }
+
+    .btn{
+      height: 56px;
+      min-width: 160px;
+      padding: 0 18px;
+      border-radius: 999px;
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 900;
+      font-size: 15px;
+      cursor:pointer;
+      transition: transform .25s var(--spring), box-shadow .25s var(--spring), opacity .25s var(--spring);
+      box-shadow: 0 18px 45px rgba(0,125,255,0.25);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+    }
+    .btn:hover{ transform: translateY(-1px); box-shadow: 0 22px 55px rgba(0,125,255,0.32); }
+    .btn:active{ transform: translateY(0) scale(0.98); }
+    .btn:disabled{ opacity: .65; cursor:not-allowed; transform:none; }
+
+    .hintGrid{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 4px;
+    }
+    .hint{
+      border-radius: var(--radius-l);
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.06);
+      padding: 14px 14px;
+      min-height: 86px;
+    }
+    [data-theme="light"] .hint{ background: rgba(0,0,0,0.03); }
+    .hint b{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--text);
+    }
+    .hint b svg{ width:16px; height:16px; opacity:0.9; }
+    .hint p{
+      margin: 8px 0 0;
+      font-size: 12px;
+      color: var(--sub);
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .statusLine{
+      min-height: 18px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--sub);
+      display:flex;
+      align-items:center;
+      gap: 10px;
+    }
+    .statusDot{
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+    }
+    .statusDot.ok{ background: var(--ok); box-shadow: 0 0 0 6px rgba(4,207,34,0.12); }
+    .statusDot.bad{ background: var(--danger); box-shadow: 0 0 0 6px rgba(255,59,48,0.12); }
+
+    /* ===== Dropdown menus ===== */
+    .menu{
+      position:absolute;
+      top: 52px;
+      right: 0;
+      width: 220px;
+      border-radius: 18px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      box-shadow: 0 18px 60px rgba(0,0,0,0.35);
+      backdrop-filter: blur(26px);
+      -webkit-backdrop-filter: blur(26px);
+      padding: 10px;
+      display:none;
+      z-index: 30;
+    }
+    .menu.open{ display:block; animation: pop .25s var(--spring); }
+    @keyframes pop{ from{ opacity:0; transform: translateY(-8px) scale(0.98);} to{opacity:1; transform:none;} }
+    .menu button{
+      width:100%;
+      border:none;
+      background:transparent;
+      color: var(--text);
+      border-radius: 14px;
+      padding: 12px 12px;
+      font-weight: 900;
+      font-size: 13px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+    }
+    .menu button:hover{ background: rgba(255,255,255,0.08); }
+    [data-theme="light"] .menu button:hover{ background: rgba(0,0,0,0.05); }
+
+    .menu .mini{
+      padding: 10px 12px 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 6px;
+    }
+    .menu .mini .label{
+      font-size: 10px;
+      font-weight: 900;
+      color: var(--sub);
+      letter-spacing: 0.7px;
+    }
+    .menu .mini .value{
+      margin-top: 6px;
+      font-size: 13px;
+      font-weight: 900;
+      word-break: break-all;
+    }
+
+    /* ===== Modal ===== */
+    .overlay{
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(12px);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index: 100;
+      padding: 18px;
+    }
+    [data-theme="light"] .overlay{ background: rgba(0,0,0,0.18); }
+    .overlay.active{ display:flex; }
+
+    .modal{
+      width: min(560px, 100%);
+      border-radius: 26px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+      animation: modalIn .35s var(--spring);
+    }
+    @keyframes modalIn{ from{ transform: translateY(18px) scale(0.98); opacity:0; } to{ transform:none; opacity:1; } }
+    .modalHead{
+      padding: 18px 18px 10px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 12px;
+    }
+    .modalHead h3{
+      margin:0;
+      font-size: 18px;
+      font-weight: 1000;
+      letter-spacing: -0.3px;
+    }
+    .modalHead .close{
+      width: 38px; height: 38px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.06);
+      cursor:pointer;
+      display:grid;
+      place-items:center;
+      color: var(--text);
+    }
+    [data-theme="light"] .modalHead .close{ background: rgba(0,0,0,0.03); }
+    .modalBody{
+      padding: 0 18px 18px;
+      display:flex;
+      flex-direction:column;
+      gap: 14px;
+    }
+    .bigMsg{
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.06);
+      padding: 14px;
+    }
+    [data-theme="light"] .bigMsg{ background: rgba(0,0,0,0.03); }
+    .bigMsg p{
+      margin:0;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.55;
+      font-size: 13px;
+      white-space: pre-wrap;
+    }
+    .bigMsg .time{
+      margin-top: 10px;
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--sub);
+    }
+    .modalActions{
+      display:flex;
+      gap: 10px;
+    }
+    .btnGhost{
+      flex: 1;
+      height: 48px;
+      border-radius: 999px;
+      border: 2px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      font-weight: 1000;
+      cursor:pointer;
+    }
+    .btnSolid{
+      flex: 2;
+      height: 48px;
+      border-radius: 999px;
+      border:none;
+      background: var(--text);
+      color: var(--bg);
+      font-weight: 1000;
+      cursor:pointer;
+    }
+    .btnGhost:active,.btnSolid:active{ transform: scale(0.98); }
+
+    /* ===== Language Selection Overlay ===== */
+    .langOverlay{
+      position:fixed;
+      inset:0;
+      background: var(--bg);
+      display:none;
+      z-index: 200;
+      padding: 22px;
+      overflow:auto;
+    }
+    .langOverlay.active{ display:block; }
+    .langBox{
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 26px 18px 36px;
+    }
+    .langBox h2{
+      margin: 0;
+      font-size: 26px;
+      font-weight: 1000;
+      letter-spacing: -0.5px;
+    }
+    .langBox p{
+      margin: 10px 0 0;
+      color: var(--sub);
+      font-weight: 800;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .langGrid{
+      margin-top: 18px;
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .langCard{
+      border-radius: 22px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      padding: 18px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      transition: transform .25s var(--spring);
+      min-height: 72px;
+    }
+    .langCard:hover{ transform: translateY(-2px); }
+    .langCard b{
+      font-size: 16px;
+      font-weight: 1000;
+    }
+    .langCard small{
+      color: var(--sub);
+      font-weight: 900;
+    }
+
+    /* ===== Spinner ===== */
+    .spinner{
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.25);
+      border-top: 2px solid rgba(255,255,255,0.95);
+      animation: spin .8s linear infinite;
+    }
+    [data-theme="light"] .spinner{
+      border: 2px solid rgba(0,0,0,0.18);
+      border-top: 2px solid rgba(0,0,0,0.65);
+    }
+    @keyframes spin{ to{ transform: rotate(360deg);} }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 820px){
+      .hintGrid{ grid-template-columns: 1fr; }
+      .title{ font-size: 30px; }
+    }
+    @media (max-width: 600px){
+      .topbar{ padding: 14px 14px; }
+      .brand{ min-width: auto; }
+      .brand small{ display:none; }
+      .pill{ height: 40px; padding: 0 10px; }
+      .clock{ max-width: 240px; font-size: 12px; }
+      .card{ padding: 22px; }
+      .inputRow{ flex-direction: column; align-items: stretch; }
+      .btn{ width: 100%; min-width: 0; }
+      .codeInput{ width: 100%; }
+      .langGrid{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="bgCanvas"></canvas>
+  <div class="bg-blobs"></div>
+
+  <!-- 初回言語選択 -->
+  <div id="langOverlay" class="langOverlay">
+    <div class="langBox">
+      <h2 id="langOverlayTitle">Select Language</h2>
+      <p id="langOverlayDesc">Choose a display language. You can change it anytime from the top bar.</p>
+      <div class="langGrid">
+        <div class="langCard" data-lang="ja"><div><b>日本語</b><br/><small>Japanese</small></div><span>→</span></div>
+        <div class="langCard" data-lang="en"><div><b>English</b><br/><small>English</small></div><span>→</span></div>
+        <div class="langCard" data-lang="zh"><div><b>简体中文</b><br/><small>Simplified</small></div><span>→</span></div>
+        <div class="langCard" data-lang="zh-TW"><div><b>繁體中文</b><br/><small>Traditional</small></div><span>→</span></div>
+        <div class="langCard" data-lang="ko"><div><b>한국어</b><br/><small>Korean</small></div><span>→</span></div>
+        <div class="langCard" data-lang="ru"><div><b>Русский</b><br/><small>Russian</small></div><span>→</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-badge" aria-hidden="true">
+          <!-- lock/globe-ish icon -->
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 2a10 10 0 1 0 10 10" stroke="currentColor" stroke-width="2" opacity="0.95"/>
+            <path d="M2 12h20" stroke="currentColor" stroke-width="2" opacity="0.9"/>
+            <path d="M12 2c3.5 3 3.5 17 0 20" stroke="currentColor" stroke-width="2" opacity="0.9"/>
+            <path d="M16.5 12.5v-2a4.5 4.5 0 0 0-9 0v2" stroke="currentColor" stroke-width="2" opacity="0.95"/>
+            <rect x="9" y="12.5" width="9" height="7.5" rx="2" stroke="currentColor" stroke-width="2" opacity="0.95"/>
+          </svg>
+        </div>
+        <div>
+          <div id="brandName">Redeem Center</div>
+          <small id="brandSub">Secure Code Verification</small>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <!-- Language -->
+        <div style="position:relative;">
+          <div class="pill" id="langPill" role="button" tabindex="0">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 2a10 10 0 1 0 10 10" stroke="currentColor" stroke-width="2"/>
+              <path d="M2 12h20" stroke="currentColor" stroke-width="2"/>
+              <path d="M12 2c3.5 3 3.5 17 0 20" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span id="langLabel" style="font-weight:1000; font-size:12.5px;">日本語</span>
+            <span style="opacity:0.6; font-weight:1000;">▾</span>
+          </div>
+          <div class="menu" id="langMenu">
+            <button class="langBtn" data-lang="ja">日本語 <span>✓</span></button>
+            <button class="langBtn" data-lang="en">English <span></span></button>
+            <button class="langBtn" data-lang="zh">简体中文 <span></span></button>
+            <button class="langBtn" data-lang="zh-TW">繁體中文 <span></span></button>
+            <button class="langBtn" data-lang="ko">한국어 <span></span></button>
+            <button class="langBtn" data-lang="ru">Русский <span></span></button>
+          </div>
+        </div>
+
+        <!-- Clock (Right Top) -->
+        <div class="pill clock" id="clockPill" title="Clock">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" opacity="0.9"/>
+            <path d="M12 7v6l4 2" stroke="currentColor" stroke-width="2" opacity="0.95" stroke-linecap="round"/>
+          </svg>
+          <span id="clockText">--</span>
+        </div>
+
+        <!-- Theme -->
+        <div class="pill" id="themePill" role="button" tabindex="0" title="Theme">
+          <svg id="themeIcon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+
+        <!-- Account -->
+        <div style="position:relative;">
+          <div class="pill" id="acctPill" role="button" tabindex="0" title="Account">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="8" r="4.5" stroke="currentColor" stroke-width="2"/>
+              <path d="M4 21a8 8 0 0 1 16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="menu" id="acctMenu">
+            <div class="mini">
+              <div class="label" id="userLabel">USER</div>
+              <div class="value" id="userValue">-</div>
+            </div>
+            <button id="logoutBtn" style="color: var(--danger);">
+              <span id="logoutText">Logout</span>
+              <span>⟶</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main -->
+    <main class="main">
+      <section class="card" aria-label="Redeem">
+        <div class="card-inner">
+          <div class="headline">
+            <div>
+              <h1 class="title" id="heroTitle">コード認証センター</h1>
+              <p class="subtitle" id="heroSub">
+                引き換えコードを入力して認証します。認証後にコンテンツが解放されます。
+              </p>
+            </div>
+          </div>
+
+          <div class="inputRow">
+            <input id="codeInput" class="codeInput" type="text" autocomplete="off" inputmode="latin"
+                   placeholder="引き換えコード" />
+            <button id="checkBtn" class="btn">
+              <span id="checkBtnText">確認</span>
+            </button>
+          </div>
+
+          <div class="statusLine" id="statusLine">
+            <span class="statusDot" id="statusDot"></span>
+            <span id="statusText"></span>
+          </div>
+
+          <div class="hintGrid">
+            <div class="hint">
+              <b>
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 2l9 4.5v6c0 5-3.8 9.4-9 10-5.2-.6-9-5-9-10v-6L12 2z" stroke="currentColor" stroke-width="2"/>
+                  <path d="M9 12l2 2 4-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span id="hint1Title">安全な検証</span>
+              </b>
+              <p id="hint1Body">セッションを流用し、サーバー側でコードの有効性を確認します。</p>
+            </div>
+            <div class="hint">
+              <b>
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M4 7h16M4 12h10M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span id="hint2Title">自動整形</span>
+              </b>
+              <p id="hint2Body">英数字のみを抽出し、ハイフンを自動挿入して読みやすくします。</p>
+            </div>
+            <div class="hint">
+              <b>
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" opacity="0.9"/>
+                </svg>
+                <span id="hint3Title">タイムスタンプ</span>
+              </b>
+              <p id="hint3Body">右上の時計と同じ形式で、成功/失敗時刻を表示します。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Result Modal -->
+  <div id="resultOverlay" class="overlay" role="dialog" aria-modal="true" aria-label="Result">
+    <div class="modal">
+      <div class="modalHead">
+        <h3 id="modalTitle">Result</h3>
+        <button class="close" id="modalClose" aria-label="Close">
+          <span style="font-weight:1000;">✕</span>
+        </button>
+      </div>
+      <div class="modalBody">
+        <div class="bigMsg">
+          <p id="modalMsg">-</p>
+          <div class="time" id="modalTime">--</div>
+        </div>
+        <div class="modalActions" id="modalActions">
+          <button class="btnGhost" id="modalSecondary">閉じる</button>
+          <button class="btnSolid" id="modalPrimary" style="display:none;">引き換える</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /*********************
+     * Config
+     *********************/
+    const GAS_API_URL = "/api/proxy"; // 既存と同じ想定（必要なら変更）
+    const LS_LANG = "user_lang";
+    const LS_IDENTITY = "user_session_identity";
+    const LS_TOKEN = "user_session_token";
+
+    let CURRENT_LANG = "ja";
+    let pendingCode = "";
+
+    const $ = (id) => document.getElementById(id);
+
+    /*********************
+     * Translations
+     *********************/
+    const T = {
+      ja: {
+        brandName: "Redeem Center",
+        brandSub: "Secure Code Verification",
+        heroTitle: "コード認証センター",
+        heroSub: "引き換えコードを入力して認証します。認証後にコンテンツが解放されます。",
+        placeholder: "引き換えコード",
+        check: "確認",
+        checking: "確認中…",
+        ready: "待機中",
+        needLogin: "未ログインです。Access.html に移動します…",
+        okTitle: "認証OK",
+        okMsg: "このコードは有効です。\n続行すると引き換え（Redeem）を実行します。",
+        redeem: "引き換える",
+        redeemedTitle: "引き換え完了",
+        redeemedMsg: "引き換えが完了しました。",
+        usedTitle: "使用済み",
+        usedMsg: "このコードは既に引き換え済みです。",
+        invalidTitle: "無効なコード",
+        invalidMsg: "このコードは無効です。",
+        errTitle: "エラー",
+        errMsg: "エラーが発生しました。しばらくしてから再度お試しください。",
+        close: "閉じる",
+        userLabel: "個人識別子",
+        logout: "ログアウト",
+        hint1Title: "安全な検証",
+        hint1Body: "セッションを流用し、サーバー側でコードの有効性を確認します。",
+        hint2Title: "自動整形",
+        hint2Body: "英数字のみを抽出し、ハイフンを自動挿入して読みやすくします。",
+        hint3Title: "タイムスタンプ",
+        hint3Body: "右上の時計と同じ形式で、成功/失敗時刻を表示します。",
+        langOverlayTitle: "言語を選択",
+        langOverlayDesc: "表示言語を選んでください。上部メニューからいつでも変更できます。"
+      },
+      en: {
+        brandName: "Redeem Center",
+        brandSub: "Secure Code Verification",
+        heroTitle: "Code Verification Center",
+        heroSub: "Enter a redemption code to verify. After verification, content will be unlocked.",
+        placeholder: "Redeem Code",
+        check: "CHECK",
+        checking: "Checking…",
+        ready: "Ready",
+        needLogin: "Not logged in. Redirecting to Access.html…",
+        okTitle: "Verified",
+        okMsg: "This code is valid.\nContinue to redeem it.",
+        redeem: "REDEEM",
+        redeemedTitle: "Redeemed",
+        redeemedMsg: "Redemption completed successfully.",
+        usedTitle: "Already Used",
+        usedMsg: "This code has already been redeemed.",
+        invalidTitle: "Invalid Code",
+        invalidMsg: "This code is invalid.",
+        errTitle: "Error",
+        errMsg: "Something went wrong. Please try again later.",
+        close: "Close",
+        userLabel: "USER ID",
+        logout: "Logout",
+        hint1Title: "Secure Verification",
+        hint1Body: "Reuses your session and verifies the code on the server.",
+        hint2Title: "Auto Formatting",
+        hint2Body: "Extracts alphanumerics and inserts hyphens automatically.",
+        hint3Title: "Timestamp",
+        hint3Body: "Shows the same time format as the top-right clock.",
+        langOverlayTitle: "Select Language",
+        langOverlayDesc: "Choose a display language. You can change it anytime from the top bar."
+      },
+      zh: {
+        brandName: "Redeem Center",
+        brandSub: "安全代码验证",
+        heroTitle: "兑换码验证中心",
+        heroSub: "输入兑换码进行验证。验证后将解锁内容。",
+        placeholder: "兑换码",
+        check: "检查",
+        checking: "检查中…",
+        ready: "就绪",
+        needLogin: "未登录。正在跳转到 Access.html…",
+        okTitle: "验证通过",
+        okMsg: "该代码有效。\n继续将执行兑换。",
+        redeem: "兑换",
+        redeemedTitle: "兑换完成",
+        redeemedMsg: "兑换已成功完成。",
+        usedTitle: "已使用",
+        usedMsg: "该代码已被兑换。",
+        invalidTitle: "无效代码",
+        invalidMsg: "该代码无效。",
+        errTitle: "错误",
+        errMsg: "发生错误，请稍后重试。",
+        close: "关闭",
+        userLabel: "用户ID",
+        logout: "退出",
+        hint1Title: "安全验证",
+        hint1Body: "复用会话并在服务器端验证代码。",
+        hint2Title: "自动格式化",
+        hint2Body: "提取字母数字并自动插入连字符。",
+        hint3Title: "时间戳",
+        hint3Body: "与右上角时钟一致的时间显示。",
+        langOverlayTitle: "选择语言",
+        langOverlayDesc: "请选择显示语言。可随时在顶部菜单更改。"
+      },
+      "zh-TW": {
+        brandName: "Redeem Center",
+        brandSub: "安全代碼驗證",
+        heroTitle: "兌換碼驗證中心",
+        heroSub: "輸入兌換碼進行驗證。驗證後將解鎖內容。",
+        placeholder: "兌換碼",
+        check: "檢查",
+        checking: "檢查中…",
+        ready: "就緒",
+        needLogin: "未登入。正在前往 Access.html…",
+        okTitle: "驗證通過",
+        okMsg: "此代碼有效。\n繼續將執行兌換。",
+        redeem: "兌換",
+        redeemedTitle: "兌換完成",
+        redeemedMsg: "兌換已成功完成。",
+        usedTitle: "已使用",
+        usedMsg: "此代碼已兌換。",
+        invalidTitle: "無效代碼",
+        invalidMsg: "此代碼無效。",
+        errTitle: "錯誤",
+        errMsg: "發生錯誤，請稍後再試。",
+        close: "關閉",
+        userLabel: "用戶ID",
+        logout: "退出",
+        hint1Title: "安全驗證",
+        hint1Body: "沿用會話並在伺服器端驗證代碼。",
+        hint2Title: "自動格式化",
+        hint2Body: "擷取英數並自動插入連字號。",
+        hint3Title: "時間戳",
+        hint3Body: "與右上角時鐘相同格式顯示。",
+        langOverlayTitle: "選擇語言",
+        langOverlayDesc: "請選擇顯示語言。可在上方選單隨時更改。"
+      },
+      ko: {
+        brandName: "Redeem Center",
+        brandSub: "보안 코드 검증",
+        heroTitle: "코드 인증 센터",
+        heroSub: "교환 코드를 입력하여 인증합니다. 인증 후 콘텐츠가 해제됩니다.",
+        placeholder: "교환 코드",
+        check: "확인",
+        checking: "확인 중…",
+        ready: "대기 중",
+        needLogin: "로그인되지 않았습니다. Access.html로 이동합니다…",
+        okTitle: "인증 완료",
+        okMsg: "이 코드는 유효합니다.\n계속하면 교환(Redeem)을 실행합니다.",
+        redeem: "교환",
+        redeemedTitle: "교환 완료",
+        redeemedMsg: "교환이 완료되었습니다.",
+        usedTitle: "이미 사용됨",
+        usedMsg: "이 코드는 이미 사용되었습니다.",
+        invalidTitle: "유효하지 않음",
+        invalidMsg: "유효하지 않은 코드입니다.",
+        errTitle: "오류",
+        errMsg: "오류가 발생했습니다. 잠시 후 다시 시도해 주세요.",
+        close: "닫기",
+        userLabel: "사용자 ID",
+        logout: "로그아웃",
+        hint1Title: "안전한 검증",
+        hint1Body: "세션을 재사용하고 서버에서 코드를 검증합니다.",
+        hint2Title: "자동 서식",
+        hint2Body: "영숫자만 추출하고 하이픈을 자동 삽입합니다.",
+        hint3Title: "타임스탬프",
+        hint3Body: "오른쪽 상단 시계와 같은 형식으로 표시합니다.",
+        langOverlayTitle: "언어 선택",
+        langOverlayDesc: "표시 언어를 선택하세요. 상단 메뉴에서 언제든 변경할 수 있습니다."
+      },
+      ru: {
+        brandName: "Redeem Center",
+        brandSub: "Безопасная проверка кода",
+        heroTitle: "Центр проверки кода",
+        heroSub: "Введите код для проверки. После проверки контент будет разблокирован.",
+        placeholder: "Код активации",
+        check: "Проверить",
+        checking: "Проверка…",
+        ready: "Готово",
+        needLogin: "Вы не вошли. Переход на Access.html…",
+        okTitle: "Подтверждено",
+        okMsg: "Код действителен.\nПродолжите, чтобы погасить (Redeem).",
+        redeem: "Погасить",
+        redeemedTitle: "Успешно",
+        redeemedMsg: "Погашение выполнено успешно.",
+        usedTitle: "Уже использован",
+        usedMsg: "Этот код уже активирован.",
+        invalidTitle: "Неверный код",
+        invalidMsg: "Этот код недействителен.",
+        errTitle: "Ошибка",
+        errMsg: "Произошла ошибка. Повторите попытку позже.",
+        close: "Закрыть",
+        userLabel: "ID пользователя",
+        logout: "Выйти",
+        hint1Title: "Безопасная проверка",
+        hint1Body: "Использует сессию и проверяет код на сервере.",
+        hint2Title: "Автоформат",
+        hint2Body: "Оставляет только символы и вставляет дефисы автоматически.",
+        hint3Title: "Время",
+        hint3Body: "Показывает время как в правом верхнем углу.",
+        langOverlayTitle: "Выбор языка",
+        langOverlayDesc: "Выберите язык интерфейса. Можно изменить в верхнем меню."
+      }
+    };
+
+    /*********************
+     * Time formatting (multi-language)
+     *********************/
+    function formatLocalTime(dateObj, lang) {
+      try {
         const formatter = new Intl.DateTimeFormat('en-US', {
-            year: 'numeric', month: '2-digit', day: '2-digit',
-            hour: '2-digit', minute: '2-digit', hour12: false
+          year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
         });
         const parts = formatter.formatToParts(dateObj);
-        const p = {}; parts.forEach(part => p[part.type] = part.value);
+        const p = {};
+        parts.forEach(part => p[part.type] = part.value);
         let hr = p.hour === '24' ? '00' : p.hour;
-        return `${p.year}/${p.month}/${p.day} ${hr}:${p.minute}`;
-    } catch(e) { return dateObj.toLocaleString(); }
-}
 
-async function safeFetch(bodyObj) {
-    const token = localStorage.getItem('user_session_token') || "";
-    try {
+        const offset = -dateObj.getTimezoneOffset();
+        const sign = offset >= 0 ? '+' : '-';
+        const pad = n => String(Math.floor(Math.abs(n))).padStart(2, '0');
+        const gmt = `GMT${sign}${pad(offset / 60)}:${pad(offset % 60)}`;
+
+        const mInt = parseInt(p.month, 10) - 1;
+        const enMonths = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+        const ruMonths = ["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+
+        switch(lang) {
+          case 'ja':
+          case 'zh':
+          case 'zh-TW':
+            return `${p.year}年${p.month}月${p.day}日 ${hr}:${p.minute}:${p.second} ${gmt}`;
+          case 'ko':
+            return `${p.year}년 ${p.month}월 ${p.day}일 ${hr}:${p.minute}:${p.second} ${gmt}`;
+          case 'ru':
+            return `${p.day} ${ruMonths[mInt]} ${p.year} г. ${hr}:${p.minute}:${p.second} ${gmt}`;
+          case 'en':
+          default:
+            return `${enMonths[mInt]} ${p.day}, ${p.year} ${hr}:${p.minute}:${p.second} ${gmt}`;
+        }
+      } catch (e) {
+        return dateObj.toLocaleString();
+      }
+    }
+    function getFormattedCurrentTime(lang){ return formatLocalTime(new Date(), lang); }
+
+    /*********************
+     * API wrapper (token reuse)
+     *********************/
+    async function safeFetch(bodyObj) {
+      const token = localStorage.getItem(LS_TOKEN) || "";
+      const headers = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+      try {
         const res = await fetch(GAS_API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify(bodyObj)
+          method: "POST",
+          headers,
+          body: JSON.stringify(bodyObj)
         });
         return await res.json();
-    } catch(e) { return { success: false, message: 'Network error' }; }
-}
-
-// Initialization
-document.addEventListener('DOMContentLoaded', () => {
-    lucide.createIcons();
-    
-    // Auth Check: Force Redirect if not logged in
-    const sUser = localStorage.getItem('user_session_identity');
-    if (!sUser) {
-        window.location.href = 'Access.html' + window.location.search;
-        return; // Stop execution
-    } else {
-        currentUser = JSON.parse(sUser);
-        gId('dispUserId').textContent = currentUser.email || currentUser.userId;
-        fetchUserHistory(); // Fetch points and history
+      } catch (e) {
+        return { success: false, message: "Network error" };
+      }
     }
 
-    // Language Setup
-    let sLang = localStorage.getItem('user_lang') || 'ja';
-    updateLanguage(sLang);
-
-    // Event Listeners
-    setupEvents();
-    
-    // Auto check URL parameter
-    const urlCode = new URLSearchParams(window.location.search).get('code');
-    if(urlCode) {
-        setTimeout(() => {
-            const el = gId('activationCode');
-            el.value = formatCodeInput(urlCode);
-            processCodeCheck(el.value);
-        }, 500);
+    /*********************
+     * Code formatting
+     *********************/
+    function formatCodeInput(val) {
+      if (!val) return "";
+      const clean = String(val).toUpperCase().replace(/[^A-Z0-9]/g, "");
+      const sz = clean.length >= 25 ? 5 : 4;
+      let res = "";
+      for (let i=0;i<clean.length;i++){
+        if(i>0 && i%sz===0) res += "-";
+        res += clean[i];
+      }
+      return res;
     }
-});
 
-function setupEvents() {
-    // Dropdowns
-    const toggleMenu = (triggerId, menuId) => {
-        gId(triggerId).addEventListener('click', (e) => {
-            e.stopPropagation();
-            document.querySelectorAll('.dropdown-menu').forEach(m => {
-                if(m.id !== menuId) m.classList.remove('open');
-            });
-            gId(menuId).classList.toggle('open');
-        });
-    };
-    toggleMenu('langToggle', 'langMenu');
-    toggleMenu('accountToggle', 'accountMenu');
-    document.addEventListener('click', () => document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('open')));
+    /*********************
+     * UI apply
+     *********************/
+    function applyLang(lang){
+      CURRENT_LANG = lang;
+      localStorage.setItem(LS_LANG, lang);
+      document.documentElement.lang = lang;
 
-    // Lang select
-    document.querySelectorAll('.lang-list li').forEach(li => {
-        li.addEventListener('click', () => {
-            const lang = li.getAttribute('data-val');
-            localStorage.setItem('user_lang', lang);
-            updateLanguage(lang);
-            fetchUserHistory();
-        });
-    });
+      const t = T[lang] || T.ja;
+      $("brandName").textContent = t.brandName;
+      $("brandSub").textContent = t.brandSub;
 
-    // Account Actions
-    gId('btnLogout').addEventListener('click', () => {
-        localStorage.removeItem('user_session_identity');
-        localStorage.removeItem('user_session_token');
-        window.location.href = 'Access.html';
-    });
-    gId('btnHistory').addEventListener('click', () => {
-        renderHistory();
-        gId('modHistory').classList.add('active');
-    });
-    gId('btnPassword').addEventListener('click', () => {
-        gId('passOld').value = ''; gId('passNew').value = ''; gId('passConf').value = '';
-        gId('passMsg').textContent = '';
-        gId('modPass').classList.add('active');
-    });
-    gId('btnSubmitPass').addEventListener('click', handlePasswordChange);
+      $("heroTitle").textContent = t.heroTitle;
+      $("heroSub").textContent = t.heroSub;
+      $("codeInput").placeholder = t.placeholder;
+      $("checkBtnText").textContent = t.check;
 
-    // Input Code
-    const inputCode = gId('activationCode');
-    inputCode.addEventListener('input', e => e.target.value = formatCodeInput(e.target.value));
-    inputCode.addEventListener('keydown', e => { if(e.key === 'Enter') processCodeCheck(inputCode.value); });
-    gId('btnCheck').addEventListener('click', () => processCodeCheck(inputCode.value));
-    gId('btnRedeem').addEventListener('click', () => processCodeRedeem());
-}
+      $("userLabel").textContent = t.userLabel;
+      $("logoutText").textContent = t.logout;
 
-function updateLanguage(lang) {
-    CURRENT_LANG = lang;
-    document.documentElement.lang = lang;
-    const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
-    document.querySelectorAll('[data-translate]').forEach(el => {
-        const k = el.getAttribute('data-translate');
-        if (t[k]) el.innerHTML = t[k];
-    });
-}
+      $("hint1Title").textContent = t.hint1Title;
+      $("hint1Body").textContent = t.hint1Body;
+      $("hint2Title").textContent = t.hint2Title;
+      $("hint2Body").textContent = t.hint2Body;
+      $("hint3Title").textContent = t.hint3Title;
+      $("hint3Body").textContent = t.hint3Body;
 
-// Phase Management
-function showPhase(phaseId, isWide = false) {
-    document.querySelectorAll('.phase-container').forEach(el => {
-        el.style.opacity = '0';
-        setTimeout(() => { el.classList.remove('active'); }, 200);
-    });
-    
-    // Clear Glows
-    const card = gId('mainCard');
-    card.classList.remove('glow-error', 'glow-success');
-    
-    setTimeout(() => {
-        const target = gId(phaseId);
-        target.classList.add('active');
-        void target.offsetWidth; 
-        target.style.opacity = '1';
-        
-        if(isWide) card.classList.add('is-wide');
-        else card.classList.remove('is-wide');
-        
-        // Add neon glow only for Error / Success
-        if(phaseId === 'phaseError') card.classList.add('glow-error');
-        if(phaseId === 'phaseSuccess') card.classList.add('glow-success');
-    }, 200);
-}
+      $("langOverlayTitle").textContent = t.langOverlayTitle;
+      $("langOverlayDesc").textContent = t.langOverlayDesc;
 
-function resetToInput(clearCode = false) {
-    if(clearCode) {
-        gId('activationCode').value = '';
+      // Label
+      const map = { ja:"日本語", en:"English", zh:"简体中文", "zh-TW":"繁體中文", ko:"한국어", ru:"Русский" };
+      $("langLabel").textContent = map[lang] || "English";
+
+      // menu checkmark
+      document.querySelectorAll(".langBtn").forEach(btn=>{
+        btn.querySelector("span").textContent = (btn.dataset.lang===lang) ? "✓" : "";
+      });
+
+      // status
+      setStatus("ready", t.ready);
+
+      // clock immediate update
+      updateClock();
     }
-    gId('activationCode').disabled = false;
-    gId('btnCheck').disabled = false;
-    gId('btnCheck').innerHTML = `<i data-lucide="unlock" style="width:18px;height:18px;"></i> <span data-translate="modal_btn_auth">${TRANSLATIONS[CURRENT_LANG].modal_btn_auth}</span>`;
-    lucide.createIcons();
-    showPhase('phaseInput', false);
-    setTimeout(() => gId('activationCode').focus(), 400);
-}
 
-function renderErrorScreen(codeNum, title, message, isOwned) {
-    const t = TRANSLATIONS[CURRENT_LANG];
-    gId('errCode').textContent = codeNum;
-    gId('errTitle').textContent = title;
-    gId('errMsg').textContent = message || "Access Denied";
-    gId('errTime').textContent = formatLocalTime(new Date());
-    
-    const btnRow = gId('errorBtnRow');
-    // エラー時のボタン分岐 (使用済み・無効 vs 所有済み)
-    if (isOwned) {
-        btnRow.innerHTML = `
-            <button class="action-btn btn-outline" onclick="resetToInput(true)">${t.btn_close}</button>
-            <button class="action-btn btn-solid-white" onclick="window.location.href='index.html'">${t.btn_go_home}</button>
-        `;
-    } else {
-        btnRow.innerHTML = `
-            <button class="action-btn btn-outline" onclick="resetToInput(false)">${t.btn_close}</button>
-            <button class="action-btn btn-neon-red" onclick="resetToInput(true)">${t.btn_retry}</button>
-        `;
+    function setStatus(mode, text){
+      $("statusText").textContent = text || "";
+      $("statusDot").className = "statusDot";
+      if(mode==="ok") $("statusDot").classList.add("ok");
+      if(mode==="bad") $("statusDot").classList.add("bad");
     }
-    showPhase('phaseError', false); // Error phase is not wide
-}
 
-// API Interactions
-async function processCodeCheck(code) {
-    const safeCode = formatCodeInput(code);
-    if (!safeCode) return;
-    
-    const t = TRANSLATIONS[CURRENT_LANG];
-    const btn = gId('btnCheck');
-    
-    btn.disabled = true; gId('activationCode').disabled = true;
-    btn.innerHTML = `<div class="loading-spinner"></div>`;
+    /*********************
+     * Clock
+     *********************/
+    function updateClock(){
+      // モバイルは少し短め（省略はCSSでellipsis、文字列自体は同じでもOK）
+      $("clockText").textContent = getFormattedCurrentTime(CURRENT_LANG);
+    }
 
-    const d = await safeFetch({ type: 'check', userId: currentUser.userId, code: safeCode, lang: CURRENT_LANG });
-    
-    if (d.success) {
-        currentContentData = { code: safeCode, title: d.detailedTitle, desc: d.detailedDesc, img: d.imageUrl, btnLabel: d.buttonLabel, msg: d.message };
-        gId('prevImg').src = currentContentData.img || "https://via.placeholder.com/300";
-        gId('prevTitle').textContent = currentContentData.title;
-        if (currentContentData.desc) {
-            gId('prevWarning').innerHTML = escapeHTML(currentContentData.desc).replace(/\n/g, '<br>');
-            gId('prevWarning').style.display = 'block';
+    /*********************
+     * Modal helpers
+     *********************/
+    function openModal(title, msg, showPrimary=false, primaryText="", primaryHandler=null){
+      $("modalTitle").textContent = title;
+      $("modalMsg").textContent = msg;
+      $("modalTime").textContent = getFormattedCurrentTime(CURRENT_LANG);
+      $("resultOverlay").classList.add("active");
+
+      $("modalSecondary").textContent = (T[CURRENT_LANG]||T.ja).close;
+
+      const primary = $("modalPrimary");
+      if(showPrimary){
+        primary.style.display = "inline-flex";
+        primary.textContent = primaryText;
+        primary.onclick = primaryHandler;
+      } else {
+        primary.style.display = "none";
+        primary.onclick = null;
+      }
+    }
+    function closeModal(){
+      $("resultOverlay").classList.remove("active");
+    }
+
+    /*********************
+     * Auth flow
+     * - mode 'check' : verify
+     * - mode 'redeem': redeem
+     *********************/
+    async function performAuth(code, mode="check"){
+      const t = T[CURRENT_LANG] || T.ja;
+      const safeCode = formatCodeInput(code);
+      if(!safeCode) return;
+
+      $("checkBtn").disabled = true;
+      $("checkBtnText").textContent = t.checking;
+
+      try{
+        // 既存実装の名残に合わせて type: 'check' / 'redeem' を採用
+        const payload = {
+          type: (mode === "check") ? "check" : "redeem",
+          code: safeCode
+        };
+        // もし userId が必要なら identity を付与（環境差対応）
+        const identity = localStorage.getItem(LS_IDENTITY);
+        if(identity) payload.identity = identity;
+
+        const d = await safeFetch(payload);
+
+        // 返却形式が環境で揺れても耐えるように判定
+        // 想定例:
+        //  - {success:true, status:'valid'} / {success:false, message:'...'}
+        //  - {success:true, result:{status:'USED'...}}
+        const data = d && (d.result || d.data || d);
+        const status = (data && (data.status || data.state || data.codeStatus)) || "";
+        const msg = (data && (data.message || data.msg)) || d.message || "";
+
+        if(mode === "check"){
+          // VALID判定
+          const isValid =
+            d.success === true &&
+            (String(status).toLowerCase()==="valid" || String(status).toLowerCase()==="ok" || String(status).toLowerCase()==="success" || status==="" );
+
+          // USED判定
+          const isUsed =
+            String(status).toLowerCase()==="used" ||
+            String(msg).toLowerCase().includes("already") ||
+            String(msg).includes("引き換え済") ||
+            String(msg).includes("redeemed");
+
+          // INVALID判定
+          const isInvalid =
+            d.success === false &&
+            (String(status).toLowerCase()==="invalid" || String(msg).toLowerCase().includes("invalid") || String(msg).includes("無効"));
+
+          if(isUsed){
+            setStatus("bad", t.usedMsg);
+            openModal(t.usedTitle, t.usedMsg, false);
+          } else if(isInvalid){
+            setStatus("bad", t.invalidMsg);
+            openModal(t.invalidTitle, t.invalidMsg, false);
+          } else if(isValid){
+            setStatus("ok", t.okTitle);
+            pendingCode = safeCode;
+            openModal(
+              t.okTitle,
+              t.okMsg,
+              true,
+              t.redeem,
+              async ()=>{
+                await performAuth(pendingCode, "redeem");
+              }
+            );
+          } else {
+            setStatus("bad", t.errMsg);
+            openModal(t.errTitle, msg || t.errMsg, false);
+          }
         } else {
-            gId('prevWarning').style.display = 'none';
+          // redeem
+          if(d.success){
+            setStatus("ok", t.redeemedTitle);
+            openModal(t.redeemedTitle, (data && data.message) ? data.message : t.redeemedMsg, false);
+          } else {
+            setStatus("bad", t.errMsg);
+            openModal(t.errTitle, msg || t.errMsg, false);
+          }
         }
-        showPhase('phasePreview', true);
-    } else {
-        // Direct to Error Phase instead of inline
-        const msg = (d.message||"").toLowerCase();
-        let errTitle = t.msg_error;
-        let errCodeNum = "1000";
-        let isOwned = false;
-        
-        if(msg.includes('used') || msg.includes('使用済')) { errTitle = t.error_used_msg; errCodeNum = "1013"; }
-        else if(msg.includes('owned') || msg.includes('所有')) { errTitle = t.error_owned_msg; errCodeNum = "1011"; isOwned = true; }
-        else if(msg.includes('invalid') || msg.includes('not found') || msg.includes('無効')) { errTitle = t.msg_invalid; errCodeNum = "1012"; }
-        
-        renderErrorScreen(errCodeNum, errTitle, d.message, isOwned);
-    }
-}
 
-async function processCodeRedeem() {
-    const t = TRANSLATIONS[CURRENT_LANG];
-    const btn = gId('btnRedeem');
-    btn.disabled = true;
-    btn.innerHTML = `<div class="loading-spinner"></div>`;
-    
-    const code = currentContentData.code;
-    const d = await safeFetch({ type: 'redeem', userId: currentUser.userId, code: code, lang: CURRENT_LANG });
-    
-    if (d.success) {
-        // Success Update
-        gId('succImg').src = currentContentData.img || "https://via.placeholder.com/300";
-        gId('succTitle').textContent = currentContentData.title;
-        gId('succMsg').textContent = t.success_msg_box;
-        gId('succTime').textContent = formatLocalTime(new Date());
-        
-        if (d.actionUrl) {
-            const dlBtn = gId('btnDownload');
-            dlBtn.href = d.actionUrl;
-            dlBtn.style.display = 'flex';
-            dlBtn.innerHTML = `<span>${currentContentData.btnLabel || t.btn_download}</span> <i data-lucide="download" style="width:18px;"></i>`;
-            lucide.createIcons();
-        } else {
-            gId('btnDownload').style.display = 'none';
+      } catch(e){
+        setStatus("bad", (T[CURRENT_LANG]||T.ja).errMsg);
+        openModal((T[CURRENT_LANG]||T.ja).errTitle, (T[CURRENT_LANG]||T.ja).errMsg, false);
+      } finally {
+        $("checkBtn").disabled = false;
+        $("checkBtnText").textContent = (T[CURRENT_LANG]||T.ja).check;
+      }
+    }
+
+    /*********************
+     * Theme
+     *********************/
+    function initTheme(){
+      const saved = localStorage.getItem("ui_theme");
+      const theme = saved || document.documentElement.getAttribute("data-theme") || "dark";
+      document.documentElement.setAttribute("data-theme", theme);
+    }
+    function toggleTheme(){
+      const curr = document.documentElement.getAttribute("data-theme") || "dark";
+      const next = (curr==="dark") ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("ui_theme", next);
+    }
+
+    /*********************
+     * Background canvas (simple dreamy particles)
+     *********************/
+    function initCanvas(){
+      const c = $("bgCanvas");
+      const ctx = c.getContext("2d");
+      let w=0,h=0;
+      const blobs = Array.from({length: 10}).map(()=>({
+        x: Math.random(), y: Math.random(),
+        vx: (Math.random()*0.25+0.05)*(Math.random()<0.5?-1:1),
+        vy: (Math.random()*0.25+0.05)*(Math.random()<0.5?-1:1),
+        r: Math.random()*0.18+0.10,
+        hue: Math.random()*360
+      }));
+      function resize(){
+        w = c.width = window.innerWidth * devicePixelRatio;
+        h = c.height = window.innerHeight * devicePixelRatio;
+      }
+      function step(){
+        ctx.clearRect(0,0,w,h);
+        for(const b of blobs){
+          b.x += b.vx/1000;
+          b.y += b.vy/1000;
+          if(b.x<0||b.x>1) b.vx*=-1;
+          if(b.y<0||b.y>1) b.vy*=-1;
+
+          const x = b.x*w, y=b.y*h;
+          const r = b.r*Math.min(w,h);
+
+          const grad = ctx.createRadialGradient(x,y,0,x,y,r);
+          const a = (document.documentElement.getAttribute("data-theme")==="dark") ? 0.18 : 0.12;
+          grad.addColorStop(0, `hsla(${b.hue}, 95%, 60%, ${a})`);
+          grad.addColorStop(1, `hsla(${b.hue}, 95%, 60%, 0)`);
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(x,y,r,0,Math.PI*2);
+          ctx.fill();
         }
-        fetchUserHistory(); // refresh data
-        showPhase('phaseSuccess', true);
-        
-    } else {
-        // Error Show
-        const msg = (d.message||"").toLowerCase();
-        let errTitle = t.msg_error;
-        let errCodeNum = "1000";
-        let isOwned = false;
-        
-        if(msg.includes('used') || msg.includes('使用済')) { errTitle = t.error_used_msg; errCodeNum = "1013"; }
-        else if(msg.includes('owned') || msg.includes('所有')) { errTitle = t.error_owned_msg; errCodeNum = "1011"; isOwned = true; }
-        else if(msg.includes('invalid') || msg.includes('not found') || msg.includes('無効')) { errTitle = t.msg_invalid; errCodeNum = "1012"; }
-        
-        renderErrorScreen(errCodeNum, errTitle, d.message, isOwned);
+        requestAnimationFrame(step);
+      }
+      resize();
+      window.addEventListener("resize", resize);
+      step();
     }
-    btn.disabled = false;
-    btn.innerHTML = `<span data-translate="btn_continue">${t.btn_continue}</span>`;
-}
 
-// User Data Sync
-async function fetchUserHistory() {
-    const d = await safeFetch({ type: 'get_history', lang: CURRENT_LANG });
-    if(d.success) {
-        currentUser.history = d.history || [];
-        currentUser.points = d.points || 0;
-        gId('dispPoints').textContent = currentUser.points;
-    }
-}
-
-// Modals
-function closeModal(id) { gId(id).classList.remove('active'); }
-
-function renderHistory() {
-    const list = gId('historyList');
-    list.innerHTML = '';
-    const t = TRANSLATIONS[CURRENT_LANG];
-    
-    if(!currentUser.history || currentUser.history.length === 0) {
-        list.innerHTML = `<div style="text-align:center; padding: 40px 0; opacity: 0.5; font-weight:700;">${t.history_empty}</div>`;
+    /*********************
+     * Session reuse behavior
+     *********************/
+    function enforceSession(){
+      const identity = localStorage.getItem(LS_IDENTITY);
+      if(!identity){
+        // 既存運用：未ログインならAccessへ
+        setStatus("bad", (T[CURRENT_LANG]||T.ja).needLogin);
+        setTimeout(()=>{ window.location.href = "Access.html" + window.location.search; }, 650);
         return;
+      }
+      $("userValue").textContent = identity;
     }
-    
-    currentUser.history.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'history-item';
-        const img = (item.imageUrl && item.imageUrl.startsWith('http')) ? item.imageUrl : 'https://via.placeholder.com/100';
-        const dateStr = formatLocalTime(new Date(item.authTime || item.date || Date.now()));
-        const displayCode = item.code ? escapeHTML(formatCodeInput(item.code)) : (item.price ? `${item.price} pt` : 'STORE');
-        
-        div.innerHTML = `
-            <img src="${escapeHTML(img)}">
-            <div class="history-info">
-                <div class="history-title">${escapeHTML(item.title || item.message)}</div>
-                <div class="history-meta">
-                    <span style="color: #fff;">${displayCode}</span>
-                    <span>${dateStr}</span>
-                </div>
-            </div>
-        `;
-        list.appendChild(div);
-    });
-}
 
-async function handlePasswordChange() {
-    const oldP = gId('passOld').value;
-    const newP = gId('passNew').value;
-    const confP = gId('passConf').value;
-    const msgEl = gId('passMsg');
-    const btn = gId('btnSubmitPass');
-    const t = TRANSLATIONS[CURRENT_LANG];
-
-    if(!oldP || !newP || !confP) { msgEl.textContent = t.msg_acc_err_empty; return; }
-    if(newP.length < 6) { msgEl.textContent = t.msg_acc_err_len; return; }
-    if(newP !== confP) { msgEl.textContent = t.msg_acc_err_match; return; }
-
-    btn.disabled = true; btn.innerHTML = `<div class="loading-spinner" style="width:16px;height:16px;"></div>`;
-    const d = await safeFetch({ type: 'change_password', userId: currentUser.userId, oldPassword: oldP, newPassword: newP });
-    
-    if(d.success) {
-        msgEl.style.color = "var(--success-color)";
-        msgEl.textContent = t.msg_acc_success;
-        setTimeout(() => { closeModal('modPass'); msgEl.style.color = "var(--error-color)"; }, 1500);
-    } else {
-        msgEl.style.color = "var(--error-color)";
-        msgEl.textContent = d.message || "Error";
+    /*********************
+     * Menu toggles
+     *********************/
+    function toggleMenu(menuEl, open){
+      const isOpen = menuEl.classList.contains("open");
+      const next = (open===undefined) ? !isOpen : open;
+      document.querySelectorAll(".menu").forEach(m=>m.classList.remove("open"));
+      if(next) menuEl.classList.add("open");
     }
-    btn.disabled = false; btn.innerHTML = `<span data-translate="modal_acc_btn_change">${t.modal_acc_btn_change}</span>`;
-}
-</script>
+
+    /*********************
+     * Events
+     *********************/
+    function bindEvents(){
+      // input formatting
+      $("codeInput").addEventListener("input", (e)=>{
+        const v = formatCodeInput(e.target.value);
+        e.target.value = v;
+      });
+      $("codeInput").addEventListener("keydown", (e)=>{
+        if(e.key==="Enter"){
+          performAuth($("codeInput").value, "check");
+        }
+      });
+      $("checkBtn").addEventListener("click", ()=>{
+        performAuth($("codeInput").value, "check");
+      });
+
+      // modal
+      $("modalClose").addEventListener("click", closeModal);
+      $("modalSecondary").addEventListener("click", closeModal);
+      $("resultOverlay").addEventListener("click", (e)=>{ if(e.target === $("resultOverlay")) closeModal(); });
+
+      // theme
+      $("themePill").addEventListener("click", toggleTheme);
+
+      // language menu
+      $("langPill").addEventListener("click", (e)=>{
+        e.stopPropagation();
+        toggleMenu($("langMenu"));
+      });
+      document.querySelectorAll(".langBtn").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          applyLang(btn.dataset.lang);
+          toggleMenu($("langMenu"), false);
+        });
+      });
+
+      // account menu
+      $("acctPill").addEventListener("click", (e)=>{
+        e.stopPropagation();
+        toggleMenu($("acctMenu"));
+      });
+      $("logoutBtn").addEventListener("click", ()=>{
+        localStorage.removeItem(LS_IDENTITY);
+        localStorage.removeItem(LS_TOKEN);
+        // 必要なら他のキーも消す
+        window.location.href = "Access.html" + window.location.search;
+      });
+
+      // initial overlay language pick
+      document.querySelectorAll(".langCard").forEach(card=>{
+        card.addEventListener("click", ()=>{
+          $("langOverlay").classList.remove("active");
+          applyLang(card.dataset.lang);
+          enforceSession();
+        });
+      });
+
+      // close menus on outside click
+      document.addEventListener("click", ()=>{
+        document.querySelectorAll(".menu").forEach(m=>m.classList.remove("open"));
+      });
+
+      // escape
+      document.addEventListener("keydown", (e)=>{
+        if(e.key==="Escape"){
+          closeModal();
+          document.querySelectorAll(".menu").forEach(m=>m.classList.remove("open"));
+        }
+      });
+    }
+
+    /*********************
+     * Init
+     *********************/
+    function detectLang(){
+      let s = localStorage.getItem(LS_LANG);
+      if(!s){
+        const bl = (navigator.language || "").toLowerCase();
+        if (bl.startsWith("ja")) s = "ja";
+        else if (bl.includes("zh-tw") || bl.includes("zh-hk") || bl.includes("zh-hant")) s = "zh-TW";
+        else if (bl.startsWith("zh")) s = "zh";
+        else if (bl.startsWith("ko")) s = "ko";
+        else if (bl.startsWith("ru")) s = "ru";
+        else s = "en";
+      }
+      return s;
+    }
+
+    (function init(){
+      initTheme();
+      initCanvas();
+      bindEvents();
+
+      // language
+      const lang = detectLang();
+      applyLang(lang);
+
+      // first time language overlay (optional)
+      if(!localStorage.getItem(LS_LANG)){
+        $("langOverlay").classList.add("active");
+      }
+
+      // clock tick
+      updateClock();
+      setInterval(updateClock, 1000);
+
+      // session reuse
+      enforceSession();
+    })();
+  </script>
 </body>
 </html>
