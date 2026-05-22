@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>kiryu11 Pro | Code Authentication</title>
+<link rel="icon" href="https://static.wixstatic.com/media/2f0694_eb4d3063598a4cc5b6bd6b8e31cba915~mv2.png/v1/crop/x_248,y_0,w_1065,h_950/fill/w_816,h_728,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/1767545356653.png">
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+/* --- FONT FACE DEFINITIONS --- */
+@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Medium.woff') format('woff'); font-weight: 500; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+:root{
+  --primary:#007DFF; --cyan:#42E8FF; --violet:#8B5CFF; --green:#04CF22;
+  --bg-color:#F1F3F5; --card-bg:rgba(255,255,255,.62); --card-border:rgba(255,255,255,.7);
+  --modal-text-main:#000; --modal-text-sub:#666; --danger:#FF3B30;
+  --shadow-soft:0 24px 80px rgba(0,0,0,.12); --spring-ease:cubic-bezier(.33,1,.68,1);
+  --font-stack:'HarmonyOS Sans','Noto Sans JP',sans-serif;
+}
+:root:lang(ja){--font-stack:'HarmonyOS Sans','Noto Sans JP',sans-serif;}
+:root:lang(en){--font-stack:'HarmonyOS Sans',sans-serif;}
+:root:lang(zh){--font-stack:'HarmonyOS Sans SC','Microsoft YaHei',sans-serif;}
+:root:lang(zh-TW){--font-stack:'HarmonyOS Sans TC','Microsoft JhengHei',sans-serif;}
+:root:lang(ko){--font-stack:'HarmonyOS Sans','Noto Sans KR',sans-serif;}
+:root:lang(ru){--font-stack:'HarmonyOS Sans',sans-serif;}
+[data-theme="dark"]{--bg-color:#080A10; --card-bg:rgba(17,23,38,.62); --card-border:rgba(255,255,255,.12); --modal-text-main:#fff; --modal-text-sub:#AAB4C8; --shadow-soft:0 30px 100px rgba(0,0,0,.55);}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body,button,input{font-family:var(--font-stack)}
+body{margin:0;min-height:100vh;min-height:100dvh;overflow:hidden;background:var(--bg-color);color:var(--modal-text-main);transition:background .45s ease;}
+body::before{content:"";position:fixed;inset:-25%;background:radial-gradient(circle at 15% 20%,rgba(0,125,255,.38),transparent 28%),radial-gradient(circle at 80% 18%,rgba(139,92,255,.32),transparent 25%),radial-gradient(circle at 50% 88%,rgba(66,232,255,.24),transparent 25%);filter:blur(24px);animation:aurora 14s ease-in-out infinite alternate;z-index:0;}
+body::after{content:"";position:fixed;inset:0;background:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:42px 42px;mask-image:linear-gradient(to bottom,transparent,black 18%,black 82%,transparent);opacity:.45;z-index:0;pointer-events:none;}
+@keyframes aurora{from{transform:translate3d(-2%,0,0) scale(1)}to{transform:translate3d(2%,2%,0) scale(1.05)}}
+.app{position:relative;z-index:2;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;padding:28px;}
+.topbar{height:56px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.brand{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:.2px}.brand i{color:var(--cyan)}.brand-name{font-size:18px}.brand-sub{font-size:11px;color:var(--modal-text-sub);font-weight:700;margin-top:2px}.top-actions{display:flex;align-items:center;gap:10px}.clock-pill,.icon-pill,.account-pill{height:44px;border-radius:999px;border:1px solid var(--card-border);background:var(--card-bg);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 10px 30px rgba(0,0,0,.08);color:var(--modal-text-main);display:flex;align-items:center;justify-content:center}.clock-pill{padding:0 16px;gap:8px;font-size:13px;font-weight:800;white-space:nowrap}.icon-pill{width:44px;cursor:pointer}.account-wrap{position:relative}.account-pill{padding:0 14px;gap:8px;cursor:pointer;font-weight:800;max-width:240px}.account-id{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px}.account-menu{position:absolute;right:0;top:54px;width:260px;padding:16px;border-radius:22px;border:1px solid var(--card-border);background:var(--card-bg);backdrop-filter:blur(30px);box-shadow:var(--shadow-soft);opacity:0;transform:translateY(-8px) scale(.98);pointer-events:none;transition:.25s var(--spring-ease);z-index:50}.account-menu.open{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}.account-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--modal-text-sub);font-weight:800}.account-value{margin:6px 0 14px 0;font-size:15px;font-weight:800;word-break:break-all}.menu-button{width:100%;height:44px;border:none;border-radius:14px;background:rgba(255,59,48,.1);color:var(--danger);font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:0 14px}.hero{flex:1;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr);gap:38px;align-items:center;max-width:1180px;width:100%;margin:0 auto;padding:44px 0 26px}.hero-copy{min-width:0}.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:9px 13px;border:1px solid rgba(66,232,255,.3);border-radius:999px;background:rgba(66,232,255,.08);color:var(--cyan);font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.hero h1{font-size:clamp(42px,6vw,78px);line-height:.98;letter-spacing:-.055em;margin:22px 0 18px;font-weight:800}.hero p{font-size:clamp(15px,2vw,18px);line-height:1.8;color:var(--modal-text-sub);max-width:650px;margin:0}.lang-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px}.lang-btn{height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--card-border);background:rgba(255,255,255,.06);color:var(--modal-text-main);font-weight:800;font-size:12px;cursor:pointer}.lang-btn.active{background:var(--modal-text-main);color:var(--bg-color)}.auth-card{position:relative;border:1px solid var(--card-border);background:linear-gradient(145deg,rgba(255,255,255,.68),rgba(255,255,255,.28));box-shadow:var(--shadow-soft);border-radius:34px;padding:30px;overflow:hidden;backdrop-filter:blur(34px);-webkit-backdrop-filter:blur(34px)}[data-theme="dark"] .auth-card{background:linear-gradient(145deg,rgba(25,34,56,.76),rgba(12,16,28,.5))}.auth-card::before{content:"";position:absolute;inset:-1px;background:linear-gradient(135deg,rgba(66,232,255,.45),transparent 34%,rgba(139,92,255,.35));opacity:.6;pointer-events:none;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);padding:1px;border-radius:34px;}.status-line{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:22px}.status-chip{display:flex;align-items:center;gap:8px;color:var(--green);font-size:12px;font-weight:900}.scan-dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 18px var(--green);animation:pulse 1.4s infinite}@keyframes pulse{50%{transform:scale(1.6);opacity:.45}}.card-title{font-size:26px;font-weight:900;margin:0 0 8px}.card-sub{color:var(--modal-text-sub);font-size:14px;line-height:1.65;margin:0 0 24px}.code-input{width:100%;height:62px;border:none;outline:none;border-radius:22px;background:rgba(128,128,128,.12);color:var(--modal-text-main);font-size:18px;font-weight:900;letter-spacing:.05em;text-align:center;padding:0 18px}.code-input:focus{box-shadow:0 0 0 4px rgba(0,125,255,.16);background:rgba(0,125,255,.1)}.primary-btn{width:100%;height:58px;margin-top:16px;border:none;border-radius:999px;background:linear-gradient(135deg,var(--primary),var(--violet));color:#fff;font-size:16px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 16px 42px rgba(0,125,255,.28);transition:.22s}.primary-btn:hover{transform:translateY(-2px)}.primary-btn:disabled{opacity:.75;cursor:not-allowed;transform:none}.hint{margin-top:16px;padding:16px;border-radius:18px;background:rgba(128,128,128,.09);color:var(--modal-text-sub);font-size:12px;line-height:1.65}.loading-spinner{width:24px;height:24px;border-radius:50%;position:relative;display:inline-block;animation:spin .9s linear infinite;background:conic-gradient(from 0deg,transparent 0 18%,var(--cyan),var(--primary),var(--violet),transparent 82%);filter:drop-shadow(0 0 10px rgba(66,232,255,.7));}.loading-spinner::after{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--bg-color)}@keyframes spin{to{transform:rotate(360deg)}}.modal-overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.38);backdrop-filter:blur(16px);z-index:100;opacity:0;pointer-events:none;transition:.3s}.modal-overlay.active{opacity:1;pointer-events:auto}.modal-sheet{width:min(900px,92vw);max-height:88vh;overflow:auto;border-radius:32px;border:1px solid var(--card-border);background:var(--card-bg);box-shadow:var(--shadow-soft);backdrop-filter:blur(36px);padding:34px;transform:translateY(24px) scale(.96);transition:.35s var(--spring-ease);position:relative}.modal-overlay.active .modal-sheet{transform:translateY(0) scale(1)}.modal-close{position:absolute;right:20px;top:20px;width:42px;height:42px;border-radius:50%;border:1px solid var(--card-border);background:rgba(128,128,128,.08);color:var(--modal-text-main);cursor:pointer}.phase{display:none}.phase.active{display:block}.preview-grid{display:grid;grid-template-columns:360px 1fr;gap:28px;align-items:stretch}.preview-img{width:100%;height:100%;min-height:250px;object-fit:cover;border-radius:22px;background:rgba(128,128,128,.15)}.modal-title{font-size:28px;font-weight:900;margin:0 48px 14px 0}.modal-desc{color:var(--modal-text-sub);font-size:14px;line-height:1.7;margin:0 0 18px}.content-name{font-size:24px;font-weight:900;margin:0 0 18px}.info-box{padding:18px;border-radius:18px;background:rgba(128,128,128,.1);color:var(--modal-text-main);font-size:14px;line-height:1.7;white-space:pre-wrap}.button-row{display:flex;gap:12px;margin-top:22px}.secondary-btn{height:52px;flex:1;border:2px solid var(--modal-text-main);background:transparent;color:var(--modal-text-main);border-radius:999px;font-weight:900;cursor:pointer}.solid-btn{height:52px;flex:2;border:none;background:var(--modal-text-main);color:var(--bg-color);border-radius:999px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;text-decoration:none}.error-title{color:var(--danger)}.success-title{color:var(--green)}
+@media(max-width:860px){body{overflow:auto}.app{padding:18px}.topbar{height:auto;align-items:flex-start}.brand-sub{display:none}.clock-pill{height:38px;font-size:10px;padding:0 10px;max-width:48vw;overflow:hidden;text-overflow:ellipsis}.account-id{display:none}.account-pill{width:44px;padding:0}.hero{grid-template-columns:1fr;gap:22px;padding:28px 0}.hero h1{font-size:44px}.auth-card{border-radius:28px;padding:22px}.preview-grid{grid-template-columns:1fr}.preview-img{height:210px;min-height:0}.modal-sheet{padding:24px;border-radius:26px;width:94vw}.button-row{flex-direction:column}.solid-btn,.secondary-btn{width:100%;flex:none}.lang-row{gap:6px}.lang-btn{height:34px;padding:0 10px;font-size:11px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><i data-lucide="globe-lock"></i><div><div class="brand-name" data-i18n="brand">kiryu11 Pro</div><div class="brand-sub" data-i18n="brand_sub">Code Authentication Portal</div></div></div>
+    <div class="top-actions">
+      <div class="clock-pill"><i data-lucide="clock-3" style="width:16px;height:16px"></i><span id="clockText">--:--:--</span></div>
+      <button class="icon-pill" id="themeToggle" aria-label="theme"><i data-lucide="moon"></i></button>
+      <div class="account-wrap">
+        <button class="account-pill" id="accountButton"><i data-lucide="user-round" style="width:18px;height:18px"></i><span class="account-id" id="accountId">-</span></button>
+        <div class="account-menu" id="accountMenu">
+          <div class="account-label" data-i18n="account_label">Account</div>
+          <div class="account-value" id="accountValue">-</div>
+          <button class="menu-button" id="logoutButton"><span data-i18n="logout">ログアウト</span><i data-lucide="log-out" style="width:18px;height:18px"></i></button>
+        </div>
+      </div>
+    </div>
+  </header>
+  <main class="hero">
+    <section class="hero-copy">
+      <div class="eyebrow"><span class="scan-dot"></span><span data-i18n="eyebrow">SECURE REDEEM GATEWAY</span></div>
+      <h1 data-i18n="hero_title">コード認証専用サイト</h1>
+      <p data-i18n="hero_sub">引き換えコードを入力して、アカウントにコンテンツを安全に認証します。コード認証だけに集中できる専用ポータルです。</p>
+      <div class="lang-row" id="langRow"></div>
+    </section>
+    <section class="auth-card">
+      <div class="status-line"><div class="status-chip"><span class="scan-dot"></span><span data-i18n="status_ready">READY</span></div><span style="font-size:11px;color:var(--modal-text-sub);font-weight:800">GAS API / PROXY</span></div>
+      <h2 class="card-title" data-i18n="card_title">引き換えコード認証</h2>
+      <p class="card-sub" data-i18n="card_sub">コードを入力し、内容を確認してから認証してください。</p>
+      <input id="activationCode" class="code-input" type="text" autocomplete="off" spellcheck="false" data-i18n-placeholder="placeholder" placeholder="引き換えコード">
+      <button id="checkButton" class="primary-btn"><span data-i18n="check">確認</span></button>
+      <div class="hint" data-i18n="hint">対応形式: AAAA-BBBB-CCCC / AAAA-BBBB-CCCC-DDDD / AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</div>
+    </section>
+  </main>
+</div>
+<div class="modal-overlay" id="authModal">
+  <div class="modal-sheet">
+    <button class="modal-close" id="modalClose"><i data-lucide="x"></i></button>
+    <div id="phasePreview" class="phase">
+      <div class="preview-grid">
+        <img class="preview-img" id="previewImage" alt="Thumbnail">
+        <div>
+          <h2 class="modal-title" data-i18n="preview_title">引き換えの確認</h2>
+          <p class="modal-desc" data-i18n="preview_desc">続行すると以下のコンテンツが認証されます。</p>
+          <h3 class="content-name" id="previewName"></h3>
+          <div class="info-box" id="previewInfo"></div>
+          <div class="button-row"><button class="secondary-btn" data-i18n="close" id="previewCancel">閉じる</button><button class="solid-btn" id="redeemButton"><span data-i18n="redeem">認証する</span></button></div>
+        </div>
+      </div>
+    </div>
+    <div id="phaseSuccess" class="phase">
+      <div class="preview-grid">
+        <img class="preview-img" id="successImage" alt="Thumbnail">
+        <div>
+          <h2 class="modal-title success-title" data-i18n="success_title">認証成功!!</h2>
+          <p class="modal-desc" data-i18n="success_desc">このコードは正常に認証されました。</p>
+          <h3 class="content-name" id="successName"></h3>
+          <div class="info-box"><div id="successMessage"></div><br><strong id="successTime"></strong></div>
+          <div class="button-row"><button class="solid-btn" style="flex:1" data-i18n="close" id="successClose">閉じる</button></div>
+        </div>
+      </div>
+    </div>
+    <div id="phaseError" class="phase">
+      <h2 class="modal-title error-title">⚠ <span data-i18n="error_title">エラー</span> <span id="errorCode"></span></h2>
+      <h3 class="content-name" id="errorMessage"></h3>
+      <div class="info-box"><div id="errorSub"></div><br><strong id="errorTime"></strong></div>
+      <div class="button-row"><button class="solid-btn" style="flex:1" data-i18n="close" id="errorClose">閉じる</button></div>
+    </div>
+  </div>
+</div>
+<script>
+const GAS_API_URL = "api/proxy";
+let CURRENT_LANG = "ja";
+let currentUser = null;
+let checkedCode = "";
+let currentContentData = {};
+const LANGS = [{v:'ja',n:'日本語'},{v:'en',n:'English'},{v:'zh',n:'简体中文'},{v:'zh-TW',n:'繁體中文'},{v:'ko',n:'한국어'},{v:'ru',n:'Русский'}];
+const T = {
+ ja:{brand:'kiryu11 Pro',brand_sub:'コード認証ポータル',account_label:'アカウント',logout:'ログアウト',eyebrow:'SECURE REDEEM GATEWAY',hero_title:'コード認証専用サイト',hero_sub:'引き換えコードを入力して、アカウントにコンテンツを安全に認証します。コード認証だけに集中できる専用ポータルです。',status_ready:'READY',card_title:'引き換えコード認証',card_sub:'コードを入力し、内容を確認してから認証してください。',placeholder:'引き換えコード',check:'確認',hint:'対応形式: AAAA-BBBB-CCCC / AAAA-BBBB-CCCC-DDDD / AAAAA-BBBBB-CCCCC-DDDDD-EEEEE',preview_title:'引き換えの確認',preview_desc:'続行すると以下のコンテンツが認証されます。',redeem:'認証する',close:'閉じる',success_title:'認証成功!!',success_desc:'このコードは正常に認証されました。',success_msg:'正常に処理されました。',error_title:'エラー',err_invalid:'このコードは無効です。',err_used:'このコードは引き換え済みです。',err_owned:'既に所有しているコンテンツです。',err_generic:'エラーが発生しました。'},
+ en:{brand:'kiryu11 Pro',brand_sub:'Code Authentication Portal',account_label:'Account',logout:'Logout',eyebrow:'SECURE REDEEM GATEWAY',hero_title:'Code Authentication Portal',hero_sub:'Enter a redeem code to securely activate content on your account. A dedicated portal focused only on code authentication.',status_ready:'READY',card_title:'Redeem Code Authentication',card_sub:'Enter your code, confirm the content, then authenticate it.',placeholder:'Redeem Code',check:'Check',hint:'Supported formats: AAAA-BBBB-CCCC / AAAA-BBBB-CCCC-DDDD / AAAAA-BBBBB-CCCCC-DDDDD-EEEEE',preview_title:'Confirm Redemption',preview_desc:'If you continue, the following content will be authenticated.',redeem:'Authenticate',close:'Close',success_title:'Authentication Successful!!',success_desc:'This code has been authenticated successfully.',success_msg:'Processed successfully.',error_title:'Error',err_invalid:'This code is invalid.',err_used:'This code has already been redeemed.',err_owned:'You already own this content.',err_generic:'An error occurred.'},
+ zh:{brand:'kiryu11 Pro',brand_sub:'代码认证门户',account_label:'账户',logout:'退出',eyebrow:'SECURE REDEEM GATEWAY',hero_title:'代码认证专用网站',hero_sub:'输入兑换代码，将内容安全认证到您的账户。这是仅专注于代码认证的专用门户。',status_ready:'READY',card_title:'兑换代码认证',card_sub:'请输入代码，确认内容后进行认证。',placeholder:'兑换代码',check:'检查',hint:'支持格式: AAAA-BBBB-CCCC / AAAA-BBBB-CCCC-DDDD / AAAAA-BBBBB-CCCCC-DDDDD-EEEEE',preview_title:'确认兑换',preview_desc:'继续后，将认证以下内容。',redeem:'认证',close:'关闭',success_title:'认证成功!!',success_desc:'此代码已成功认证。',success_msg:'处理成功。',error_title:'错误',err_invalid:'该代码无效。',err_used:'此代码已被兑换。',err_owned:'您已拥有此内容。',err_generic:'发生错误。'},
+ 'zh-TW':{brand:'kiryu11 Pro',brand_sub:'代碼認證入口',account_label:'帳戶',logout:'退出',eyebrow:'SECURE REDEEM GATEWAY',hero_title:'代碼認證專用網站',hero_sub:'輸入兌換代碼，將內容安全認證到您的帳戶。這是只專注於代碼認證的專用入口。',status_ready:'READY',card_title:'兌換代碼認證',card_sub:'請輸入代碼，確認內容後進行認證。',placeholder:'兌換代碼',check:'檢查',hint:'支援格式: AAAA-BBBB-CCCC / AAAA-BBBB-CCCC-DDDD / AAAAA-BBBBB-CCCCC-DDDDD-EEEEE',preview_title:'確認兌換',preview_desc:'繼續後，將認證以下內容。',redeem:'認證',close:'關閉',success_title:'認證成功!!',success_desc:'此代碼已成功認證。',success_msg:'已成功處理。',error_title:'錯誤',err_invalid:'該代碼無效。',err_used:'此代碼已兌換。',err_owned:'您已擁有此內容。',err_generic:'發生錯誤。'},
+ ko:{brand:'kiryu11 Pro',brand_sub:'코드 인증 포털',account_label:'계정',logout:'로그아웃',eyebrow:'SECURE REDEEM GATEWAY',hero_title:'코드 인증 전용 사이트',hero_sub:'교환 코드를 입력하여 계정에 콘텐츠를 안전하게 인증합니다. 코드 인증에만 집중한 전용 포털입니다.',status_ready:'READY',card_title:'교환 코드 인증',card_sub:'코드를 입력하고 내용을 확인한 뒤 인증하세요.',placeholder:'교환 코드',check:'확인',hint:'지원 형식: AAAA-BBBB-CCCC / AAAA-BBBB-CCCC-DDDD / AAAAA-BBBBB-CCCCC-DDDDD-EEEEE',preview_title:'교환 확인',preview_desc:'계속하면 다음 콘텐츠가 인증됩니다.',redeem:'인증하기',close:'닫기',success_title:'인증 성공!!',success_desc:'이 코드가 정상적으로 인증되었습니다.',success_msg:'정상적으로 처리되었습니다.',error_title:'오류',err_invalid:'유효하지 않은 코드입니다.',err_used:'이 코드는 이미 사용되었습니다.',err_owned:'이미 이 콘텐츠를 소유하고 있습니다.',err_generic:'오류가 발생했습니다.'},
+ ru:{brand:'kiryu11 Pro',brand_sub:'Портал проверки кода',account_label:'Учетная запись',logout:'Выход',eyebrow:'SECURE REDEEM GATEWAY',hero_title:'Сайт проверки кодов',hero_sub:'Введите код, чтобы безопасно активировать контент в вашей учетной записи. Это специализированный портал только для проверки кодов.',status_ready:'READY',card_title:'Проверка кода активации',card_sub:'Введите код, подтвердите контент и активируйте его.',placeholder:'Код активации',check:'Проверить',hint:'Форматы: AAAA-BBBB-CCCC / AAAA-BBBB-CCCC-DDDD / AAAAA-BBBBB-CCCCC-DDDDD-EEEEE',preview_title:'Подтвердить активацию',preview_desc:'При продолжении будет активирован следующий контент.',redeem:'Активировать',close:'Закрыть',success_title:'Активация успешна!!',success_desc:'Этот код успешно активирован.',success_msg:'Успешно обработано.',error_title:'Ошибка',err_invalid:'Неверный код.',err_used:'Этот код уже активирован.',err_owned:'Вы уже владеете этим контентом.',err_generic:'Произошла ошибка.'}
+};
+const $ = id => document.getElementById(id);
+function tr(k){return (T[CURRENT_LANG]||T.ja)[k]||T.ja[k]||k}
+function escapeHTML(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function formatCodeInput(val){let clean=String(val||'').toUpperCase().replace(/[^A-Z0-9]/g,'');let sz=clean.length>=25?5:4;let res='';for(let i=0;i<clean.length;i++){if(i>0&&i%sz===0)res+='-';res+=clean[i];}return res;}
+async function safeFetch(bodyObj){const token=localStorage.getItem('user_session_token')||'';const headers={'Content-Type':'application/json'};if(token)headers.Authorization=`Bearer ${token}`;try{const r=await fetch(GAS_API_URL,{method:'POST',headers,body:JSON.stringify(bodyObj)});return await r.json();}catch(e){return{success:false,message:'Network error'}}}
+function formatLocalTime(d,lang){const off=-d.getTimezoneOffset(),sg=off>=0?'+':'-',pad=n=>String(Math.floor(Math.abs(n))).padStart(2,'0'),gmt=`GMT${sg}${pad(off/60)}:${pad(off%60)}`;const y=d.getFullYear(),mo=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0'),h=String(d.getHours()).padStart(2,'0'),mi=String(d.getMinutes()).padStart(2,'0'),se=String(d.getSeconds()).padStart(2,'0');const en=['January','February','March','April','May','June','July','August','September','October','November','December'];const ru=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];if(lang==='en')return `${en[d.getMonth()]} ${day}, ${y} ${h}:${mi}:${se} ${gmt}`;if(lang==='ko')return `${y}년 ${mo}월 ${day}일 ${h}:${mi}:${se} ${gmt}`;if(lang==='ru')return `${day} ${ru[d.getMonth()]} ${y} г. ${h}:${mi}:${se} ${gmt}`;return `${y}年${mo}月${day}日 ${h}:${mi}:${se} ${gmt}`;}
+function updateClock(){ $('clockText').textContent = formatLocalTime(new Date(), CURRENT_LANG); }
+function applyLang(lang){CURRENT_LANG=lang;document.documentElement.lang=lang;localStorage.setItem('user_lang',lang);document.querySelectorAll('[data-i18n]').forEach(el=>el.innerHTML=tr(el.dataset.i18n));document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>el.placeholder=tr(el.dataset.i18nPlaceholder));renderLangButtons();updateClock();try{lucide.createIcons()}catch(e){}}
+function renderLangButtons(){const row=$('langRow');row.innerHTML='';LANGS.forEach(l=>{const b=document.createElement('button');b.className='lang-btn'+(l.v===CURRENT_LANG?' active':'');b.textContent=l.n;b.onclick=()=>applyLang(l.v);row.appendChild(b);});}
+function setLoading(btn,on){if(on){btn.dataset.old=btn.innerHTML;btn.disabled=true;btn.innerHTML='<span class="loading-spinner"></span>';}else{btn.disabled=false;btn.innerHTML=btn.dataset.old||tr('check');try{lucide.createIcons()}catch(e){}}}
+function openModal(phase){['phasePreview','phaseSuccess','phaseError'].forEach(id=>$(id).classList.remove('active'));$(phase).classList.add('active');$('authModal').classList.add('active');try{lucide.createIcons()}catch(e){}}
+function closeModal(){ $('authModal').classList.remove('active'); }
+function errorCode(){const c='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+';let s='';for(let i=0;i<20;i++)s+=c[Math.floor(Math.random()*c.length)];return s+'.0.0';}
+function mapError(msg){const m=String(msg||'').toLowerCase();if(m.includes('used')||m.includes('redeemed'))return tr('err_used');if(m.includes('own'))return tr('err_owned');if(m.includes('invalid'))return tr('err_invalid');return msg||tr('err_generic');}
+async function checkCode(){const code=formatCodeInput($('activationCode').value);if(!code)return;$('activationCode').value=code;checkedCode=code;setLoading($('checkButton'),true);const d=await safeFetch({type:'check',userId:currentUser?currentUser.userId:null,code,lang:CURRENT_LANG,app_tier:'enterprise',_t:Date.now()});setLoading($('checkButton'),false);if(d.success){currentContentData={bundleLabel:d.bundleLabel||'',message:d.message||'',detailedTitle:d.detailedTitle||d.message||'Unknown',detailedDesc:d.detailedDesc||'',imageUrl:d.imageUrl||'https://static.wixstatic.com/media/2f0694_38068f106089439b89c7902ef4fb3d2d~mv2.jpg'};$('previewImage').src=currentContentData.imageUrl;$('previewName').textContent=currentContentData.detailedTitle;$('previewInfo').innerHTML=escapeHTML(currentContentData.detailedDesc||currentContentData.message||'').replace(/\n/g,'<br>');openModal('phasePreview');}else{showError(mapError(d.message));}}
+async function redeemCode(){setLoading($('redeemButton'),true);const authTime=formatLocalTime(new Date(),CURRENT_LANG);const d=await safeFetch({type:'redeem',userId:currentUser?currentUser.userId:null,code:checkedCode,lang:CURRENT_LANG,app_tier:'enterprise',_t:Date.now()});setLoading($('redeemButton'),false);if(d.success){$('successImage').src=currentContentData.imageUrl||'https://static.wixstatic.com/media/2f0694_38068f106089439b89c7902ef4fb3d2d~mv2.jpg';$('successName').textContent=d.detailedTitle||currentContentData.detailedTitle||currentContentData.message||'';$('successMessage').textContent=d.message||tr('success_msg');$('successTime').textContent=authTime;openModal('phaseSuccess');}else{showError(mapError(d.message));}}
+function showError(msg){$('errorCode').textContent=errorCode();$('errorMessage').textContent=msg||tr('err_generic');$('errorSub').textContent=tr('err_generic');$('errorTime').textContent=formatLocalTime(new Date(),CURRENT_LANG);openModal('phaseError');}
+function initSession(){const saved=localStorage.getItem('user_session_identity');if(!saved){localStorage.removeItem('user_session_token');window.location.href='Access.html'+window.location.search;return;}try{currentUser=JSON.parse(saved);}catch(e){currentUser={email:saved,userId:saved};}const label=currentUser.email||currentUser.userId||saved;$('accountId').textContent=label;$('accountValue').textContent=label;}
+function logout(){localStorage.removeItem('user_session_identity');localStorage.removeItem('user_session_token');window.location.href='Access.html'+window.location.search;}
+document.addEventListener('DOMContentLoaded',()=>{initSession();let s=localStorage.getItem('user_lang')||((navigator.language||'').toLowerCase().startsWith('ja')?'ja':(navigator.language||'').toLowerCase().startsWith('ko')?'ko':(navigator.language||'').toLowerCase().startsWith('ru')?'ru':(navigator.language||'').toLowerCase().includes('zh-tw')?'zh-TW':(navigator.language||'').toLowerCase().startsWith('zh')?'zh':'en');applyLang(s);setInterval(updateClock,1000);$('activationCode').addEventListener('input',()=>{$('activationCode').value=formatCodeInput($('activationCode').value)});$('activationCode').addEventListener('keydown',e=>{if(e.key==='Enter')checkCode()});$('checkButton').onclick=checkCode;$('redeemButton').onclick=redeemCode;['modalClose','previewCancel','successClose','errorClose'].forEach(id=>$(id).onclick=closeModal);$('authModal').addEventListener('click',e=>{if(e.target===$('authModal'))closeModal()});$('accountButton').onclick=e=>{e.stopPropagation();$('accountMenu').classList.toggle('open')};document.addEventListener('click',e=>{if(!$('accountMenu').contains(e.target)&&!$('accountButton').contains(e.target))$('accountMenu').classList.remove('open')});$('logoutButton').onclick=logout;$('themeToggle').onclick=()=>{document.documentElement.dataset.theme=document.documentElement.dataset.theme==='dark'?'light':'dark'};document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});try{lucide.createIcons()}catch(e){}});
+</script>
+</body>
+</html>
