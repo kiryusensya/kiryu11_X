@@ -3049,7 +3049,11 @@ function logout() {
   // Cookieからも確実に削除
   document.cookie = "user_session_token=; path=/; max-age=0;"; 
   currentUser = null;
-  window.location.href = 'Access.html'; 
+  
+  // 削除が確実に反映されるように少しだけ遅延させて遷移（パラメータ付き）
+  setTimeout(() => {
+      window.location.replace('Access.html?logout=true'); 
+  }, 50);
 }
 
 function updateLanguage(lang){
