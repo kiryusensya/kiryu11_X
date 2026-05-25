@@ -2426,7 +2426,8 @@ document.addEventListener('DOMContentLoaded', () => {
   } else {
       // 未ログイン時は、確実にゴミデータを消去してからリダイレクト（無限ループ防止）
       localStorage.removeItem('user_session_token');
-      window.location.href = 'Access.html' + window.location.search;
+      localStorage.removeItem('user_session_identity'); // 念のためこちらも追加
+      window.location.replace('Access.html?logout=true'); 
   }
   initThemeAndParticles();
   initCustomDropdown();
