@@ -319,15 +319,23 @@
 <script>
   lucide.createIcons();
   
-  // 両方のデータが揃っている場合のみメイン画面へ
-  if (localStorage.getItem('user_session_token') && localStorage.getItem('user_session_identity')) {
+  const urlParams = new URLSearchParams(window.location.search);
+  const isLogout = urlParams.get('logout') === 'true';
+
+  if (isLogout) {
+      // ログアウトからの遷移の場合は確実に消去し、自動遷移をブロック
+      localStorage.removeItem('user_session_token');
+      localStorage.removeItem('user_session_identity');
+      document.cookie = "user_session_token=; path=/; max-age=0;";
+      window.history.replaceState(null, '', window.location.pathname);
+  } else if (localStorage.getItem('user_session_token') && localStorage.getItem('user_session_identity')) {
+      // 両方のデータが揃っている場合のみメイン画面へ
       window.location.replace('index.html');
   } else {
-      // どちらか片方しかない不完全な状態なら、確実に消去（無限ループ防止）
+      // どちらか片方しかない不完全な状態なら、確実に消去
       localStorage.removeItem('user_session_token');
       localStorage.removeItem('user_session_identity');
   }
-
   // ===== テーマ設定 (端末設定に追従) =====
   const htmlEl = document.documentElement;
 
