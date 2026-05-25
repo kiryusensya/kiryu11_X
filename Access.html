@@ -451,7 +451,6 @@
 
   applyLanguage(CURRENT_LANG);
   // ▼ 追加: 強制アクセス時の警告メッセージ表示 ▼
-  const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('auth') === 'required') {
       const t = TRANSLATIONS[CURRENT_LANG];
       const statusEl = document.getElementById('authStatus');
