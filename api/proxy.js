@@ -644,8 +644,15 @@ export default async function handler(req, res) {
           title: content[`タイトル(${suffix})`] || content["タイトル(jp)"],
           message: content[`メッセージ(${suffix})`] || content["メッセージ(jp)"], 
           extraInfo: content[`詳細(${suffix})`] || content["詳細(jp)"],
-          imageUrl: content.Imag_Url, url: content.Action_url, releaseDateIso: content["解禁時間"], expireDateIso: content["有効時間"], icon: content.アイコン || 'download',
-          groupId: content["重複"], buttonLabel: content[`ボタン(${suffix})`] || content["ボタン(jp)"], price: content["価格"] || 0, isOwned: isOwned
+          imageUrl: content.Imag_Url, 
+          url: isOwned ? content.Action_url : null, // ★ 未所有の場合はダウンロードURLを隠蔽する
+          releaseDateIso: content["解禁時間"], 
+          expireDateIso: content["有効時間"], 
+          icon: content.アイコン || 'download',
+          groupId: content["重複"], 
+          buttonLabel: content[`ボタン(${suffix})`] || content["ボタン(jp)"], 
+          price: content["価格"] || 0, 
+          isOwned: isOwned
         };
       });
       return res.status(200).json({ success: true, items });
