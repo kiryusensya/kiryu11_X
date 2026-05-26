@@ -608,36 +608,6 @@
                 </div>
             `;
             resEl.appendChild(actionsDiv);
-            const banTypeSelect = actionsDiv.querySelector('#banTypeVal');
-            const banUntilInput = actionsDiv.querySelector('#banUntilVal');
-            banTypeSelect.addEventListener('change', (e) => {
-                banUntilInput.style.display = e.target.value === 'temporary' ? 'block' : 'none';
-            });
-
-            actionsDiv.querySelector('#btnSetBan').addEventListener('click', async (e) => {
-                const type = banTypeSelect.value;
-                const until = banUntilInput.value;
-                
-                if (type === 'temporary' && !until) {
-                    return await customAlert("停止期限の日時を指定してください。", "エラー");
-                }
-
-                let confirmMsg = type === 'none' ? "アカウントのアクセス制限を解除しますか？" : "このアカウントを停止します。よろしいですか？";
-                if (!(await customConfirm(confirmMsg, "確認"))) return;
-
-                const btn = e.currentTarget;
-                btn.textContent = "処理中..."; btn.disabled = true;
-                try {
-                    const res = await safeFetch({ type: 'admin_ban_user', targetEmail: d.userId || u, banType: type, banUntil: until });
-                    if(res.success) {
-                        await customAlert("アクセス制限の設定を適用しました。", "完了");
-                        document.getElementById('btnSearch').click(); // 再読み込み
-                    } else {
-                        await customAlert(`⚠エラー: ${res.message}`, "エラー");
-                    }
-                } catch(err) { await customAlert('⚠通信エラー', "エラー"); }
-                btn.textContent = "適用"; btn.disabled = false;
-            });
 
             // ★ 修正: Tier変更イベント
             actionsDiv.querySelector('#btnSetTier').addEventListener('click', async (e) => {
@@ -679,8 +649,8 @@
                 btn.textContent = "ポイントを設定"; btn.disabled = false;
             });
 
-            actionsDiv.querySelector('#btnDeleteUser').addEventListener('click', async (e) => {
-                const banTypeSelect = actionsDiv.querySelector('#banTypeVal');
+           // ▼▼▼ 追加: BAN実行イベントリスナー (独立させる) ▼▼▼
+            const banTypeSelect = actionsDiv.querySelector('#banTypeVal');
             const banUntilInput = actionsDiv.querySelector('#banUntilVal');
             banTypeSelect.addEventListener('change', (e) => {
                 banUntilInput.style.display = e.target.value === 'temporary' ? 'block' : 'none';
@@ -710,8 +680,11 @@
                 } catch(err) { await customAlert('⚠通信エラー', "エラー"); }
                 btn.textContent = "適用"; btn.disabled = false;
             });
-                // 1. 対象IDの確認
-                const confCode = await customPrompt(`【危険】本当に削除する場合は対象のID「${d.userId || u}」を入力してください。`, "IDを入力");
+
+            // ▼▼▼ 既存: アカウント完全削除イベントリスナー ▼▼▼
+            actionsDiv.querySelector('#btnDeleteUser').addEventListener('click', async (e) => {
+                // 1. 対象IDの確認
+                const confCode = await customPrompt(`【危険】本当に削除する場合は対象のID「${d.userId || u}」を入力してください。`, "IDを入力");
                 if (confCode === null) return;
                 if (confCode !== (d.userId || u)) return await customAlert("IDが一致しません。", "エラー");
                 
