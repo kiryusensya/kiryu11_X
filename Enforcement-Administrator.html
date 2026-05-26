@@ -547,13 +547,13 @@
         resEl.innerHTML = '';
         if (d.success) {
             const tierLabel = d.tier === 'enterprise' ? '<span style="color:#FF9500;">Professional</span>' : '<span style="color:var(--primary);">Standard</span>';
-      let banStatusHtml = '<span style="color:var(--success); font-weight:bold;">正常</span>';
+            let banStatusHtml = '<span style="color:var(--success); font-weight:bold;">正常</span>';
             if (d.bannedUntil) {
                 const bDate = new Date(d.bannedUntil);
                 if (bDate.getFullYear() > 2090) {
                     banStatusHtml = '<span style="color:var(--danger); font-weight:bold;">永久停止中</span>';
                 } else if (bDate > new Date()) {
-                    banStatusHtml = `<span style="color:var(--danger); font-weight:bold;">停止中 (期限: ${bDate.toLocaleString('ja-JP')})</span>`;
+                    banStatusHtml = `<span style="color:var(--danger); font-weight:bold;">停止中 (期限: ${bDate.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })})</span>`;
                 }
             }
 
