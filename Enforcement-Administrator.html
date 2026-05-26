@@ -586,7 +586,21 @@
                         </div>
                     </div>
                     
-                </div>
+                    <div style="background:rgba(255,59,48,0.1); border:1px solid rgba(255,59,48,0.3); padding:15px; border-radius:8px;">
+                        <div style="font-size:14px; color:var(--danger); font-weight:bold; margin-bottom:10px;">
+                            <i data-lucide="shield-alert" style="width:16px; height:16px; vertical-align:middle;"></i> アクセス制限 (アカウント停止)
+                        </div>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                            <select id="banTypeVal" style="width:auto; height:40px; font-size:13px; border-radius:8px; border-color:rgba(255,59,48,0.5); background:rgba(0,0,0,0.5); color:#fff;">
+                                <option value="temporary">期限付き停止</option>
+                                <option value="permanent">永久停止</option>
+                                <option value="none">制限を解除 (正常に戻す)</option>
+                            </select>
+                            <input type="datetime-local" id="banUntilVal" style="width:auto; height:40px; border-radius:8px; border-color:rgba(255,59,48,0.5); background:rgba(0,0,0,0.5); color:#fff;">
+                            <button class="btn-danger" id="btnSetBan" style="height:40px; background:var(--danger); color:#fff; border:none; padding:0 20px;">適用</button>
+                        </div>
+                    </div>
+                    </div>
                 <div style="border-top: 1px solid rgba(255,59,48,0.3); padding-top:16px;">
                     <button class="btn-danger" id="btnDeleteUser" style="width:100%; color:var(--danger); border-color:var(--danger); background: rgba(255,59,48,0.1);">
                         <i data-lucide="alert-triangle" style="margin-right:4px;"></i> アカウント完全削除
@@ -666,6 +680,36 @@
             });
 
             actionsDiv.querySelector('#btnDeleteUser').addEventListener('click', async (e) => {
+                const banTypeSelect = actionsDiv.querySelector('#banTypeVal');
+            const banUntilInput = actionsDiv.querySelector('#banUntilVal');
+            banTypeSelect.addEventListener('change', (e) => {
+                banUntilInput.style.display = e.target.value === 'temporary' ? 'block' : 'none';
+            });
+
+            actionsDiv.querySelector('#btnSetBan').addEventListener('click', async (e) => {
+                const type = banTypeSelect.value;
+                const until = banUntilInput.value;
+                
+                if (type === 'temporary' && !until) {
+                    return await customAlert("停止期限の日時を指定してください。", "エラー");
+                }
+
+                let confirmMsg = type === 'none' ? "アカウントのアクセス制限を解除しますか？" : "このアカウントを停止します。よろしいですか？";
+                if (!(await customConfirm(confirmMsg, "確認"))) return;
+
+                const btn = e.currentTarget;
+                btn.textContent = "処理中..."; btn.disabled = true;
+                try {
+                    const res = await safeFetch({ type: 'admin_ban_user', targetEmail: d.userId || u, banType: type, banUntil: until });
+                    if(res.success) {
+                        await customAlert("アクセス制限の設定を適用しました。", "完了");
+                        document.getElementById('btnSearch').click(); // 再読み込み
+                    } else {
+                        await customAlert(`⚠エラー: ${res.message}`, "エラー");
+                    }
+                } catch(err) { await customAlert('⚠通信エラー', "エラー"); }
+                btn.textContent = "適用"; btn.disabled = false;
+            });
                 // 1. 対象IDの確認
                 const confCode = await customPrompt(`【危険】本当に削除する場合は対象のID「${d.userId || u}」を入力してください。`, "IDを入力");
                 if (confCode === null) return;
