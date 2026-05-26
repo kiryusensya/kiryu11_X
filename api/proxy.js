@@ -398,13 +398,14 @@ if (type === 'check_ban_status') {
 
             const formattedLogs = (logs || []).map(log => ({
                 id: log.id,
-                date: new Date(log.created_at).toLocaleString('ja-JP'),
+                // ★ 修正: 日本時間に固定して出力
+                date: new Date(log.created_at).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }),
                 ip: log.ip_address,
                 type: log.action_type,
                 code: log.target_code || '-',
                 email: log.user_id ? `ID: ${log.user_id.substring(0, 8)}...` : '未ログイン (GUEST)',
                 userAgent: log.user_agent,
-                appTier: log.app_tier || '不明' // ★追加: ログからTierを返却
+                appTier: log.app_tier || '不明'
             }));
             return res.status(200).json({ success: true, logs: formattedLogs });
         }
@@ -442,7 +443,8 @@ if (type === 'check_ban_status') {
 
             let targetDate = null;
             if (banType === 'temporary' && banUntil) {
-                targetDate = new Date(banUntil).toISOString();
+                // ★ 修正: 送られてきた日時(YYYY-MM-DDThh:mm)を日本時間(+09:00)として解釈し、DB保存用のUTCに変換
+                targetDate = new Date(banUntil + '+09:00').toISOString();
             } else if (banType === 'permanent') {
                 targetDate = '2099-12-31T23:59:59.000Z'; // 永久BANは未来の日付を設定
             } // 'none' (解除) の場合は null のまま
@@ -460,7 +462,6 @@ if (type === 'check_ban_status') {
             const { data: user, error } = await supabase.from('users').select('id, email, points, app_tier, banned_until').eq('email', targetEmail).maybeSingle();
             if (error || !user) return res.status(200).json({ success: false, message: "ユーザーが見つかりません" });
 
-            // ★ 修正: 日本語や括弧付きカラムの取得漏れを防ぐため、関連テーブルを (*) で取得する
             const { data: histories } = await supabase.from('histories')
                 .select('created_at, codes(*, contents(*))')
                 .eq('user_id', user.id)
@@ -473,7 +474,8 @@ if (type === 'check_ban_status') {
                 return {
                     title: contentData['タイトル(jp)'] || '不明なコンテンツ',
                     code: codeData['アクティベーションコード'] || '-',
-                    date: new Date(h.created_at).toLocaleString('ja-JP')
+                    // ★ 修正: 履歴の日時を日本時間に固定
+                    date: new Date(h.created_at).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })
                 };
             });
 
