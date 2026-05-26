@@ -656,19 +656,18 @@
                 banUntilInput.style.display = e.target.value === 'temporary' ? 'block' : 'none';
             });
 
-            actionsDiv.querySelector('#btnSetBan').addEventListener('click', async (e) => {
-                const type = banTypeSelect.value;
-                const until = banUntilInput.value;
-                
-                if (type === 'temporary' && !until) {
-                    return await customAlert("停止期限の日時を指定してください。", "エラー");
-                }
+          actionsDiv.querySelector('#btnSetBan').addEventListener('click', async (e) => {
+           const btn = e.currentTarget; // ← 先頭で取得！（btnSetTier と同じパターン）
+           const type = banTypeSelect.value;
+           const until = banUntilInput.value;
+    
+         if (type === 'temporary' && !until) {
+           return await customAlert("停止期限の日時を指定してください。", "エラー");
+        }
 
-                let confirmMsg = type === 'none' ? "アカウントのアクセス制限を解除しますか？" : "このアカウントを停止します。よろしいですか？";
-                if (!(await customConfirm(confirmMsg, "確認"))) return;
-
-                const btn = e.currentTarget;
-                btn.textContent = "処理中..."; btn.disabled = true;
+        let confirmMsg = type === 'none' ? "アカウントのアクセス制限を解除しますか？" : "このアカウントを停止します。よろしいですか？";
+        if (!(await customConfirm(confirmMsg, "確認"))) return;
+        btn.textContent = "処理中..."; btn.disabled = true; // ← 正常に動作
                 try {
                     const res = await safeFetch({ type: 'admin_ban_user', targetEmail: d.userId || u, banType: type, banUntil: until });
                     if(res.success) {
