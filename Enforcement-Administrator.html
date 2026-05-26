@@ -546,7 +546,16 @@
         const d = await safeFetch({ type: 'admin_search', targetEmail: u });
         resEl.innerHTML = '';
         if (d.success) {
-            const tierLabel = d.tier === 'enterprise' ? '<span style="color:#FF9500;">エンタープライズ対応</span>' : '<span style="color:var(--primary);">スタンダード版専用</span>';
+            const tierLabel = d.tier === 'enterprise' ? '<span style="color:#FF9500;">Professional</span>' : '<span style="color:var(--primary);">Standard</span>';
+      let banStatusHtml = '<span style="color:var(--success); font-weight:bold;">正常</span>';
+            if (d.bannedUntil) {
+                const bDate = new Date(d.bannedUntil);
+                if (bDate.getFullYear() > 2090) {
+                    banStatusHtml = '<span style="color:var(--danger); font-weight:bold;">永久停止中</span>';
+                } else if (bDate > new Date()) {
+                    banStatusHtml = `<span style="color:var(--danger); font-weight:bold;">停止中 (期限: ${bDate.toLocaleString('ja-JP')})</span>`;
+                }
+            }
 
             const actionsDiv = document.createElement('div');
             actionsDiv.style.cssText = 'background:rgba(255,255,255,0.05); padding:20px; border-radius:12px; margin-bottom:20px; border: 1px solid var(--card-border);';
@@ -585,6 +594,36 @@
                 </div>
             `;
             resEl.appendChild(actionsDiv);
+            const banTypeSelect = actionsDiv.querySelector('#banTypeVal');
+            const banUntilInput = actionsDiv.querySelector('#banUntilVal');
+            banTypeSelect.addEventListener('change', (e) => {
+                banUntilInput.style.display = e.target.value === 'temporary' ? 'block' : 'none';
+            });
+
+            actionsDiv.querySelector('#btnSetBan').addEventListener('click', async (e) => {
+                const type = banTypeSelect.value;
+                const until = banUntilInput.value;
+                
+                if (type === 'temporary' && !until) {
+                    return await customAlert("停止期限の日時を指定してください。", "エラー");
+                }
+
+                let confirmMsg = type === 'none' ? "アカウントのアクセス制限を解除しますか？" : "このアカウントを停止します。よろしいですか？";
+                if (!(await customConfirm(confirmMsg, "確認"))) return;
+
+                const btn = e.currentTarget;
+                btn.textContent = "処理中..."; btn.disabled = true;
+                try {
+                    const res = await safeFetch({ type: 'admin_ban_user', targetEmail: d.userId || u, banType: type, banUntil: until });
+                    if(res.success) {
+                        await customAlert("アクセス制限の設定を適用しました。", "完了");
+                        document.getElementById('btnSearch').click(); // 再読み込み
+                    } else {
+                        await customAlert(`⚠エラー: ${res.message}`, "エラー");
+                    }
+                } catch(err) { await customAlert('⚠通信エラー', "エラー"); }
+                btn.textContent = "適用"; btn.disabled = false;
+            });
 
             // ★ 修正: Tier変更イベント
             actionsDiv.querySelector('#btnSetTier').addEventListener('click', async (e) => {
