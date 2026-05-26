@@ -169,8 +169,8 @@
           <div class="form-group">
               <label>アカウント権限 (Tier)</label>
               <select id="newUserTier">
-                  <option value="standard">スタンダード版専用アカウント</option>
-                  <option value="enterprise">エンタープライズ対応アカウント (全機能)</option>
+                  <option value="standard">Standard</option>
+                  <option value="enterprise">Professional</option>
               </select>
           </div>
           <button id="btnCreate" class="btn-primary">アカウントを発行</button>
@@ -181,7 +181,7 @@
   <div id="panel-reset" class="panel">
       <div class="card">
           <h2>パスワードのリセット</h2>
-          <p style="font-size:12px; color:var(--text-sub); margin-bottom:20px;">スタンダード版・エンタープライズ版どちらのアカウントもリセット可能です。</p>
+          <p style="font-size:12px; color:var(--text-sub); margin-bottom:20px;">Standard・Professionalどちらのアカウントもリセット可能です。</p>
           <div class="form-group"><label>個人識別子</label><input type="text" id="resetUserId" placeholder="個人識別子"></div>
           <div class="form-group"><label>新しい仮パスワード</label><input type="text" id="resetUserPass" placeholder="新しい仮パスワード"></div>
           <button id="btnReset" class="btn-primary" style="background:#FF9500; color:#000;">強制リセットを実行</button>
@@ -215,8 +215,8 @@
                   <div class="form-group" style="grid-column: 1 / -1;">
                       <label>対象階層 (Tier)</label>
                       <select class="content-input" data-col="target_tier">
-                          <option value="all">全バージョン共通 (All)</option>
-                          <option value="enterprise">エンタープライズ専用 (Enterprise)</option>
+                          <option value="all">All supported</option>
+                          <option value="enterprise">Professional</option>
                       </select>
                   </div>
 
@@ -262,8 +262,8 @@
               <div class="form-group" style="grid-column: 1 / -1;">
                   <label>対象階層 (Tier)</label>
                   <select id="genCodeTier">
-                      <option value="all">全バージョン共通 (All)</option>
-                      <option value="enterprise">エンタープライズ専用 (Enterprise)</option>
+                      <option value="all">All supported</option>
+                      <option value="enterprise">Professional</option>
                   </select>
               </div>
               <div class="form-group"><label>コードタイプ</label><select id="genCodeType"><option value="ONCE">ONCE (1回使い切り)</option><option value="MULTIPLE">MULTI (複数回)</option><option value="POINT">POINT (ポイント付与)</option></select></div>
@@ -560,8 +560,13 @@
             const actionsDiv = document.createElement('div');
             actionsDiv.style.cssText = 'background:rgba(255,255,255,0.05); padding:20px; border-radius:12px; margin-bottom:20px; border: 1px solid var(--card-border);';
             actionsDiv.innerHTML = `
-                <h3 style="margin:0 0 16px 0; font-size:16px;">
-                    <i data-lucide="user" style="width:16px; height:16px; margin-right:4px;"></i> ${escapeHTML(d.userId || u)}
+                <h3 style="margin:0 0 16px 0; font-size:16px; display:flex; justify-content:space-between; align-items:center;">
+                    <span>
+                        <i data-lucide="user" style="width:16px; height:16px; margin-right:4px;"></i> ${escapeHTML(d.userId || u)}
+                    </span>
+                    <span style="font-size:13px; background:rgba(0,0,0,0.5); padding:4px 10px; border-radius:12px; border:1px solid var(--card-border);">
+                        ステータス: ${banStatusHtml}
+                    </span>
                 </h3>
                 <div style="display:flex; flex-direction:column; gap:15px; margin-bottom: 20px;">
                     
@@ -570,8 +575,8 @@
                         <div style="font-size:14px; color:var(--text-sub);">アカウント権限: <strong>${tierLabel}</strong></div>
                         <div style="display:flex; gap:10px; flex-wrap:wrap;">
                             <select id="setTierVal" style="width:auto; height:36px; font-size:13px; padding:0 30px 0 15px; border-radius:18px;">
-                                <option value="standard" ${d.tier !== 'enterprise' ? 'selected' : ''}>スタンダード版</option>
-                                <option value="enterprise" ${d.tier === 'enterprise' ? 'selected' : ''}>エンタープライズ版</option>
+                                <option value="standard" ${d.tier !== 'enterprise' ? 'selected' : ''}>Standard</option>
+                                <option value="enterprise" ${d.tier === 'enterprise' ? 'selected' : ''}>Professional</option>
                             </select>
                             <button class="btn-primary" id="btnSetTier" style="width:auto; height:36px; padding:0 15px; font-size:13px;">変更</button>
                         </div>
@@ -613,7 +618,7 @@
             actionsDiv.querySelector('#btnSetTier').addEventListener('click', async (e) => {
                 const btn = e.currentTarget; // ★ 必ず await（待機）の前にボタン要素を取得して保持する
                 const newTier = actionsDiv.querySelector('#setTierVal').value;
-                const newTierName = newTier === 'enterprise' ? 'エンタープライズ版' : 'スタンダード版';
+                const newTierName = newTier === 'enterprise' ? 'Professional' : 'Standard';
                 
                 if (!(await customConfirm(`権限を「${newTierName}」に変更しますか？`, "権限の変更"))) return;
                 
@@ -800,7 +805,7 @@
           const d = await safeFetch({ type: 'admin_check_code', code: code });
           if(d.success) {
               const statusText = d.isUsed ? "<span style='color:var(--danger); font-weight:800;'>使用済み (USED)</span>" : "<span style='color:var(--success); font-weight:800;'>未使用 (AVAILABLE)</span>";
-              const tierText = d.targetTier === 'enterprise' ? '<span style="color:#FF9500; font-weight:bold;">エンタープライズ専用</span>' : '全バージョン共通 (All)';
+              const tierText = d.targetTier === 'enterprise' ? '<span style="color:#FF9500; font-weight:bold;">Professional</span>' : 'All supported';
               let timeText = "記録なし";
               if (d.usedTime) {
                   timeText = new Date(d.usedTime).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
