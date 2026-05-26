@@ -168,9 +168,35 @@ export default async function handler(req, res) {
         if (content["有効時間"] && checkNow > new Date(content["有効時間"])) return res.status(403).send("Forbidden: 有効期限が切れています。");
         if (content["解禁時間"] && checkNow < new Date(content["解禁時間"])) return res.status(403).send("Forbidden: まだ解禁されていません。");
 
+        // ★ URL復元・存在チェック
         let downloadTargetUrl = content.Action_url;
-        if (target) downloadTargetUrl = decodeURIComponent(target);
-        if (!downloadTargetUrl) return res.status(404).send("Not Found: ダウンロードURLが設定されていません。");
+        if (target) {
+            let rawTarget = decodeURIComponent(target);
+            // 送られてきたのがダミー文字なら、データベースの本来のURLを復元する
+            if (rawTarget.startsWith('__MASKED_URL__:')) {
+                const idx = parseInt(rawTarget.split(':')[1], 10) || 0;
+                const strUrl = String(content.Action_url).trim();
+                
+                if (strUrl.startsWith('[')) {
+                    try {
+                        const arr = JSON.parse(strUrl);
+                        if (arr[idx] && arr[idx].url) {
+                            downloadTargetUrl = arr[idx].url;
+                        }
+                    } catch(e) {
+                        // パース失敗時はフォールバック
+                    }
+                }
+            } else {
+                // ダミー文字以外（YouTube等）が送られてきた場合はそのまま使用
+                downloadTargetUrl = rawTarget;
+            }
+        }
+        
+        // ダミー文字のまま復元できなかったり、URLが存在しない場合はエラー
+        if (!downloadTargetUrl || downloadTargetUrl.startsWith('__MASKED_URL__')) {
+            return res.status(404).send("Not Found: ダウンロードURLが設定されていません。");
+        }
 
         try {
             const fetchResponse = await fetch(downloadTargetUrl);
@@ -602,6 +628,38 @@ export default async function handler(req, res) {
         if (!embedUrl) return res.status(400).json({ success: false, message: "Invalid YouTube URL" });
         return res.status(200).json({ success: true, embedUrl: embedUrl });
     }
+    // ==========================================
+// ★ 直リンク隠蔽（マスキング）用ヘルパー関数
+// ==========================================
+const maskActionUrl = (rawUrl) => {
+  if (!rawUrl) return null;
+  let strUrl = String(rawUrl).trim();
+  
+  // JSON配列（複数リンク）の場合、各URLをダミー文字列に置き換える
+  if (strUrl.startsWith('[')) {
+      try {
+          const arr = JSON.parse(strUrl);
+          const maskedArr = arr.map((item, index) => {
+              // YouTubeは動画再生に直接必要なので隠蔽しない
+              const isYouTube = item.url && (item.url.includes('youtube.com') || item.url.includes('youtu.be'));
+              return {
+                  ...item,
+                  url: isYouTube ? item.url : `__MASKED_URL__:${index}`
+              };
+          });
+          return JSON.stringify(maskedArr);
+      } catch (e) {
+          return `__MASKED_URL__:0`;
+      }
+  }
+  
+  // 単一リンクの場合
+  const isYouTube = strUrl.includes('youtube.com') || strUrl.includes('youtu.be');
+  if (isYouTube) return strUrl; 
+  
+  // Wixなどの直リンクは完全にダミー文字列に置き換える
+  return `__MASKED_URL__:0`;
+};
 
     // ==========================================
     // ▼ 一般ユーザー用機能 ▼
@@ -646,7 +704,7 @@ export default async function handler(req, res) {
         const isLocked = releaseTime && releaseTime > now;
 
         // ★ 所有済みであっても、解禁前の場合はURLを隠蔽する (期限切れは上のfilterで除外済み)
-        const safeUrl = (isOwned && !isLocked) ? content.Action_url : null;
+        const safeUrl = (isOwned && !isLocked) ? maskActionUrl(content.Action_url) : null;
 
         return {
           code: content.id,
@@ -687,7 +745,7 @@ export default async function handler(req, res) {
         const isExpired = expireTime && expireTime <= now;
         
         // ★ 未解禁・または期限切れの場合はURLを完全に隠蔽
-        const safeUrl = (isLocked || isExpired) ? null : c.Action_url;
+        const safeUrl = (isLocked || isExpired) ? null : maskActionUrl(c.Action_url);
 
         return {
           code: codeRec["アクティベーションコード"], date: h.created_at, title: c[`タイトル(${suffix})`] || c["タイトル(jp)"],
@@ -808,7 +866,7 @@ export default async function handler(req, res) {
 
         const isRelease = !content["解禁時間"] || (checkNow >= new Date(content["解禁時間"]));
         // ★ 修正: 解禁日を迎えていない場合はURLを隠蔽する
-        const retUrl = isRelease ? content.Action_url : null;
+        const retUrl = isRelease ? maskActionUrl(content.Action_url) : null;
 
         // URLエラーを避けるため、シンプルな更新処理に戻します
         if (isOnce) {
