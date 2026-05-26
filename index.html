@@ -1623,6 +1623,16 @@ button, input, textarea { font-family: var(--font-stack); }
         </div>
     </div>
 </div>
+<div id="banModal" class="modal-overlay" style="z-index: 10020;">
+    <div class="modal-sheet" style="max-width: 400px; width: 90%; text-align: center; padding: 40px; background: rgba(30,30,30,0.95) !important; border: 1px solid rgba(255,59,48,0.3) !important; box-shadow: 0 30px 80px rgba(0,0,0,0.8);">
+        <div style="color: #FF3B30; margin-bottom: 20px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        </div>
+        <h2 style="font-size:24px; font-weight:800; margin: 0 0 16px 0; color: #FF3B30;">アクセス制限</h2>
+        <p style="font-size:14px; font-weight:700; color:var(--modal-text-main); margin-bottom: 24px; color: #fff;">すべてアクセスが禁止されています。</p>
+        <button class="btn-primary" onclick="document.getElementById('banModal').classList.remove('active')" style="background: rgba(128,128,128,0.2); color: #fff; border:none; height: 50px; border-radius: 25px;">閉じる</button>
+    </div>
+</div>
 <script>
 const GAS_API_URL="api/proxy"; 
 
@@ -1673,7 +1683,15 @@ async function safeFetch(bodyObj) {
           headers: headers,
           body: JSON.stringify(bodyObj)
       });
-      return await response.json();
+      const data = await response.json();
+      
+      // BAN判定レスポンスをキャッチ
+      if (data.isBanned) {
+          if (currentUser) currentUser.isBanned = true;
+          showBanModal();
+          return { success: false, message: "アクセスが禁止されています。", isBanned: true };
+      }
+      return data;
   } catch(e) {
       return { success: false, message: 'Network error' };
   }
@@ -2155,6 +2173,25 @@ document.addEventListener('DOMContentLoaded', () => {
   setupEventListeners();
 });
 
+function showBanModal() {
+    toggleDropdown(false);
+    closeAuthModal();
+    if (els.manageModal) els.manageModal.classList.remove('active');
+    if (els.historyModal) els.historyModal.classList.remove('active');
+    const accModal = document.getElementById('accountModal');
+    if (accModal) accModal.classList.remove('active');
+    
+    document.getElementById('banModal').classList.add('active');
+}
+
+const checkBan = () => {
+    if (currentUser && currentUser.isBanned) {
+        showBanModal();
+        return true;
+    }
+    return false;
+};
+
 function setupEventListeners() {
   setListener(els.openAccount, 'click', (e) => {
     e.stopPropagation(); 
@@ -2172,6 +2209,7 @@ function setupEventListeners() {
       els.btnMenuRedeem.addEventListener('click', (e) => {
           e.stopPropagation();
           toggleDropdown(false);
+          if (checkBan()) return;
           openAuthModal();
       });
   }
@@ -2207,6 +2245,7 @@ function setupEventListeners() {
       els.btnMenuPassword.addEventListener('click', (e) => {
           e.stopPropagation();
           toggleDropdown(false);
+          if (checkBan()) return;
           if (currentUser) document.getElementById('accountModalUserId').textContent = currentUser.email;
           document.getElementById('accCurrentPass').value = '';
           document.getElementById('accNewPass').value = '';
@@ -2231,6 +2270,7 @@ function setupEventListeners() {
       els.btnMenuHistory.addEventListener('click', (e) => {
           e.stopPropagation();
           toggleDropdown(false);
+          if (checkBan()) return;
           renderHistoryModal(); // モーダルを開く前に履歴を生成
           els.historyModal.classList.add('active');
       });
@@ -2305,14 +2345,18 @@ function setupEventListeners() {
 
   if(els.authModal) setListener(els.authModal, 'click', (e) => { if(e.target === els.authModal) closeAuthModal(); });
 
-  setListener(els.confirm, 'click', () => performAuth(els.code.value));
+  setListener(els.confirm, 'click', () => {
+      if (checkBan()) return;
+      performAuth(els.code.value);
+  });
   if(els.code) {
       setListener(els.code, 'keydown', (e) => { if(e.key === 'Enter') els.confirm.click(); });
       setListener(els.code, 'input', (e) => { els.code.value = formatCodeInput(els.code.value); });
   }
 
   setListener(els.heroActionBtn, 'click', (e) => {
-     e.stopPropagation(); 
+     e.stopPropagation();
+    if (checkBan()) return;
      
      if(window.innerWidth > 768 && currentHeroContext === 'owned' && selectedHeroItem) {
        if (selectedHeroItem.expireDateIso) {
@@ -2356,7 +2400,8 @@ function setupEventListeners() {
   });
 
   setListener(els.heroBuyBtn, 'click', (e) => {
-     e.stopPropagation(); 
+     e.stopPropagation();
+     if (checkBan()) return;
      if (!currentUser) {
          toggleDropdown(true);
          return;
