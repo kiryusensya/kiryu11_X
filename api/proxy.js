@@ -639,20 +639,24 @@ export default async function handler(req, res) {
 
       const items = filteredContents.map(content => {
         const isOwned = ownedContentIds.has(content.id) || (content["重複"] && ownedGroupIds.has(content["重複"]));
+        
+        // ▼ 追加: 現在時刻と解禁時間を比較
+        const now = Date.now();
+        const releaseTime = content["解禁時間"] ? new Date(content["解禁時間"]).getTime() : null;
+        const isLocked = releaseTime && releaseTime > now;
+
+        // ★ 所有済みであっても、解禁前の場合はURLを隠蔽する (期限切れは上のfilterで除外済み)
+        const safeUrl = (isOwned && !isLocked) ? content.Action_url : null;
+
         return {
           code: content.id,
           title: content[`タイトル(${suffix})`] || content["タイトル(jp)"],
           message: content[`メッセージ(${suffix})`] || content["メッセージ(jp)"], 
           extraInfo: content[`詳細(${suffix})`] || content["詳細(jp)"],
           imageUrl: content.Imag_Url, 
-          url: isOwned ? content.Action_url : null, // ★ 未所有の場合はダウンロードURLを隠蔽する
-          releaseDateIso: content["解禁時間"], 
-          expireDateIso: content["有効時間"], 
-          icon: content.アイコン || 'download',
-          groupId: content["重複"], 
-          buttonLabel: content[`ボタン(${suffix})`] || content["ボタン(jp)"], 
-          price: content["価格"] || 0, 
-          isOwned: isOwned
+          url: safeUrl, // ★ 修正
+          releaseDateIso: content["解禁時間"], expireDateIso: content["有効時間"], icon: content.アイコン || 'download',
+          groupId: content["重複"], buttonLabel: content[`ボタン(${suffix})`] || content["ボタン(jp)"], price: content["価格"] || 0, isOwned: isOwned
         };
       });
       return res.status(200).json({ success: true, items });
@@ -674,10 +678,22 @@ export default async function handler(req, res) {
         const c = codeRec.contents; 
         if(!c) return null;
 
-        // ★ エンタープライズ版のため制限なしで履歴表示
+        // ▼ 追加: 現在時刻と解禁時間・有効時間を比較
+        const now = Date.now();
+        const releaseTime = c["解禁時間"] ? new Date(c["解禁時間"]).getTime() : null;
+        const expireTime = c["有効時間"] ? new Date(c["有効時間"]).getTime() : null;
+        
+        const isLocked = releaseTime && releaseTime > now;
+        const isExpired = expireTime && expireTime <= now;
+        
+        // ★ 未解禁・または期限切れの場合はURLを完全に隠蔽
+        const safeUrl = (isLocked || isExpired) ? null : c.Action_url;
+
         return {
           code: codeRec["アクティベーションコード"], date: h.created_at, title: c[`タイトル(${suffix})`] || c["タイトル(jp)"],
-          message: c[`メッセージ(${suffix})`] || c["メッセージ(jp)"], url: c.Action_url, imageUrl: c.Imag_Url,
+          message: c[`メッセージ(${suffix})`] || c["メッセージ(jp)"], 
+          url: safeUrl, // ★ 修正: safeUrlを適用
+          imageUrl: c.Imag_Url,
           icon: c.アイコン || 'download', releaseDateIso: c["解禁時間"], expireDateIso: c["有効時間"], extraInfo: c[`詳細(${suffix})`] || c["詳細(jp)"],
           groupId: c["重複"], buttonLabel: c[`ボタン(${suffix})`] || c["ボタン(jp)"], price: c["価格"] || 0
         };
@@ -791,7 +807,8 @@ export default async function handler(req, res) {
         if (isOwned) return res.status(200).json({ success: false, isAlreadyOwned: true, message: "Already owned" });
 
         const isRelease = !content["解禁時間"] || (checkNow >= new Date(content["解禁時間"]));
-        const retUrl = content.Action_url;
+        // ★ 修正: 解禁日を迎えていない場合はURLを隠蔽する
+        const retUrl = isRelease ? content.Action_url : null;
 
         // URLエラーを避けるため、シンプルな更新処理に戻します
         if (isOnce) {
