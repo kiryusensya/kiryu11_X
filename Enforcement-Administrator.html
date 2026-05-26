@@ -803,7 +803,7 @@
               const tierText = d.targetTier === 'enterprise' ? '<span style="color:#FF9500; font-weight:bold;">エンタープライズ専用</span>' : '全バージョン共通 (All)';
               let timeText = "記録なし";
               if (d.usedTime) {
-                  timeText = new Date(d.usedTime).toLocaleString(navigator.language, { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                  timeText = new Date(d.usedTime).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
               }
               let html = `<div style="background:rgba(0,0,0,0.3); padding:16px; border-radius:12px; border:1px solid var(--card-border);">
                       <div style="margin-bottom:8px;"><strong>コード:</strong> ${escapeHTML(d.code)}</div>
