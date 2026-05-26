@@ -2170,6 +2170,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const sUser = localStorage.getItem('user_session_identity');
   if (sUser) {
       resumeSession();
+      startBanPolling(5000);
   } else {
       // 未ログイン時は、確実にゴミデータを消去してからリダイレクト（無限ループ防止）
       localStorage.removeItem('user_session_token');
@@ -2816,6 +2817,7 @@ function initCustomDropdown() {
 }
 
 function logout() {
+  stopBanPolling();
   localStorage.removeItem('user_session_identity');
   localStorage.removeItem('user_session_token'); 
   // Cookieからも確実に削除
@@ -4333,6 +4335,72 @@ function renderHistoryModal() {
     });
     
     try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+}
+
+
+let banPollTimer = null;
+let banPollInFlight = false;
+
+function startBanPolling(intervalMs = 5000) {
+  if (banPollTimer) return;
+
+  const tick = async () => {
+    if (!banPollTimer) return;
+
+    if (!currentUser || !currentUser.userId) {
+      banPollTimer = setTimeout(tick, intervalMs);
+      return;
+    }
+
+    if (banPollInFlight) {
+      banPollTimer = setTimeout(tick, intervalMs);
+      return;
+    }
+
+    banPollInFlight = true;
+
+    try {
+      const res = await safeFetch({
+        type: "check_ban_status",
+        userId: currentUser.userId,
+        _t: Date.now()
+      });
+
+      const isBannedNow = !!(res && res.isBanned);
+
+      // ✅ BAN解除されたら「モーダル無し状態」に戻す
+      if (!isBannedNow && currentUser.isBanned) {
+        currentUser.isBanned = false;
+
+        const banModal = document.getElementById("banModal");
+        if (banModal) banModal.classList.remove("active");
+
+        // 通常UIへ復帰（ページ更新なし・言語切替なし）
+        try { updateAccountUI(); } catch (e) {}
+        try { fetchAvailableContent(); } catch (e) {}
+        try { fetchUserHistory && fetchUserHistory(); } catch (e) {}
+      }
+
+      // BANになった（念のため）
+      if (isBannedNow && !currentUser.isBanned) {
+        currentUser.isBanned = true;
+        showBanModal();
+      }
+    } finally {
+      banPollInFlight = false;
+      banPollTimer = setTimeout(tick, intervalMs);
+    }
+  };
+
+  banPollTimer = setTimeout(tick, 1000);
+}
+
+function stopBanPolling() {
+  if (banPollTimer) {
+    clearTimeout(banPollTimer);
+    banPollTimer = null;
+  }
+  banPollInFlight = false;
 }
 </script>
 </body>
