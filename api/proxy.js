@@ -125,6 +125,16 @@ export default async function handler(req, res) {
             }
         }
     }
+    
+// ✅ 追加：BAN状態だけ返す（解除検知用）
+if (type === 'check_ban_status') {
+  // 未ログインならBAN判定できない
+  if (!authUserId) {
+    return res.status(200).json({ success: false, isBanned: false, message: "Unauthorized" });
+  }
+  return res.status(200).json({ success: true, isBanned });
+}
+
 
     // BANされている場合、主要なユーザーアクションで「isBanned: true」を返してフロントでモーダルを出させる
     const restrictedActions = ['purchase', 'check', 'redeem', 'change_password', 'get_video_url', 'get_available', 'get_history'];
