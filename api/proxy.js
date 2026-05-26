@@ -114,6 +114,29 @@ export default async function handler(req, res) {
       }
     }
 
+    // ▼▼▼ ここから追加: アカウントBANの判定とブロック ▼▼▼
+    let isBanned = false;
+    if (authUserId) {
+        const { data: banCheckUser } = await supabase.from('users').select('banned_until, is_admin').eq('id', authUserId).maybeSingle();
+        if (banCheckUser && banCheckUser.banned_until && !banCheckUser.is_admin) {
+            const bDate = new Date(banCheckUser.banned_until);
+            if (bDate > new Date()) {
+                isBanned = true;
+            }
+        }
+    }
+
+    // BANされている場合、主要なユーザーアクションで「isBanned: true」を返してフロントでモーダルを出させる
+    const restrictedActions = ['purchase', 'check', 'redeem', 'change_password', 'get_video_url', 'get_available', 'get_history'];
+    if (isBanned && restrictedActions.includes(type)) {
+        return res.status(200).json({ success: false, isBanned: true, message: "アクセスが禁止されています。" });
+    }
+    // 直接ファイルを取得するダウンロードエンドポイントは403で弾く
+    if (isBanned && type === 'download') {
+        return res.status(403).send("Forbidden: アクセスが禁止されています。");
+    }
+    // ▲▲▲ ここまで追加 ▲▲▲
+
     // ==========================================
     // ▼ エラー検索機能 (error.html用) ▼
     // ==========================================
@@ -402,10 +425,29 @@ export default async function handler(req, res) {
             return res.status(200).json({ success: true });
         }
 
+      // ▼▼▼ ここから追加: アカウント停止 (BAN) 機能 ▼▼▼
+        if (type === 'admin_ban_user') {
+            const { targetEmail, banType, banUntil } = params;
+            if (!targetEmail || !banType) return res.status(200).json({ success: false, message: "Missing parameters" });
+
+            let targetDate = null;
+            if (banType === 'temporary' && banUntil) {
+                targetDate = new Date(banUntil).toISOString();
+            } else if (banType === 'permanent') {
+                targetDate = '2099-12-31T23:59:59.000Z'; // 永久BANは未来の日付を設定
+            } // 'none' (解除) の場合は null のまま
+
+            const { error } = await supabase.from('users').update({ banned_until: targetDate }).eq('email', targetEmail);
+            if (error) return res.status(200).json({ success: false, message: error.message });
+
+            await logAudit('BAN_USER', targetEmail, { banType, targetDate });
+            return res.status(200).json({ success: true, message: "アカウントのアクセス制限を適用しました" });
+        }
+
         // 4. ユーザー情報検索
         if (type === 'admin_search') {
             const { targetEmail } = params;
-            const { data: user, error } = await supabase.from('users').select('id, email, points, app_tier').eq('email', targetEmail).maybeSingle();
+            const { data: user, error } = await supabase.from('users').select('id, email, points, app_tier, banned_until').eq('email', targetEmail).maybeSingle();
             if (error || !user) return res.status(200).json({ success: false, message: "ユーザーが見つかりません" });
 
             // ★ 修正: 日本語や括弧付きカラムの取得漏れを防ぐため、関連テーブルを (*) で取得する
@@ -425,7 +467,7 @@ export default async function handler(req, res) {
                 };
             });
 
-            return res.status(200).json({ success: true, userId: user.email, points: user.points, tier: user.app_tier, history: historyList });
+            return res.status(200).json({ success: true, userId: user.email, points: user.points, tier: user.app_tier, bannedUntil: user.banned_until, history: historyList });
         }
 
         // 5. ポイント付与・変更
