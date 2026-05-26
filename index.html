@@ -4337,29 +4337,21 @@ function renderHistoryModal() {
     try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
 }
 
-// ===============================
-// BAN解除リアルタイム反映（ポーリング）
-// ===============================
+
 let banPollTimer = null;
 let banPollInFlight = false;
 
-/**
- * BAN状態を定期チェックし、解除されたらモーダルを閉じてUI復帰
- * @param {number} intervalMs - ポーリング間隔(ms)
- */
 function startBanPolling(intervalMs = 5000) {
-  if (banPollTimer) return; // 二重起動防止
+  if (banPollTimer) return;
 
   const tick = async () => {
     if (!banPollTimer) return;
 
-    // セッション復元前は何もしない
     if (!currentUser || !currentUser.userId) {
       banPollTimer = setTimeout(tick, intervalMs);
       return;
     }
 
-    // 通信の多重実行防止
     if (banPollInFlight) {
       banPollTimer = setTimeout(tick, intervalMs);
       return;
@@ -4368,50 +4360,38 @@ function startBanPolling(intervalMs = 5000) {
     banPollInFlight = true;
 
     try {
-      // ★サーバー側に type: "check_ban_status" を用意する想定
-      // 返却例: { success:true, isBanned:true/false }
       const res = await safeFetch({
         type: "check_ban_status",
         userId: currentUser.userId,
-        _t: Date.now() // キャッシュ対策
+        _t: Date.now()
       });
 
       const isBannedNow = !!(res && res.isBanned);
 
-      // --- BAN継続 or BANになった ---
-      if (isBannedNow) {
-        if (!currentUser.isBanned) {
-          currentUser.isBanned = true;
-          showBanModal(); // safeFetch側でも出るが念のため
-        }
+      // ✅ BAN解除されたら「モーダル無し状態」に戻す
+      if (!isBannedNow && currentUser.isBanned) {
+        currentUser.isBanned = false;
+
+        const banModal = document.getElementById("banModal");
+        if (banModal) banModal.classList.remove("active");
+
+        // 通常UIへ復帰（ページ更新なし・言語切替なし）
+        try { updateAccountUI(); } catch (e) {}
+        try { fetchAvailableContent(); } catch (e) {}
+        try { fetchUserHistory && fetchUserHistory(); } catch (e) {}
       }
-      // --- ✅ BAN解除された ---
-      else {
-        if (currentUser.isBanned) {
-          currentUser.isBanned = false;
 
-          // BANモーダルを自動で閉じる（ページ更新なし）
-          const banModal = document.getElementById("banModal");
-          if (banModal) banModal.classList.remove("active");
-
-          // 通常UIへ復帰（言語はCURRENT_LANGのまま）
-          try { updateAccountUI(); } catch(e) {}
-          try { fetchAvailableContent(); } catch(e) {}
-          // 必要なら履歴も再取得（ある場合だけ）
-          try { fetchUserHistory && fetchUserHistory(); } catch(e) {}
-
-          console.log("✅ BAN解除を検知 → モーダル解除＆UI復帰");
-        }
+      // BANになった（念のため）
+      if (isBannedNow && !currentUser.isBanned) {
+        currentUser.isBanned = true;
+        showBanModal();
       }
-    } catch (e) {
-      // ネットワークエラー時は次回へ（何もしない）
     } finally {
       banPollInFlight = false;
       banPollTimer = setTimeout(tick, intervalMs);
     }
   };
 
-  // setIntervalより setTimeout再帰の方が「遅延で重複実行」を避けられて安全
   banPollTimer = setTimeout(tick, 1000);
 }
 
@@ -4422,7 +4402,6 @@ function stopBanPolling() {
   }
   banPollInFlight = false;
 }
-
 </script>
 </body>
 </html>
