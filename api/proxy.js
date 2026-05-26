@@ -444,7 +444,7 @@ export default async function handler(req, res) {
             return res.status(200).json({ success: true, message: "アカウントのアクセス制限を適用しました" });
         }
 
-        // 4. ユーザー情報検索
+       // 4. ユーザー情報検索
         if (type === 'admin_search') {
             const { targetEmail } = params;
             const { data: user, error } = await supabase.from('users').select('id, email, points, app_tier, banned_until').eq('email', targetEmail).maybeSingle();
@@ -467,7 +467,14 @@ export default async function handler(req, res) {
                 };
             });
 
-            return res.status(200).json({ success: true, userId: user.email, points: user.points, tier: user.app_tier, bannedUntil: user.banned_until, history: historyList });
+            return res.status(200).json({ 
+                success: true, 
+                userId: user.email, 
+                points: user.points, 
+                tier: user.app_tier, 
+                bannedUntil: user.banned_until,
+                history: historyList 
+            });
         }
 
         // 5. ポイント付与・変更
