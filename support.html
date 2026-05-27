@@ -284,7 +284,9 @@ button, input, textarea, a { font-family: var(--font-stack); }
 .mobile-menu-trigger { display: none; }
 .mobile-nav-overlay { display: none; }
 
-.mobile-modal-nav { display: none; }
+/* Modal Header Layout Base */
+.header-controls { display: flex; align-items: center; gap: 15px; }
+.mobile-nav-arrows { display: none; }
 
 @media (max-width: 768px) {
     .mobile-menu-trigger { display: flex; align-items: center; justify-content: center; background: transparent; border: none; color: var(--sidebar-text); cursor: pointer; padding: 8px; margin-right: 4px; }
@@ -322,37 +324,57 @@ button, input, textarea, a { font-family: var(--font-stack); }
     .bento-grid { grid-template-columns: 1fr; gap: 20px; margin-top: 20px; }
     .bento-card { min-height: 200px; padding: 30px 20px; }
 
-    /* Rockstar Modal Mobile Slider CSS */
-    .rockstar-modal-header { padding: 20px 20px 10px; }
+    /* Rockstar Modal Mobile Adjustments */
+    .rockstar-modal-content { height: auto; max-height: 95vh; display: flex; flex-direction: column; }
+    .rockstar-modal-header { 
+        padding: 30px 20px 20px; 
+        align-items: flex-start; 
+    }
+    .rockstar-modal-header h2 { 
+        font-size: 38px; 
+        line-height: 1.1; 
+        max-width: 65%; 
+        word-break: keep-all; 
+    }
+    .header-controls { 
+        display: flex; 
+        align-items: flex-start; 
+        gap: 12px; 
+    }
+    .mobile-nav-arrows {
+        display: flex;
+        background: #000;
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .mobile-nav-arrows button {
+        background: transparent; border: none; color: #fff; 
+        width: 44px; height: 44px;
+        display: flex; align-items: center; justify-content: center; cursor: pointer;
+    }
+    .mobile-nav-arrows button:active { background: rgba(255,255,255,0.1); }
+    .mobile-nav-arrows button:first-child { border-right: 1px solid rgba(255,255,255,0.2); }
+
     .rockstar-cards-grid { 
         display: flex; 
         flex-direction: row; 
         flex-wrap: nowrap;
-        overflow: hidden; 
-        padding: 10px 20px 10px; 
-        gap: 20px;
-    }
-    .rockstar-card {
-        min-width: 100%;
-        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .rockstar-cards-grid.show-other .rockstar-card {
-        transform: translateX(calc(-100% - 20px));
-    }
-    .mobile-modal-nav {
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-snap-type: x mandatory;
+        padding: 10px 20px 30px; 
         gap: 15px;
-        padding-bottom: 25px;
+        scrollbar-width: none; /* Firefox */
+        -webkit-overflow-scrolling: touch;
     }
-    .mobile-modal-dot {
-        width: 10px; height: 10px; border-radius: 50%;
-        background: rgba(255,255,255,0.3); border: none; padding: 0;
-        cursor: pointer; transition: background 0.3s;
-    }
-    .mobile-modal-dot.active {
-        background: rgba(255,255,255,0.9);
+    .rockstar-cards-grid::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+    
+    .rockstar-card {
+        flex: 0 0 85%; /* 横幅を85%に制限してピーキング効果（右端見切れ）を作成 */
+        scroll-snap-align: start;
+        transition: none;
+        transform: none !important;
     }
 }
 
@@ -392,7 +414,7 @@ button, input, textarea, a { font-family: var(--font-stack); }
 .rockstar-modal-header h2 { margin: 0; font-size: 28px; font-weight: 800; }
 .rockstar-modal-close {
     background: transparent; border: 1px solid rgba(255,255,255,0.3);
-    color: #fff; width: 40px; height: 40px; border-radius: 50%;
+    color: #fff; width: 44px; height: 44px; border-radius: 50%;
     cursor: pointer; display: flex; align-items: center; justify-content: center;
     transition: all 0.2s;
 }
@@ -525,22 +547,30 @@ button, input, textarea, a { font-family: var(--font-stack); }
                 </a>
 
                 <button id="contactTriggerBtn" class="bento-card card-large-right spotlight-hover" style="border: none; outline: none; width: 100%;">
-    <i data-lucide="mail" class="card-icon" style="color:#00a0e9; width:60px; height:60px;"></i>
-    <div class="card-title" data-translate="card_contact_title">Contact Us</div>
-    <div class="card-desc" data-translate="desc_contact_short">Email support</div>
-</button>
+                    <i data-lucide="mail" class="card-icon" style="color:#00a0e9; width:60px; height:60px;"></i>
+                    <div class="card-title" data-translate="card_contact_title">Contact Us</div>
+                    <div class="card-desc" data-translate="desc_contact_short">Email support</div>
+                </button>
             </div>
         </div>
     </main>
 
 </div>
+
 <div class="rockstar-modal-overlay" id="rockstarModal">
     <div class="rockstar-modal-content">
         <div class="rockstar-modal-header">
             <h2 data-translate="modal_choose_title">お問い合わせ方法</h2>
-            <button class="rockstar-modal-close" id="btnCloseRockstar"><i data-lucide="x"></i></button>
+            <div class="header-controls">
+                <div class="mobile-nav-arrows">
+                    <button id="btnPrevCard"><i data-lucide="chevron-left"></i></button>
+                    <button id="btnNextCard"><i data-lucide="chevron-right"></i></button>
+                </div>
+                <button class="rockstar-modal-close" id="btnCloseRockstar"><i data-lucide="x"></i></button>
+            </div>
         </div>
-        <div class="rockstar-cards-grid">
+        
+        <div class="rockstar-cards-grid" id="rCardsGrid">
             <div class="rockstar-card spotlight-hover" id="btnRockstarMail">
                 <div class="rockstar-card-img">
                     <img src="https://images.unsplash.com/photo-1596524430615-b46475ddff6e?w=800&q=80" alt="Email">
@@ -562,11 +592,6 @@ button, input, textarea, a { font-family: var(--font-stack); }
                     <div class="rockstar-card-btn" data-translate="modal_btn_select">プラットフォームを選択</div>
                 </div>
             </div>
-        </div>
-        
-        <div class="mobile-modal-nav">
-            <button class="mobile-modal-dot active" id="dotMail"></button>
-            <button class="mobile-modal-dot" id="dotOther"></button>
         </div>
         
     </div>
@@ -793,85 +818,54 @@ button, input, textarea, a { font-family: var(--font-stack); }
             });
         }
     });
-  const contactTriggerBtn = document.getElementById('contactTriggerBtn');
-const contactChoiceModal = document.getElementById('contactChoiceModal');
-const btnMail = document.getElementById('btnMail');
-const btnOther = document.getElementById('btnOther');
-const btnCancelModal = document.getElementById('btnCancelModal');
 
-if (contactTriggerBtn) {
-    contactTriggerBtn.addEventListener('click', () => {
-        if(contactChoiceModal) contactChoiceModal.style.display = 'flex';
+const contactTriggerBtn = document.getElementById('contactTriggerBtn');
+const rockstarModal = document.getElementById('rockstarModal');
+const rCardsGrid = document.getElementById('rCardsGrid');
+const btnPrevCard = document.getElementById('btnPrevCard');
+const btnNextCard = document.getElementById('btnNextCard');
+    
+if (contactTriggerBtn && rockstarModal) {
+    // デフォルトのリンク動作を無効化してモーダルを開く
+    contactTriggerBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        rockstarModal.style.display = 'flex';
+        // モーダルを開くたびにスクロール位置をリセットする（スマホ用）
+        if (rCardsGrid) {
+            rCardsGrid.scrollLeft = 0;
+        }
     });
-}
-if (btnCancelModal) {
-    btnCancelModal.addEventListener('click', () => {
-        contactChoiceModal.style.display = 'none';
+
+    document.getElementById('btnCloseRockstar').addEventListener('click', () => {
+        rockstarModal.style.display = 'none';
     });
-}
-if (btnMail) {
-    btnMail.addEventListener('click', () => {
+
+    // 外側クリックで閉じる
+    rockstarModal.addEventListener('click', (e) => {
+        if(e.target === rockstarModal) rockstarModal.style.display = 'none';
+    });
+
+    document.getElementById('btnRockstarMail').addEventListener('click', () => {
         window.location.href = "mailto:your-email@example.com?subject=サポートへの問い合わせ";
-        if(contactChoiceModal) contactChoiceModal.style.display = 'none';
+        rockstarModal.style.display = 'none';
     });
-}
-if (btnOther) {
-    btnOther.addEventListener('click', () => {
+
+    document.getElementById('btnRockstarOther').addEventListener('click', () => {
         window.location.href = "support-link.html";
     });
-}
-
-const rockstarModal = document.getElementById('rockstarModal');
-const rCardsGrid = document.querySelector('.rockstar-cards-grid');
-const dotMail = document.getElementById('dotMail');
-const dotOther = document.getElementById('dotOther');
     
-    if (contactTriggerBtn && rockstarModal) {
-        // デフォルトのリンク動作を無効化してモーダルを開く
-        contactTriggerBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            rockstarModal.style.display = 'flex';
-            
-            // モーダルを開くたびにスライダーの表示を1枚目にリセットする（スマホ用）
-            if (rCardsGrid && dotMail && dotOther) {
-                rCardsGrid.classList.remove('show-other');
-                dotMail.classList.add('active');
-                dotOther.classList.remove('active');
-            }
+    // スマホ用ナビゲーション矢印の操作イベント
+    if (btnPrevCard && btnNextCard && rCardsGrid) {
+        btnPrevCard.addEventListener('click', () => {
+            const cardWidth = rCardsGrid.querySelector('.rockstar-card').offsetWidth + 15; // padding/gap分
+            rCardsGrid.scrollBy({ left: -cardWidth, behavior: 'smooth' });
         });
-
-        document.getElementById('btnCloseRockstar').addEventListener('click', () => {
-            rockstarModal.style.display = 'none';
+        btnNextCard.addEventListener('click', () => {
+            const cardWidth = rCardsGrid.querySelector('.rockstar-card').offsetWidth + 15;
+            rCardsGrid.scrollBy({ left: cardWidth, behavior: 'smooth' });
         });
-
-        // 外側クリックで閉じる
-        rockstarModal.addEventListener('click', (e) => {
-            if(e.target === rockstarModal) rockstarModal.style.display = 'none';
-        });
-
-        document.getElementById('btnRockstarMail').addEventListener('click', () => {
-            window.location.href = "mailto:your-email@example.com?subject=サポートへの問い合わせ";
-            rockstarModal.style.display = 'none';
-        });
-
-        document.getElementById('btnRockstarOther').addEventListener('click', () => {
-            window.location.href = "support-link.html";
-        });
-        
-        // スマホ用インジケータードットの操作イベント
-        if (dotMail && dotOther && rCardsGrid) {
-            dotMail.addEventListener('click', () => {
-                rCardsGrid.classList.remove('show-other');
-                dotMail.classList.add('active');
-                dotOther.classList.remove('active');
-            });
-            dotOther.addEventListener('click', () => {
-                rCardsGrid.classList.add('show-other');
-                dotOther.classList.add('active');
-                dotMail.classList.remove('active');
-            });
-        }
     }
+}
 </script>
 </body>
 </html>
