@@ -2172,11 +2172,16 @@ document.addEventListener('DOMContentLoaded', () => {
       resumeSession();
       startBanPolling(5000);
   } else {
-      // 未ログイン時は、確実にゴミデータを消去してからリダイレクト（無限ループ防止）
-      localStorage.removeItem('user_session_token');
-      localStorage.removeItem('user_session_identity'); // 念のためこちらも追加
-      window.location.replace('Access.html?logout=true'); 
-  }
+    localStorage.removeItem('user_session_token');
+    localStorage.removeItem('user_session_identity');
+    
+    // パラメーター（?code=XXXX など）があれば引き継いでログイン画面へ
+    let redirectUrl = 'access';
+    if (window.location.search) {
+        redirectUrl += window.location.search;
+    }
+    window.location.replace(redirectUrl);
+}
   initThemeAndParticles();
   initCustomDropdown();
   setupEventListeners();
@@ -2826,7 +2831,7 @@ function logout() {
   
   // 削除が確実に反映されるように少しだけ遅延させて遷移（パラメータ付き）
   setTimeout(() => {
-      window.location.replace('Access.html?logout=true'); 
+      window.location.replace('Access?logout=true');
   }, 50);
 }
 
