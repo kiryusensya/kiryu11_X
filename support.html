@@ -762,14 +762,8 @@ button, input, textarea, a { font-family: var(--font-stack); }
         });
 
         // テーマ切替
-        // テーマ切替
         const themeToggle = document.getElementById('themeToggle');
         const htmlEl = document.documentElement;
-
-        // ★ 追加: ページ読み込み時の現在のテーマを取得し、アイコンを初期化
-        const currentTheme = htmlEl.getAttribute('data-theme');
-        themeToggle.innerHTML = currentTheme === 'light' ? '<i data-lucide="sun"></i>' : '<i data-lucide="moon"></i>';
-
         themeToggle.addEventListener('click', () => {
             const current = htmlEl.getAttribute('data-theme');
             const next = current === 'light' ? 'dark' : 'light';
