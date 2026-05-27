@@ -452,14 +452,20 @@
   applyLanguage(CURRENT_LANG);
   // ▼ 追加: 強制アクセス時の警告メッセージ表示 ▼
   if (urlParams.get('auth') === 'required') {
-      const t = TRANSLATIONS[CURRENT_LANG];
-      const statusEl = document.getElementById('authStatus');
-      statusEl.textContent = t.msg_auth_required;
-      statusEl.style.color = "var(--primary)"; // ★ここを追加（テーマカラーの青色にする）
-      
-      // URLバーから ?auth=required を消す（リロードしても消えたままにする）
-      window.history.replaceState(null, '', window.location.pathname);
-  }
+    const t = TRANSLATIONS[CURRENT_LANG];
+    const statusEl = document.getElementById('authStatus');
+    statusEl.textContent = t.msg_auth_required;
+    statusEl.style.color = "var(--primary)";
+    
+    // ★ auth=required だけ削除し、code など他のパラメーターは保持する
+    urlParams.delete('auth');
+    const newSearch = urlParams.toString();
+    window.history.replaceState(
+        null, 
+        '', 
+        window.location.pathname + (newSearch ? '?' + newSearch : '')
+    );
+}
 
   function initSlider(containerId, onComplete) {
       const container = document.getElementById(containerId);
