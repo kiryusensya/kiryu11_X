@@ -741,17 +741,27 @@ const maskActionUrl = (rawUrl) => {
         return res.status(200).json({ success: true, links: links || [] });
     }
 
+    // ▼ ブラックリスト方式に変更
     if (type === 'auth_instagram') {
         const { username } = params;
         if (!username) return res.status(200).json({ success: false, message: "ユーザー名を入力してください" });
-        
-        // 【実装ポイント】
-        // ここで実際のデータベース(usersテーブルなど)とusernameを照合するロジックを入れることができます。
-        // 今回は入力があれば認証成功として、問い合わせ先URLを返す仕様にしています。
+
+        // Supabaseのブラックリストを検索 (大文字小文字を区別せずに一致チェック)
+        const { data: blockedUser, error } = await supabase
+            .from('blocked_instagram_users')
+            .select('username')
+            .ilike('username', username)
+            .maybeSingle();
+
+        // ブラックリストに登録されている場合 -> 拒否
+        if (blockedUser) {
+            await logAudit('INSTAGRAM_AUTH_BLOCKED', username, { status: 'blocked' });
+            return res.status(403).json({ success: false, message: "このアカウントからのアクセスは制限されています。" });
+        }
+
+        // 登録されていない場合 -> 許可 (通過)
         const redirectUrl = params.targetUrl || "https://ig.me/m/your_support_account";
-        
-        // 監査ログに残す
-        await logAudit('INSTAGRAM_AUTH', username, { status: 'success' });
+        await logAudit('INSTAGRAM_AUTH_SUCCESS', username, { status: 'passed' });
 
         return res.status(200).json({ success: true, redirectUrl });
     }
