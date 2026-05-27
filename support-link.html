@@ -285,7 +285,8 @@ button, input, textarea, a { font-family: var(--font-stack); }
 .link-card-img-wrap img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain; /* 変更：引き伸ばさず、全体を表示する */
+    padding: 20px;
     transition: transform 0.5s var(--spring-ease);
 }
 .link-card:hover .link-card-img-wrap img {
