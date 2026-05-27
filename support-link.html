@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Other Services // Support</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+:root {
+  --bg-color: #1a1b1e;
+  --card-bg: #2a2b2e;
+  --text-main: #ffffff;
+  --text-sub: #a0a0a0;
+  --accent: #007DFF;
+}
+
+body {
+    margin: 0; padding: 0; background-color: var(--bg-color);
+    color: var(--text-main); font-family: sans-serif;
+    min-height: 100vh;
+}
+
+.header {
+    padding: 40px 60px 20px;
+}
+.header h1 { margin: 0; font-size: 32px; font-weight: 800; }
+.header p { margin: 8px 0 0 0; color: var(--text-sub); }
+.header .back-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    color: var(--text-main); text-decoration: none;
+    margin-bottom: 20px; opacity: 0.8; transition: opacity 0.2s;
+}
+.header .back-btn:hover { opacity: 1; }
+
+/* Xbox UI Style Grid */
+.xbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+    padding: 20px 60px 60px;
+}
+
+.xbox-card {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    border: 3px solid transparent;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.2s;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+}
+
+.xbox-card:hover {
+    border-color: #ffffff;
+    transform: scale(1.03);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    z-index: 10;
+}
+
+.xbox-card-img-wrap {
+    width: 100%;
+    aspect-ratio: 16 / 15;
+    background-color: #111;
+    overflow: hidden;
+}
+
+.xbox-card-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.xbox-card-info {
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+.xbox-card-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    margin: 0 0 4px 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.xbox-card-sub {
+    font-size: 13px;
+    color: var(--text-sub);
+    margin: 0;
+}
+
+.xbox-card-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    font-size: 12px;
+    color: #d1d1d1;
+}
+
+/* Instagram モーダル用 */
+.auth-modal {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
+    z-index: 1000; align-items: center; justify-content: center;
+}
+.auth-box {
+    background: var(--card-bg); padding: 30px; border-radius: 16px;
+    width: 90%; max-width: 400px; border: 1px solid rgba(255,255,255,0.1);
+}
+.auth-input {
+    width: 100%; padding: 12px; margin: 16px 0;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2);
+    color: white; border-radius: 8px; font-size: 16px; box-sizing: border-box;
+}
+.auth-btn {
+    width: 100%; padding: 12px; background: var(--accent); color: white;
+    border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px;
+}
+.auth-cancel {
+    width: 100%; padding: 12px; background: transparent; color: var(--text-sub);
+    border: none; margin-top: 8px; cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .header { padding: 30px 20px 10px; }
+    .xbox-grid { padding: 10px 20px 40px; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+    <a href="support.html" class="back-btn"><i data-lucide="arrow-left"></i> Supportに戻る</a>
+    <h1>Other Services</h1>
+    <p>その他のサポート・連携サービス一覧</p>
+</div>
+
+<div class="xbox-grid" id="linksContainer">
+    <div style="color: var(--text-sub);">読み込み中...</div>
+</div>
+
+<div class="auth-modal" id="igAuthModal">
+    <div class="auth-box">
+        <h3 style="margin-top:0;">Instagram認証</h3>
+        <p style="color: var(--text-sub); font-size: 14px; margin-bottom: 0;">お問い合わせを続けるには、ご自身のInstagramユーザー名（ID）を入力してください。</p>
+        <input type="text" id="igUsername" class="auth-input" placeholder="@なしで入力">
+        <button id="igSubmitBtn" class="auth-btn">認証して進む</button>
+        <button id="igCancelBtn" class="auth-cancel">キャンセル</button>
+    </div>
+</div>
+
+<script>
+lucide.createIcons();
+
+const API_URL = '/api/proxy'; // 環境に合わせて変更してください
+
+let currentTargetUrl = "";
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const container = document.getElementById('linksContainer');
+    
+    try {
+        const res = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'get_support_links' })
+        });
+        const data = await res.json();
+        
+        if(data.success && data.links) {
+            container.innerHTML = '';
+            data.links.forEach(link => {
+                const card = document.createElement('div');
+                card.className = 'xbox-card';
+                card.innerHTML = `
+                    <div class="xbox-card-img-wrap">
+                        <img src="${link.image_url || 'https://via.placeholder.com/300'}" alt="cover">
+                    </div>
+                    <div class="xbox-card-info">
+                        <h3 class="xbox-card-title">${link.title}</h3>
+                        <p class="xbox-card-sub">${link.subtitle || ''}</p>
+                        <div class="xbox-card-status">
+                            <i data-lucide="check-circle-2" style="width:14px; height:14px;"></i> Available
+                        </div>
+                    </div>
+                `;
+                
+                // アイコンの再描画用
+                setTimeout(() => lucide.createIcons({ root: card }), 0);
+
+                // クリックイベントの振り分け
+                card.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if(link.action_type === 'instagram') {
+                        currentTargetUrl = link.url;
+                        document.getElementById('igAuthModal').style.display = 'flex';
+                    } else {
+                        window.open(link.url, '_blank');
+                    }
+                });
+                
+                container.appendChild(card);
+            });
+        } else {
+            container.innerHTML = '<div>リンクが見つかりませんでした。</div>';
+        }
+    } catch(err) {
+        container.innerHTML = '<div style="color:red;">データの取得に失敗しました。</div>';
+    }
+});
+
+// Instagram認証処理
+document.getElementById('igCancelBtn').addEventListener('click', () => {
+    document.getElementById('igAuthModal').style.display = 'none';
+    document.getElementById('igUsername').value = '';
+});
+
+document.getElementById('igSubmitBtn').addEventListener('click', async () => {
+    const username = document.getElementById('igUsername').value.trim();
+    if(!username) {
+        alert("ユーザー名を入力してください。");
+        return;
+    }
+    
+    const btn = document.getElementById('igSubmitBtn');
+    btn.textContent = '認証中...';
+    btn.disabled = true;
+
+    try {
+        const res = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                type: 'auth_instagram', 
+                username: username,
+                targetUrl: currentTargetUrl 
+            })
+        });
+        const data = await res.json();
+        
+        if(data.success) {
+            window.location.href = data.redirectUrl; // 認証成功でリンク先へ
+        } else {
+            alert(data.message || "認証に失敗しました");
+        }
+    } catch(err) {
+        alert("通信エラーが発生しました");
+    } finally {
+        btn.textContent = '認証して進む';
+        btn.disabled = false;
+        document.getElementById('igAuthModal').style.display = 'none';
+    }
+});
+</script>
+</body>
+</html>
