@@ -1,24 +1,3 @@
 {
-  "rewrites": [
-    {
-      "source": "/Access",
-      "destination": "/Access.html"
-    },
-    {
-      "source": "/support",
-      "destination": "/support.html"
-    },
-    {
-      "source": "/error",
-      "destination": "/error.html"
-    },
-    {
-      "source": "/videos",
-      "destination": "/videos.html"
-    },
-    {
-      "source": "/terms-of-service",
-      "destination": "/terms-of-service.html"
-    }
-  ]
+  "cleanUrls": true
 }
