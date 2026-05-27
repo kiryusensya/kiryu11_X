@@ -28,8 +28,8 @@ export default function middleware(request) {
         // Cookieの中に user_session_token が存在するかチェック
         if (!cookie.includes('user_session_token=')) {
             url.pathname = '/Access.html';
-            url.searchParams.set('auth', 'required'); // ★目印を追加
-            return Response.redirect(url, 307);
+            url.searchParams.set('auth', 'required');
+            return Response.redirect(url.toString(), 307);
         }
         return; // user_session_tokenがあれば通過
     }
