@@ -336,6 +336,67 @@ button, input, textarea, a { font-family: var(--font-stack); }
 }
 .spotlight-hover:hover::before { opacity: 1; }
 .spotlight-hover > * { position: relative; z-index: 1; }
+/* Rockstar風 大型モーダル */
+.rockstar-modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px);
+    z-index: 10000; align-items: center; justify-content: center;
+    padding: 20px;
+}
+.rockstar-modal-content {
+    background: #111; border-radius: 16px;
+    width: 100%; max-width: 1000px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative; overflow: hidden;
+    animation: popIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    color: #fff;
+}
+.rockstar-modal-header {
+    padding: 30px 40px 10px; display: flex; justify-content: space-between; align-items: center;
+}
+.rockstar-modal-header h2 { margin: 0; font-size: 28px; font-weight: 800; }
+.rockstar-modal-close {
+    background: transparent; border: 1px solid rgba(255,255,255,0.3);
+    color: #fff; width: 40px; height: 40px; border-radius: 50%;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+}
+.rockstar-modal-close:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
+
+.rockstar-cards-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 30px; padding: 20px 40px 50px;
+}
+@media (max-width: 768px) {
+    .rockstar-cards-grid { grid-template-columns: 1fr; }
+    .rockstar-modal-header { padding: 20px 20px 10px; }
+    .rockstar-cards-grid { padding: 10px 20px 30px; }
+}
+
+.rockstar-card {
+    background: #000; border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px; overflow: hidden; cursor: pointer;
+    display: flex; flex-direction: column;
+    transition: transform 0.3s cubic-bezier(0.33, 1, 0.68, 1), box-shadow 0.3s;
+}
+.rockstar-card:hover {
+    transform: scale(1.02); box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    border-color: rgba(255,255,255,0.3); z-index: 10;
+}
+.rockstar-card-img {
+    width: 100%; aspect-ratio: 16/9; background: #222;
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.rockstar-card-img img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; transition: opacity 0.3s;}
+.rockstar-card:hover .rockstar-card-img img { opacity: 1; }
+.rockstar-card-body { padding: 24px; flex: 1; display: flex; flex-direction: column; }
+.rockstar-card-title { font-size: 24px; font-weight: 800; margin: 0 0 8px 0; }
+.rockstar-card-desc { font-size: 14px; color: #a0a0a0; margin: 0 0 24px 0; }
+.rockstar-card-btn {
+    margin-top: auto; width: 100%; padding: 16px; background: transparent;
+    border: 1px solid rgba(255,255,255,0.5); color: #fff; font-size: 16px;
+    font-weight: bold; border-radius: 8px; transition: all 0.2s; text-transform: uppercase;
+}
+.rockstar-card:hover .rockstar-card-btn { background: #fff; color: #000; }
 </style>
 </head>
 <body>
@@ -456,6 +517,37 @@ button, input, textarea, a { font-family: var(--font-stack); }
         <button id="btnCancelModal" style="background: transparent; border: none; color: var(--modal-text-sub); cursor: pointer; text-decoration: underline;">キャンセル</button>
     </div>
 </div>
+<div class="rockstar-modal-overlay" id="rockstarModal">
+    <div class="rockstar-modal-content">
+        <div class="rockstar-modal-header">
+            <h2 data-translate="modal_choose_title">お問い合わせ方法</h2>
+            <button class="rockstar-modal-close" id="btnCloseRockstar"><i data-lucide="x"></i></button>
+        </div>
+        <div class="rockstar-cards-grid">
+            <div class="rockstar-card spotlight-hover" id="btnRockstarMail">
+                <div class="rockstar-card-img">
+                    <img src="https://images.unsplash.com/photo-1596524430615-b46475ddff6e?w=800&q=80" alt="Email">
+                </div>
+                <div class="rockstar-card-body">
+                    <h3 class="rockstar-card-title" data-translate="modal_mail_title">メールサポート</h3>
+                    <p class="rockstar-card-desc" data-translate="modal_mail_desc">標準のメールクライアントを起動して、直接サポートチームへメッセージを送信します。</p>
+                    <div class="rockstar-card-btn" data-translate="modal_btn_select">プラットフォームを選択</div>
+                </div>
+            </div>
+
+            <div class="rockstar-card spotlight-hover" id="btnRockstarOther">
+                <div class="rockstar-card-img">
+                    <img src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&q=80" alt="Other Services">
+                </div>
+                <div class="rockstar-card-body">
+                    <h3 class="rockstar-card-title" data-translate="modal_other_title">その他のサービス</h3>
+                    <p class="rockstar-card-desc" data-translate="modal_other_desc">X (Twitter) や Instagram、Discordなど、他のプラットフォーム経由でのお問い合わせはこちら。</p>
+                    <div class="rockstar-card-btn" data-translate="modal_btn_select">プラットフォームを選択</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     // Spotlight Effect Setup
     const setupHoverEffects = () => {
@@ -476,6 +568,10 @@ button, input, textarea, a { font-family: var(--font-stack); }
             page_title: "サポートセンター", page_sub: "接続するサービスを選択してください", 
             card_web_title: "エラーコード検索", desc_web_short: "詳細を検索する",
             card_contact_title: "お問い合わせ", desc_contact_short: "メールで問い合わせ",
+            modal_choose_title: "お問い合わせ方法",
+            modal_mail_title: "メールサポート", modal_mail_desc: "標準のメールクライアントを起動して、直接サポートチームへメッセージを送信します。",
+            modal_other_title: "その他のサービス", modal_other_desc: "X (Twitter) や Instagram、Discordなど、他のプラットフォーム経由でのお問い合わせはこちら。",
+            modal_btn_select: "プラットフォームを選択"
             btn_inquiry: "検索ページへ",
             desc_web: "専用ページでエラーの詳細を確認できます。"
         },
@@ -486,6 +582,10 @@ button, input, textarea, a { font-family: var(--font-stack); }
             card_web_title: "Error Code Search", desc_web_short: "Search details",
             card_contact_title: "Contact Us", desc_contact_short: "Email support",
             btn_inquiry: "Go to Search",
+            modal_choose_title: "Contact Method",
+            modal_mail_title: "Email Support", modal_mail_desc: "Launch your default email client to send a message directly to our support team.",
+            modal_other_title: "Other Services", modal_other_desc: "Contact us via other platforms like X (Twitter), Instagram, or Discord.",
+            modal_btn_select: "Select Platform"
             desc_web: "Check error details on the dedicated page."
         },
         zh: { 
@@ -495,6 +595,10 @@ button, input, textarea, a { font-family: var(--font-stack); }
             card_web_title: "错误代码搜索", desc_web_short: "查看详情",
             card_contact_title: "联系我们", desc_contact_short: "邮件联系",
             btn_inquiry: "前往搜索",
+            modal_choose_title: "联系方式",
+            modal_mail_title: "邮件支持", modal_mail_desc: "启动默认邮件客户端，直接向支持团队发送消息。",
+            modal_other_title: "其他服务", modal_other_desc: "通过 X (Twitter)、Instagram 或 Discord 等其他平台联系我们。",
+            modal_btn_select: "选择平台"
             desc_web: "在专用页面上查看错误详细信息。"
         },
         "zh-TW": { 
@@ -504,6 +608,10 @@ button, input, textarea, a { font-family: var(--font-stack); }
             card_web_title: "錯誤代碼搜尋", desc_web_short: "查看詳情",
             card_contact_title: "聯絡我們", desc_contact_short: "郵件聯繫",
             btn_inquiry: "前往搜尋",
+            modal_choose_title: "聯繫方式",
+            modal_mail_title: "郵件支援", modal_mail_desc: "啟動預設郵件客戶端，直接向支援團隊發送消息。",
+            modal_other_title: "其他服務", modal_other_desc: "透過 X (Twitter)、Instagram 或 Discord 等其他平台聯絡我們。",
+            modal_btn_select: "選擇平台"
             desc_web: "在專用頁面上查看錯誤詳細資訊。"
         },
         ko: { 
@@ -513,6 +621,10 @@ button, input, textarea, a { font-family: var(--font-stack); }
             card_web_title: "오류 코드 검색", desc_web_short: "세부 정보 검색",
             card_contact_title: "문의하기", desc_contact_short: "이메일 지원",
             btn_inquiry: "검색 페이지로",
+            modal_choose_title: "문의 방법",
+            modal_mail_title: "이메일 지원", modal_mail_desc: "기본 이메일 클라이언트를 실행하여 지원팀에 직접 메시지를 보냅니다.",
+            modal_other_title: "기타 서비스", modal_other_desc: "X(Twitter), Instagram, Discord 등 다른 플랫폼을 통해 문의하세요.",
+            modal_btn_select: "플랫폼 선택"
             desc_web: "전용 페이지에서 오류 세부 정보를 확인하세요."
         },
         ru: { 
@@ -522,6 +634,10 @@ button, input, textarea, a { font-family: var(--font-stack); }
             card_web_title: "Поиск кода ошибки", desc_web_short: "Детали поиска",
             card_contact_title: "Связаться", desc_contact_short: "Поддержка по почте",
             btn_inquiry: "Перейти к поиску",
+            modal_choose_title: "Способ связи",
+            modal_mail_title: "Поддержка по Email", modal_mail_desc: "Запустите почтовый клиент по умолчанию, чтобы отправить сообщение.",
+            modal_other_title: "Другие сервисы", modal_other_desc: "Свяжитесь с нами через другие платформы, такие как X (Twitter), Instagram или Discord.",
+            modal_btn_select: "Выбрать платформу"
             desc_web: "Проверьте детали ошибки на специальной странице."
         }
     };
@@ -681,6 +797,34 @@ if (btnOther) {
         window.location.href = "support-link.html";
     });
 }
+const contactTriggerBtn = document.querySelector('a[href^="mailto:"]'); // 既存のメールリンクを取得
+const rockstarModal = document.getElementById('rockstarModal');
+    
+    if (contactTriggerBtn && rockstarModal) {
+        // デフォルトのリンク動作を無効化してモーダルを開く
+        contactTriggerBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            rockstarModal.style.display = 'flex';
+        });
+
+        document.getElementById('btnCloseRockstar').addEventListener('click', () => {
+            rockstarModal.style.display = 'none';
+        });
+
+        // 外側クリックで閉じる
+        rockstarModal.addEventListener('click', (e) => {
+            if(e.target === rockstarModal) rockstarModal.style.display = 'none';
+        });
+
+        document.getElementById('btnRockstarMail').addEventListener('click', () => {
+            window.location.href = "mailto:your-email@example.com?subject=サポートへの問い合わせ";
+            rockstarModal.style.display = 'none';
+        });
+
+        document.getElementById('btnRockstarOther').addEventListener('click', () => {
+            window.location.href = "Support-link.html";
+        });
+    }
 </script>
 </body>
 </html>
