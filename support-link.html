@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>kiryu11 Pro//Support-link</title>
+<title>kiryu11 Pro//Other Services</title>
 <link rel="icon" type="image/svg+xml" href="./kiryu11.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
@@ -30,6 +30,7 @@
   --sidebar-item-hover: rgba(0,0,0,0.05);
   --spring-ease: cubic-bezier(0.33, 1, 0.68, 1);
   --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
+  --danger: #E6002F;
 }
 
 :root:lang(ja) { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
@@ -224,7 +225,6 @@ button, input, textarea, a { font-family: var(--font-stack); }
     flex-direction: column;
 }
 
-/* 改修：左上固定配置用スタイル */
 .page-title-area {
     text-align: left;
     margin-bottom: 40px;
@@ -336,7 +336,7 @@ button, input, textarea, a { font-family: var(--font-stack); }
     font-weight: 700;
 }
 
-/* CUSTOM MODAL FOR INSTAGRAM BLACKLIST AUTH (Matching Original Theme) */
+/* INSTAGRAM BLACKLIST AUTH MODAL */
 .auth-modal-overlay {
     display: none;
     position: fixed;
@@ -358,6 +358,7 @@ button, input, textarea, a { font-family: var(--font-stack); }
     box-shadow: 0 20px 50px rgba(0,0,0,0.3);
     animation: popIn 0.3s var(--spring-ease);
     text-align: center;
+    position: relative;
 }
 .auth-modal-title { font-size: 20px; font-weight: 800; margin: 0 0 10px 0; }
 .auth-modal-desc { font-size: 13px; opacity: 0.6; margin: 0 0 24px 0; line-height: 1.5; font-weight: 500; }
@@ -374,9 +375,96 @@ button, input, textarea, a { font-family: var(--font-stack); }
     text-align: center;
 }
 .auth-modal-input:focus { border-color: var(--primary); }
-.auth-modal-btn-submit { width: 100%; padding: 14px; background: var(--primary); color: #fff; border: none; border-radius: 50px; font-size: 15px; font-weight: 800; cursor: pointer; transition: opacity 0.2s; }
+
+/* LOADING SPINNER EMBEDDED BUTTON */
+.auth-modal-btn-submit { 
+    width: 100%; height: 48px; background: var(--primary); color: #fff; 
+    border: none; border-radius: 50px; font-size: 15px; font-weight: 800; 
+    cursor: pointer; transition: opacity 0.2s; 
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+}
 .auth-modal-btn-submit:hover { opacity: 0.9; }
+.auth-modal-btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 .auth-modal-btn-cancel { background: transparent; border: none; color: var(--modal-text-sub); cursor: pointer; font-size: 13px; font-weight: 500; text-decoration: underline; margin-top: 16px; }
+
+/* LOADING SPINNER STYLE */
+.spinner {
+    display: none;
+    width: 20px; height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* DARING BANNED BLOCK OVERLAY (Rockstar/Xbox Danger-style System Block) */
+.banned-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(15px);
+    z-index: 30000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.4s ease;
+}
+.banned-modal-content {
+    background: #000000;
+    border: 2px solid var(--danger);
+    border-radius: 28px;
+    padding: 48px 32px;
+    width: 100%;
+    max-width: 550px;
+    box-shadow: 0 0 50px rgba(230, 0, 47, 0.3);
+    text-align: center;
+    animation: popIn 0.3s cubic-bezier(0.32, 1.25, 0.375, 1.15);
+}
+.banned-icon-area {
+    color: var(--danger);
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: center;
+    animation: pulseDanger 2s infinite;
+}
+.banned-modal-title {
+    color: #FFFFFF;
+    font-size: 26px;
+    font-weight: 900;
+    margin: 0 0 16px 0;
+    letter-spacing: 1px;
+}
+.banned-modal-desc {
+    color: #E0E0E0;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0 0 32px 0;
+    font-weight: 500;
+}
+.banned-modal-btn-close {
+    padding: 14px 40px;
+    background: var(--danger);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 50px;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.2s;
+    box-shadow: 0 4px 15px rgba(230, 0, 47, 0.4);
+}
+.banned-modal-btn-close:hover {
+    background: #ff1a4a;
+    transform: scale(1.05);
+}
+
+@keyframes pulseDanger {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
 
 /* RESPONSIVE DESIGN */
 .mobile-menu-trigger { display: none; }
@@ -421,6 +509,7 @@ button, input, textarea, a { font-family: var(--font-stack); }
 
 @keyframes popIn { 0% { opacity: 0; transform: scale(0.95) translateY(10px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
 @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* Spotlight effect */
 .spotlight-hover { position: relative; overflow: hidden; }
@@ -519,9 +608,6 @@ button, input, textarea, a { font-family: var(--font-stack); }
         </nav>
 
         <div class="support-content">
-            <!-- 戻るボタンエリアを削除 -->
-            
-            <!-- 改修：左上固定になったタイトルエリア -->
             <div class="page-title-area">
                 <h1 class="page-title" data-translate="link_page_title">Other Services</h1>
                 <div class="page-sub" data-translate="link_page_sub">その他のサポート・連携サービス一覧</div>
@@ -541,8 +627,25 @@ button, input, textarea, a { font-family: var(--font-stack); }
         <h3 class="auth-modal-title" data-translate="ig_modal_title">Instagram認証</h3>
         <p class="auth-modal-desc" data-translate="ig_modal_desc">お問い合わせを続けるには、ご自身のInstagramユーザー名を入力してください。</p>
         <input type="text" id="igUsername" class="auth-modal-input" placeholder="username">
-        <button id="igSubmitBtn" class="auth-modal-btn-submit" data-translate="ig_modal_btn">認証して進む</button>
+        
+        <button id="igSubmitBtn" class="auth-modal-btn-submit">
+            <span class="spinner" id="btnSpinner"></span>
+            <span id="btnText" data-translate="ig_modal_btn">認証して進む</span>
+        </button>
+        
         <button id="igCancelBtn" class="auth-modal-btn-cancel" data-translate="btn_cancel">キャンセル</button>
+    </div>
+</div>
+
+<!-- DARING BANNED BLOCK OVERLAY (自作禁止モーダル) -->
+<div class="banned-modal-overlay" id="bannedModal">
+    <div class="banned-modal-content">
+        <div class="banned-icon-area">
+            <i data-lucide="shield-alert" style="width: 72px; height: 72px;"></i>
+        </div>
+        <h2 class="banned-modal-title" data-translate="err_banned_title">ACCESS DENIED</h2>
+        <p class="banned-modal-desc" data-translate="err_banned_desc">セキュリティ・システムにより、このアカウントからのアクセスは完全に制限されています。管理者に問い合わせてください。</p>
+        <button class="banned-modal-btn-close" id="btnBannedClose" data-translate="btn_close">CLOSE</button>
     </div>
 </div>
 
@@ -565,48 +668,54 @@ button, input, textarea, a { font-family: var(--font-stack); }
             link_page_title: "その他のサービス", link_page_sub: "その他のサポート・連携サービス一覧", 
             loading: "読み込み中...",
             ig_modal_title: "Instagram認証", ig_modal_desc: "お問い合わせを続けるには、ご自身のInstagramユーザー名（@なし）を入力してください。",
-            ig_modal_btn: "認証して進む", btn_cancel: "キャンセル", status_verifying: "認証中...",
-            err_no_name: "ユーザー名を入力してください", err_comm: "通信エラーが発生しました", err_banned: "このアカウントからのアクセスは制限されています。"
+            ig_modal_btn: "認証して進む", btn_cancel: "キャンセル", btn_close: "閉じる",
+            err_banned_title: "アクセス制限", err_banned_desc: "セキュリティ・システムにより、このアカウントからのアクセスは完全に制限されています。管理者に問い合わせてください。",
+            err_no_name: "ユーザー名を入力してください", err_comm: "通信エラーが発生しました"
         },
         en: { 
             brand_name: "kiryu11 Pro", tab_home: "Home", tab_support: "Support",
             link_page_title: "Other Services", link_page_sub: "List of other support and linked services", 
             loading: "Loading...",
             ig_modal_title: "Instagram Authentication", ig_modal_desc: "Please enter your Instagram username (without @) to continue.",
-            ig_modal_btn: "Verify & Continue", btn_cancel: "Cancel", status_verifying: "Verifying...",
-            err_no_name: "Please enter a username", err_comm: "Communication error occurred", err_banned: "Access from this account is restricted."
+            ig_modal_btn: "Verify & Continue", btn_cancel: "Cancel", btn_close: "Close",
+            err_banned_title: "ACCESS DENIED", err_banned_desc: "Access from this account is strictly restricted by the security system. Please contact the administrator.",
+            err_no_name: "Please enter a username", err_comm: "Communication error occurred"
         },
         zh: { 
             brand_name: "kiryu11 Pro", tab_home: "首页", tab_support: "支持",
             link_page_title: "其他服务", link_page_sub: "其他支持和链接服务列表", 
             loading: "加载中...",
             ig_modal_title: "Instagram 认证", ig_modal_desc: "请输入您的 Instagram 用户名（不带 @）以继续。",
-            ig_modal_btn: "验证并继续", btn_cancel: "取消", status_verifying: "验证中...",
-            err_no_name: "请输入用户名", err_comm: "发生通信错误", err_banned: "该账号的访问受到限制。"
+            ig_modal_btn: "验证并继续", btn_cancel: "取消", btn_close: "关闭",
+            err_banned_title: "拒绝访问", err_banned_desc: "由于安全系统的限制，完全禁止从此账号访问。请联系管理员。",
+            err_no_name: "请输入用户名", err_comm: "发生通信错误"
         },
         "zh-TW": { 
             brand_name: "kiryu11 Pro", tab_home: "首頁", tab_support: "支援",
             link_page_title: "其他服務", link_page_sub: "其他支援和連結服務列表", 
             loading: "載入中...",
             ig_modal_title: "Instagram 認證", ig_modal_desc: "請輸入您的 Instagram 使用者名稱（不帶 @）以繼續。",
-            ig_modal_btn: "驗證並繼續", btn_cancel: "取消", status_verifying: "驗證中...",
-            err_no_name: "請輸入使用者名稱", err_comm: "發生通訊錯誤", err_banned: "該帳號的存取受到限制。"
+            ig_modal_btn: "驗證並繼續", btn_cancel: "取消", btn_close: "關閉",
+            err_banned_title: "拒絕存取", err_banned_desc: "由於安全系統的限制，完全禁止從此帳號存取。請聯絡管理員。",
+            err_no_name: "請輸入使用者名稱", err_comm: "發生通訊錯誤"
         },
         ko: { 
             brand_name: "kiryu11 Pro", tab_home: "홈", tab_support: "지원",
             link_page_title: "기타 서비스", link_page_sub: "기타 지원 및 연동 서비스 목록", 
             loading: "로딩 중...",
             ig_modal_title: "Instagram 인증", ig_modal_desc: "계속하려면 Instagram 사용자 이름(@ 제외)을 입력하세요.",
-            ig_modal_btn: "인증 및 계속", btn_cancel: "취소", status_verifying: "인증 중...",
-            err_no_name: "사용자 이름을 입력하세요", err_comm: "통신 오류가 발생했습니다", err_banned: "이 계정의 접근이 제한되었습니다."
+            ig_modal_btn: "인증 및 계속", btn_cancel: "취소", btn_close: "닫기",
+            err_banned_title: "접근 거부", err_banned_desc: "보안 시스템에 의해 이 계정에서의 접근이 완전히 제한되었습니다. 관리자에게 문의하세요.",
+            err_no_name: "사용자 이름을 입력하세요", err_comm: "통신 오류가 발생했습니다"
         },
         ru: { 
             brand_name: "kiryu11 Pro", tab_home: "Главная", tab_support: "Поддержка",
             link_page_title: "Другие сервисы", link_page_sub: "Список других сервисов поддержки и интеграций", 
             loading: "Загрузка...",
             ig_modal_title: "Аутентификация Instagram", ig_modal_desc: "Введите имя пользователя Instagram (без @) для продолжения.",
-            ig_modal_btn: "Подтвердить", btn_cancel: "Отмена", status_verifying: "Проверка...",
-            err_no_name: "Введите имя пользователя", err_comm: "Ошибка связи", err_banned: "Доступ с этого аккаунта ограничен."
+            ig_modal_btn: "Подтвердить", btn_cancel: "Отмена", btn_close: "Закрыть",
+            err_banned_title: "ДОСТУП ОГРАНИЧЕН", err_banned_desc: "Доступ с этого аккаунта полностью заблокирован системой безопасности. Пожалуйста, свяжитесь с администратором.",
+            err_no_name: "Введите имя пользователя", err_comm: "Ошибка связи"
         }
     };
 
@@ -818,11 +927,21 @@ button, input, textarea, a { font-family: var(--font-stack); }
         const igSubmitBtn = document.getElementById('igSubmitBtn');
         const igAuthModal = document.getElementById('igAuthModal');
         const igUsernameInput = document.getElementById('igUsername');
+        const btnSpinner = document.getElementById('btnSpinner');
+        const btnText = document.getElementById('btnText');
+        const bannedModal = document.getElementById('bannedModal');
+        const btnBannedClose = document.getElementById('btnBannedClose');
 
         if (igCancelBtn) {
             igCancelBtn.addEventListener('click', () => {
                 igAuthModal.style.display = 'none';
                 igUsernameInput.value = '';
+            });
+        }
+        
+        if (btnBannedClose) {
+            btnBannedClose.addEventListener('click', () => {
+                bannedModal.style.display = 'none';
             });
         }
 
@@ -836,8 +955,9 @@ button, input, textarea, a { font-family: var(--font-stack); }
                     return;
                 }
 
-                const originalText = igSubmitBtn.textContent;
-                igSubmitBtn.textContent = t.status_verifying;
+                // 改修：確認中...をCSSローディングスピナーに変更
+                btnSpinner.style.display = 'block';
+                btnText.style.display = 'none';
                 igSubmitBtn.disabled = true;
 
                 try {
@@ -851,8 +971,10 @@ button, input, textarea, a { font-family: var(--font-stack); }
                         })
                     });
                     
+                    // 改修：403(拒否)の時は自作禁止モーダル（bannedModal）を大胆に表示
                     if (res.status === 403) {
-                        alert(t.err_banned);
+                        igAuthModal.style.display = 'none';
+                        bannedModal.style.display = 'flex';
                         return;
                     }
 
@@ -860,14 +982,15 @@ button, input, textarea, a { font-family: var(--font-stack); }
                     if (data.success) {
                         window.location.href = data.redirectUrl;
                     } else {
-                        alert(data.message || t.err_banned);
+                        igAuthModal.style.display = 'none';
+                        bannedModal.style.display = 'flex';
                     }
                 } catch (err) {
                     alert(t.err_comm);
                 } finally {
-                    igSubmitBtn.textContent = originalText;
+                    btnSpinner.style.display = 'none';
+                    btnText.style.display = 'block';
                     igSubmitBtn.disabled = false;
-                    igAuthModal.style.display = 'none';
                     igUsernameInput.value = '';
                 }
             });
