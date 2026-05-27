@@ -505,18 +505,6 @@ button, input, textarea, a { font-family: var(--font-stack); }
     </main>
 
 </div>
-<div id="contactChoiceModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 10000; align-items: center; justify-content: center;">
-    <div style="background: var(--card-bg); padding: 30px; border-radius: 16px; border: 1px solid rgba(128,128,128,0.2); max-width: 400px; width: 90%; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
-        <h3 style="margin-top: 0; margin-bottom: 24px; font-size: 20px;">お問い合わせ方法の選択</h3>
-        <button id="btnMail" style="width: 100%; padding: 14px; margin-bottom: 12px; border-radius: 8px; border: none; background: #007DFF; color: white; font-weight: bold; cursor: pointer; font-size: 16px;">
-            メールで問い合わせますか？
-        </button>
-        <button id="btnOther" style="width: 100%; padding: 14px; margin-bottom: 24px; border-radius: 8px; border: 1px solid rgba(128,128,128,0.5); background: transparent; color: var(--modal-text-main); font-weight: bold; cursor: pointer; font-size: 16px;">
-            ほかのサービスを使用しますか？
-        </button>
-        <button id="btnCancelModal" style="background: transparent; border: none; color: var(--modal-text-sub); cursor: pointer; text-decoration: underline;">キャンセル</button>
-    </div>
-</div>
 <div class="rockstar-modal-overlay" id="rockstarModal">
     <div class="rockstar-modal-content">
         <div class="rockstar-modal-header">
@@ -821,7 +809,7 @@ const rockstarModal = document.getElementById('rockstarModal');
         });
 
         document.getElementById('btnRockstarOther').addEventListener('click', () => {
-            window.location.href = "Support-link.html";
+            window.location.href = "support-link.html";
         });
     }
 </script>
