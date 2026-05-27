@@ -1,3 +1,20 @@
 {
-  "cleanUrls": true
+  "rewrites": [
+    {
+      "source": "/Access",
+      "destination": "/Access.html"
+    },
+    {
+      "source": "/support",
+      "destination": "/support.html"
+    },
+    {
+      "source": "/terms-of-service",
+      "destination": "/terms-of-service.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/$1.html"
+    }
+  ]
 }
