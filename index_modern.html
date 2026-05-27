@@ -1709,9 +1709,10 @@ body{display:block; overflow:hidden;}
           </div>
           <div class="panel-body">
             <div class="rgl-menu-section" id="secAvailable" style="display: block;">
-                <div class="rgl-menu-title" data-translate="label_available">利用可能</div>
-                <div id="sidebarAvailableList" class="rgl-sidebar-list"><div style="padding:10px; opacity:0.5; font-size:12px;">-</div></div>
-            <div class="rgl-menu-section" id="secLibrary" style="display:none;">
+    <div class="rgl-menu-title">利用可能</div>
+    <div id="sidebarAvailableList" class="rgl-sidebar-list">...</div>
+</div>  <!-- secAvailable を閉じる -->
+<div class="rgl-menu-section" id="secLibrary" style="display:none;">
                 <div class="rgl-menu-title" data-translate="label_library">ライブラリ</div>
                 <div id="sidebarLibraryList" class="rgl-sidebar-list"><div style="padding:10px; opacity:0.5; font-size:12px;">Loading...</div></div>
           </div>
@@ -4250,125 +4251,6 @@ async function fetchUserHistory() {
         type: 'get_history',
         lang: CURRENT_LANG,
         app_tier: 'enterprise'
-    });
-    
-    if (data.success && Array.isArray(data.history)) {
-      currentUser.history = data.history; 
-      currentUser.points = data.points || 0;
-      updateAccountUI();
-      
-      if (currentUser.history.length > 0 && !selectedHeroItem) {
-            updateHeroView(currentUser.history[0], true);
-            setTimeout(() => {
-                const firstItem = els.libraryListSidebar.querySelector('.sidebar-game-item');
-                if (firstItem) {
-                    document.querySelectorAll('.sidebar-game-item').forEach(el => el.classList.remove('active'));
-                    firstItem.classList.add('active');
-                }
-            }, 50);
-      }
-    } 
-  } catch (e) { 
-      console.error("History Fetch Error:", e);
-      updateAccountUI(); 
-  } finally {
-      fetchAvailableContent();
-  }
-}
-async function fetchAvailableContent() {
-    const list = els.availableListSidebar;
-    const t = TRANSLATIONS[CURRENT_LANG];
-    
-    list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">Loading...</div>`;
-    const mobileList = gId('mobileStoreGrid');
-
-    try {
-        const d = await safeFetch({
-            type: 'get_available',
-            lang: CURRENT_LANG
-        });
-        
-        list.innerHTML = '';
-        if (mobileList) mobileList.innerHTML = '';
-        
-        const ownedGroups = new Set(); const ownedCodes = new Set(); const ownedTitles = new Set();
-        let hasMobileItems = false;
-        let hasItems = false; 
-        
-        if (currentUser && currentUser.history) {
-            currentUser.history.forEach(h => {
-                if (h.groupId) ownedGroups.add(h.groupId); 
-                if (h.code) ownedCodes.add(h.code);
-                if (h.title) ownedTitles.add(h.title);         
-                
-                renderMobileStoreItem(h, ownedGroups, ownedCodes, ownedTitles);
-                hasMobileItems = true;
-            });
-        }
-
-        if(d.success && d.items && d.items.length > 0) {
-            d.items.forEach((item, index) => {
-                const isOwned = (item.groupId && ownedGroups.has(item.groupId)) || (!item.groupId && ownedCodes.has(item.code)) || (item.title && ownedTitles.has(item.title));
-                
-                if (!isOwned) {
-                    renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles);
-                    hasMobileItems = true;
-                }
-
-                if (isOwned) return; 
-                
-                hasItems = true;
-                const div = document.createElement('div');
-                div.className = 'sidebar-game-item';
-                div.setAttribute('data-code', item.code);
-                if(item.groupId) div.setAttribute('data-group-id', item.groupId);
-                if(item.title) div.setAttribute('data-title', item.title);
-                
-                div.onclick = () => {
-                    document.querySelectorAll('.sidebar-game-item').forEach(el => el.classList.remove('active'));
-                    div.classList.add('active');
-                    updateHeroView(item, false); 
-                };
-                
-                div.innerHTML = `<div class="sidebar-game-info"><img src="${escapeHTML(item.imageUrl)}" class="sidebar-game-thumb"><div class="sidebar-game-text"><div class="sidebar-game-title">${escapeHTML(item.message || item.title)}</div></div></div>`;
-                list.appendChild(div);
-                
-                if (!selectedHeroItem && !document.querySelector('.sidebar-game-item.active') && (!currentUser || !currentUser.history.length)) {
-                    updateHeroView(item, false);
-                    div.classList.add('active');
-                }
-            });
-        } 
-        
-        const totalItems = (currentUser && currentUser.history ? currentUser.history.length : 0) + (hasItems ? 1 : 0); // ← 途切れていた閉じカッコ
-        if (totalItems === 0) {
-            resetHeroToDefault();
-        }
-
-        if (!hasItems) {
-             list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">${t.msg_empty_lib || "No content"}</div>`;
-        }
-        
-        if (!hasMobileItems && mobileList) {
-             mobileList.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px; grid-column: 1 / -1; text-align:center;">${t.msg_empty_lib || "No content"}</div>`;
-        }
-    } catch(e) {
-        console.error("Fetch Error:", e);
-        list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">-</div>`;
-        if (mobileList) mobileList.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px; grid-column: 1 / -1; text-align:center;">-</div>`;
-    }
-}
-
-async function fetchUserHistory() {
-  if (!currentUser) {
-      fetchAvailableContent();
-      return;
-  }
-  els.libraryListSidebar.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">Loading...</div>`;
-  try { 
-    const data = await safeFetch({
-        type: 'get_history',
-        lang: CURRENT_LANG
     });
     
     if (data.success && Array.isArray(data.history)) {
