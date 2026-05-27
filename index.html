@@ -2176,7 +2176,7 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.removeItem('user_session_identity');
     
     // パラメーター（?code=XXXX など）があれば引き継いでログイン画面へ
-    let redirectUrl = 'Access';
+    let redirectUrl = 'Access.html';
     if (window.location.search) {
         redirectUrl += window.location.search;
     }
@@ -2831,7 +2831,7 @@ function logout() {
   
   // 削除が確実に反映されるように少しだけ遅延させて遷移（パラメータ付き）
   setTimeout(() => {
-      window.location.replace('Access?logout=true');
+      window.location.replace('Access.html?logout=true');
   }, 50);
 }
 
