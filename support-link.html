@@ -3,104 +3,512 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Other Services // Support</title>
+<title>kiryu11 Pro//Other Services</title>
 <link rel="icon" type="image/svg+xml" href="./kiryu11.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
-/* --- support.htmlと共通のCSS設定 --- */
+@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Medium.woff') format('woff'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Medium.woff') format('woff'); font-weight: 400; font-style: normal; }
 :root {
-  --primary: #007DFF; --bg-color: #F1F3F5; --card-bg: rgba(255, 255, 255, 0.8);
-  --modal-text-main: #000000; --modal-text-sub: #666666;
-  --sidebar-bg: #E0E0E0; --sidebar-text: #000; --sidebar-width: 340px;
-  --font-stack: 'Noto Sans JP', sans-serif;
+  --primary: #007DFF;
+  --bg-color: #F1F3F5;
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --modal-text-main: #000000;
+  --modal-text-sub: #666666;
+  --btn-close-border: #000000;
+  --nav-text: #000;
+  --sidebar-bg: #E0E0E0;
+  --sidebar-text: #000;
+  --sidebar-width: 340px;
+  --sidebar-item-hover: rgba(0,0,0,0.05);
+  --spring-ease: cubic-bezier(0.33, 1, 0.68, 1);
+  --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
 }
+
+:root:lang(ja) { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
+:root:lang(en) { --font-stack: 'HarmonyOS Sans', sans-serif; }
+:root:lang(zh) { --font-stack: 'HarmonyOS Sans SC', 'Microsoft YaHei', sans-serif; }
+:root:lang(zh-TW) { --font-stack: 'HarmonyOS Sans TC', 'Microsoft JhengHei', sans-serif; }
+:root:lang(ko) { --font-stack: 'HarmonyOS Sans', 'Noto Sans KR', sans-serif; }
+:root:lang(ru) { --font-stack: 'HarmonyOS Sans', sans-serif; }
+
 [data-theme="dark"] {
-  --bg-color: #121212; --card-bg: #1C1C1E; --modal-text-main: #FFFFFF; --modal-text-sub: #A0A0A0;
-  --sidebar-bg: #000000; --sidebar-text: #fff;
+  --bg-color: #121212;
+  --card-bg: #1C1C1E;
+  --modal-text-main: #FFFFFF;
+  --modal-text-sub: #A0A0A0;
+  --btn-close-border: #FFFFFF;
+  --nav-text: #fff;
+  --sidebar-bg: #000000;
+  --sidebar-text: #fff;
+  --sidebar-item-hover: rgba(255,255,255,0.1);
 }
-body { margin: 0; padding: 0; background-color: var(--bg-color); color: var(--modal-text-main); font-family: var(--font-stack); height: 100vh; display: flex; transition: background-color 0.5s ease; overflow: hidden;}
-*, *::before, *::after { box-sizing: border-box; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(128, 128, 128, 0.2); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(128, 128, 128, 0.4); }
+[data-theme="dark"] ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); }
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
 
-.rgl-wrapper { display: flex; width: 100%; height: 100%; z-index: 5; position: relative; }
-.rgl-sidebar { width: var(--sidebar-width); background-color: var(--sidebar-bg); display: flex; flex-direction: column; border-right: 1px solid rgba(128,128,128,0.1); color: var(--sidebar-text); z-index: 100;}
-.rgl-brand-area { padding: 30px 24px 20px 24px; }
-.rgl-brand { font-weight: 800; font-size: 20px; display: flex; align-items: center; gap: 12px; }
-.capsule-menu { display: flex; background: rgba(128, 128, 128, 0.1); border-radius: 50px; padding: 6px; margin: 0 24px 20px 24px; gap: 4px; }
-.capsule-menu .rgl-tab { flex: 1; text-align: center; padding: 10px 0; border-radius: 50px; font-size: 13px; font-weight: 800; color: var(--sidebar-text); opacity: 0.6; text-decoration: none; transition: all 0.3s ease; }
-.capsule-menu .rgl-tab.active { opacity: 1; background: var(--card-bg); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-[data-theme="dark"] .capsule-menu .rgl-tab.active { background: rgba(255,255,255,0.15); }
-.rgl-scroll-content { flex: 1; overflow-y: auto; }
-.rgl-bottom-controls { padding: 20px 24px; border-top: 1px solid rgba(128,128,128,0.1); }
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-.lang-trigger-sidebar { width: 100%; height: 40px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; cursor: pointer; font-size: 14px; font-weight: 700; color: var(--sidebar-text); border-radius: 50px; background: transparent; border: 1px solid transparent; }
-.lang-list { position: absolute; bottom: 80px; left: 24px; width: 200px; background: var(--card-bg); backdrop-filter: blur(20px); padding: 5px; border-radius: 12px; list-style: none; display: none; z-index: 200; margin: 0; }
-.lang-list.open { display: block; }
-.lang-list li { padding: 10px 15px; cursor: pointer; border-radius: 8px; color: var(--modal-text-main); font-size: 13px; }
+body {
+  margin: 0; padding: 0;
+  background-color: var(--bg-color);
+  color: var(--modal-text-main);
+  font-family: var(--font-stack);
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden; 
+  display: flex; 
+  transition: background-color 0.5s ease;
+}
 
-.rgl-main { flex: 1; position: relative; display: flex; flex-direction: column; overflow-y: auto; }
-.rgl-header { position: sticky; top: 0; z-index: 50; padding: 24px 40px; display: flex; justify-content: space-between; align-items: center; }
-.back-nav { display: flex; align-items: center; gap: 8px; color: var(--modal-text-main); text-decoration: none; font-weight: bold; font-size: 14px; opacity: 0.7; transition: opacity 0.2s; }
-.back-nav:hover { opacity: 1; }
+button, input, textarea, a { font-family: var(--font-stack); }
 
-.theme-pill { width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid rgba(128,128,128,0.2); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--modal-text-main); }
+#particleCanvas {
+  position: fixed; inset: 0; width: 100%; height: 100%;
+  z-index: 0; opacity: 0.4; pointer-events: none;
+  filter: blur(80px);
+}
+.rgl-wrapper {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  position: relative;
+}
+.rgl-sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--sidebar-bg);
+  display: flex;
+  flex-direction: column; 
+  padding: 0; 
+  flex-shrink: 0;
+  border-right: 1px solid rgba(128,128,128,0.1);
+  color: var(--sidebar-text);
+  z-index: 100;
+  overflow: hidden; 
+}
 
-/* Spotlight hover */
+.rgl-brand-area {
+  padding: 30px 24px 20px 24px;
+  flex-shrink: 0;
+}
+.rgl-brand {
+  font-family: var(--font-stack);
+  font-weight: 800;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--sidebar-text);
+  white-space: nowrap;
+}
+.rgl-brand svg { color: #e6002f; }
+
+.capsule-menu {
+    display: flex;
+    background: rgba(128, 128, 128, 0.1);
+    border-radius: 50px;
+    padding: 6px !important;
+    margin: 0 24px 20px 24px;
+    gap: 4px;
+    border: none !important;
+}
+.capsule-menu .rgl-tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px 0;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--sidebar-text);
+    opacity: 0.6;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+.capsule-menu .rgl-tab.active {
+    opacity: 1;
+    background: var(--card-bg);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+[data-theme="dark"] .capsule-menu .rgl-tab.active {
+    background: rgba(255,255,255,0.15);
+}
+
+.rgl-scroll-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 24px;
+}
+
+/* Sidebar Bottom Controls */
+.rgl-bottom-controls {
+  margin-top: auto;
+  padding: 20px 24px 30px 24px;
+  flex-shrink: 0;
+  border-top: 1px solid rgba(128,128,128,0.1);
+}
+
+.lang-trigger-sidebar {
+    width: 100%;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px !important;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--sidebar-text);
+    border-radius: 50px !important;
+    background: transparent;
+    transition: all 0.2s ease;
+    font-family: var(--font-stack);
+    border: 1px solid transparent;
+}
+.lang-trigger-sidebar:hover { background: rgba(128, 128, 128, 0.15); }
+[data-theme="dark"] .lang-trigger-sidebar { border: 1px solid rgba(255, 255, 255, 0.6) !important; background: rgba(255, 255, 255, 0.05); }
+[data-theme="dark"] .lang-trigger-sidebar:hover { border-color: #fff !important; background: rgba(255, 255, 255, 0.15); }
+.lang-list { position: absolute; bottom: 80px; left: 24px; width: 200px; background: var(--card-bg); backdrop-filter: blur(20px); padding: 5px; border-radius: 12px; list-style: none; display: none; box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 200; border: 1px solid rgba(128,128,128,0.1); margin: 0; }
+.lang-list.open { display: block; animation: popIn 0.3s; }
+.lang-list li { padding: 10px 15px; cursor: pointer; border-radius: 8px; color: var(--modal-text-main); font-size: 13px; font-family: var(--font-stack); }
+.lang-list li:hover { background: rgba(128,128,128,0.1); }
+[data-theme="dark"] .lang-list li { color: #fff; }
+
+/* MAIN CONTENT AREA */
+.rgl-main {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background-color: var(--bg-color);
+}
+
+.rgl-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: 24px 40px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.theme-pill {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--card-bg); border: 1px solid rgba(128,128,128,0.2);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: transform 0.3s; backdrop-filter: blur(10px); 
+  color: var(--modal-text-main);
+}
+.theme-pill:hover { transform: scale(1.1); }
+[data-theme="dark"] .theme-pill { 
+  color: #fff; 
+}
+
+/* SUPPORT CONTENT */
+.support-content {
+    padding: 40px 60px 80px 60px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.page-title-area {
+    text-align: center;
+    margin-bottom: 40px;
+    margin-top: auto;
+    animation: fadeInUp 0.6s ease forwards;
+    flex-shrink: 0;
+}
+.page-title {
+    font-size: 36px;
+    font-weight: 800; margin: 0 0 8px 0;
+    text-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+.page-sub { opacity: 0.6; font-size: 14px; font-weight: 500; }
+
+/* BACK BUTTON & LINKS GRID DESIGN (Xbox/Rockstar Style Integration) */
+.back-btn-container {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto 20px auto;
+    text-align: left;
+    animation: fadeInUp 0.6s ease forwards;
+}
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card-bg);
+    border: 1px solid rgba(128,128,128,0.1);
+    padding: 10px 24px;
+    border-radius: 50px;
+    color: var(--modal-text-main);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 700;
+    transition: all 0.3s var(--spring-ease);
+    backdrop-filter: blur(10px);
+}
+.back-btn:hover {
+    background: rgba(128,128,128,0.15);
+    transform: translateX(-4px);
+}
+
+.links-grid {
+    display: grid;
+    width: 100%;
+    max-width: 1000px; 
+    margin: 0 auto auto auto;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+    gap: 30px;
+}
+
+.link-card {
+    background: var(--card-bg);
+    border: 3px solid transparent;
+    border-radius: 24px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    transition: all 0.3s var(--spring-ease);
+    backdrop-filter: blur(20px);
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    text-decoration: none;
+    color: var(--modal-text-main);
+}
+.link-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    border-color: var(--modal-text-main);
+    z-index: 10;
+}
+[data-theme="dark"] .link-card:hover { border-color: #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+
+.link-card-img-wrap {
+    width: 100%;
+    aspect-ratio: 16 / 12;
+    background: rgba(128, 128, 128, 0.1);
+    overflow: hidden;
+    position: relative;
+}
+.link-card-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s var(--spring-ease);
+}
+.link-card:hover .link-card-img-wrap img {
+    transform: scale(1.05);
+}
+.link-card-fallback-icon {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--modal-text-sub);
+}
+
+.link-card-info {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+.link-card-title {
+    font-size: 18px;
+    font-weight: 800;
+    margin: 0 0 6px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.link-card-desc {
+    font-size: 13px;
+    opacity: 0.6;
+    font-weight: 500;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.4;
+}
+.link-card-status {
+    margin-top: auto;
+    padding-top: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    opacity: 0.5;
+    font-weight: 700;
+}
+
+/* CUSTOM MODAL FOR INSTAGRAM BLACKLIST AUTH (Matching Original Theme) */
+.auth-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    z-index: 20000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.auth-modal-content {
+    background: var(--card-bg);
+    border: 1px solid rgba(128,128,128,0.2);
+    border-radius: 24px;
+    padding: 36px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    animation: popIn 0.3s var(--spring-ease);
+    text-align: center;
+}
+.auth-modal-title { font-size: 20px; font-weight: 800; margin: 0 0 10px 0; }
+.auth-modal-desc { font-size: 13px; opacity: 0.6; margin: 0 0 24px 0; line-height: 1.5; font-weight: 500; }
+.auth-modal-input {
+    width: 100%; padding: 14px 20px;
+    background: rgba(128, 128, 128, 0.08);
+    border: 1px solid rgba(128, 128, 128, 0.2);
+    border-radius: 50px;
+    color: var(--modal-text-main);
+    font-size: 15px;
+    font-family: var(--font-stack);
+    outline: none; margin-bottom: 20px;
+    transition: border-color 0.2s;
+    text-align: center;
+}
+.auth-modal-input:focus { border-color: var(--primary); }
+.auth-modal-btn-submit { width: 100%; padding: 14px; background: var(--primary); color: #fff; border: none; border-radius: 50px; font-size: 15px; font-weight: 800; cursor: pointer; transition: opacity 0.2s; }
+.auth-modal-btn-submit:hover { opacity: 0.9; }
+.auth-modal-btn-cancel { background: transparent; border: none; color: var(--modal-text-sub); cursor: pointer; font-size: 13px; font-weight: 500; text-decoration: underline; margin-top: 16px; }
+
+/* RESPONSIVE DESIGN */
+.mobile-menu-trigger { display: none; }
+.mobile-nav-overlay { display: none; }
+
+@media (max-width: 768px) {
+    .mobile-menu-trigger { display: flex; align-items: center; justify-content: center; background: transparent; border: none; color: var(--sidebar-text); cursor: pointer; padding: 8px; margin-right: 4px; }
+    .rgl-brand { order: 2; }
+    .mobile-menu-trigger { order: 1; }
+    
+    .mobile-nav-overlay { display: flex; flex-direction: column; position: fixed; inset: 0; background: var(--bg-color); z-index: 10001; padding: 40px; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); visibility: hidden; }
+    .mobile-nav-overlay.active { transform: translateX(0); visibility: visible; }
+    .mobile-menu-close { align-self: flex-end; background: transparent; border: 1px solid var(--btn-close-border); color: var(--modal-text-main); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 40px; }
+    .mobile-nav-content { display: flex; flex-direction: column; gap: 40px; flex: 1; }
+    .mobile-nav-item { font-family: var(--font-stack); font-size: 32px; font-weight: 800; color: var(--modal-text-main); text-decoration: none; text-align: left; opacity: 0; transform: translateX(-20px); transition: opacity 0.3s ease, transform 0.3s ease; }
+    .mobile-nav-overlay.active .mobile-nav-item { opacity: 1; transform: translateX(0); }
+    .mobile-nav-overlay.active .mobile-nav-item:nth-child(1) { transition-delay: 0.1s; }
+    .mobile-nav-overlay.active .mobile-nav-item:nth-child(2) { transition-delay: 0.2s; }
+    .mobile-menu-footer { margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(128,128,128,0.1); position: relative; }
+    
+    .rgl-wrapper { flex-direction: column; }
+    .rgl-sidebar { width: 100%; height: auto; padding: 0; border-right: none; border-bottom: 1px solid rgba(128,128,128,0.1); overflow: visible; position: relative; z-index: 100; background-color: var(--sidebar-bg); }
+    .rgl-brand-area { padding: 16px 12px; display: flex; align-items: center; justify-content: flex-start; gap: 8px; width: 100%; padding-right: 120px; }
+    
+    .rgl-scroll-content, .rgl-bottom-controls, .capsule-menu { display: none !important; } 
+    .rgl-main { position: static !important; }
+
+    .rgl-header { 
+        position: absolute !important; 
+        top: 0; right: 0; width: auto; height: 70px; 
+        background: transparent !important; padding: 0 16px; 
+        z-index: 200; display: flex !important; 
+        align-items: center; justify-content: flex-end; 
+        pointer-events: none; 
+    }
+    .rgl-header > * { pointer-events: auto; }
+    
+    .support-content { padding: 30px 20px; display: block; }
+    .links-grid { grid-template-columns: 1fr; gap: 20px; margin-top: 20px; }
+}
+
+@keyframes popIn { 0% { opacity: 0; transform: scale(0.95) translateY(10px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+@keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+/* Spotlight effect */
 .spotlight-hover { position: relative; overflow: hidden; }
 .spotlight-hover::before {
     content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
     background: radial-gradient(150px circle at var(--x, 50%) var(--y, 50%), rgba(255,255,255,0.15), transparent 40%);
-    z-index: 0; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+    z-index: 0; pointer-events: none; opacity: 0; transition: opacity 0.3s ease;
+}
+[data-theme="light"] .spotlight-hover::before {
+    background: radial-gradient(150px circle at var(--x, 50%) var(--y, 50%), rgba(0,0,0,0.08), transparent 40%);
 }
 .spotlight-hover:hover::before { opacity: 1; }
-
-/* リンク用グリッド */
-.support-content { padding: 20px 60px 80px 60px; }
-.page-title { font-size: 32px; font-weight: 800; margin: 0 0 8px 0; }
-.page-sub { opacity: 0.6; font-size: 14px; margin-bottom: 40px;}
-
-.links-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 24px; }
-.link-card {
-    background: var(--card-bg); border: 1px solid rgba(128,128,128,0.1);
-    border-radius: 16px; padding: 24px; text-decoration: none; color: var(--modal-text-main);
-    display: flex; flex-direction: column; align-items: center; text-align: center;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer;
-}
-.link-card:hover { transform: translateY(-4px); border-color: var(--primary); box-shadow: 0 10px 30px rgba(0,125,255,0.1); }
-.link-icon-wrap { width: 64px; height: 64px; border-radius: 50%; background: rgba(128,128,128,0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; overflow: hidden;}
-.link-icon-wrap img { width: 100%; height: 100%; object-fit: cover; }
-.link-card h3 { margin: 0 0 8px 0; font-size: 18px; }
-.link-card p { margin: 0; font-size: 13px; opacity: 0.6; }
-
-/* IG Auth Modal */
-.auth-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); z-index: 10000; align-items: center; justify-content: center; }
-.auth-box { background: var(--card-bg); padding: 30px; border-radius: 16px; width: 90%; max-width: 400px; border: 1px solid rgba(128,128,128,0.2); }
-.auth-input { width: 100%; padding: 12px; margin: 16px 0; background: rgba(128,128,128,0.1); border: 1px solid rgba(128,128,128,0.2); color: var(--modal-text-main); border-radius: 8px; font-size: 16px; }
-.auth-btn { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; }
-.auth-cancel { width: 100%; padding: 12px; background: transparent; color: var(--modal-text-sub); border: none; margin-top: 8px; cursor: pointer; }
-
-@media (max-width: 768px) {
-    .rgl-wrapper { flex-direction: column; }
-    .rgl-sidebar { width: 100%; border-right: none; border-bottom: 1px solid rgba(128,128,128,0.1); }
-    .rgl-scroll-content, .rgl-bottom-controls, .capsule-menu { display: none; }
-    .support-content { padding: 20px; }
-}
+.spotlight-hover > * { position: relative; z-index: 1; }
 </style>
 </head>
 <body>
 
-<div class="rgl-wrapper">
-    <aside class="rgl-sidebar">
+<canvas id="particleCanvas" width="1125" height="605"></canvas>
+
+<div class="mobile-nav-overlay" id="mobileNav">
+    <button class="mobile-menu-close" id="mobileMenuCloseBtn">
+        <i data-lucide="x"></i>
+    </button>
+    <div class="mobile-nav-content">
+        <a href="index.html" class="mobile-nav-item" data-translate="tab_home">Home</a>
+        <a href="support.html" class="mobile-nav-item" data-translate="tab_support">Support</a>
+    </div>
+    <div class="mobile-menu-footer">
+         <div class="lang-trigger-sidebar" id="mobileLangTrigger">
+             <span style="display:flex;align-items:center;gap:8px;">
+                 <i data-lucide="globe" style="width: 16px; height: 16px;"></i> 
+                 <span id="mobileCurrentLangLabel">日本語</span>
+             </span>
+             <i data-lucide="chevron-up" style="width: 14px; height: 14px; opacity:0.5;"></i>
+         </div>
+         <ul class="lang-list" id="mobileLangMenu">
+            <li class="lang-option" data-value="ja">日本語</li>
+            <li class="lang-option" data-value="en">English</li>
+            <li class="lang-option" data-value="zh">简体中文</li>
+            <li class="lang-option" data-value="zh-TW">繁體中文</li>
+            <li class="lang-option" data-value="ko">한국어</li>
+            <li class="lang-option" data-value="ru">Русский</li>
+         </ul>
+    </div>
+</div>
+
+<div class="rgl-wrapper" id="mainContainer">
+    
+   <aside class="rgl-sidebar">
         <div class="rgl-brand-area">
-            <div class="rgl-brand"><i data-lucide="message-circle-warning"></i> <span data-translate="brand_name">kiryu11 Pro</span></div>
+            <button class="mobile-menu-trigger" id="mobileMenuBtn">
+                <i data-lucide="menu"></i>
+            </button>
+            <div class="rgl-brand">
+                <i data-lucide="message-circle-warning"></i>
+                <span data-translate="brand_name">kiryu11 Pro</span>
+            </div>
         </div>
+        
         <div class="sidebar-main-nav capsule-menu">
             <a href="index.html" class="rgl-tab spotlight-hover" data-translate="tab_home">Home</a>
             <a href="support.html" class="rgl-tab active spotlight-hover" data-translate="tab_support">Support</a>
         </div>
+
         <div class="rgl-scroll-content"></div>
+
         <div class="rgl-bottom-controls">
             <div style="position:relative;">
                  <button class="lang-trigger-sidebar" id="langTrigger">
@@ -119,84 +527,112 @@ body { margin: 0; padding: 0; background-color: var(--bg-color); color: var(--mo
                     <li class="lang-option" data-value="ru">Русский</li>
                  </ul>
             </div>
+            <div style="margin-top:20px; font-size:10px; opacity:0.3; text-align:center;">
+                © 2026 kiryu-sensya
+           </div>
         </div>
-    </aside>
+   </aside>
 
-    <main class="rgl-main">
+   <main class="rgl-main">
         <nav class="rgl-header">
-            <a href="support.html" class="back-nav"><i data-lucide="arrow-left"></i> <span data-translate="btn_back">戻る</span></a>
-            <div class="theme-pill" id="themeToggle"><i data-lucide="moon"></i></div>
+            <div class="theme-pill" id="themeToggle">
+                <i data-lucide="moon"></i>
+            </div>
         </nav>
 
         <div class="support-content">
-            <h1 class="page-title" data-translate="link_page_title">Other Services</h1>
-            <div class="page-sub" data-translate="link_page_sub">その他のサポート・連携サービス一覧</div>
+            <div class="back-btn-container">
+                <a href="support.html" class="back-btn">
+                    <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
+                    <span data-translate="btn_back">戻る</span>
+                </a>
+            </div>
+
+            <div class="page-title-area">
+                <h1 class="page-title" data-translate="link_page_title">Other Services</h1>
+                <div class="page-sub" data-translate="link_page_sub">その他のサポート・連携サービス一覧</div>
+            </div>
 
             <div class="links-grid" id="linksContainer">
-                <div style="opacity:0.6;" data-translate="loading">読み込み中...</div>
+                <div style="opacity: 0.5; text-align: center; width: 100%;" data-translate="loading">読み込み中...</div>
             </div>
         </div>
-    </main>
+   </main>
+
 </div>
 
-<div class="auth-modal" id="igAuthModal">
-    <div class="auth-box">
-        <h3 style="margin-top:0;" data-translate="ig_modal_title">Instagram認証</h3>
-        <p style="color: var(--modal-text-sub); font-size: 14px;" data-translate="ig_modal_desc">お問い合わせを続けるには、ご自身のInstagramユーザー名を入力してください。</p>
-        <input type="text" id="igUsername" class="auth-input" placeholder="username">
-        <button id="igSubmitBtn" class="auth-btn" data-translate="ig_modal_btn">認証して進む</button>
-        <button id="igCancelBtn" class="auth-cancel" data-translate="btn_cancel">キャンセル</button>
+<!-- Instagram Blacklist Auth Modal -->
+<div class="auth-modal-overlay" id="igAuthModal">
+    <div class="auth-modal-content">
+        <h3 class="auth-modal-title" data-translate="ig_modal_title">Instagram認証</h3>
+        <p class="auth-modal-desc" data-translate="ig_modal_desc">お問い合わせを続けるには、ご自身のInstagramユーザー名を入力してください。</p>
+        <input type="text" id="igUsername" class="auth-modal-input" placeholder="username">
+        <button id="igSubmitBtn" class="auth-modal-btn-submit" data-translate="ig_modal_btn">認証して進む</button>
+        <button id="igCancelBtn" class="auth-modal-btn-cancel" data-translate="btn_cancel">キャンセル</button>
     </div>
 </div>
 
 <script>
-    lucide.createIcons();
-
-    // Spotlight setup
-    document.addEventListener('mousemove', (e) => {
-        document.querySelectorAll('.spotlight-hover').forEach(el => {
-            const rect = el.getBoundingClientRect();
-            el.style.setProperty('--x', `${e.clientX - rect.left}px`);
-            el.style.setProperty('--y', `${e.clientY - rect.top}px`);
+    // Spotlight Effect Setup
+    const setupHoverEffects = () => {
+        const targets = document.querySelectorAll('.spotlight-hover');
+        targets.forEach(el => {
+            el.addEventListener('mousemove', (e) => {
+                const rect = el.getBoundingClientRect();
+                el.style.setProperty('--x', `${e.clientX - rect.left}px`);
+                el.style.setProperty('--y', `${e.clientY - rect.top}px`);
+            });
         });
-    });
+    };
 
     const TRANSLATIONS = {
         ja: { 
             brand_name: "kiryu11 Pro", tab_home: "ホーム", tab_support: "サポート",
-            btn_back: "サポートへ戻る", link_page_title: "その他のサービス", link_page_sub: "その他のサポート・連携サービス一覧",
-            loading: "読み込み中...", ig_modal_title: "Instagram認証", ig_modal_desc: "お問い合わせを続けるには、ご自身のInstagramユーザー名を入力してください。",
-            ig_modal_btn: "認証して進む", btn_cancel: "キャンセル", status_verifying: "認証中...", err_no_name: "ユーザー名を入力してください", err_comm: "通信エラーが発生しました"
+            link_page_title: "その他のサービス", link_page_sub: "その他のサポート・連携サービス一覧", 
+            btn_back: "戻る", loading: "読み込み中...",
+            ig_modal_title: "Instagram認証", ig_modal_desc: "お問い合わせを続けるには、ご自身のInstagramユーザー名（@なし）を入力してください。",
+            ig_modal_btn: "認証して進む", btn_cancel: "キャンセル", status_verifying: "認証中...",
+            err_no_name: "ユーザー名を入力してください", err_comm: "通信エラーが発生しました", err_banned: "このアカウントからのアクセスは制限されています。"
         },
         en: { 
             brand_name: "kiryu11 Pro", tab_home: "Home", tab_support: "Support",
-            btn_back: "Back to Support", link_page_title: "Other Services", link_page_sub: "List of other support and linked services",
-            loading: "Loading...", ig_modal_title: "Instagram Authentication", ig_modal_desc: "Please enter your Instagram username to continue.",
-            ig_modal_btn: "Verify & Continue", btn_cancel: "Cancel", status_verifying: "Verifying...", err_no_name: "Please enter a username", err_comm: "Communication error occurred"
+            link_page_title: "Other Services", link_page_sub: "List of other support and linked services", 
+            btn_back: "Back", loading: "Loading...",
+            ig_modal_title: "Instagram Authentication", ig_modal_desc: "Please enter your Instagram username (without @) to continue.",
+            ig_modal_btn: "Verify & Continue", btn_cancel: "Cancel", status_verifying: "Verifying...",
+            err_no_name: "Please enter a username", err_comm: "Communication error occurred", err_banned: "Access from this account is restricted."
         },
         zh: { 
             brand_name: "kiryu11 Pro", tab_home: "首页", tab_support: "支持",
-            btn_back: "返回支持", link_page_title: "其他服务", link_page_sub: "其他支持和链接服务列表",
-            loading: "加载中...", ig_modal_title: "Instagram 认证", ig_modal_desc: "请输入您的 Instagram 用户名以继续。",
-            ig_modal_btn: "验证并继续", btn_cancel: "取消", status_verifying: "验证中...", err_no_name: "请输入用户名", err_comm: "发生通信错误"
+            link_page_title: "其他服务", link_page_sub: "其他支持和链接服务列表", 
+            btn_back: "返回", loading: "加载中...",
+            ig_modal_title: "Instagram 认证", ig_modal_desc: "请输入您的 Instagram 用户名（不带 @）以继续。",
+            ig_modal_btn: "验证并继续", btn_cancel: "取消", status_verifying: "验证中...",
+            err_no_name: "请输入用户名", err_comm: "发生通信错误", err_banned: "该账号的访问受到限制。"
         },
         "zh-TW": { 
             brand_name: "kiryu11 Pro", tab_home: "首頁", tab_support: "支援",
-            btn_back: "返回支援", link_page_title: "其他服務", link_page_sub: "其他支援和連結服務列表",
-            loading: "載入中...", ig_modal_title: "Instagram 認證", ig_modal_desc: "請輸入您的 Instagram 使用者名稱以繼續。",
-            ig_modal_btn: "驗證並繼續", btn_cancel: "取消", status_verifying: "驗證中...", err_no_name: "請輸入使用者名稱", err_comm: "發生通訊錯誤"
+            link_page_title: "其他服務", link_page_sub: "其他支援和連結服務列表", 
+            btn_back: "返回", loading: "載入中...",
+            ig_modal_title: "Instagram 認證", ig_modal_desc: "請輸入您的 Instagram 使用者名稱（不帶 @）以繼續。",
+            ig_modal_btn: "驗證並繼續", btn_cancel: "取消", status_verifying: "驗證中...",
+            err_no_name: "請輸入使用者名稱", err_comm: "發生通訊錯誤", err_banned: "該帳號的存取受到限制。"
         },
         ko: { 
             brand_name: "kiryu11 Pro", tab_home: "홈", tab_support: "지원",
-            btn_back: "지원으로 돌아가기", link_page_title: "기타 서비스", link_page_sub: "기타 지원 및 연동 서비스 목록",
-            loading: "로딩 중...", ig_modal_title: "Instagram 인증", ig_modal_desc: "계속하려면 Instagram 사용자 이름을 입력하세요.",
-            ig_modal_btn: "인증 및 계속", btn_cancel: "취소", status_verifying: "인증 중...", err_no_name: "사용자 이름을 입력하세요", err_comm: "통신 오류가 발생했습니다"
+            link_page_title: "기타 서비스", link_page_sub: "기타 지원 및 연동 서비스 목록", 
+            btn_back: "돌아가기", loading: "로딩 중...",
+            ig_modal_title: "Instagram 인증", ig_modal_desc: "계속하려면 Instagram 사용자 이름(@ 제외)을 입력하세요.",
+            ig_modal_btn: "인증 및 계속", btn_cancel: "취소", status_verifying: "인증 중...",
+            err_no_name: "사용자 이름을 입력하세요", err_comm: "통신 오류가 발생했습니다", err_banned: "이 계정의 접근이 제한되었습니다."
         },
         ru: { 
             brand_name: "kiryu11 Pro", tab_home: "Главная", tab_support: "Поддержка",
-            btn_back: "Назад к поддержке", link_page_title: "Другие сервисы", link_page_sub: "Список других сервисов поддержки",
-            loading: "Загрузка...", ig_modal_title: "Аутентификация Instagram", ig_modal_desc: "Введите имя пользователя Instagram для продолжения.",
-            ig_modal_btn: "Подтвердить", btn_cancel: "Отмена", status_verifying: "Проверка...", err_no_name: "Введите имя пользователя", err_comm: "Ошибка связи"
+            link_page_title: "Другие сервисы", link_page_sub: "Список других сервисов поддержки и интеграций", 
+            btn_back: "Назад", loading: "Загрузка...",
+            ig_modal_title: "Аутентификация Instagram", ig_modal_desc: "Введите имя пользователя Instagram (без @) для продолжения.",
+            ig_modal_btn: "Подтвердить", btn_cancel: "Отмена", status_verifying: "Проверка...",
+            err_no_name: "Введите имя пользователя", err_comm: "Ошибка связи", err_banned: "Доступ с этого аккаунта ограничен."
         }
     };
 
@@ -206,394 +642,263 @@ body { margin: 0; padding: 0; background-color: var(--bg-color); color: var(--mo
         currentLang = lang;
         const t = TRANSLATIONS[lang] || TRANSLATIONS.ja;
         document.documentElement.lang = lang;
+        
         document.querySelectorAll('[data-translate]').forEach(el => {
             const key = el.getAttribute('data-translate');
             if(t[key]) el.textContent = t[key];
         });
+        
         const langMap = { ja: '日本語', en: 'English', zh: '简体中文', 'zh-TW': '繁體中文', ko: '한국어', ru: 'Русский' };
-        document.getElementById('currentLangLabel').textContent = langMap[lang] || 'Language';
+        const lbl = document.getElementById('currentLangLabel');
+        const mlbl = document.getElementById('mobileCurrentLangLabel');
+        if(lbl) lbl.textContent = langMap[lang] || 'Language';
+        if(mlbl) mlbl.textContent = langMap[lang] || 'Language';
+        
+        return t;
     }
 
-    // Initialize UI
-    setLanguage(currentLang);
-    const savedTheme = localStorage.getItem('user_theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    document.getElementById('themeToggle').innerHTML = savedTheme === 'light' ? '<i data-lucide="sun"></i>' : '<i data-lucide="moon"></i>';
-    lucide.createIcons();
+    document.addEventListener('DOMContentLoaded', () => {
+        try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+        setupHoverEffects();
+        setLanguage(currentLang);
+        
+        // Mobile Sidebar Controls
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileNav = document.getElementById('mobileNav');
+        const mobileMenuCloseBtn = document.getElementById('mobileMenuCloseBtn');
+        
+        if (mobileMenuBtn && mobileNav) {
+            mobileMenuBtn.addEventListener('click', () => mobileNav.classList.add('active'));
+        }
+        if (mobileMenuCloseBtn && mobileNav) {
+            mobileMenuCloseBtn.addEventListener('click', () => mobileNav.classList.remove('active'));
+        }
+        
+        const langTrigger = document.getElementById('langTrigger');
+        const langMenu = document.getElementById('langMenu');
+        if(langTrigger && langMenu) {
+            langTrigger.addEventListener('click', (e) => { 
+                e.stopPropagation(); 
+                langMenu.classList.toggle('open'); 
+            });
+        }
+        
+        const mobileLangTrigger = document.getElementById('mobileLangTrigger');
+        const mobileLangMenu = document.getElementById('mobileLangMenu');
+        if(mobileLangTrigger && mobileLangMenu) {
+            mobileLangTrigger.addEventListener('click', (e) => { 
+                e.stopPropagation(); 
+                mobileLangMenu.classList.toggle('open'); 
+            });
+        }
 
-    // Event Listeners for UI
-    document.getElementById('themeToggle').addEventListener('click', () => {
-        const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-        document.documentElement.setAttribute('data-theme', next);
-        localStorage.setItem('user_theme', next);
-        document.getElementById('themeToggle').innerHTML = next === 'light' ? '<i data-lucide="sun"></i>' : '<i data-lucide="moon"></i>';
-        lucide.createIcons();
-    });
-
-    document.getElementById('langTrigger').addEventListener('click', (e) => {
-        e.stopPropagation();
-        document.getElementById('langMenu').classList.toggle('open');
-    });
-
-    document.querySelectorAll('.lang-option').forEach(opt => {
-        opt.addEventListener('click', () => {
-            const val = opt.getAttribute('data-value');
-            localStorage.setItem('user_lang', val);
-            setLanguage(val);
-            document.getElementById('langMenu').classList.remove('open');
+        document.querySelectorAll('.lang-option').forEach(opt => {
+            opt.addEventListener('click', () => {
+                const val = opt.getAttribute('data-value');
+                localStorage.setItem('user_lang', val);
+                setLanguage(val);
+                if(langMenu) langMenu.classList.remove('open');
+                if(mobileLangMenu) mobileLangMenu.classList.remove('open');
+            });
         });
-    });
 
-    document.addEventListener('click', () => document.getElementById('langMenu').classList.remove('open'));
+        document.addEventListener('click', (e) => { 
+            if (langTrigger && langMenu && !langTrigger.contains(e.target)) langMenu.classList.remove('open'); 
+            if (mobileLangTrigger && mobileLangMenu && !mobileLangTrigger.contains(e.target)) mobileLangMenu.classList.remove('open');
+        });
 
-    // --- API & Functionality ---
-    const API_URL = '/api/proxy';
-    let currentTargetUrl = "";
+        // Background Animation Setup
+        const htmlEl = document.documentElement;
+        const themeToggle = document.getElementById('themeToggle');
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let particleHue = 210;
 
-    async function loadLinks() {
+        function initParticles(theme) {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            particleHue = theme === 'light' ? 210 : 220;
+            particles = [];
+            for(let i=0; i<8; i++) particles.push(new Particle());
+        }
+
+        class Particle {
+            constructor() { 
+                this.x = Math.random() * canvas.width; 
+                this.y = Math.random() * canvas.height; 
+                this.size = Math.random() * 150 + 50; 
+                this.speedX = Math.random() * 0.2 - 0.1; 
+                this.speedY = Math.random() * 0.2 - 0.1; 
+                this.opacity = Math.random() * 0.3 + 0.1; 
+            }
+            update() { 
+                this.x += this.speedX; this.y += this.speedY; 
+                if(this.x < 0 || this.x > canvas.width) this.speedX *= -1; 
+                if(this.y < 0 || this.y > canvas.height) this.speedY *= -1; 
+            }
+            draw() { 
+                ctx.fillStyle = `hsla(${particleHue}, 100%, 50%, ${this.opacity * 0.2})`; 
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill(); 
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
+        window.addEventListener('resize', () => { initParticles(htmlEl.getAttribute('data-theme')); });
+        animate();
+        
+        function applyTheme(theme) {
+            htmlEl.setAttribute('data-theme', theme);
+            if (themeToggle) {
+                themeToggle.innerHTML = theme === 'light' ? '<i data-lucide="sun"></i>' : '<i data-lucide="moon"></i>';
+                try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+            }
+            initParticles(theme);
+        }
+
+        const savedTheme = localStorage.getItem('user_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        applyTheme(savedTheme);
+
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const next = htmlEl.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+                applyTheme(next);
+                localStorage.setItem('user_theme', next);
+            });
+        }
+
+        // Dynamic Link List Fetch & Instagram Blacklist Logic
+        const API_URL = '/api/proxy';
+        let currentTargetUrl = "";
         const container = document.getElementById('linksContainer');
-        try {
-            const res = await fetch(API_URL, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ type: 'get_support_links' })
-            });
-            const data = await res.json();
-            
-            if(data.success && data.links) {
-                container.innerHTML = '';
-                data.links.forEach(link => {
-                    const card = document.createElement('div');
-                    card.className = 'link-card spotlight-hover';
-                    card.innerHTML = `
-                        <div class="link-icon-wrap">
-                            ${link.image_url ? `<img src="${link.image_url}">` : '<i data-lucide="link" style="width:32px; height:32px;"></i>'}
-                        </div>
-                        <h3>${link.title}</h3>
-                        <p>${link.subtitle || ''}</p>
-                    `;
-                    
-                    card.addEventListener('click', () => {
-                        if(link.action_type === 'instagram') {
-                            currentTargetUrl = link.url;
-                            document.getElementById('igAuthModal').style.display = 'flex';
-                        } else {
-                            window.open(link.url, '_blank');
-                        }
-                    });
-                    container.appendChild(card);
+
+        async function fetchSupportLinks() {
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'get_support_links' })
                 });
-                lucide.createIcons();
-            } else {
-                container.innerHTML = '<div>No links found.</div>';
-            }
-        } catch(err) {
-            container.innerHTML = '<div style="color:red;">Failed to load links.</div>';
-        }
-    }
-
-    loadLinks();
-
-    // IG Auth
-    document.getElementById('igCancelBtn').addEventListener('click', () => {
-        document.getElementById('igAuthModal').style.display = 'none';
-        document.getElementById('igUsername').value = '';
-    });
-
-    document.getElementById('igSubmitBtn').addEventListener('click', async () => {
-        const username = document.getElementById('igUsername').value.trim();
-        const t = TRANSLATIONS[currentLang] || TRANSLATIONS.ja;
-
-        if(!username) {
-            alert(t.err_no_name);
-            return;
-        }
-        
-        const btn = document.getElementById('igSubmitBtn');
-        const originalText = btn.textContent;
-        btn.textContent = t.status_verifying;
-        btn.disabled = true;
-
-        try {
-            const res = await fetch(API_URL, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ type: 'auth_instagram', username: username, targetUrl: currentTargetUrl })
-            });
-            const data = await res.json();
-            
-            if(data.success) {
-                window.location.href = data.redirectUrl;
-            } else {
-                alert(data.message || "Access Denied");
-            }
-        } catch(err) {
-            alert(t.err_comm);
-        } finally {
-            btn.textContent = originalText;
-            btn.disabled = false;
-            document.getElementById('igAuthModal').style.display = 'none';
-        }
-    });
-</script>
-</body>
-</html><!DOCTYPE html>
-<html lang="ja" data-theme="dark">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Other Services // Support</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script src="https://unpkg.com/lucide@latest"></script>
-<style>
-:root {
-  --bg-color: #1a1b1e;
-  --card-bg: #2a2b2e;
-  --text-main: #ffffff;
-  --text-sub: #a0a0a0;
-  --accent: #007DFF;
-}
-
-body {
-    margin: 0; padding: 0; background-color: var(--bg-color);
-    color: var(--text-main); font-family: sans-serif;
-    min-height: 100vh;
-}
-
-.header {
-    padding: 40px 60px 20px;
-}
-.header h1 { margin: 0; font-size: 32px; font-weight: 800; }
-.header p { margin: 8px 0 0 0; color: var(--text-sub); }
-.header .back-btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    color: var(--text-main); text-decoration: none;
-    margin-bottom: 20px; opacity: 0.8; transition: opacity 0.2s;
-}
-.header .back-btn:hover { opacity: 1; }
-
-/* Xbox UI Style Grid */
-.xbox-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 20px;
-    padding: 20px 60px 60px;
-}
-
-.xbox-card {
-    background-color: var(--card-bg);
-    border-radius: 12px;
-    overflow: hidden;
-    position: relative;
-    border: 3px solid transparent;
-    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.2s;
-    cursor: pointer;
-    text-decoration: none;
-    display: flex;
-    flex-direction: column;
-}
-
-.xbox-card:hover {
-    border-color: #ffffff;
-    transform: scale(1.03);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    z-index: 10;
-}
-
-.xbox-card-img-wrap {
-    width: 100%;
-    aspect-ratio: 16 / 15;
-    background-color: #111;
-    overflow: hidden;
-}
-
-.xbox-card-img-wrap img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.xbox-card-info {
-    padding: 12px 16px;
-    display: flex;
-    flex-direction: column;
-}
-
-.xbox-card-title {
-    font-size: 16px;
-    font-weight: bold;
-    color: #fff;
-    margin: 0 0 4px 0;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-
-.xbox-card-sub {
-    font-size: 13px;
-    color: var(--text-sub);
-    margin: 0;
-}
-
-.xbox-card-status {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 12px;
-    font-size: 12px;
-    color: #d1d1d1;
-}
-
-/* Instagram モーダル用 */
-.auth-modal {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
-    z-index: 1000; align-items: center; justify-content: center;
-}
-.auth-box {
-    background: var(--card-bg); padding: 30px; border-radius: 16px;
-    width: 90%; max-width: 400px; border: 1px solid rgba(255,255,255,0.1);
-}
-.auth-input {
-    width: 100%; padding: 12px; margin: 16px 0;
-    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2);
-    color: white; border-radius: 8px; font-size: 16px; box-sizing: border-box;
-}
-.auth-btn {
-    width: 100%; padding: 12px; background: var(--accent); color: white;
-    border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px;
-}
-.auth-cancel {
-    width: 100%; padding: 12px; background: transparent; color: var(--text-sub);
-    border: none; margin-top: 8px; cursor: pointer;
-}
-
-@media (max-width: 768px) {
-    .header { padding: 30px 20px 10px; }
-    .xbox-grid { padding: 10px 20px 40px; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
-}
-</style>
-</head>
-<body>
-
-<div class="header">
-    <a href="support.html" class="back-btn"><i data-lucide="arrow-left"></i> Supportに戻る</a>
-    <h1>Other Services</h1>
-    <p>その他のサポート・連携サービス一覧</p>
-</div>
-
-<div class="xbox-grid" id="linksContainer">
-    <div style="color: var(--text-sub);">読み込み中...</div>
-</div>
-
-<div class="auth-modal" id="igAuthModal">
-    <div class="auth-box">
-        <h3 style="margin-top:0;">Instagram認証</h3>
-        <p style="color: var(--text-sub); font-size: 14px; margin-bottom: 0;">お問い合わせを続けるには、ご自身のInstagramユーザー名（ID）を入力してください。</p>
-        <input type="text" id="igUsername" class="auth-input" placeholder="@なしで入力">
-        <button id="igSubmitBtn" class="auth-btn">認証して進む</button>
-        <button id="igCancelBtn" class="auth-cancel">キャンセル</button>
-    </div>
-</div>
-
-<script>
-lucide.createIcons();
-
-const API_URL = '/api/proxy'; // 環境に合わせて変更してください
-
-let currentTargetUrl = "";
-
-document.addEventListener('DOMContentLoaded', async () => {
-    const container = document.getElementById('linksContainer');
-    
-    try {
-        const res = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ type: 'get_support_links' })
-        });
-        const data = await res.json();
-        
-        if(data.success && data.links) {
-            container.innerHTML = '';
-            data.links.forEach(link => {
-                const card = document.createElement('div');
-                card.className = 'xbox-card';
-                card.innerHTML = `
-                    <div class="xbox-card-img-wrap">
-                        <img src="${link.image_url || 'https://via.placeholder.com/300'}" alt="cover">
-                    </div>
-                    <div class="xbox-card-info">
-                        <h3 class="xbox-card-title">${link.title}</h3>
-                        <p class="xbox-card-sub">${link.subtitle || ''}</p>
-                        <div class="xbox-card-status">
-                            <i data-lucide="check-circle-2" style="width:14px; height:14px;"></i> Available
-                        </div>
-                    </div>
-                `;
+                const data = await res.json();
                 
-                // アイコンの再描画用
-                setTimeout(() => lucide.createIcons({ root: card }), 0);
-
-                // クリックイベントの振り分け
-                card.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    if(link.action_type === 'instagram') {
-                        currentTargetUrl = link.url;
-                        document.getElementById('igAuthModal').style.display = 'flex';
-                    } else {
-                        window.open(link.url, '_blank');
+                if (data.success && data.links) {
+                    container.innerHTML = '';
+                    if (data.links.length === 0) {
+                        container.innerHTML = '<div style="text-align:center; opacity:0.5; width:100%;">No services available.</div>';
+                        return;
                     }
-                });
-                
-                container.appendChild(card);
+
+                    data.links.forEach(link => {
+                        const card = document.createElement('a');
+                        card.className = 'link-card spotlight-hover';
+                        card.href = '#';
+                        
+                        card.innerHTML = `
+                            <div class="link-card-img-wrap">
+                                ${link.image_url ? `<img src="${link.image_url}" alt="">` : ''}
+                                <div class="link-card-fallback-icon">
+                                    <i data-lucide="link-2" style="width: 32px; height: 32px; display: ${link.image_url ? 'none' : 'block'};"></i>
+                                </div>
+                            </div>
+                            <div class="link-card-info">
+                                <h3 class="link-card-title">${link.title}</h3>
+                                <p class="link-card-desc">${link.subtitle || ''}</p>
+                                <div class="link-card-status">
+                                    <i data-lucide="check-circle" style="width:14px; height:14px; color:var(--primary);"></i>
+                                    <span>Available</span>
+                                </div>
+                            </div>
+                        `;
+
+                        card.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            if (link.action_type === 'instagram') {
+                                currentTargetUrl = link.url;
+                                document.getElementById('igAuthModal').style.display = 'flex';
+                            } else {
+                                window.open(link.url, '_blank');
+                            }
+                        });
+
+                        container.appendChild(card);
+                    });
+                    
+                    try { if(typeof lucide !== 'undefined') lucide.createIcons({ root: container }); } catch(e){}
+                    setupHoverEffects();
+                } else {
+                    container.innerHTML = '<div style="text-align:center; color:red; width:100%;">Failed to load links.</div>';
+                }
+            } catch (err) {
+                container.innerHTML = '<div style="text-align:center; color:red; width:100%;">Connection error.</div>';
+            }
+        }
+
+        fetchSupportLinks();
+
+        // Instagram Blacklist Validation Handling
+        const igCancelBtn = document.getElementById('igCancelBtn');
+        const igSubmitBtn = document.getElementById('igSubmitBtn');
+        const igAuthModal = document.getElementById('igAuthModal');
+        const igUsernameInput = document.getElementById('igUsername');
+
+        if (igCancelBtn) {
+            igCancelBtn.addEventListener('click', () => {
+                igAuthModal.style.display = 'none';
+                igUsernameInput.value = '';
             });
-        } else {
-            container.innerHTML = '<div>リンクが見つかりませんでした。</div>';
         }
-    } catch(err) {
-        container.innerHTML = '<div style="color:red;">データの取得に失敗しました。</div>';
-    }
-});
 
-// Instagram認証処理
-document.getElementById('igCancelBtn').addEventListener('click', () => {
-    document.getElementById('igAuthModal').style.display = 'none';
-    document.getElementById('igUsername').value = '';
-});
+        if (igSubmitBtn) {
+            igSubmitBtn.addEventListener('click', async () => {
+                const username = igUsernameInput.value.trim().replace(/^@/, '');
+                const t = TRANSLATIONS[currentLang] || TRANSLATIONS.ja;
 
-document.getElementById('igSubmitBtn').addEventListener('click', async () => {
-    const username = document.getElementById('igUsername').value.trim();
-    if(!username) {
-        alert("ユーザー名を入力してください。");
-        return;
-    }
-    
-    const btn = document.getElementById('igSubmitBtn');
-    btn.textContent = '認証中...';
-    btn.disabled = true;
+                if (!username) {
+                    alert(t.err_no_name);
+                    return;
+                }
 
-    try {
-        const res = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                type: 'auth_instagram', 
-                username: username,
-                targetUrl: currentTargetUrl 
-            })
-        });
-        const data = await res.json();
-        
-        if(data.success) {
-            window.location.href = data.redirectUrl; // 認証成功でリンク先へ
-        } else {
-            alert(data.message || "認証に失敗しました");
+                const originalText = igSubmitBtn.textContent;
+                igSubmitBtn.textContent = t.status_verifying;
+                igSubmitBtn.disabled = true;
+
+                try {
+                    const res = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            type: 'auth_instagram',
+                            username: username,
+                            targetUrl: currentTargetUrl
+                        })
+                    });
+                    
+                    if (res.status === 403) {
+                        alert(t.err_banned);
+                        return;
+                    }
+
+                    const data = await res.json();
+                    if (data.success) {
+                        window.location.href = data.redirectUrl;
+                    } else {
+                        alert(data.message || t.err_banned);
+                    }
+                } catch (err) {
+                    alert(t.err_comm);
+                } finally {
+                    igSubmitBtn.textContent = originalText;
+                    igSubmitBtn.disabled = false;
+                    igAuthModal.style.display = 'none';
+                    igUsernameInput.value = '';
+                }
+            });
         }
-    } catch(err) {
-        alert("通信エラーが発生しました");
-    } finally {
-        btn.textContent = '認証して進む';
-        btn.disabled = false;
-        document.getElementById('igAuthModal').style.display = 'none';
-    }
-});
+    });
 </script>
 </body>
 </html>
