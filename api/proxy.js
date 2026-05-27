@@ -725,6 +725,36 @@ const maskActionUrl = (rawUrl) => {
     // ==========================================
     // ▼ 一般ユーザー用機能 ▼
     // ==========================================
+    // ==========================================
+    // ▼ サポートリンク集機能 ▼
+    // ==========================================
+    if (type === 'get_support_links') {
+        const { data: links, error } = await supabase
+            .from('support_links')
+            .select('*')
+            .eq('is_active', true)
+            .order('sort_order', { ascending: true });
+
+        if (error) {
+            return res.status(500).json({ success: false, message: "リンクの取得に失敗しました。" });
+        }
+        return res.status(200).json({ success: true, links: links || [] });
+    }
+
+    if (type === 'auth_instagram') {
+        const { username } = params;
+        if (!username) return res.status(200).json({ success: false, message: "ユーザー名を入力してください" });
+        
+        // 【実装ポイント】
+        // ここで実際のデータベース(usersテーブルなど)とusernameを照合するロジックを入れることができます。
+        // 今回は入力があれば認証成功として、問い合わせ先URLを返す仕様にしています。
+        const redirectUrl = params.targetUrl || "https://ig.me/m/your_support_account";
+        
+        // 監査ログに残す
+        await logAudit('INSTAGRAM_AUTH', username, { status: 'success' });
+
+        return res.status(200).json({ success: true, redirectUrl });
+    }
     if (type === 'get_available') {
       const targetId = (!params.userId || params.userId === "GUEST") ? null : authUserId; 
       
