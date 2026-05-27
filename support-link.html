@@ -4,6 +4,343 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Other Services // Support</title>
+<link rel="icon" type="image/svg+xml" href="./kiryu11.svg">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+/* --- support.htmlと共通のCSS設定 --- */
+:root {
+  --primary: #007DFF; --bg-color: #F1F3F5; --card-bg: rgba(255, 255, 255, 0.8);
+  --modal-text-main: #000000; --modal-text-sub: #666666;
+  --sidebar-bg: #E0E0E0; --sidebar-text: #000; --sidebar-width: 340px;
+  --font-stack: 'Noto Sans JP', sans-serif;
+}
+[data-theme="dark"] {
+  --bg-color: #121212; --card-bg: #1C1C1E; --modal-text-main: #FFFFFF; --modal-text-sub: #A0A0A0;
+  --sidebar-bg: #000000; --sidebar-text: #fff;
+}
+body { margin: 0; padding: 0; background-color: var(--bg-color); color: var(--modal-text-main); font-family: var(--font-stack); height: 100vh; display: flex; transition: background-color 0.5s ease; overflow: hidden;}
+*, *::before, *::after { box-sizing: border-box; }
+
+.rgl-wrapper { display: flex; width: 100%; height: 100%; z-index: 5; position: relative; }
+.rgl-sidebar { width: var(--sidebar-width); background-color: var(--sidebar-bg); display: flex; flex-direction: column; border-right: 1px solid rgba(128,128,128,0.1); color: var(--sidebar-text); z-index: 100;}
+.rgl-brand-area { padding: 30px 24px 20px 24px; }
+.rgl-brand { font-weight: 800; font-size: 20px; display: flex; align-items: center; gap: 12px; }
+.capsule-menu { display: flex; background: rgba(128, 128, 128, 0.1); border-radius: 50px; padding: 6px; margin: 0 24px 20px 24px; gap: 4px; }
+.capsule-menu .rgl-tab { flex: 1; text-align: center; padding: 10px 0; border-radius: 50px; font-size: 13px; font-weight: 800; color: var(--sidebar-text); opacity: 0.6; text-decoration: none; transition: all 0.3s ease; }
+.capsule-menu .rgl-tab.active { opacity: 1; background: var(--card-bg); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+[data-theme="dark"] .capsule-menu .rgl-tab.active { background: rgba(255,255,255,0.15); }
+.rgl-scroll-content { flex: 1; overflow-y: auto; }
+.rgl-bottom-controls { padding: 20px 24px; border-top: 1px solid rgba(128,128,128,0.1); }
+
+.lang-trigger-sidebar { width: 100%; height: 40px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; cursor: pointer; font-size: 14px; font-weight: 700; color: var(--sidebar-text); border-radius: 50px; background: transparent; border: 1px solid transparent; }
+.lang-list { position: absolute; bottom: 80px; left: 24px; width: 200px; background: var(--card-bg); backdrop-filter: blur(20px); padding: 5px; border-radius: 12px; list-style: none; display: none; z-index: 200; margin: 0; }
+.lang-list.open { display: block; }
+.lang-list li { padding: 10px 15px; cursor: pointer; border-radius: 8px; color: var(--modal-text-main); font-size: 13px; }
+
+.rgl-main { flex: 1; position: relative; display: flex; flex-direction: column; overflow-y: auto; }
+.rgl-header { position: sticky; top: 0; z-index: 50; padding: 24px 40px; display: flex; justify-content: space-between; align-items: center; }
+.back-nav { display: flex; align-items: center; gap: 8px; color: var(--modal-text-main); text-decoration: none; font-weight: bold; font-size: 14px; opacity: 0.7; transition: opacity 0.2s; }
+.back-nav:hover { opacity: 1; }
+
+.theme-pill { width: 44px; height: 44px; border-radius: 50%; background: var(--card-bg); border: 1px solid rgba(128,128,128,0.2); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--modal-text-main); }
+
+/* Spotlight hover */
+.spotlight-hover { position: relative; overflow: hidden; }
+.spotlight-hover::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(150px circle at var(--x, 50%) var(--y, 50%), rgba(255,255,255,0.15), transparent 40%);
+    z-index: 0; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+}
+.spotlight-hover:hover::before { opacity: 1; }
+
+/* リンク用グリッド */
+.support-content { padding: 20px 60px 80px 60px; }
+.page-title { font-size: 32px; font-weight: 800; margin: 0 0 8px 0; }
+.page-sub { opacity: 0.6; font-size: 14px; margin-bottom: 40px;}
+
+.links-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 24px; }
+.link-card {
+    background: var(--card-bg); border: 1px solid rgba(128,128,128,0.1);
+    border-radius: 16px; padding: 24px; text-decoration: none; color: var(--modal-text-main);
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer;
+}
+.link-card:hover { transform: translateY(-4px); border-color: var(--primary); box-shadow: 0 10px 30px rgba(0,125,255,0.1); }
+.link-icon-wrap { width: 64px; height: 64px; border-radius: 50%; background: rgba(128,128,128,0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; overflow: hidden;}
+.link-icon-wrap img { width: 100%; height: 100%; object-fit: cover; }
+.link-card h3 { margin: 0 0 8px 0; font-size: 18px; }
+.link-card p { margin: 0; font-size: 13px; opacity: 0.6; }
+
+/* IG Auth Modal */
+.auth-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); z-index: 10000; align-items: center; justify-content: center; }
+.auth-box { background: var(--card-bg); padding: 30px; border-radius: 16px; width: 90%; max-width: 400px; border: 1px solid rgba(128,128,128,0.2); }
+.auth-input { width: 100%; padding: 12px; margin: 16px 0; background: rgba(128,128,128,0.1); border: 1px solid rgba(128,128,128,0.2); color: var(--modal-text-main); border-radius: 8px; font-size: 16px; }
+.auth-btn { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; }
+.auth-cancel { width: 100%; padding: 12px; background: transparent; color: var(--modal-text-sub); border: none; margin-top: 8px; cursor: pointer; }
+
+@media (max-width: 768px) {
+    .rgl-wrapper { flex-direction: column; }
+    .rgl-sidebar { width: 100%; border-right: none; border-bottom: 1px solid rgba(128,128,128,0.1); }
+    .rgl-scroll-content, .rgl-bottom-controls, .capsule-menu { display: none; }
+    .support-content { padding: 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="rgl-wrapper">
+    <aside class="rgl-sidebar">
+        <div class="rgl-brand-area">
+            <div class="rgl-brand"><i data-lucide="message-circle-warning"></i> <span data-translate="brand_name">kiryu11 Pro</span></div>
+        </div>
+        <div class="sidebar-main-nav capsule-menu">
+            <a href="index.html" class="rgl-tab spotlight-hover" data-translate="tab_home">Home</a>
+            <a href="support.html" class="rgl-tab active spotlight-hover" data-translate="tab_support">Support</a>
+        </div>
+        <div class="rgl-scroll-content"></div>
+        <div class="rgl-bottom-controls">
+            <div style="position:relative;">
+                 <button class="lang-trigger-sidebar" id="langTrigger">
+                     <span style="display:flex;align-items:center;gap:8px;">
+                         <i data-lucide="globe" style="width: 16px; height: 16px;"></i>
+                         <span id="currentLangLabel">日本語</span>
+                     </span>
+                     <i data-lucide="chevron-up" style="width: 14px; height: 14px; opacity:0.5;"></i>
+                 </button>
+                 <ul class="lang-list" id="langMenu">
+                    <li class="lang-option" data-value="ja">日本語</li>
+                    <li class="lang-option" data-value="en">English</li>
+                    <li class="lang-option" data-value="zh">简体中文</li>
+                    <li class="lang-option" data-value="zh-TW">繁體中文</li>
+                    <li class="lang-option" data-value="ko">한국어</li>
+                    <li class="lang-option" data-value="ru">Русский</li>
+                 </ul>
+            </div>
+        </div>
+    </aside>
+
+    <main class="rgl-main">
+        <nav class="rgl-header">
+            <a href="support.html" class="back-nav"><i data-lucide="arrow-left"></i> <span data-translate="btn_back">戻る</span></a>
+            <div class="theme-pill" id="themeToggle"><i data-lucide="moon"></i></div>
+        </nav>
+
+        <div class="support-content">
+            <h1 class="page-title" data-translate="link_page_title">Other Services</h1>
+            <div class="page-sub" data-translate="link_page_sub">その他のサポート・連携サービス一覧</div>
+
+            <div class="links-grid" id="linksContainer">
+                <div style="opacity:0.6;" data-translate="loading">読み込み中...</div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div class="auth-modal" id="igAuthModal">
+    <div class="auth-box">
+        <h3 style="margin-top:0;" data-translate="ig_modal_title">Instagram認証</h3>
+        <p style="color: var(--modal-text-sub); font-size: 14px;" data-translate="ig_modal_desc">お問い合わせを続けるには、ご自身のInstagramユーザー名を入力してください。</p>
+        <input type="text" id="igUsername" class="auth-input" placeholder="username">
+        <button id="igSubmitBtn" class="auth-btn" data-translate="ig_modal_btn">認証して進む</button>
+        <button id="igCancelBtn" class="auth-cancel" data-translate="btn_cancel">キャンセル</button>
+    </div>
+</div>
+
+<script>
+    lucide.createIcons();
+
+    // Spotlight setup
+    document.addEventListener('mousemove', (e) => {
+        document.querySelectorAll('.spotlight-hover').forEach(el => {
+            const rect = el.getBoundingClientRect();
+            el.style.setProperty('--x', `${e.clientX - rect.left}px`);
+            el.style.setProperty('--y', `${e.clientY - rect.top}px`);
+        });
+    });
+
+    const TRANSLATIONS = {
+        ja: { 
+            brand_name: "kiryu11 Pro", tab_home: "ホーム", tab_support: "サポート",
+            btn_back: "サポートへ戻る", link_page_title: "その他のサービス", link_page_sub: "その他のサポート・連携サービス一覧",
+            loading: "読み込み中...", ig_modal_title: "Instagram認証", ig_modal_desc: "お問い合わせを続けるには、ご自身のInstagramユーザー名を入力してください。",
+            ig_modal_btn: "認証して進む", btn_cancel: "キャンセル", status_verifying: "認証中...", err_no_name: "ユーザー名を入力してください", err_comm: "通信エラーが発生しました"
+        },
+        en: { 
+            brand_name: "kiryu11 Pro", tab_home: "Home", tab_support: "Support",
+            btn_back: "Back to Support", link_page_title: "Other Services", link_page_sub: "List of other support and linked services",
+            loading: "Loading...", ig_modal_title: "Instagram Authentication", ig_modal_desc: "Please enter your Instagram username to continue.",
+            ig_modal_btn: "Verify & Continue", btn_cancel: "Cancel", status_verifying: "Verifying...", err_no_name: "Please enter a username", err_comm: "Communication error occurred"
+        },
+        zh: { 
+            brand_name: "kiryu11 Pro", tab_home: "首页", tab_support: "支持",
+            btn_back: "返回支持", link_page_title: "其他服务", link_page_sub: "其他支持和链接服务列表",
+            loading: "加载中...", ig_modal_title: "Instagram 认证", ig_modal_desc: "请输入您的 Instagram 用户名以继续。",
+            ig_modal_btn: "验证并继续", btn_cancel: "取消", status_verifying: "验证中...", err_no_name: "请输入用户名", err_comm: "发生通信错误"
+        },
+        "zh-TW": { 
+            brand_name: "kiryu11 Pro", tab_home: "首頁", tab_support: "支援",
+            btn_back: "返回支援", link_page_title: "其他服務", link_page_sub: "其他支援和連結服務列表",
+            loading: "載入中...", ig_modal_title: "Instagram 認證", ig_modal_desc: "請輸入您的 Instagram 使用者名稱以繼續。",
+            ig_modal_btn: "驗證並繼續", btn_cancel: "取消", status_verifying: "驗證中...", err_no_name: "請輸入使用者名稱", err_comm: "發生通訊錯誤"
+        },
+        ko: { 
+            brand_name: "kiryu11 Pro", tab_home: "홈", tab_support: "지원",
+            btn_back: "지원으로 돌아가기", link_page_title: "기타 서비스", link_page_sub: "기타 지원 및 연동 서비스 목록",
+            loading: "로딩 중...", ig_modal_title: "Instagram 인증", ig_modal_desc: "계속하려면 Instagram 사용자 이름을 입력하세요.",
+            ig_modal_btn: "인증 및 계속", btn_cancel: "취소", status_verifying: "인증 중...", err_no_name: "사용자 이름을 입력하세요", err_comm: "통신 오류가 발생했습니다"
+        },
+        ru: { 
+            brand_name: "kiryu11 Pro", tab_home: "Главная", tab_support: "Поддержка",
+            btn_back: "Назад к поддержке", link_page_title: "Другие сервисы", link_page_sub: "Список других сервисов поддержки",
+            loading: "Загрузка...", ig_modal_title: "Аутентификация Instagram", ig_modal_desc: "Введите имя пользователя Instagram для продолжения.",
+            ig_modal_btn: "Подтвердить", btn_cancel: "Отмена", status_verifying: "Проверка...", err_no_name: "Введите имя пользователя", err_comm: "Ошибка связи"
+        }
+    };
+
+    let currentLang = localStorage.getItem('user_lang') || 'ja';
+
+    function setLanguage(lang) {
+        currentLang = lang;
+        const t = TRANSLATIONS[lang] || TRANSLATIONS.ja;
+        document.documentElement.lang = lang;
+        document.querySelectorAll('[data-translate]').forEach(el => {
+            const key = el.getAttribute('data-translate');
+            if(t[key]) el.textContent = t[key];
+        });
+        const langMap = { ja: '日本語', en: 'English', zh: '简体中文', 'zh-TW': '繁體中文', ko: '한국어', ru: 'Русский' };
+        document.getElementById('currentLangLabel').textContent = langMap[lang] || 'Language';
+    }
+
+    // Initialize UI
+    setLanguage(currentLang);
+    const savedTheme = localStorage.getItem('user_theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    document.getElementById('themeToggle').innerHTML = savedTheme === 'light' ? '<i data-lucide="sun"></i>' : '<i data-lucide="moon"></i>';
+    lucide.createIcons();
+
+    // Event Listeners for UI
+    document.getElementById('themeToggle').addEventListener('click', () => {
+        const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('user_theme', next);
+        document.getElementById('themeToggle').innerHTML = next === 'light' ? '<i data-lucide="sun"></i>' : '<i data-lucide="moon"></i>';
+        lucide.createIcons();
+    });
+
+    document.getElementById('langTrigger').addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.getElementById('langMenu').classList.toggle('open');
+    });
+
+    document.querySelectorAll('.lang-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+            const val = opt.getAttribute('data-value');
+            localStorage.setItem('user_lang', val);
+            setLanguage(val);
+            document.getElementById('langMenu').classList.remove('open');
+        });
+    });
+
+    document.addEventListener('click', () => document.getElementById('langMenu').classList.remove('open'));
+
+    // --- API & Functionality ---
+    const API_URL = '/api/proxy';
+    let currentTargetUrl = "";
+
+    async function loadLinks() {
+        const container = document.getElementById('linksContainer');
+        try {
+            const res = await fetch(API_URL, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type: 'get_support_links' })
+            });
+            const data = await res.json();
+            
+            if(data.success && data.links) {
+                container.innerHTML = '';
+                data.links.forEach(link => {
+                    const card = document.createElement('div');
+                    card.className = 'link-card spotlight-hover';
+                    card.innerHTML = `
+                        <div class="link-icon-wrap">
+                            ${link.image_url ? `<img src="${link.image_url}">` : '<i data-lucide="link" style="width:32px; height:32px;"></i>'}
+                        </div>
+                        <h3>${link.title}</h3>
+                        <p>${link.subtitle || ''}</p>
+                    `;
+                    
+                    card.addEventListener('click', () => {
+                        if(link.action_type === 'instagram') {
+                            currentTargetUrl = link.url;
+                            document.getElementById('igAuthModal').style.display = 'flex';
+                        } else {
+                            window.open(link.url, '_blank');
+                        }
+                    });
+                    container.appendChild(card);
+                });
+                lucide.createIcons();
+            } else {
+                container.innerHTML = '<div>No links found.</div>';
+            }
+        } catch(err) {
+            container.innerHTML = '<div style="color:red;">Failed to load links.</div>';
+        }
+    }
+
+    loadLinks();
+
+    // IG Auth
+    document.getElementById('igCancelBtn').addEventListener('click', () => {
+        document.getElementById('igAuthModal').style.display = 'none';
+        document.getElementById('igUsername').value = '';
+    });
+
+    document.getElementById('igSubmitBtn').addEventListener('click', async () => {
+        const username = document.getElementById('igUsername').value.trim();
+        const t = TRANSLATIONS[currentLang] || TRANSLATIONS.ja;
+
+        if(!username) {
+            alert(t.err_no_name);
+            return;
+        }
+        
+        const btn = document.getElementById('igSubmitBtn');
+        const originalText = btn.textContent;
+        btn.textContent = t.status_verifying;
+        btn.disabled = true;
+
+        try {
+            const res = await fetch(API_URL, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type: 'auth_instagram', username: username, targetUrl: currentTargetUrl })
+            });
+            const data = await res.json();
+            
+            if(data.success) {
+                window.location.href = data.redirectUrl;
+            } else {
+                alert(data.message || "Access Denied");
+            }
+        } catch(err) {
+            alert(t.err_comm);
+        } finally {
+            btn.textContent = originalText;
+            btn.disabled = false;
+            document.getElementById('igAuthModal').style.display = 'none';
+        }
+    });
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Other Services // Support</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://unpkg.com/lucide@latest"></script>
 <style>
