@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>kiryu11 Pro//Other Services</title>
+<title>kiryu11 Pro//Support-link</title>
 <link rel="icon" type="image/svg+xml" href="./kiryu11.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
@@ -224,12 +224,17 @@ button, input, textarea, a { font-family: var(--font-stack); }
     flex-direction: column;
 }
 
+/* 改修：左上固定配置用スタイル */
 .page-title-area {
-    text-align: center;
+    text-align: left;
     margin-bottom: 40px;
-    margin-top: auto;
+    margin-top: 0;
     animation: fadeInUp 0.6s ease forwards;
     flex-shrink: 0;
+    width: 100%;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
 }
 .page-title {
     font-size: 36px;
@@ -237,34 +242,6 @@ button, input, textarea, a { font-family: var(--font-stack); }
     text-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
 .page-sub { opacity: 0.6; font-size: 14px; font-weight: 500; }
-
-/* BACK BUTTON & LINKS GRID DESIGN (Xbox/Rockstar Style Integration) */
-.back-btn-container {
-    width: 100%;
-    max-width: 1000px;
-    margin: 0 auto 20px auto;
-    text-align: left;
-    animation: fadeInUp 0.6s ease forwards;
-}
-.back-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--card-bg);
-    border: 1px solid rgba(128,128,128,0.1);
-    padding: 10px 24px;
-    border-radius: 50px;
-    color: var(--modal-text-main);
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 700;
-    transition: all 0.3s var(--spring-ease);
-    backdrop-filter: blur(10px);
-}
-.back-btn:hover {
-    background: rgba(128,128,128,0.15);
-    transform: translateX(-4px);
-}
 
 .links-grid {
     display: grid;
@@ -438,6 +415,7 @@ button, input, textarea, a { font-family: var(--font-stack); }
     .rgl-header > * { pointer-events: auto; }
     
     .support-content { padding: 30px 20px; display: block; }
+    .page-title-area { text-align: center; }
     .links-grid { grid-template-columns: 1fr; gap: 20px; margin-top: 20px; }
 }
 
@@ -541,13 +519,9 @@ button, input, textarea, a { font-family: var(--font-stack); }
         </nav>
 
         <div class="support-content">
-            <div class="back-btn-container">
-                <a href="support.html" class="back-btn">
-                    <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
-                    <span data-translate="btn_back">戻る</span>
-                </a>
-            </div>
-
+            <!-- 戻るボタンエリアを削除 -->
+            
+            <!-- 改修：左上固定になったタイトルエリア -->
             <div class="page-title-area">
                 <h1 class="page-title" data-translate="link_page_title">Other Services</h1>
                 <div class="page-sub" data-translate="link_page_sub">その他のサポート・連携サービス一覧</div>
@@ -589,7 +563,7 @@ button, input, textarea, a { font-family: var(--font-stack); }
         ja: { 
             brand_name: "kiryu11 Pro", tab_home: "ホーム", tab_support: "サポート",
             link_page_title: "その他のサービス", link_page_sub: "その他のサポート・連携サービス一覧", 
-            btn_back: "戻る", loading: "読み込み中...",
+            loading: "読み込み中...",
             ig_modal_title: "Instagram認証", ig_modal_desc: "お問い合わせを続けるには、ご自身のInstagramユーザー名（@なし）を入力してください。",
             ig_modal_btn: "認証して進む", btn_cancel: "キャンセル", status_verifying: "認証中...",
             err_no_name: "ユーザー名を入力してください", err_comm: "通信エラーが発生しました", err_banned: "このアカウントからのアクセスは制限されています。"
@@ -597,7 +571,7 @@ button, input, textarea, a { font-family: var(--font-stack); }
         en: { 
             brand_name: "kiryu11 Pro", tab_home: "Home", tab_support: "Support",
             link_page_title: "Other Services", link_page_sub: "List of other support and linked services", 
-            btn_back: "Back", loading: "Loading...",
+            loading: "Loading...",
             ig_modal_title: "Instagram Authentication", ig_modal_desc: "Please enter your Instagram username (without @) to continue.",
             ig_modal_btn: "Verify & Continue", btn_cancel: "Cancel", status_verifying: "Verifying...",
             err_no_name: "Please enter a username", err_comm: "Communication error occurred", err_banned: "Access from this account is restricted."
@@ -605,7 +579,7 @@ button, input, textarea, a { font-family: var(--font-stack); }
         zh: { 
             brand_name: "kiryu11 Pro", tab_home: "首页", tab_support: "支持",
             link_page_title: "其他服务", link_page_sub: "其他支持和链接服务列表", 
-            btn_back: "返回", loading: "加载中...",
+            loading: "加载中...",
             ig_modal_title: "Instagram 认证", ig_modal_desc: "请输入您的 Instagram 用户名（不带 @）以继续。",
             ig_modal_btn: "验证并继续", btn_cancel: "取消", status_verifying: "验证中...",
             err_no_name: "请输入用户名", err_comm: "发生通信错误", err_banned: "该账号的访问受到限制。"
@@ -613,7 +587,7 @@ button, input, textarea, a { font-family: var(--font-stack); }
         "zh-TW": { 
             brand_name: "kiryu11 Pro", tab_home: "首頁", tab_support: "支援",
             link_page_title: "其他服務", link_page_sub: "其他支援和連結服務列表", 
-            btn_back: "返回", loading: "載入中...",
+            loading: "載入中...",
             ig_modal_title: "Instagram 認證", ig_modal_desc: "請輸入您的 Instagram 使用者名稱（不帶 @）以繼續。",
             ig_modal_btn: "驗證並繼續", btn_cancel: "取消", status_verifying: "驗證中...",
             err_no_name: "請輸入使用者名稱", err_comm: "發生通訊錯誤", err_banned: "該帳號的存取受到限制。"
@@ -621,7 +595,7 @@ button, input, textarea, a { font-family: var(--font-stack); }
         ko: { 
             brand_name: "kiryu11 Pro", tab_home: "홈", tab_support: "지원",
             link_page_title: "기타 서비스", link_page_sub: "기타 지원 및 연동 서비스 목록", 
-            btn_back: "돌아가기", loading: "로딩 중...",
+            loading: "로딩 중...",
             ig_modal_title: "Instagram 인증", ig_modal_desc: "계속하려면 Instagram 사용자 이름(@ 제외)을 입력하세요.",
             ig_modal_btn: "인증 및 계속", btn_cancel: "취소", status_verifying: "인증 중...",
             err_no_name: "사용자 이름을 입력하세요", err_comm: "통신 오류가 발생했습니다", err_banned: "이 계정의 접근이 제한되었습니다."
@@ -629,7 +603,7 @@ button, input, textarea, a { font-family: var(--font-stack); }
         ru: { 
             brand_name: "kiryu11 Pro", tab_home: "Главная", tab_support: "Поддержка",
             link_page_title: "Другие сервисы", link_page_sub: "Список других сервисов поддержки и интеграций", 
-            btn_back: "Назад", loading: "Загрузка...",
+            loading: "Загрузка...",
             ig_modal_title: "Аутентификация Instagram", ig_modal_desc: "Введите имя пользователя Instagram (без @) для продолжения.",
             ig_modal_btn: "Подтвердить", btn_cancel: "Отмена", status_verifying: "Проверка...",
             err_no_name: "Введите имя пользователя", err_comm: "Ошибка связи", err_banned: "Доступ с этого аккаунта ограничен."
