@@ -329,8 +329,15 @@
       document.cookie = "user_session_token=; path=/; max-age=0;";
       window.history.replaceState(null, '', window.location.pathname);
   } else if (localStorage.getItem('user_session_token') && localStorage.getItem('user_session_identity')) {
-    // パラメーターを維持したままメイン画面（ルート）へ
-    window.location.replace('/' + window.location.search);
+    // ★ localStorageにトークンがあればCookieも再セットしてから遷移
+    const savedToken = localStorage.getItem('user_session_token');
+    const isHttps = location.protocol === 'https:';
+    const secureAttr = isHttps ? '; secure' : '';
+    document.cookie = `user_session_token=${savedToken}; path=/; max-age=86400${secureAttr}; samesite=lax`;
+    
+    const params = new URLSearchParams(window.location.search);
+    const redirectTo = params.get('redirect') || ('/' + (params.get('code') ? `?code=${params.get('code')}` : ''));
+    window.location.replace(redirectTo);
 } else {
       // どちらか片方しかない不完全な状態なら、確実に消去
       localStorage.removeItem('user_session_token');
@@ -601,8 +608,12 @@
           }
           localStorage.setItem('user_session_identity', JSON.stringify({ userId: data.userId, email: email }));
           localStorage.setItem('user_session_token', data.token);
-          document.cookie = `user_session_token=${data.token}; path=/; max-age=86400; secure; samesite=lax`;
-          window.location.href = 'index.html' + window.location.search;
+          const isHttps = location.protocol === 'https:';
+          const secureAttr = isHttps ? '; secure' : '';
+          document.cookie = `user_session_token=${data.token}; path=/; max-age=86400${secureAttr}; samesite=lax`;
+          const params = new URLSearchParams(window.location.search);
+          const redirectTo = params.get('redirect') || ('/' + (params.get('code') ? `?code=${params.get('code')}` : ''));
+          window.location.href = redirectTo;
         } else {
           statusEl.textContent = t.err_invalid;
           loginSliderObj.reset();
