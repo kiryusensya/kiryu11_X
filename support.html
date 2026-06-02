@@ -764,6 +764,14 @@ button, input, textarea, a { font-family: var(--font-stack); }
         // テーマ切替
         const themeToggle = document.getElementById('themeToggle');
         const htmlEl = document.documentElement;
+
+        // ★追加：ページ読み込み時にlocalStorageからテーマを取得して適用
+        const defaultTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        const savedTheme = localStorage.getItem('user_theme') || defaultTheme;
+        htmlEl.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'light' ? '<i data-lucide="sun"></i>' : '<i data-lucide="moon"></i>';
+        if (typeof createIcons === 'function') createIcons(); // アイコンを再描画
+
         themeToggle.addEventListener('click', () => {
             const current = htmlEl.getAttribute('data-theme');
             const next = current === 'light' ? 'dark' : 'light';
