@@ -3524,7 +3524,7 @@ function setHeroButtonState(state, forceUnlock = false) {
         btn.classList.remove('is-download');
         currentHeroContext = 'available';
 
-        if(selectedHeroItem && selectedHeroItem.price > 0) {
+        if(selectedHeroItem && selectedHeroItem.price > 0 && !selectedHeroItem.isHideContent) {
             if(buyBtn) {
                 buyBtn.style.display = 'inline-flex';
                 gId('heroBuyBtnText').textContent = `${selectedHeroItem.price}`;
@@ -3774,9 +3774,12 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
     if (treatAsOwned) {
         checkMarkHtml = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin-left:4px; vertical-align:middle; flex-shrink:0;"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
         btnHtml = `<button class="mobile-store-btn is-owned-download"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>${t.btn_download || "ダウンロード"}</button>`;
-    } else {
-        btnHtml = `<button class="mobile-store-btn">${item.price} pt</button>`;
-    }
+    } else if (item.isHideContent) {
+    // hideコンテンツ: 未所有でも購入ボタン非表示（コード引き換えのみ）
+    btnHtml = '';
+} else {
+    btnHtml = `<button class="mobile-store-btn">${item.price} pt</button>`;
+}
     
     mDiv.innerHTML = `
     <img src="${escapeHTML(item.imageUrl)}" class="mobile-store-thumb">
