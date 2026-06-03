@@ -2619,7 +2619,7 @@ function showPurchasePreview(item, price) {
     setTimeout(() => els.phasePreview.style.opacity = '1', 50);
 }
   
-async function buyItemWithPoints(contentId, price) { // ⭕ 引数を変更
+async function buyItemWithPoints(contentId, price) {
     const thisRequestId = currentAuthRequestId;
     const t = TRANSLATIONS[CURRENT_LANG];
     const spinnerHtml = `<span class="loading-spinner" style="border-top-color:currentColor; width:18px; height:18px; border-width:2px; margin:0;"></span>`;
@@ -2631,30 +2631,24 @@ async function buyItemWithPoints(contentId, price) { // ⭕ 引数を変更
         const data = await safeFetch({
             type: 'purchase',
             userId: currentUser.userId,
-            contentId: contentId, // APIが contentId で待っている場合用
-            code: contentId,      // APIが code で待っている場合用
-            app_tier: 'enterprise', // ★ここを追加！
+            contentId: contentId, 
+            code: contentId,      
+            app_tier: 'enterprise',
             _t: Date.now()
         });
         if (thisRequestId !== currentAuthRequestId) return;
         
-        // index.html の 846行目付近
-// buyItemWithPoints 関数内の if (data.success) { ... } の中身を以下に置き換えます
-
         if (data.success) {
             currentUser.points = data.remainingPoints;
             updateAccountUI();
             
-            // ★サーバーから最新の履歴を取得（今買ったアイテムが history[0] に入ります）
             await fetchUserHistory(); 
 
-            // ★ スマホ版とPC版で表示を分ける＆UIの更新
             if (window.innerWidth <= 768) {
-                // スマホ版：ダウンロードボタン付きの専用モーダル関数に任せる
+                // スマホ版
                 const boughtItem = currentUser.history.length > 0 ? currentUser.history[0] : currentContentData;
                 showMobileItemDetail(boughtItem, true);
                 
-                // タイトルや文言を購入完了用に上書き
                 const successTops = els.phaseSuccess.querySelectorAll('.modal-title-top, .mobile-title');
                 successTops.forEach(el => el.textContent = t.success_buy_title || "購入完了");
                 const label = els.phaseSuccess.querySelector('.modal-label');
@@ -2662,7 +2656,7 @@ async function buyItemWithPoints(contentId, price) { // ⭕ 引数を変更
                 els.successMessageText.innerHTML = t.success_msg_box.replace(/\n/g, '<br>');
                 
             } else {
-                // PC版：モーダルを更新しつつ、背景のHeroエリアも更新
+                // PC版
                 const successTops = els.phaseSuccess.querySelectorAll('.modal-title-top, .mobile-title');
                 successTops.forEach(el => el.textContent = t.success_buy_title || "購入完了");
                 const label = els.phaseSuccess.querySelector('.modal-label');
@@ -2676,7 +2670,7 @@ async function buyItemWithPoints(contentId, price) { // ⭕ 引数を変更
                 
                 els.btnSuccessClose.style.flex = "none";
                 els.btnSuccessClose.style.width = "100%";
-                els.btnSuccessDownload.style.display = "none"; // PC版はモーダル内ではなくHeroエリアでダウンロードさせる
+                els.btnSuccessDownload.style.display = "none"; 
                 
                 els.phasePreview.style.opacity = '0';
                 setTimeout(() => {
@@ -2686,13 +2680,22 @@ async function buyItemWithPoints(contentId, price) { // ⭕ 引数を変更
                   setTimeout(() => els.phaseSuccess.style.opacity = '1', 50);
                 }, 400);
 
-                // ★ PC版のHeroエリア（背景とダウンロードボタン）を即座に更新！
                 if (currentUser.history.length > 0) {
                     updateHeroView(currentUser.history[0], true); 
                 }
             }
             try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
         } else {
+            
+            // ▼▼▼ 追加箇所: アドオンのベース（親）を未所有の場合のエラーハンドリング ▼▼▼
+            if (data.missingParent) {
+                alert("この追加コンテンツを購入するには、ベースとなるシステムを先に所有している必要があります。");
+                els.btnPreviewRedeem.disabled = false;
+                els.btnPreviewRedeem.innerHTML = t.btn_buy_confirm || "購入確定";
+                return;
+            }
+            // ▲▲▲ ここまで追加 ▲▲▲
+
             let specificErrorCode = generateErrorCode();
             if (data.message === "Already owned") specificErrorCode = "1011";
             els.errorCodeText.textContent = specificErrorCode;
@@ -3912,6 +3915,7 @@ async function fetchAvailableContent() {
         let hasMobileItems = false;
         let hasItems = false; 
         
+        // ユーザーの所有履歴をセットにまとめる
         if (currentUser && currentUser.history) {
             currentUser.history.forEach(h => {
                 if (h.groupId) ownedGroups.add(h.groupId); 
@@ -3924,14 +3928,25 @@ async function fetchAvailableContent() {
         }
 
         if(d.success && d.items && d.items.length > 0) {
-            d.items.forEach((item, index) => {
+            // ★ 追加箇所: 親(ベース)と子(アドオン)を振り分ける
+            const baseItems = d.items.filter(item => !item.parentId);
+            const addOnItems = d.items.filter(item => item.parentId);
+
+            // ★ 変更箇所: baseItems（ベースコンテンツ）のみをループして描画する
+            baseItems.forEach((item, index) => {
+                // ★ 追加箇所: このベースアイテムに関連するアドオンを配列として持たせる
+                item.addons = addOnItems.filter(addon => addon.parentId === item.code);
+
                 const isOwned = (item.groupId && ownedGroups.has(item.groupId)) || (!item.groupId && ownedCodes.has(item.code)) || (item.title && ownedTitles.has(item.title));
                 
+                // スマホ用ストアグリッドへの描画
                 if (!isOwned) {
+                    // ※現状はスマホ版でもベースのみを表示させます
                     renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles);
                     hasMobileItems = true;
                 }
 
+                // すでに持っているならサイドバーには「利用可能」として出さないのでスキップ
                 if (isOwned) return; 
                 
                 hasItems = true;
@@ -3944,12 +3959,20 @@ async function fetchAvailableContent() {
                 div.onclick = () => {
                     document.querySelectorAll('.sidebar-game-item').forEach(el => el.classList.remove('active'));
                     div.classList.add('active');
-                    updateHeroView(item, false); 
+                    
+                    // ★ 変更箇所: 背景(Hero)を更新するのではなく、アドオンを含めた詳細モーダルを開く
+                    if (typeof openItemDetail === 'function') {
+                        openItemDetail(item);
+                    } else {
+                        // openItemDetail関数が未定義の場合はフォールバックとしてHeroを更新
+                        updateHeroView(item, false); 
+                    }
                 };
                 
                 div.innerHTML = `<div class="sidebar-game-info"><img src="${escapeHTML(item.imageUrl)}" class="sidebar-game-thumb"><div class="sidebar-game-text"><div class="sidebar-game-title">${escapeHTML(item.message || item.title)}</div></div></div>`;
                 list.appendChild(div);
                 
+                // 初期選択の処理
                 if (!selectedHeroItem && !document.querySelector('.sidebar-game-item.active') && (!currentUser || !currentUser.history.length)) {
                     updateHeroView(item, false);
                     div.classList.add('active');
@@ -4011,89 +4034,6 @@ async function fetchUserHistory() {
   } finally {
       fetchAvailableContent();
   }
-}
-async function fetchAvailableContent() {
-    const list = els.availableListSidebar;
-    const t = TRANSLATIONS[CURRENT_LANG];
-    
-    list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">Loading...</div>`;
-    const mobileList = gId('mobileStoreGrid');
-
-    try {
-        const d = await safeFetch({
-            type: 'get_available',
-            lang: CURRENT_LANG
-        });
-        
-        list.innerHTML = '';
-        if (mobileList) mobileList.innerHTML = '';
-        
-        const ownedGroups = new Set(); const ownedCodes = new Set(); const ownedTitles = new Set();
-        let hasMobileItems = false;
-        let hasItems = false; 
-        
-        if (currentUser && currentUser.history) {
-            currentUser.history.forEach(h => {
-                if (h.groupId) ownedGroups.add(h.groupId); 
-                if (h.code) ownedCodes.add(h.code);
-                if (h.title) ownedTitles.add(h.title);         
-                
-                renderMobileStoreItem(h, ownedGroups, ownedCodes, ownedTitles);
-                hasMobileItems = true;
-            });
-        }
-
-        if(d.success && d.items && d.items.length > 0) {
-            d.items.forEach((item, index) => {
-                const isOwned = (item.groupId && ownedGroups.has(item.groupId)) || (!item.groupId && ownedCodes.has(item.code)) || (item.title && ownedTitles.has(item.title));
-                
-                if (!isOwned) {
-                    renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles);
-                    hasMobileItems = true;
-                }
-
-                if (isOwned) return; 
-                
-                hasItems = true;
-                const div = document.createElement('div');
-                div.className = 'sidebar-game-item';
-                div.setAttribute('data-code', item.code);
-                if(item.groupId) div.setAttribute('data-group-id', item.groupId);
-                if(item.title) div.setAttribute('data-title', item.title);
-                
-                div.onclick = () => {
-                    document.querySelectorAll('.sidebar-game-item').forEach(el => el.classList.remove('active'));
-                    div.classList.add('active');
-                    updateHeroView(item, false); 
-                };
-                
-                div.innerHTML = `<div class="sidebar-game-info"><img src="${escapeHTML(item.imageUrl)}" class="sidebar-game-thumb"><div class="sidebar-game-text"><div class="sidebar-game-title">${escapeHTML(item.message || item.title)}</div></div></div>`;
-                list.appendChild(div);
-                
-                if (!selectedHeroItem && !document.querySelector('.sidebar-game-item.active') && (!currentUser || !currentUser.history.length)) {
-                    updateHeroView(item, false);
-                    div.classList.add('active');
-                }
-            });
-        } 
-        
-        const totalItems = (currentUser && currentUser.history ? currentUser.history.length : 0) + (hasItems ? 1 : 0); // ← 途切れていた閉じカッコ
-        if (totalItems === 0) {
-            resetHeroToDefault();
-        }
-
-        if (!hasItems) {
-             list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">${t.msg_empty_lib || "No content"}</div>`;
-        }
-        
-        if (!hasMobileItems && mobileList) {
-             mobileList.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px; grid-column: 1 / -1; text-align:center;">${t.msg_empty_lib || "No content"}</div>`;
-        }
-    } catch(e) {
-        console.error("Fetch Error:", e);
-        list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">-</div>`;
-        if (mobileList) mobileList.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px; grid-column: 1 / -1; text-align:center;">-</div>`;
-    }
 }
 
 async function fetchUserHistory() {
