@@ -2387,7 +2387,7 @@ function setupEventListeners() {
                 return; 
             }
         }
-        
+        const targetUrl = selectedHeroItem.url || selectedHeroItem.actionUrl;
         const isAddonItem = selectedHeroItem.contentType === 'addon'; // ★追加
         let isMulti = false;
         try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
