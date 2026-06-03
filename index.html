@@ -3624,7 +3624,12 @@ function updateHeroView(item, isOwned) {
     document.querySelector('.rgl-hero-content').style.display = 'block';
     els.heroTitle.textContent = item.message || item.title; 
     if(heroTimer) { clearInterval(heroTimer); heroTimer = null; }
+    if (item.extraInfo || item.message) {
+    els.heroDesc.textContent = item.extraInfo || '';
+    els.heroDesc.style.display = item.extraInfo ? 'block' : 'none';
+    } else {
     els.heroDesc.style.display = 'none';
+    }
     if (item.imageUrl && item.imageUrl.trim().startsWith('http')) {
         els.heroBgImage.style.backgroundImage = `url('${item.imageUrl.trim()}')`;
     } else {
@@ -3661,9 +3666,7 @@ function updateAccountUI() {
   if (currentUser) {
     document.body.classList.add('is-logged-in');
     
-    if (!selectedHeroItem) {
-        document.querySelector('.rgl-hero-content').style.display = 'none';
-    }
+    document.querySelector('.rgl-hero-content').style.display = selectedHeroItem ? 'block' : 'none';
     if (els.loggedInView) els.loggedInView.style.display = 'block';
     if(els.displayUserEmail) els.displayUserEmail.textContent = currentUser.email || '-';
     if(gId('ptValue')) gId('ptValue').textContent = currentUser.points || 0;
@@ -3700,6 +3703,16 @@ function updateAccountUI() {
                 div.innerHTML = `<div class="sidebar-game-info"><img src="${escapeHTML(imgUrl)}" class="sidebar-game-thumb" onerror="this.style.background='#555'"><div class="sidebar-game-text"><div class="sidebar-game-title">${escapeHTML(item.message || item.title)}</div></div></div>`;
                 els.libraryListSidebar.appendChild(div);
             });
+     if (selectedHeroItem) {
+                const allItems = els.libraryListSidebar.querySelectorAll('.sidebar-game-item');
+                allItems.forEach((el, i) => {
+                    if (baseHistory[i] && baseHistory[i].code === selectedHeroItem.code) {
+                        el.classList.add('active');
+                    }
+                });
+                const latestItem = baseHistory.find(h => h.code === selectedHeroItem.code);
+                if (latestItem) updateHeroView(latestItem, true);
+            }
       
       const now = Date.now();
       let hasLockedItems = currentUser.history.some(item => {
