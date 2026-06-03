@@ -5,16 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Redeem Center</title>
 
-  <!-- フォント指定は変更しない（元HTMLの構成を維持） -->
   <link rel="icon" type="image/svg+xml" href="./kiryu11.svg">
-<link rel="preconnect" href="https://fonts.googleapis.com/">
-<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./_.k__yu.10__Developers_files/all.min.css">
-<script src="https://unpkg.com/lucide@latest"></script>
-
+  <link rel="preconnect" href="https://fonts.googleapis.com/">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+  
   <style>
-    /* --- FONT FACE DEFINITIONS（変更しない） --- */
+    /* --- FONT DEFINITIONS --- */
     @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
     @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Medium.woff') format('woff'); font-weight: 500; font-style: normal; }
     @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
@@ -25,20 +22,23 @@
 
     :root {
       --primary: #007DFF;
-      --ok: #04CF22;
+      --primary-hover: #0066D2;
+      --success: #04CF22;
       --danger: #FF3B30;
-
-      --bg: #121212;
-      --panel: rgba(40,40,40,0.55);
-      --panel2: rgba(255,255,255,0.06);
-      --border: rgba(255,255,255,0.12);
-      --text: #fff;
-      --sub: rgba(255,255,255,0.65);
-      --shadow: 0 20px 80px rgba(0,0,0,0.55);
-
-      --radius-xl: 28px;
-      --radius-l: 18px;
-      --spring: cubic-bezier(0.33, 1, 0.68, 1);
+      
+      --bg: #09090b;
+      --card-bg: rgba(24, 24, 27, 0.6);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --input-bg: rgba(255, 255, 255, 0.05);
+      --input-focus: rgba(0, 125, 255, 0.15);
+      --text-main: #ffffff;
+      --text-sub: #a1a1aa;
+      --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --trans: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
       --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
     }
@@ -50,1398 +50,671 @@
     :root:lang(ko)    { --font-stack: 'HarmonyOS Sans', 'Noto Sans KR', sans-serif; }
     :root:lang(ru)    { --font-stack: 'HarmonyOS Sans', sans-serif; }
 
-    [data-theme="light"]{
-      --bg: #F1F3F5;
-      --panel: rgba(255,255,255,0.70);
-      --panel2: rgba(0,0,0,0.04);
-      --border: rgba(0,0,0,0.10);
-      --text: #000;
-      --sub: rgba(0,0,0,0.55);
-      --shadow: 0 20px 80px rgba(0,0,0,0.14);
+    [data-theme="light"] {
+      --bg: #f8fafc;
+      --card-bg: rgba(255, 255, 255, 0.8);
+      --card-border: rgba(0, 0, 0, 0.08);
+      --input-bg: rgba(0, 0, 0, 0.04);
+      --input-focus: rgba(0, 125, 255, 0.1);
+      --text-main: #0f172a;
+      --text-sub: #64748b;
+      --shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
     }
 
-    *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
-    html,body{ height:100%; }
-    body{
-      margin:0;
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+    body, html { width: 100%; height: 100%; }
+    
+    body {
       font-family: var(--font-stack);
-      background: var(--bg);
-      color: var(--text);
-      overflow:hidden;
+      background-color: var(--bg);
+      color: var(--text-main);
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: background-color var(--trans), color var(--trans);
     }
-    button,input{ font-family: var(--font-stack); }
+    
+    button, input { font-family: inherit; }
 
-    /* ===== Background ===== */
-    #bgCanvas{
-      position:fixed; inset:0;
-      width:100%; height:100%;
-      z-index:0;
-      opacity:0.55;
-      filter: blur(60px);
-      pointer-events:none;
+    /* ===== Dynamic Background ===== */
+    .bg-elements {
+      position: fixed; inset: 0; z-index: -1;
+      overflow: hidden; pointer-events: none;
     }
-    .bg-blobs{
-      position:fixed; inset:-20%;
-      background:
-        radial-gradient(500px 500px at 20% 30%, rgba(0,125,255,0.35), transparent 60%),
-        radial-gradient(500px 500px at 80% 20%, rgba(4,207,34,0.22), transparent 60%),
-        radial-gradient(700px 700px at 70% 80%, rgba(255,59,48,0.18), transparent 60%),
-        radial-gradient(600px 600px at 30% 85%, rgba(255,200,0,0.14), transparent 60%);
-      z-index:0;
-      transform: translateZ(0);
-      animation: floatBg 14s var(--spring) infinite alternate;
-      pointer-events:none;
+    .orb {
+      position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.4;
+      animation: float 20s ease-in-out infinite alternate;
     }
-    @keyframes floatBg{
-      from{ transform: translate3d(-1.5%, -1.2%, 0) scale(1); }
-      to  { transform: translate3d(1.5%, 1.2%, 0) scale(1.03); }
-    }
+    .orb-1 { width: 400px; height: 400px; background: var(--primary); top: -10%; left: -10%; }
+    .orb-2 { width: 500px; height: 500px; background: var(--success); bottom: -20%; right: -10%; animation-delay: -5s; opacity: 0.2; }
+    @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(10vw, 10vh) scale(1.2); } }
 
-    /* ===== Layout ===== */
-    .wrap{
-      position:relative;
-      z-index:2;
-      height:100%;
-      display:flex;
-      flex-direction:column;
+    /* ===== Header ===== */
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 24px; position: sticky; top: 0; z-index: 50;
+      background: linear-gradient(to bottom, var(--bg) 20%, transparent);
+      backdrop-filter: blur(10px);
     }
-    .topbar{
-      position:sticky;
-      top:0;
-      z-index:10;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding: 18px 20px;
-      gap: 14px;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.18), transparent);
-      backdrop-filter: blur(8px);
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-icon {
+      width: 40px; height: 40px;
+      border-radius: var(--radius-sm);
+      background: var(--primary); color: #fff;
+      display: flex; justify-content: center; align-items: center;
+      box-shadow: 0 4px 14px rgba(0, 125, 255, 0.4);
     }
-    [data-theme="light"] .topbar{
-      background: linear-gradient(to bottom, rgba(255,255,255,0.65), transparent);
-    }
+    .brand-text h1 { font-size: 16px; font-weight: 900; line-height: 1.2; letter-spacing: -0.5px; }
+    .brand-text p { font-size: 11px; color: var(--text-sub); font-weight: 700; }
 
-    .brand{
-      display:flex; align-items:center; gap:10px;
-      font-weight:800;
-      letter-spacing:-0.4px;
-      min-width: 140px;
-      user-select:none;
+    .header-actions { display: flex; gap: 8px; align-items: center; }
+    .pill-btn {
+      height: 40px; padding: 0 16px;
+      border-radius: 99px; border: 1px solid var(--card-border);
+      background: var(--card-bg); color: var(--text-main);
+      font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; gap: 8px;
+      cursor: pointer; transition: all var(--trans);
+      backdrop-filter: blur(10px);
     }
-    .brand-badge{
-      width:34px; height:34px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, rgba(0,125,255,0.9), rgba(0,125,255,0.3));
-      border: 1px solid var(--border);
-      box-shadow: 0 12px 30px rgba(0,125,255,0.25);
-      display:grid; place-items:center;
-    }
-    .brand-badge svg{ width:18px; height:18px; }
-    .brand small{
-      display:block;
-      font-size:11px;
-      color: var(--sub);
-      font-weight:700;
-      letter-spacing:0.2px;
-      margin-top:2px;
-    }
+    .pill-btn:hover { transform: translateY(-2px); border-color: var(--primary); }
+    .pill-btn svg { width: 16px; height: 16px; }
+    
+    .clock-display { font-variant-numeric: tabular-nums; letter-spacing: 0.5px; }
 
-    .top-actions{
-      display:flex;
-      align-items:center;
-      gap:10px;
+    /* ===== Dropdowns ===== */
+    .dropdown { position: relative; }
+    .dropdown-menu {
+      position: absolute; top: calc(100% + 8px); right: 0;
+      width: 200px; background: var(--card-bg);
+      border: 1px solid var(--card-border); border-radius: var(--radius-md);
+      box-shadow: var(--shadow); backdrop-filter: blur(20px);
+      padding: 8px; opacity: 0; visibility: hidden;
+      transform: translateY(-10px); transition: all 0.2s; z-index: 100;
+    }
+    .dropdown-menu.active { opacity: 1; visibility: visible; transform: translateY(0); }
+    .dropdown-item {
+      width: 100%; text-align: left; padding: 10px 12px;
+      background: transparent; border: none; color: var(--text-main);
+      font-size: 13px; font-weight: 700; border-radius: 8px;
+      cursor: pointer; display: flex; justify-content: space-between;
+    }
+    .dropdown-item:hover { background: var(--input-bg); }
+    
+    /* ===== Main Container ===== */
+    main {
+      flex: 1; display: flex; justify-content: center; align-items: center;
+      padding: 24px;
+    }
+    
+    .card-container {
+      width: 100%; max-width: 640px; position: relative;
     }
 
-    .pill{
-      height: 42px;
-      padding: 0 12px;
-      border-radius: 999px;
-      background: var(--panel2);
-      border: 1px solid var(--border);
-      backdrop-filter: blur(18px);
-      box-shadow: 0 10px 35px rgba(0,0,0,0.22);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
-      color: var(--text);
-      cursor:pointer;
-      user-select:none;
-      transition: transform .25s var(--spring), background .25s var(--spring);
-      white-space:nowrap;
-    }
-    .pill:hover{ transform: translateY(-1px) scale(1.01); }
-    .pill:active{ transform: translateY(0) scale(0.98); }
-    .pill svg{ width:18px; height:18px; opacity:0.9; }
-
-    .clock{
-      font-weight:800;
-      font-size: 12.5px;
-      letter-spacing: 0.1px;
-      color: var(--text);
-      max-width: 420px;
-      overflow:hidden;
-      text-overflow: ellipsis;
+    .glass-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg); box-shadow: var(--shadow);
+      backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+      padding: 40px; overflow: hidden; position: relative;
     }
 
-    .main{
-      flex:1;
-      display:grid;
-      place-items:center;
-      padding: 14px 18px 28px;
-      overflow:auto;
+    /* ===== Views (No Modals) ===== */
+    .view-section {
+      display: flex; flex-direction: column; gap: 24px;
+      opacity: 0; visibility: hidden; position: absolute;
+      inset: 0; padding: 40px;
+      transform: translateY(20px) scale(0.98);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .view-section.active {
+      opacity: 1; visibility: visible; position: relative;
+      transform: translateY(0) scale(1); padding: 0;
     }
 
-    .card{
-      width:min(820px, 100%);
-      border-radius: var(--radius-xl);
-      background: var(--panel);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-      padding: 30px;
-      position:relative;
-      overflow:hidden;
-      backdrop-filter: blur(26px);
-      -webkit-backdrop-filter: blur(26px);
-    }
-    .card::before{
-      content:"";
-      position:absolute; inset:-2px;
-      background:
-        radial-gradient(240px 240px at 20% 10%, rgba(0,125,255,0.35), transparent 60%),
-        radial-gradient(240px 240px at 80% 30%, rgba(4,207,34,0.22), transparent 60%),
-        radial-gradient(300px 300px at 60% 90%, rgba(255,59,48,0.16), transparent 60%);
-      opacity:0.9;
-      pointer-events:none;
-      filter: blur(0px);
-    }
-    .card-inner{
-      position:relative;
-      z-index:2;
-      display:flex;
-      flex-direction:column;
-      gap: 18px;
-    }
+    /* --- Input View --- */
+    .header-text h2 { font-size: 28px; font-weight: 900; margin-bottom: 8px; letter-spacing: -1px; }
+    .header-text p { font-size: 14px; color: var(--text-sub); line-height: 1.6; }
 
-    .headline{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap: 18px;
+    .input-group { position: relative; display: flex; flex-direction: column; gap: 12px; }
+    .code-input {
+      width: 100%; height: 64px;
+      background: var(--input-bg); border: 2px solid var(--card-border);
+      border-radius: var(--radius-md); color: var(--text-main);
+      font-size: 24px; font-weight: 900; text-align: center; letter-spacing: 2px;
+      transition: all var(--trans); outline: none;
     }
-    .title{
-      font-size: 34px;
-      font-weight: 900;
-      letter-spacing: -0.9px;
-      margin: 0;
-      line-height: 1.1;
+    .code-input:focus { border-color: var(--primary); background: var(--input-focus); box-shadow: 0 0 0 4px rgba(0, 125, 255, 0.1); }
+    
+    .btn-main {
+      width: 100%; height: 56px;
+      background: var(--primary); color: #fff;
+      border: none; border-radius: var(--radius-md);
+      font-size: 16px; font-weight: 900; cursor: pointer;
+      display: flex; justify-content: center; align-items: center; gap: 8px;
+      transition: all var(--trans);
     }
-    .subtitle{
-      margin: 10px 0 0;
-      font-size: 13.5px;
-      color: var(--sub);
-      font-weight: 700;
-      line-height: 1.6;
-      max-width: 56ch;
-    }
+    .btn-main:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0, 125, 255, 0.3); }
+    .btn-main:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
 
-    .inputRow{
-      display:flex;
-      gap: 12px;
-      align-items:center;
-      margin-top: 6px;
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-top: 12px; }
+    .feature-box {
+      background: var(--input-bg); border: 1px solid var(--card-border);
+      border-radius: var(--radius-sm); padding: 16px;
     }
-    .codeInput{
-      flex:1;
-      height: 56px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.08);
-      color: var(--text);
-      padding: 0 18px;
-      outline:none;
-      font-weight: 800;
-      font-size: 17px;
-      letter-spacing: 0.5px;
-      transition: background .25s var(--spring), border-color .25s var(--spring);
-    }
-    [data-theme="light"] .codeInput{ background: rgba(0,0,0,0.04); }
-    .codeInput:focus{
-      border-color: rgba(0,125,255,0.65);
-      background: rgba(0,125,255,0.12);
-    }
+    .feature-box h4 { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 6px; }
+    .feature-box p { font-size: 12px; color: var(--text-sub); line-height: 1.5; }
+    
+    .status-text { text-align: center; font-size: 13px; font-weight: 700; color: var(--text-sub); display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-sub); }
+    .dot.pulse { background: var(--primary); box-shadow: 0 0 0 4px rgba(0, 125, 255, 0.2); animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0,125,255,0.4); } 70% { box-shadow: 0 0 0 10px rgba(0,125,255,0); } 100% { box-shadow: 0 0 0 0 rgba(0,125,255,0); } }
 
-    .btn{
-      height: 56px;
-      min-width: 160px;
-      padding: 0 18px;
-      border-radius: 999px;
-      border: none;
-      background: var(--primary);
-      color: #fff;
-      font-weight: 900;
-      font-size: 15px;
-      cursor:pointer;
-      transition: transform .25s var(--spring), box-shadow .25s var(--spring), opacity .25s var(--spring);
-      box-shadow: 0 18px 45px rgba(0,125,255,0.25);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap: 10px;
-    }
-    .btn:hover{ transform: translateY(-1px); box-shadow: 0 22px 55px rgba(0,125,255,0.32); }
-    .btn:active{ transform: translateY(0) scale(0.98); }
-    .btn:disabled{ opacity: .65; cursor:not-allowed; transform:none; }
+    /* --- Result View --- */
+    .result-content { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 20px 0; }
+    .result-icon { width: 80px; height: 80px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 36px; }
+    .result-icon.success { background: rgba(4, 207, 34, 0.1); color: var(--success); border: 2px solid rgba(4, 207, 34, 0.2); }
+    .result-icon.error { background: rgba(255, 59, 48, 0.1); color: var(--danger); border: 2px solid rgba(255, 59, 48, 0.2); }
+    
+    .result-title { font-size: 28px; font-weight: 900; }
+    .result-msg { font-size: 15px; color: var(--text-sub); line-height: 1.6; white-space: pre-wrap; background: var(--input-bg); padding: 16px; border-radius: var(--radius-sm); width: 100%; border: 1px solid var(--card-border); }
+    .result-time { font-size: 12px; font-family: monospace; color: var(--text-sub); }
 
-    .hintGrid{
-      display:grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-      margin-top: 4px;
+    .result-actions { display: flex; gap: 12px; width: 100%; margin-top: 10px; }
+    .btn-secondary {
+      flex: 1; height: 56px; background: transparent; color: var(--text-main);
+      border: 2px solid var(--card-border); border-radius: var(--radius-md);
+      font-size: 16px; font-weight: 900; cursor: pointer; transition: all var(--trans);
     }
-    .hint{
-      border-radius: var(--radius-l);
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.06);
-      padding: 14px 14px;
-      min-height: 86px;
-    }
-    [data-theme="light"] .hint{ background: rgba(0,0,0,0.03); }
-    .hint b{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      font-size: 12px;
-      font-weight: 900;
-      color: var(--text);
-    }
-    .hint b svg{ width:16px; height:16px; opacity:0.9; }
-    .hint p{
-      margin: 8px 0 0;
-      font-size: 12px;
-      color: var(--sub);
-      font-weight: 700;
-      line-height: 1.5;
-    }
+    .btn-secondary:hover { background: var(--input-bg); }
 
-    .statusLine{
-      min-height: 18px;
-      font-size: 12px;
-      font-weight: 800;
-      color: var(--sub);
-      display:flex;
-      align-items:center;
-      gap: 10px;
+    /* ===== Language Overlay (Full screen initial setup) ===== */
+    .lang-overlay {
+      position: fixed; inset: 0; background: var(--bg); z-index: 999;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 24px; transition: opacity 0.3s;
     }
-    .statusDot{
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.25);
+    .lang-overlay.hidden { opacity: 0; pointer-events: none; }
+    .lang-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; width: 100%; max-width: 600px; margin-top: 32px; }
+    .lang-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: var(--radius-md); padding: 24px 16px;
+      text-align: center; cursor: pointer; transition: all var(--trans);
     }
-    .statusDot.ok{ background: var(--ok); box-shadow: 0 0 0 6px rgba(4,207,34,0.12); }
-    .statusDot.bad{ background: var(--danger); box-shadow: 0 0 0 6px rgba(255,59,48,0.12); }
-
-    /* ===== Dropdown menus ===== */
-    .menu{
-      position:absolute;
-      top: 52px;
-      right: 0;
-      width: 220px;
-      border-radius: 18px;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      box-shadow: 0 18px 60px rgba(0,0,0,0.35);
-      backdrop-filter: blur(26px);
-      -webkit-backdrop-filter: blur(26px);
-      padding: 10px;
-      display:none;
-      z-index: 30;
-    }
-    .menu.open{ display:block; animation: pop .25s var(--spring); }
-    @keyframes pop{ from{ opacity:0; transform: translateY(-8px) scale(0.98);} to{opacity:1; transform:none;} }
-    .menu button{
-      width:100%;
-      border:none;
-      background:transparent;
-      color: var(--text);
-      border-radius: 14px;
-      padding: 12px 12px;
-      font-weight: 900;
-      font-size: 13px;
-      cursor:pointer;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 10px;
-    }
-    .menu button:hover{ background: rgba(255,255,255,0.08); }
-    [data-theme="light"] .menu button:hover{ background: rgba(0,0,0,0.05); }
-
-    .menu .mini{
-      padding: 10px 12px 12px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 6px;
-    }
-    .menu .mini .label{
-      font-size: 10px;
-      font-weight: 900;
-      color: var(--sub);
-      letter-spacing: 0.7px;
-    }
-    .menu .mini .value{
-      margin-top: 6px;
-      font-size: 13px;
-      font-weight: 900;
-      word-break: break-all;
-    }
-
-    /* ===== Modal ===== */
-    .overlay{
-      position:fixed;
-      inset:0;
-      background: rgba(0,0,0,0.35);
-      backdrop-filter: blur(12px);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      z-index: 100;
-      padding: 18px;
-    }
-    [data-theme="light"] .overlay{ background: rgba(0,0,0,0.18); }
-    .overlay.active{ display:flex; }
-
-    .modal{
-      width: min(560px, 100%);
-      border-radius: 26px;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-      position:relative;
-      animation: modalIn .35s var(--spring);
-    }
-    @keyframes modalIn{ from{ transform: translateY(18px) scale(0.98); opacity:0; } to{ transform:none; opacity:1; } }
-    .modalHead{
-      padding: 18px 18px 10px;
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap: 12px;
-    }
-    .modalHead h3{
-      margin:0;
-      font-size: 18px;
-      font-weight: 1000;
-      letter-spacing: -0.3px;
-    }
-    .modalHead .close{
-      width: 38px; height: 38px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.06);
-      cursor:pointer;
-      display:grid;
-      place-items:center;
-      color: var(--text);
-    }
-    [data-theme="light"] .modalHead .close{ background: rgba(0,0,0,0.03); }
-    .modalBody{
-      padding: 0 18px 18px;
-      display:flex;
-      flex-direction:column;
-      gap: 14px;
-    }
-    .bigMsg{
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.06);
-      padding: 14px;
-    }
-    [data-theme="light"] .bigMsg{ background: rgba(0,0,0,0.03); }
-    .bigMsg p{
-      margin:0;
-      font-weight: 800;
-      color: var(--text);
-      line-height: 1.55;
-      font-size: 13px;
-      white-space: pre-wrap;
-    }
-    .bigMsg .time{
-      margin-top: 10px;
-      font-size: 12px;
-      font-weight: 900;
-      color: var(--sub);
-    }
-    .modalActions{
-      display:flex;
-      gap: 10px;
-    }
-    .btnGhost{
-      flex: 1;
-      height: 48px;
-      border-radius: 999px;
-      border: 2px solid var(--border);
-      background: transparent;
-      color: var(--text);
-      font-weight: 1000;
-      cursor:pointer;
-    }
-    .btnSolid{
-      flex: 2;
-      height: 48px;
-      border-radius: 999px;
-      border:none;
-      background: var(--text);
-      color: var(--bg);
-      font-weight: 1000;
-      cursor:pointer;
-    }
-    .btnGhost:active,.btnSolid:active{ transform: scale(0.98); }
-
-    /* ===== Language Selection Overlay ===== */
-    .langOverlay{
-      position:fixed;
-      inset:0;
-      background: var(--bg);
-      display:none;
-      z-index: 200;
-      padding: 22px;
-      overflow:auto;
-    }
-    .langOverlay.active{ display:block; }
-    .langBox{
-      max-width: 880px;
-      margin: 0 auto;
-      padding: 26px 18px 36px;
-    }
-    .langBox h2{
-      margin: 0;
-      font-size: 26px;
-      font-weight: 1000;
-      letter-spacing: -0.5px;
-    }
-    .langBox p{
-      margin: 10px 0 0;
-      color: var(--sub);
-      font-weight: 800;
-      font-size: 13px;
-      line-height: 1.6;
-    }
-    .langGrid{
-      margin-top: 18px;
-      display:grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-    }
-    .langCard{
-      border-radius: 22px;
-      border: 1px solid var(--border);
-      background: var(--panel);
-      padding: 18px;
-      cursor:pointer;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      transition: transform .25s var(--spring);
-      min-height: 72px;
-    }
-    .langCard:hover{ transform: translateY(-2px); }
-    .langCard b{
-      font-size: 16px;
-      font-weight: 1000;
-    }
-    .langCard small{
-      color: var(--sub);
-      font-weight: 900;
-    }
-
-    /* ===== Spinner ===== */
-    .spinner{
-      width: 18px; height: 18px;
-      border-radius: 50%;
-      border: 2px solid rgba(255,255,255,0.25);
-      border-top: 2px solid rgba(255,255,255,0.95);
-      animation: spin .8s linear infinite;
-    }
-    [data-theme="light"] .spinner{
-      border: 2px solid rgba(0,0,0,0.18);
-      border-top: 2px solid rgba(0,0,0,0.65);
-    }
-    @keyframes spin{ to{ transform: rotate(360deg);} }
+    .lang-card:hover { transform: translateY(-4px); border-color: var(--primary); }
+    .lang-card strong { display: block; font-size: 18px; margin-bottom: 4px; }
+    .lang-card small { color: var(--text-sub); font-size: 13px; }
 
     /* ===== Responsive ===== */
-    @media (max-width: 820px){
-      .hintGrid{ grid-template-columns: 1fr; }
-      .title{ font-size: 30px; }
-    }
-    @media (max-width: 600px){
-      .topbar{ padding: 14px 14px; }
-      .brand{ min-width: auto; }
-      .brand small{ display:none; }
-      .pill{ height: 40px; padding: 0 10px; }
-      .clock{ max-width: 240px; font-size: 12px; }
-      .card{ padding: 22px; }
-      .inputRow{ flex-direction: column; align-items: stretch; }
-      .btn{ width: 100%; min-width: 0; }
-      .codeInput{ width: 100%; }
-      .langGrid{ grid-template-columns: 1fr; }
+    @media (max-width: 600px) {
+      .header-actions .pill-btn span:not(.clock-display) { display: none; }
+      .glass-card { padding: 24px; }
+      .code-input { font-size: 20px; height: 56px; }
+      .header-text h2 { font-size: 24px; }
+      .lang-grid { grid-template-columns: 1fr; }
+      .result-actions { flex-direction: column; }
     }
   </style>
 </head>
-
 <body>
-  <canvas id="bgCanvas"></canvas>
-  <div class="bg-blobs"></div>
 
-  <!-- 初回言語選択 -->
-  <div id="langOverlay" class="langOverlay">
-    <div class="langBox">
-      <h2 id="langOverlayTitle">Select Language</h2>
-      <p id="langOverlayDesc">Choose a display language. You can change it anytime from the top bar.</p>
-      <div class="langGrid">
-        <div class="langCard" data-lang="ja"><div><b>日本語</b><br/><small>Japanese</small></div><span>→</span></div>
-        <div class="langCard" data-lang="en"><div><b>English</b><br/><small>English</small></div><span>→</span></div>
-        <div class="langCard" data-lang="zh"><div><b>简体中文</b><br/><small>Simplified</small></div><span>→</span></div>
-        <div class="langCard" data-lang="zh-TW"><div><b>繁體中文</b><br/><small>Traditional</small></div><span>→</span></div>
-        <div class="langCard" data-lang="ko"><div><b>한국어</b><br/><small>Korean</small></div><span>→</span></div>
-        <div class="langCard" data-lang="ru"><div><b>Русский</b><br/><small>Russian</small></div><span>→</span></div>
-      </div>
+  <div class="bg-elements">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+  </div>
+
+  <div id="langOverlay" class="lang-overlay">
+    <div style="text-align: center;">
+      <h2 id="langSetupTitle" style="font-size:32px; font-weight:900;">Select Language</h2>
+      <p id="langSetupDesc" style="color:var(--text-sub); margin-top:8px;">Choose your preferred display language.</p>
+    </div>
+    <div class="lang-grid">
+      <div class="lang-card" data-lang="ja"><strong>日本語</strong><small>Japanese</small></div>
+      <div class="lang-card" data-lang="en"><strong>English</strong><small>English</small></div>
+      <div class="lang-card" data-lang="zh"><strong>简体中文</strong><small>Simplified</small></div>
+      <div class="lang-card" data-lang="zh-TW"><strong>繁體中文</strong><small>Traditional</small></div>
+      <div class="lang-card" data-lang="ko"><strong>한국어</strong><small>Korean</small></div>
+      <div class="lang-card" data-lang="ru"><strong>Русский</strong><small>Russian</small></div>
     </div>
   </div>
 
-  <div class="wrap">
-    <!-- Top Bar -->
-    <header class="topbar">
-      <div class="brand">
-        <div class="brand-badge" aria-hidden="true">
-          <!-- lock/globe-ish icon -->
-          <svg viewBox="0 0 24 24" fill="none">
-            <path d="M12 2a10 10 0 1 0 10 10" stroke="currentColor" stroke-width="2" opacity="0.95"/>
-            <path d="M2 12h20" stroke="currentColor" stroke-width="2" opacity="0.9"/>
-            <path d="M12 2c3.5 3 3.5 17 0 20" stroke="currentColor" stroke-width="2" opacity="0.9"/>
-            <path d="M16.5 12.5v-2a4.5 4.5 0 0 0-9 0v2" stroke="currentColor" stroke-width="2" opacity="0.95"/>
-            <rect x="9" y="12.5" width="9" height="7.5" rx="2" stroke="currentColor" stroke-width="2" opacity="0.95"/>
-          </svg>
-        </div>
-        <div>
-          <div id="brandName">Redeem Center</div>
-          <small id="brandSub">Secure Code Verification</small>
+  <header>
+    <div class="brand">
+      <div class="brand-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+      </div>
+      <div class="brand-text">
+        <h1 id="brandName">Redeem Center</h1>
+        <p id="brandSub">Secure Verification</p>
+      </div>
+    </div>
+    
+    <div class="header-actions">
+      <button class="pill-btn" style="cursor:default;">
+        <span id="clockText" class="clock-display">--:--</span>
+      </button>
+
+      <div class="dropdown">
+        <button class="pill-btn" id="langToggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path><path d="M2 12h20"></path></svg>
+          <span id="currentLangLabel">JA</span>
+        </button>
+        <div class="dropdown-menu" id="langMenu">
+          <button class="dropdown-item" data-lang="ja">日本語 <span></span></button>
+          <button class="dropdown-item" data-lang="en">English <span></span></button>
+          <button class="dropdown-item" data-lang="zh">简体中文 <span></span></button>
+          <button class="dropdown-item" data-lang="zh-TW">繁體中文 <span></span></button>
+          <button class="dropdown-item" data-lang="ko">한국어 <span></span></button>
+          <button class="dropdown-item" data-lang="ru">Русский <span></span></button>
         </div>
       </div>
 
-      <div class="top-actions">
-        <!-- Language -->
-        <div style="position:relative;">
-          <div class="pill" id="langPill" role="button" tabindex="0">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M12 2a10 10 0 1 0 10 10" stroke="currentColor" stroke-width="2"/>
-              <path d="M2 12h20" stroke="currentColor" stroke-width="2"/>
-              <path d="M12 2c3.5 3 3.5 17 0 20" stroke="currentColor" stroke-width="2"/>
-            </svg>
-            <span id="langLabel" style="font-weight:1000; font-size:12.5px;">日本語</span>
-            <span style="opacity:0.6; font-weight:1000;">▾</span>
-          </div>
-          <div class="menu" id="langMenu">
-            <button class="langBtn" data-lang="ja">日本語 <span>✓</span></button>
-            <button class="langBtn" data-lang="en">English <span></span></button>
-            <button class="langBtn" data-lang="zh">简体中文 <span></span></button>
-            <button class="langBtn" data-lang="zh-TW">繁體中文 <span></span></button>
-            <button class="langBtn" data-lang="ko">한국어 <span></span></button>
-            <button class="langBtn" data-lang="ru">Русский <span></span></button>
-          </div>
-        </div>
+      <button class="pill-btn" id="themeToggle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+      </button>
 
-        <!-- Clock (Right Top) -->
-        <div class="pill clock" id="clockPill" title="Clock">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" opacity="0.9"/>
-            <path d="M12 7v6l4 2" stroke="currentColor" stroke-width="2" opacity="0.95" stroke-linecap="round"/>
-          </svg>
-          <span id="clockText">--</span>
-        </div>
-
-        <!-- Theme -->
-        <div class="pill" id="themePill" role="button" tabindex="0" title="Theme">
-          <svg id="themeIcon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-
-        <!-- Account -->
-        <div style="position:relative;">
-          <div class="pill" id="acctPill" role="button" tabindex="0" title="Account">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <circle cx="12" cy="8" r="4.5" stroke="currentColor" stroke-width="2"/>
-              <path d="M4 21a8 8 0 0 1 16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
+      <div class="dropdown">
+        <button class="pill-btn" id="userToggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </button>
+        <div class="dropdown-menu" id="userMenu" style="width: 250px;">
+          <div style="padding: 12px; border-bottom: 1px solid var(--card-border); margin-bottom: 8px;">
+            <div id="userLabel" style="font-size:11px; color:var(--text-sub);">USER ID</div>
+            <div id="userValue" style="font-weight:900; font-size:14px; word-break: break-all; margin-top:4px;">-</div>
           </div>
-          <div class="menu" id="acctMenu">
-            <div class="mini">
-              <div class="label" id="userLabel">USER</div>
-              <div class="value" id="userValue">-</div>
-            </div>
-            <button id="logoutBtn" style="color: var(--danger);">
-              <span id="logoutText">Logout</span>
-              <span>⟶</span>
-            </button>
-          </div>
+          <button class="dropdown-item" id="logoutBtn" style="color: var(--danger);">
+            <span id="logoutText">Logout</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          </button>
         </div>
       </div>
-    </header>
+    </div>
+  </header>
 
-    <!-- Main -->
-    <main class="main">
-      <section class="card" aria-label="Redeem">
-        <div class="card-inner">
-          <div class="headline">
-            <div>
-              <h1 class="title" id="heroTitle">コード認証センター</h1>
-              <p class="subtitle" id="heroSub">
-                引き換えコードを入力して認証します。認証後にコンテンツが解放されます。
-              </p>
-            </div>
+  <main>
+    <div class="card-container">
+      <div class="glass-card">
+        
+        <div id="view-input" class="view-section active">
+          <div class="header-text">
+            <h2 id="heroTitle">コード認証センター</h2>
+            <p id="heroSub">引き換えコードを入力して認証します。認証後にコンテンツが解放されます。</p>
           </div>
-
-          <div class="inputRow">
-            <input id="codeInput" class="codeInput" type="text" autocomplete="off" inputmode="latin"
-                   placeholder="引き換えコード" />
-            <button id="checkBtn" class="btn">
+          
+          <div class="input-group">
+            <input id="codeInput" class="code-input" type="text" autocomplete="off" inputmode="latin" placeholder="XXXX-XXXX-XXXX-XXXX" />
+            <div class="status-text" id="statusLine">
+              <div class="dot pulse" id="statusDot"></div>
+              <span id="statusText">Ready</span>
+            </div>
+            <button id="checkBtn" class="btn-main">
               <span id="checkBtnText">確認</span>
             </button>
           </div>
 
-          <div class="statusLine" id="statusLine">
-            <span class="statusDot" id="statusDot"></span>
-            <span id="statusText"></span>
-          </div>
-
-          <div class="hintGrid">
-            <div class="hint">
-              <b>
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M12 2l9 4.5v6c0 5-3.8 9.4-9 10-5.2-.6-9-5-9-10v-6L12 2z" stroke="currentColor" stroke-width="2"/>
-                  <path d="M9 12l2 2 4-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-                <span id="hint1Title">安全な検証</span>
-              </b>
+          <div class="features">
+            <div class="feature-box">
+              <h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> <span id="hint1Title">安全な検証</span></h4>
               <p id="hint1Body">セッションを流用し、サーバー側でコードの有効性を確認します。</p>
             </div>
-            <div class="hint">
-              <b>
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M4 7h16M4 12h10M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-                <span id="hint2Title">自動整形</span>
-              </b>
+            <div class="feature-box">
+              <h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg> <span id="hint2Title">自動整形</span></h4>
               <p id="hint2Body">英数字のみを抽出し、ハイフンを自動挿入して読みやすくします。</p>
-            </div>
-            <div class="hint">
-              <b>
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                  <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" opacity="0.9"/>
-                </svg>
-                <span id="hint3Title">タイムスタンプ</span>
-              </b>
-              <p id="hint3Body">右上の時計と同じ形式で、成功/失敗時刻を表示します。</p>
             </div>
           </div>
         </div>
-      </section>
-    </main>
-  </div>
 
-  <!-- Result Modal -->
-  <div id="resultOverlay" class="overlay" role="dialog" aria-modal="true" aria-label="Result">
-    <div class="modal">
-      <div class="modalHead">
-        <h3 id="modalTitle">Result</h3>
-        <button class="close" id="modalClose" aria-label="Close">
-          <span style="font-weight:1000;">✕</span>
-        </button>
-      </div>
-      <div class="modalBody">
-        <div class="bigMsg">
-          <p id="modalMsg">-</p>
-          <div class="time" id="modalTime">--</div>
+        <div id="view-result" class="view-section">
+          <div class="result-content">
+            <div id="resultIcon" class="result-icon success">
+              </div>
+            <h2 id="resultTitle" class="result-title">Result</h2>
+            <p id="resultMsg" class="result-msg">Message goes here</p>
+            <div id="resultTime" class="result-time">2026-06-03 12:00:00</div>
+          </div>
+          
+          <div class="result-actions">
+            <button id="btnReset" class="btn-secondary">閉じる</button>
+            <button id="btnPrimary" class="btn-main" style="display: none;">引き換える</button>
+          </div>
         </div>
-        <div class="modalActions" id="modalActions">
-          <button class="btnGhost" id="modalSecondary">閉じる</button>
-          <button class="btnSolid" id="modalPrimary" style="display:none;">引き換える</button>
-        </div>
+
       </div>
     </div>
-  </div>
+  </main>
 
   <script>
     /*********************
-     * Config
+     * Config & Variables
      *********************/
-    const GAS_API_URL = "/api/proxy"; // 既存と同じ想定（必要なら変更）
+    const GAS_API_URL = "/api/proxy";
     const LS_LANG = "user_lang";
     const LS_IDENTITY = "user_session_identity";
     const LS_TOKEN = "user_session_token";
-
     let CURRENT_LANG = "ja";
     let pendingCode = "";
-
-    const $ = (id) => document.getElementById(id);
+    
+    const $ = id => document.getElementById(id);
 
     /*********************
-     * Translations
+     * Translations Dictionary
      *********************/
     const T = {
       ja: {
-        brandName: "Redeem Center",
-        brandSub: "Secure Code Verification",
-        heroTitle: "コード認証センター",
-        heroSub: "引き換えコードを入力して認証します。認証後にコンテンツが解放されます。",
-        placeholder: "引き換えコード",
-        check: "確認",
-        checking: "確認中…",
-        ready: "待機中",
+        brandName: "Redeem Center", brandSub: "Secure Code Verification",
+        heroTitle: "コード認証センター", heroSub: "引き換えコードを入力して認証します。認証後にコンテンツが解放されます。",
+        check: "確認", checking: "確認中…", ready: "待機中",
         needLogin: "未ログインです。Access.html に移動します…",
-        okTitle: "認証OK",
-        okMsg: "このコードは有効です。\n続行すると引き換え（Redeem）を実行します。",
-        redeem: "引き換える",
-        redeemedTitle: "引き換え完了",
-        redeemedMsg: "引き換えが完了しました。",
-        usedTitle: "使用済み",
-        usedMsg: "このコードは既に引き換え済みです。",
-        invalidTitle: "無効なコード",
-        invalidMsg: "このコードは無効です。",
-        errTitle: "エラー",
-        errMsg: "エラーが発生しました。しばらくしてから再度お試しください。",
-        close: "閉じる",
-        userLabel: "個人識別子",
-        logout: "ログアウト",
-        hint1Title: "安全な検証",
-        hint1Body: "セッションを流用し、サーバー側でコードの有効性を確認します。",
-        hint2Title: "自動整形",
-        hint2Body: "英数字のみを抽出し、ハイフンを自動挿入して読みやすくします。",
-        hint3Title: "タイムスタンプ",
-        hint3Body: "右上の時計と同じ形式で、成功/失敗時刻を表示します。",
-        langOverlayTitle: "言語を選択",
-        langOverlayDesc: "表示言語を選んでください。上部メニューからいつでも変更できます。"
+        okTitle: "認証完了", okMsg: "このコードは有効です。\n続行すると引き換えを実行します。",
+        redeem: "引き換える", redeemedTitle: "引き換え完了", redeemedMsg: "引き換えが完了しました。",
+        usedTitle: "使用済み", usedMsg: "このコードは既に引き換え済みです。",
+        invalidTitle: "無効なコード", invalidMsg: "このコードは無効です。",
+        errTitle: "エラー", errMsg: "エラーが発生しました。しばらくしてから再度お試しください。",
+        close: "閉じる", userLabel: "個人識別子", logout: "ログアウト",
+        hint1Title: "安全な検証", hint1Body: "セッションを流用し、サーバー側でコードの有効性を確認します。",
+        hint2Title: "自動整形", hint2Body: "英数字のみを抽出し、ハイフンを自動挿入して読みやすくします。"
       },
       en: {
-        brandName: "Redeem Center",
-        brandSub: "Secure Code Verification",
-        heroTitle: "Code Verification Center",
-        heroSub: "Enter a redemption code to verify. After verification, content will be unlocked.",
-        placeholder: "Redeem Code",
-        check: "CHECK",
-        checking: "Checking…",
-        ready: "Ready",
+        brandName: "Redeem Center", brandSub: "Secure Verification",
+        heroTitle: "Verification Center", heroSub: "Enter a code to verify and unlock content.",
+        check: "CHECK", checking: "Checking…", ready: "Ready",
         needLogin: "Not logged in. Redirecting to Access.html…",
-        okTitle: "Verified",
-        okMsg: "This code is valid.\nContinue to redeem it.",
-        redeem: "REDEEM",
-        redeemedTitle: "Redeemed",
-        redeemedMsg: "Redemption completed successfully.",
-        usedTitle: "Already Used",
-        usedMsg: "This code has already been redeemed.",
-        invalidTitle: "Invalid Code",
-        invalidMsg: "This code is invalid.",
-        errTitle: "Error",
-        errMsg: "Something went wrong. Please try again later.",
-        close: "Close",
-        userLabel: "USER ID",
-        logout: "Logout",
-        hint1Title: "Secure Verification",
-        hint1Body: "Reuses your session and verifies the code on the server.",
-        hint2Title: "Auto Formatting",
-        hint2Body: "Extracts alphanumerics and inserts hyphens automatically.",
-        hint3Title: "Timestamp",
-        hint3Body: "Shows the same time format as the top-right clock.",
-        langOverlayTitle: "Select Language",
-        langOverlayDesc: "Choose a display language. You can change it anytime from the top bar."
+        okTitle: "Verified", okMsg: "This code is valid.\nContinue to redeem it.",
+        redeem: "REDEEM", redeemedTitle: "Redeemed", redeemedMsg: "Redemption completed successfully.",
+        usedTitle: "Already Used", usedMsg: "This code has already been redeemed.",
+        invalidTitle: "Invalid Code", invalidMsg: "This code is invalid.",
+        errTitle: "Error", errMsg: "Something went wrong. Please try again.",
+        close: "Close", userLabel: "USER ID", logout: "Logout",
+        hint1Title: "Secure", hint1Body: "Verifies the code securely on the server side.",
+        hint2Title: "Auto Format", hint2Body: "Extracts alphanumerics and inserts hyphens automatically."
       },
       zh: {
-        brandName: "Redeem Center",
-        brandSub: "安全代码验证",
-        heroTitle: "兑换码验证中心",
-        heroSub: "输入兑换码进行验证。验证后将解锁内容。",
-        placeholder: "兑换码",
-        check: "检查",
-        checking: "检查中…",
-        ready: "就绪",
-        needLogin: "未登录。正在跳转到 Access.html…",
-        okTitle: "验证通过",
-        okMsg: "该代码有效。\n继续将执行兑换。",
-        redeem: "兑换",
-        redeemedTitle: "兑换完成",
-        redeemedMsg: "兑换已成功完成。",
-        usedTitle: "已使用",
-        usedMsg: "该代码已被兑换。",
-        invalidTitle: "无效代码",
-        invalidMsg: "该代码无效。",
-        errTitle: "错误",
-        errMsg: "发生错误，请稍后重试。",
-        close: "关闭",
-        userLabel: "用户ID",
-        logout: "退出",
-        hint1Title: "安全验证",
-        hint1Body: "复用会话并在服务器端验证代码。",
-        hint2Title: "自动格式化",
-        hint2Body: "提取字母数字并自动插入连字符。",
-        hint3Title: "时间戳",
-        hint3Body: "与右上角时钟一致的时间显示。",
-        langOverlayTitle: "选择语言",
-        langOverlayDesc: "请选择显示语言。可随时在顶部菜单更改。"
+        brandName: "Redeem Center", brandSub: "安全验证",
+        heroTitle: "兑换码验证中心", heroSub: "输入兑换码进行验证。验证后将解锁内容。",
+        check: "检查", checking: "检查中…", ready: "就绪",
+        needLogin: "未登录。正在跳转…",
+        okTitle: "验证通过", okMsg: "该代码有效。\n继续将执行兑换。",
+        redeem: "兑换", redeemedTitle: "兑换完成", redeemedMsg: "兑换已成功完成。",
+        usedTitle: "已使用", usedMsg: "该代码已被兑换。",
+        invalidTitle: "无效代码", invalidMsg: "该代码无效。",
+        errTitle: "错误", errMsg: "发生错误，请稍后重试。",
+        close: "关闭", userLabel: "用户ID", logout: "退出",
+        hint1Title: "安全验证", hint1Body: "复用会话并在服务器端验证代码。",
+        hint2Title: "自动格式化", hint2Body: "提取字母数字并自动插入连字符。"
       },
       "zh-TW": {
-        brandName: "Redeem Center",
-        brandSub: "安全代碼驗證",
-        heroTitle: "兌換碼驗證中心",
-        heroSub: "輸入兌換碼進行驗證。驗證後將解鎖內容。",
-        placeholder: "兌換碼",
-        check: "檢查",
-        checking: "檢查中…",
-        ready: "就緒",
-        needLogin: "未登入。正在前往 Access.html…",
-        okTitle: "驗證通過",
-        okMsg: "此代碼有效。\n繼續將執行兌換。",
-        redeem: "兌換",
-        redeemedTitle: "兌換完成",
-        redeemedMsg: "兌換已成功完成。",
-        usedTitle: "已使用",
-        usedMsg: "此代碼已兌換。",
-        invalidTitle: "無效代碼",
-        invalidMsg: "此代碼無效。",
-        errTitle: "錯誤",
-        errMsg: "發生錯誤，請稍後再試。",
-        close: "關閉",
-        userLabel: "用戶ID",
-        logout: "退出",
-        hint1Title: "安全驗證",
-        hint1Body: "沿用會話並在伺服器端驗證代碼。",
-        hint2Title: "自動格式化",
-        hint2Body: "擷取英數並自動插入連字號。",
-        hint3Title: "時間戳",
-        hint3Body: "與右上角時鐘相同格式顯示。",
-        langOverlayTitle: "選擇語言",
-        langOverlayDesc: "請選擇顯示語言。可在上方選單隨時更改。"
+        brandName: "Redeem Center", brandSub: "安全驗證",
+        heroTitle: "兌換碼驗證中心", heroSub: "輸入兌換碼進行驗證。驗證後將解鎖內容。",
+        check: "檢查", checking: "檢查中…", ready: "就緒",
+        needLogin: "未登入。正在跳轉…",
+        okTitle: "驗證通過", okMsg: "此代碼有效。\n繼續將執行兌換。",
+        redeem: "兌換", redeemedTitle: "兌換完成", redeemedMsg: "兌換已成功完成。",
+        usedTitle: "已使用", usedMsg: "此代碼已兌換。",
+        invalidTitle: "無效代碼", invalidMsg: "此代碼無效。",
+        errTitle: "錯誤", errMsg: "發生錯誤，請稍後再試。",
+        close: "關閉", userLabel: "用戶ID", logout: "退出",
+        hint1Title: "安全驗證", hint1Body: "沿用會話並在伺服器端驗證代碼。",
+        hint2Title: "自動格式化", hint2Body: "擷取英數並自動插入連字號。"
       },
       ko: {
-        brandName: "Redeem Center",
-        brandSub: "보안 코드 검증",
-        heroTitle: "코드 인증 센터",
-        heroSub: "교환 코드를 입력하여 인증합니다. 인증 후 콘텐츠가 해제됩니다.",
-        placeholder: "교환 코드",
-        check: "확인",
-        checking: "확인 중…",
-        ready: "대기 중",
-        needLogin: "로그인되지 않았습니다. Access.html로 이동합니다…",
-        okTitle: "인증 완료",
-        okMsg: "이 코드는 유효합니다.\n계속하면 교환(Redeem)을 실행합니다.",
-        redeem: "교환",
-        redeemedTitle: "교환 완료",
-        redeemedMsg: "교환이 완료되었습니다.",
-        usedTitle: "이미 사용됨",
-        usedMsg: "이 코드는 이미 사용되었습니다.",
-        invalidTitle: "유효하지 않음",
-        invalidMsg: "유효하지 않은 코드입니다.",
-        errTitle: "오류",
-        errMsg: "오류가 발생했습니다. 잠시 후 다시 시도해 주세요.",
-        close: "닫기",
-        userLabel: "사용자 ID",
-        logout: "로그아웃",
-        hint1Title: "안전한 검증",
-        hint1Body: "세션을 재사용하고 서버에서 코드를 검증합니다.",
-        hint2Title: "자동 서식",
-        hint2Body: "영숫자만 추출하고 하이픈을 자동 삽입합니다.",
-        hint3Title: "타임스탬프",
-        hint3Body: "오른쪽 상단 시계와 같은 형식으로 표시합니다.",
-        langOverlayTitle: "언어 선택",
-        langOverlayDesc: "표시 언어를 선택하세요. 상단 메뉴에서 언제든 변경할 수 있습니다."
+        brandName: "Redeem Center", brandSub: "보안 검증",
+        heroTitle: "코드 인증 센터", heroSub: "교환 코드를 입력하여 인증합니다. 인증 후 콘텐츠가 해제됩니다.",
+        check: "확인", checking: "확인 중…", ready: "대기 중",
+        needLogin: "로그인되지 않았습니다. 이동합니다…",
+        okTitle: "인증 완료", okMsg: "이 코드는 유효합니다.\n계속하면 교환을 실행합니다.",
+        redeem: "교환", redeemedTitle: "교환 완료", redeemedMsg: "교환이 완료되었습니다.",
+        usedTitle: "이미 사용됨", usedMsg: "이 코드는 이미 사용되었습니다.",
+        invalidTitle: "유효하지 않음", invalidMsg: "유효하지 않은 코드입니다.",
+        errTitle: "오류", errMsg: "오류가 발생했습니다. 다시 시도해 주세요.",
+        close: "닫기", userLabel: "사용자 ID", logout: "로그아웃",
+        hint1Title: "안전한 검증", hint1Body: "세션을 재사용하고 서버에서 코드를 검증합니다.",
+        hint2Title: "자동 서식", hint2Body: "영숫자만 추출하고 하이픈을 자동 삽입합니다."
       },
       ru: {
-        brandName: "Redeem Center",
-        brandSub: "Безопасная проверка кода",
-        heroTitle: "Центр проверки кода",
-        heroSub: "Введите код для проверки. После проверки контент будет разблокирован.",
-        placeholder: "Код активации",
-        check: "Проверить",
-        checking: "Проверка…",
-        ready: "Готово",
-        needLogin: "Вы не вошли. Переход на Access.html…",
-        okTitle: "Подтверждено",
-        okMsg: "Код действителен.\nПродолжите, чтобы погасить (Redeem).",
-        redeem: "Погасить",
-        redeemedTitle: "Успешно",
-        redeemedMsg: "Погашение выполнено успешно.",
-        usedTitle: "Уже использован",
-        usedMsg: "Этот код уже активирован.",
-        invalidTitle: "Неверный код",
-        invalidMsg: "Этот код недействителен.",
-        errTitle: "Ошибка",
-        errMsg: "Произошла ошибка. Повторите попытку позже.",
-        close: "Закрыть",
-        userLabel: "ID пользователя",
-        logout: "Выйти",
-        hint1Title: "Безопасная проверка",
-        hint1Body: "Использует сессию и проверяет код на сервере.",
-        hint2Title: "Автоформат",
-        hint2Body: "Оставляет только символы и вставляет дефисы автоматически.",
-        hint3Title: "Время",
-        hint3Body: "Показывает время как в правом верхнем углу.",
-        langOverlayTitle: "Выбор языка",
-        langOverlayDesc: "Выберите язык интерфейса. Можно изменить в верхнем меню."
+        brandName: "Redeem Center", brandSub: "Безопасная проверка",
+        heroTitle: "Центр проверки", heroSub: "Введите код для проверки. После проверки контент будет разблокирован.",
+        check: "Проверить", checking: "Проверка…", ready: "Готово",
+        needLogin: "Вы не вошли. Переход…",
+        okTitle: "Подтверждено", okMsg: "Код действителен.\nПродолжите, чтобы погасить.",
+        redeem: "Погасить", redeemedTitle: "Успешно", redeemedMsg: "Погашение выполнено успешно.",
+        usedTitle: "Уже использован", usedMsg: "Этот код уже активирован.",
+        invalidTitle: "Неверный код", invalidMsg: "Этот код недействителен.",
+        errTitle: "Ошибка", errMsg: "Произошла ошибка. Повторите попытку позже.",
+        close: "Закрыть", userLabel: "ID пользователя", logout: "Выйти",
+        hint1Title: "Безопасность", hint1Body: "Использует сессию и проверяет код на сервере.",
+        hint2Title: "Автоформат", hint2Body: "Оставляет только символы и вставляет дефисы автоматически."
       }
     };
 
     /*********************
-     * Time formatting (multi-language)
+     * Utils
      *********************/
     function formatLocalTime(dateObj, lang) {
       try {
-        const formatter = new Intl.DateTimeFormat('en-US', {
-          year: 'numeric', month: '2-digit', day: '2-digit',
-          hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
-        });
-        const parts = formatter.formatToParts(dateObj);
-        const p = {};
-        parts.forEach(part => p[part.type] = part.value);
+        const f = new Intl.DateTimeFormat('en-US', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false });
+        const p = {}; f.formatToParts(dateObj).forEach(pt => p[pt.type] = pt.value);
         let hr = p.hour === '24' ? '00' : p.hour;
-
-        const offset = -dateObj.getTimezoneOffset();
-        const sign = offset >= 0 ? '+' : '-';
-        const pad = n => String(Math.floor(Math.abs(n))).padStart(2, '0');
-        const gmt = `GMT${sign}${pad(offset / 60)}:${pad(offset % 60)}`;
-
-        const mInt = parseInt(p.month, 10) - 1;
-        const enMonths = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-        const ruMonths = ["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
-
-        switch(lang) {
-          case 'ja':
-          case 'zh':
-          case 'zh-TW':
-            return `${p.year}年${p.month}月${p.day}日 ${hr}:${p.minute}:${p.second} ${gmt}`;
-          case 'ko':
-            return `${p.year}년 ${p.month}월 ${p.day}일 ${hr}:${p.minute}:${p.second} ${gmt}`;
-          case 'ru':
-            return `${p.day} ${ruMonths[mInt]} ${p.year} г. ${hr}:${p.minute}:${p.second} ${gmt}`;
-          case 'en':
-          default:
-            return `${enMonths[mInt]} ${p.day}, ${p.year} ${hr}:${p.minute}:${p.second} ${gmt}`;
-        }
-      } catch (e) {
-        return dateObj.toLocaleString();
-      }
+        if(lang==='ja' || lang==='zh' || lang==='zh-TW') return `${p.year}/${p.month}/${p.day} ${hr}:${p.minute}:${p.second}`;
+        return `${p.year}-${p.month}-${p.day} ${hr}:${p.minute}:${p.second}`;
+      } catch (e) { return dateObj.toLocaleString(); }
     }
-    function getFormattedCurrentTime(lang){ return formatLocalTime(new Date(), lang); }
 
-    /*********************
-     * API wrapper (token reuse)
-     *********************/
+    function formatCodeInput(val) {
+      const clean = String(val).toUpperCase().replace(/[^A-Z0-9]/g, "");
+      const sz = clean.length >= 25 ? 5 : 4;
+      let res = "";
+      for (let i=0; i<clean.length; i++){ if(i>0 && i%sz===0) res += "-"; res += clean[i]; }
+      return res;
+    }
+
     async function safeFetch(bodyObj) {
       const token = localStorage.getItem(LS_TOKEN) || "";
       const headers = { "Content-Type": "application/json" };
       if (token) headers["Authorization"] = `Bearer ${token}`;
       try {
-        const res = await fetch(GAS_API_URL, {
-          method: "POST",
-          headers,
-          body: JSON.stringify(bodyObj)
-        });
+        const res = await fetch(GAS_API_URL, { method: "POST", headers, body: JSON.stringify(bodyObj) });
         return await res.json();
-      } catch (e) {
-        return { success: false, message: "Network error" };
-      }
+      } catch (e) { return { success: false, message: "Network error" }; }
     }
 
     /*********************
-     * Code formatting
+     * UI Setup
      *********************/
-    function formatCodeInput(val) {
-      if (!val) return "";
-      const clean = String(val).toUpperCase().replace(/[^A-Z0-9]/g, "");
-      const sz = clean.length >= 25 ? 5 : 4;
-      let res = "";
-      for (let i=0;i<clean.length;i++){
-        if(i>0 && i%sz===0) res += "-";
-        res += clean[i];
-      }
-      return res;
-    }
-
-    /*********************
-     * UI apply
-     *********************/
-    function applyLang(lang){
+    function applyLang(lang) {
       CURRENT_LANG = lang;
       localStorage.setItem(LS_LANG, lang);
       document.documentElement.lang = lang;
-
+      
       const t = T[lang] || T.ja;
-      $("brandName").textContent = t.brandName;
-      $("brandSub").textContent = t.brandSub;
-
-      $("heroTitle").textContent = t.heroTitle;
-      $("heroSub").textContent = t.heroSub;
-      $("codeInput").placeholder = t.placeholder;
+      $("brandName").textContent = t.brandName; $("brandSub").textContent = t.brandSub;
+      $("heroTitle").textContent = t.heroTitle; $("heroSub").textContent = t.heroSub;
       $("checkBtnText").textContent = t.check;
+      $("userLabel").textContent = t.userLabel; $("logoutText").textContent = t.logout;
+      $("hint1Title").textContent = t.hint1Title; $("hint1Body").textContent = t.hint1Body;
+      $("hint2Title").textContent = t.hint2Title; $("hint2Body").textContent = t.hint2Body;
+      $("btnReset").textContent = t.close;
+      $("statusText").textContent = t.ready;
 
-      $("userLabel").textContent = t.userLabel;
-      $("logoutText").textContent = t.logout;
-
-      $("hint1Title").textContent = t.hint1Title;
-      $("hint1Body").textContent = t.hint1Body;
-      $("hint2Title").textContent = t.hint2Title;
-      $("hint2Body").textContent = t.hint2Body;
-      $("hint3Title").textContent = t.hint3Title;
-      $("hint3Body").textContent = t.hint3Body;
-
-      $("langOverlayTitle").textContent = t.langOverlayTitle;
-      $("langOverlayDesc").textContent = t.langOverlayDesc;
-
-      // Label
-      const map = { ja:"日本語", en:"English", zh:"简体中文", "zh-TW":"繁體中文", ko:"한국어", ru:"Русский" };
-      $("langLabel").textContent = map[lang] || "English";
-
-      // menu checkmark
-      document.querySelectorAll(".langBtn").forEach(btn=>{
+      // Label Update
+      const map = { ja:"JA", en:"EN", zh:"ZH", "zh-TW":"TW", ko:"KO", ru:"RU" };
+      $("currentLangLabel").textContent = map[lang] || "EN";
+      
+      document.querySelectorAll("#langMenu .dropdown-item").forEach(btn => {
         btn.querySelector("span").textContent = (btn.dataset.lang===lang) ? "✓" : "";
       });
-
-      // status
-      setStatus("ready", t.ready);
-
-      // clock immediate update
-      updateClock();
     }
 
-    function setStatus(mode, text){
-      $("statusText").textContent = text || "";
-      $("statusDot").className = "statusDot";
-      if(mode==="ok") $("statusDot").classList.add("ok");
-      if(mode==="bad") $("statusDot").classList.add("bad");
+    function toggleTheme() {
+      const curr = document.documentElement.getAttribute("data-theme");
+      const next = curr === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("ui_theme", next);
     }
 
-    /*********************
-     * Clock
-     *********************/
-    function updateClock(){
-      // モバイルは少し短め（省略はCSSでellipsis、文字列自体は同じでもOK）
-      $("clockText").textContent = getFormattedCurrentTime(CURRENT_LANG);
+    function switchView(viewId) {
+      document.querySelectorAll(".view-section").forEach(el => el.classList.remove("active"));
+      $(viewId).classList.add("active");
     }
 
-    /*********************
-     * Modal helpers
-     *********************/
-    function openModal(title, msg, showPrimary=false, primaryText="", primaryHandler=null){
-      $("modalTitle").textContent = title;
-      $("modalMsg").textContent = msg;
-      $("modalTime").textContent = getFormattedCurrentTime(CURRENT_LANG);
-      $("resultOverlay").classList.add("active");
+    function showResult(title, msg, type, showPrimaryAction=false, primaryText="", primaryCallback=null) {
+      $("resultTitle").textContent = title;
+      $("resultMsg").textContent = msg;
+      $("resultTime").textContent = formatLocalTime(new Date(), CURRENT_LANG);
+      
+      const icon = $("resultIcon");
+      if(type === 'success') {
+        icon.className = "result-icon success";
+        icon.innerHTML = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+      } else {
+        icon.className = "result-icon error";
+        icon.innerHTML = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+      }
 
-      $("modalSecondary").textContent = (T[CURRENT_LANG]||T.ja).close;
-
-      const primary = $("modalPrimary");
-      if(showPrimary){
-        primary.style.display = "inline-flex";
+      const primary = $("btnPrimary");
+      if(showPrimaryAction) {
+        primary.style.display = "flex";
         primary.textContent = primaryText;
-        primary.onclick = primaryHandler;
+        primary.onclick = primaryCallback;
       } else {
         primary.style.display = "none";
         primary.onclick = null;
       }
+      
+      switchView("view-result");
     }
-    function closeModal(){
-      $("resultOverlay").classList.remove("active");
+
+    function resetToInput() {
+      $("codeInput").value = "";
+      pendingCode = "";
+      switchView("view-input");
     }
 
     /*********************
-     * Auth flow
-     * - mode 'check' : verify
-     * - mode 'redeem': redeem
+     * Main Auth Logic
      *********************/
-    async function performAuth(code, mode="check"){
+    async function performAuth(code, mode="check") {
       const t = T[CURRENT_LANG] || T.ja;
       const safeCode = formatCodeInput(code);
       if(!safeCode) return;
 
       $("checkBtn").disabled = true;
       $("checkBtnText").textContent = t.checking;
-
-      try{
-        // 既存実装の名残に合わせて type: 'check' / 'redeem' を採用
-        const payload = {
-          type: (mode === "check") ? "check" : "redeem",
-          code: safeCode
-        };
-        // もし userId が必要なら identity を付与（環境差対応）
+      $("statusDot").classList.remove("pulse");
+      
+      try {
+        const payload = { type: mode, code: safeCode };
         const identity = localStorage.getItem(LS_IDENTITY);
         if(identity) payload.identity = identity;
 
         const d = await safeFetch(payload);
-
-        // 返却形式が環境で揺れても耐えるように判定
-        // 想定例:
-        //  - {success:true, status:'valid'} / {success:false, message:'...'}
-        //  - {success:true, result:{status:'USED'...}}
         const data = d && (d.result || d.data || d);
         const status = (data && (data.status || data.state || data.codeStatus)) || "";
         const msg = (data && (data.message || data.msg)) || d.message || "";
 
-        if(mode === "check"){
-          // VALID判定
-          const isValid =
-            d.success === true &&
-            (String(status).toLowerCase()==="valid" || String(status).toLowerCase()==="ok" || String(status).toLowerCase()==="success" || status==="" );
+        if(mode === "check") {
+          const isValid = d.success === true && ["valid","ok","success",""].includes(String(status).toLowerCase());
+          const isUsed = String(status).toLowerCase()==="used" || String(msg).toLowerCase().includes("already") || String(msg).includes("引き換え済");
+          const isInvalid = d.success === false && (String(status).toLowerCase()==="invalid" || String(msg).toLowerCase().includes("invalid"));
 
-          // USED判定
-          const isUsed =
-            String(status).toLowerCase()==="used" ||
-            String(msg).toLowerCase().includes("already") ||
-            String(msg).includes("引き換え済") ||
-            String(msg).includes("redeemed");
-
-          // INVALID判定
-          const isInvalid =
-            d.success === false &&
-            (String(status).toLowerCase()==="invalid" || String(msg).toLowerCase().includes("invalid") || String(msg).includes("無効"));
-
-          if(isUsed){
-            setStatus("bad", t.usedMsg);
-            openModal(t.usedTitle, t.usedMsg, false);
-          } else if(isInvalid){
-            setStatus("bad", t.invalidMsg);
-            openModal(t.invalidTitle, t.invalidMsg, false);
-          } else if(isValid){
-            setStatus("ok", t.okTitle);
+          if(isUsed) {
+            showResult(t.usedTitle, t.usedMsg, 'error');
+          } else if(isInvalid) {
+            showResult(t.invalidTitle, t.invalidMsg, 'error');
+          } else if(isValid) {
             pendingCode = safeCode;
-            openModal(
-              t.okTitle,
-              t.okMsg,
-              true,
-              t.redeem,
-              async ()=>{
-                await performAuth(pendingCode, "redeem");
-              }
-            );
+            // 認証成功時：「引き換える」ボタンを表示。
+            showResult(t.okTitle, t.okMsg, 'success', true, t.redeem, async () => {
+              await performAuth(pendingCode, "redeem");
+            });
           } else {
-            setStatus("bad", t.errMsg);
-            openModal(t.errTitle, msg || t.errMsg, false);
+            showResult(t.errTitle, msg || t.errMsg, 'error');
           }
         } else {
-          // redeem
-          if(d.success){
-            setStatus("ok", t.redeemedTitle);
-            openModal(t.redeemedTitle, (data && data.message) ? data.message : t.redeemedMsg, false);
+          // 引き換え(Redeem)実行後
+          if(d.success) {
+            // 要件: いずれも認証（引き換え）したらダウンロードボタン等は表示せず「閉じるボタンのみ」にする
+            showResult(t.redeemedTitle, (data && data.message) ? data.message : t.redeemedMsg, 'success', false);
           } else {
-            setStatus("bad", t.errMsg);
-            openModal(t.errTitle, msg || t.errMsg, false);
+            showResult(t.errTitle, msg || t.errMsg, 'error');
           }
         }
-
-      } catch(e){
-        setStatus("bad", (T[CURRENT_LANG]||T.ja).errMsg);
-        openModal((T[CURRENT_LANG]||T.ja).errTitle, (T[CURRENT_LANG]||T.ja).errMsg, false);
+      } catch(e) {
+        showResult((T[CURRENT_LANG]||T.ja).errTitle, (T[CURRENT_LANG]||T.ja).errMsg, 'error');
       } finally {
         $("checkBtn").disabled = false;
         $("checkBtnText").textContent = (T[CURRENT_LANG]||T.ja).check;
+        $("statusDot").classList.add("pulse");
       }
     }
 
     /*********************
-     * Theme
+     * Init & Events
      *********************/
-    function initTheme(){
-      const saved = localStorage.getItem("ui_theme");
-      const theme = saved || document.documentElement.getAttribute("data-theme") || "dark";
-      document.documentElement.setAttribute("data-theme", theme);
-    }
-    function toggleTheme(){
-      const curr = document.documentElement.getAttribute("data-theme") || "dark";
-      const next = (curr==="dark") ? "light" : "dark";
-      document.documentElement.setAttribute("data-theme", next);
-      localStorage.setItem("ui_theme", next);
-    }
+    window.addEventListener("DOMContentLoaded", () => {
+      // Theme Setup
+      const savedTheme = localStorage.getItem("ui_theme") || "dark";
+      document.documentElement.setAttribute("data-theme", savedTheme);
+      $("themeToggle").addEventListener("click", toggleTheme);
 
-    /*********************
-     * Background canvas (simple dreamy particles)
-     *********************/
-    function initCanvas(){
-      const c = $("bgCanvas");
-      const ctx = c.getContext("2d");
-      let w=0,h=0;
-      const blobs = Array.from({length: 10}).map(()=>({
-        x: Math.random(), y: Math.random(),
-        vx: (Math.random()*0.25+0.05)*(Math.random()<0.5?-1:1),
-        vy: (Math.random()*0.25+0.05)*(Math.random()<0.5?-1:1),
-        r: Math.random()*0.18+0.10,
-        hue: Math.random()*360
-      }));
-      function resize(){
-        w = c.width = window.innerWidth * devicePixelRatio;
-        h = c.height = window.innerHeight * devicePixelRatio;
+      // Lang Setup
+      let lang = localStorage.getItem(LS_LANG);
+      if(!lang) {
+        $("langOverlay").classList.remove("hidden");
+      } else {
+        applyLang(lang);
       }
-      function step(){
-        ctx.clearRect(0,0,w,h);
-        for(const b of blobs){
-          b.x += b.vx/1000;
-          b.y += b.vy/1000;
-          if(b.x<0||b.x>1) b.vx*=-1;
-          if(b.y<0||b.y>1) b.vy*=-1;
-
-          const x = b.x*w, y=b.y*h;
-          const r = b.r*Math.min(w,h);
-
-          const grad = ctx.createRadialGradient(x,y,0,x,y,r);
-          const a = (document.documentElement.getAttribute("data-theme")==="dark") ? 0.18 : 0.12;
-          grad.addColorStop(0, `hsla(${b.hue}, 95%, 60%, ${a})`);
-          grad.addColorStop(1, `hsla(${b.hue}, 95%, 60%, 0)`);
-          ctx.fillStyle = grad;
-          ctx.beginPath();
-          ctx.arc(x,y,r,0,Math.PI*2);
-          ctx.fill();
-        }
-        requestAnimationFrame(step);
-      }
-      resize();
-      window.addEventListener("resize", resize);
-      step();
-    }
-
-    /*********************
-     * Session reuse behavior
-     *********************/
-    function enforceSession(){
-      const identity = localStorage.getItem(LS_IDENTITY);
-      if(!identity){
-        // 既存運用：未ログインならAccessへ
-        setStatus("bad", (T[CURRENT_LANG]||T.ja).needLogin);
-        setTimeout(()=>{ window.location.href = "Access.html" + window.location.search; }, 650);
-        return;
-      }
-      $("userValue").textContent = identity;
-    }
-
-    /*********************
-     * Menu toggles
-     *********************/
-    function toggleMenu(menuEl, open){
-      const isOpen = menuEl.classList.contains("open");
-      const next = (open===undefined) ? !isOpen : open;
-      document.querySelectorAll(".menu").forEach(m=>m.classList.remove("open"));
-      if(next) menuEl.classList.add("open");
-    }
-
-    /*********************
-     * Events
-     *********************/
-    function bindEvents(){
-      // input formatting
-      $("codeInput").addEventListener("input", (e)=>{
-        const v = formatCodeInput(e.target.value);
-        e.target.value = v;
-      });
-      $("codeInput").addEventListener("keydown", (e)=>{
-        if(e.key==="Enter"){
-          performAuth($("codeInput").value, "check");
-        }
-      });
-      $("checkBtn").addEventListener("click", ()=>{
-        performAuth($("codeInput").value, "check");
-      });
-
-      // modal
-      $("modalClose").addEventListener("click", closeModal);
-      $("modalSecondary").addEventListener("click", closeModal);
-      $("resultOverlay").addEventListener("click", (e)=>{ if(e.target === $("resultOverlay")) closeModal(); });
-
-      // theme
-      $("themePill").addEventListener("click", toggleTheme);
-
-      // language menu
-      $("langPill").addEventListener("click", (e)=>{
-        e.stopPropagation();
-        toggleMenu($("langMenu"));
-      });
-      document.querySelectorAll(".langBtn").forEach(btn=>{
-        btn.addEventListener("click", ()=>{
-          applyLang(btn.dataset.lang);
-          toggleMenu($("langMenu"), false);
+      
+      document.querySelectorAll(".lang-card").forEach(el => {
+        el.addEventListener("click", () => {
+          applyLang(el.dataset.lang);
+          $("langOverlay").classList.add("hidden");
         });
       });
 
-      // account menu
-      $("acctPill").addEventListener("click", (e)=>{
-        e.stopPropagation();
-        toggleMenu($("acctMenu"));
+      // Dropdowns
+      const toggles = [{btn: "langToggle", menu: "langMenu"}, {btn: "userToggle", menu: "userMenu"}];
+      toggles.forEach(t => {
+        $(t.btn).addEventListener("click", (e) => {
+          e.stopPropagation();
+          const menu = $(t.menu);
+          const isAct = menu.classList.contains("active");
+          document.querySelectorAll(".dropdown-menu").forEach(m => m.classList.remove("active"));
+          if(!isAct) menu.classList.add("active");
+        });
       });
-      $("logoutBtn").addEventListener("click", ()=>{
+      document.addEventListener("click", () => {
+        document.querySelectorAll(".dropdown-menu").forEach(m => m.classList.remove("active"));
+      });
+
+      document.querySelectorAll("#langMenu .dropdown-item").forEach(btn => {
+        btn.addEventListener("click", () => applyLang(btn.dataset.lang));
+      });
+
+      // Input Logic
+      $("codeInput").addEventListener("input", e => e.target.value = formatCodeInput(e.target.value));
+      $("codeInput").addEventListener("keydown", e => { if(e.key === "Enter") performAuth($("codeInput").value, "check"); });
+      $("checkBtn").addEventListener("click", () => performAuth($("codeInput").value, "check"));
+      
+      // Result Logic
+      $("btnReset").addEventListener("click", resetToInput);
+
+      // Session & Identity
+      const identity = localStorage.getItem(LS_IDENTITY);
+      if(!identity) {
+        $("userValue").textContent = "GUEST";
+      } else {
+        $("userValue").textContent = identity;
+      }
+      
+      $("logoutBtn").addEventListener("click", () => {
         localStorage.removeItem(LS_IDENTITY);
         localStorage.removeItem(LS_TOKEN);
-        // 必要なら他のキーも消す
         window.location.href = "Access.html" + window.location.search;
       });
 
-      // initial overlay language pick
-      document.querySelectorAll(".langCard").forEach(card=>{
-        card.addEventListener("click", ()=>{
-          $("langOverlay").classList.remove("active");
-          applyLang(card.dataset.lang);
-          enforceSession();
-        });
-      });
-
-      // close menus on outside click
-      document.addEventListener("click", ()=>{
-        document.querySelectorAll(".menu").forEach(m=>m.classList.remove("open"));
-      });
-
-      // escape
-      document.addEventListener("keydown", (e)=>{
-        if(e.key==="Escape"){
-          closeModal();
-          document.querySelectorAll(".menu").forEach(m=>m.classList.remove("open"));
-        }
-      });
-    }
-
-    /*********************
-     * Init
-     *********************/
-    function detectLang(){
-      let s = localStorage.getItem(LS_LANG);
-      if(!s){
-        const bl = (navigator.language || "").toLowerCase();
-        if (bl.startsWith("ja")) s = "ja";
-        else if (bl.includes("zh-tw") || bl.includes("zh-hk") || bl.includes("zh-hant")) s = "zh-TW";
-        else if (bl.startsWith("zh")) s = "zh";
-        else if (bl.startsWith("ko")) s = "ko";
-        else if (bl.startsWith("ru")) s = "ru";
-        else s = "en";
-      }
-      return s;
-    }
-
-    (function init(){
-      initTheme();
-      initCanvas();
-      bindEvents();
-
-      // language
-      const lang = detectLang();
-      applyLang(lang);
-
-      // first time language overlay (optional)
-      if(!localStorage.getItem(LS_LANG)){
-        $("langOverlay").classList.add("active");
-      }
-
-      // clock tick
-      updateClock();
-      setInterval(updateClock, 1000);
-
-      // session reuse
-      enforceSession();
-    })();
+      // Clock
+      setInterval(() => $("clockText").textContent = formatLocalTime(new Date(), CURRENT_LANG).split(" ")[1], 1000);
+      $("clockText").textContent = formatLocalTime(new Date(), CURRENT_LANG).split(" ")[1];
+    });
   </script>
 </body>
 </html>
