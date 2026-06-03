@@ -714,11 +714,10 @@ const maskActionUrl = (rawUrl) => {
       }
   }
   
-  // 単一リンクの場合
+  // 単一リンクの場合もダミー文字列に置き換えてURL隠蔽
+  // ダウンロードはプロキシ経由なので __MASKED_URL__:0 を渡せば復元される
   const isYouTube = strUrl.includes('youtube.com') || strUrl.includes('youtu.be');
-  if (isYouTube) return strUrl; 
-  
-  // Wixなどの直リンクは完全にダミー文字列に置き換える
+  if (isYouTube) return strUrl;
   return `__MASKED_URL__:0`;
 };
 
