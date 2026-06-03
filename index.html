@@ -3681,7 +3681,10 @@ function updateAccountUI() {
             baseHistory.forEach((item, index) => {
                 
                 // ★ 3. ベースアイテムのデータ内に、自分が所有しているアドオンを紐付けて隠し持つ
-                const ownedAddons = addonHistory.filter(addon => addon.parentId === item.contentId || addon.parentId === item.code);
+                const ownedAddons = addonHistory.filter(addon =>
+                String(addon.parentId) === String(item.contentId) ||
+                String(addon.parentId) === String(item.code)
+              );
                 ownedAddons.forEach(a => a.isOwned = true);
                 item.isOwned = true;
                 item.addons = ownedAddons;
@@ -3750,6 +3753,8 @@ async function saveUnlockedItemLocal(data, code) {
   }
   const newItem = {
     code: code, 
+    contentId: data.contentId || null,
+    parentId: data.parentId || null,
     title: data.bundleLabel || data.message || "Unknown Content", 
     message: data.message,
     url: data.actionUrl, 
