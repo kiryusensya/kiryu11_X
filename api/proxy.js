@@ -850,9 +850,12 @@ const maskActionUrl = (rawUrl) => {
         const safeUrl = (isLocked || isExpired) ? null : maskActionUrl(c.Action_url);
 
         return {
-          code: codeRec["アクティベーションコード"], date: h.created_at, title: c[`タイトル(${suffix})`] || c["タイトル(jp)"],
+          code: codeRec["アクティベーションコード"],
+          contentId: codeRec.content_id, // ★ 追加: ベースとの紐付けに必要
+          parentId: c.parent_id,         // ★ 追加: 自分がアドオンかどうかの判定に必要
+          date: h.created_at, title: c[`タイトル(${suffix})`] || c["タイトル(jp)"],
           message: c[`メッセージ(${suffix})`] || c["メッセージ(jp)"], 
-          url: safeUrl, // ★ 修正: safeUrlを適用
+          url: safeUrl,
           imageUrl: c.Imag_Url,
           icon: c.アイコン || 'download', releaseDateIso: c["解禁時間"], expireDateIso: c["有効時間"], extraInfo: c[`詳細(${suffix})`] || c["詳細(jp)"],
           groupId: c["重複"], buttonLabel: c[`ボタン(${suffix})`] || c["ボタン(jp)"], price: c["価格"] || 0
