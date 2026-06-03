@@ -1,720 +1,559 @@
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Redeem Center</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Redeem Center - kiryu11 Pro</title>
+<link rel="icon" type="image/svg+xml" href="./kiryu11.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
 
-  <link rel="icon" type="image/svg+xml" href="./kiryu11.svg">
-  <link rel="preconnect" href="https://fonts.googleapis.com/">
-  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* --- FONT FACE DEFINITIONS --- */
+@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Medium.woff') format('woff'); font-weight: 500; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+
+/* --- THEME VARIABLES --- */
+:root {
+  --primary: #007DFF;
+  --bg-color: #F1F3F5;
+  --card-bg: rgba(255, 255, 255, 0.7);
+  --card-border: rgba(255, 255, 255, 0.6);
+  --text-main: #000000;
+  --text-sub: #666666;
+  --sidebar-bg: #E0E0E0;
+  --sidebar-text: #000000;
+  --sidebar-width: 280px;
+  --radius-xl: 32px;
+  --radius-l: 16px;
+  --shadow-soft: 0 30px 80px rgba(0,0,0,0.15);
+  --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
+  --trans-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+:root:lang(ja) { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
+:root:lang(en) { --font-stack: 'HarmonyOS Sans', sans-serif; }
+:root:lang(zh) { --font-stack: 'HarmonyOS Sans SC', 'Microsoft YaHei', sans-serif; }
+:root:lang(zh-TW) { --font-stack: 'HarmonyOS Sans TC', 'Microsoft JhengHei', sans-serif; }
+:root:lang(ko) { --font-stack: 'HarmonyOS Sans', 'Noto Sans KR', sans-serif; }
+:root:lang(ru) { --font-stack: 'HarmonyOS Sans', sans-serif; }
+
+[data-theme="dark"] {
+  --bg-color: #121212;
+  --card-bg: rgba(40, 40, 40, 0.7);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --text-main: #FFFFFF;
+  --text-sub: #A0A0A0;
+  --sidebar-bg: #000000;
+  --sidebar-text: #FFFFFF;
+  --shadow-soft: 0 30px 80px rgba(0,0,0,0.5);
+}
+
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main); font-family: var(--font-stack); height: 100vh; height: 100dvh; overflow: hidden; display: flex; transition: background-color 0.5s ease; }
+button, input { font-family: var(--font-stack); }
+
+/* Particle Background */
+#particleCanvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.4; pointer-events: none; filter: blur(80px); }
+
+/* Layout */
+.wrapper { display: flex; width: 100%; height: 100%; z-index: 5; position: relative; }
+
+/* Sidebar */
+.sidebar { width: var(--sidebar-width); background-color: var(--sidebar-bg); display: flex; flex-direction: column; flex-shrink: 0; border-right: 1px solid rgba(128,128,128,0.1); z-index: 100; transition: transform 0.3s ease; }
+.brand-area { padding: 30px 24px; display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 20px; color: var(--sidebar-text); }
+.brand-area i { color: #FFA500; }
+.menu-section { flex: 1; padding: 10px 24px; display: flex; flex-direction: column; gap: 8px; }
+.menu-item { display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-radius: 16px; color: var(--sidebar-text); text-decoration: none; font-weight: 700; transition: background 0.2s; cursor: pointer; }
+.menu-item:hover, .menu-item.active { background: rgba(128,128,128,0.15); }
+[data-theme="dark"] .menu-item:hover, [data-theme="dark"] .menu-item.active { background: rgba(255,255,255,0.1); }
+
+.bottom-controls { padding: 20px 24px 30px; border-top: 1px solid rgba(128,128,128,0.1); }
+.theme-toggle, .lang-trigger { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 12px 20px; border-radius: 50px; background: transparent; border: 1px solid transparent; color: var(--sidebar-text); font-weight: 700; cursor: pointer; transition: 0.2s; margin-bottom: 10px; }
+.theme-toggle:hover, .lang-trigger:hover { background: rgba(128,128,128,0.15); }
+[data-theme="dark"] .theme-toggle, [data-theme="dark"] .lang-trigger { border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); }
+[data-theme="dark"] .theme-toggle:hover, [data-theme="dark"] .lang-trigger:hover { background: rgba(255,255,255,0.15); }
+
+/* Language Dropdown */
+.lang-dropdown { position: relative; }
+.lang-list { position: absolute; bottom: 100%; left: 0; width: 100%; background: var(--card-bg); backdrop-filter: blur(20px); border: 1px solid rgba(128,128,128,0.2); border-radius: 16px; padding: 8px; list-style: none; display: none; box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 200; margin: 0 0 10px 0; }
+.lang-list.open { display: block; animation: popIn 0.2s ease forwards; }
+@keyframes popIn { from { opacity: 0; transform: translateY(10px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.lang-list li { padding: 12px 16px; cursor: pointer; border-radius: 8px; font-weight: 700; color: var(--text-main); transition: 0.2s; }
+.lang-list li:hover { background: rgba(128,128,128,0.15); }
+
+/* Main Area */
+.main-content { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; padding: 24px; overflow-y: auto; }
+
+/* In-Page Auth Container (Replaces Modal) */
+.auth-container { background: var(--card-bg); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); border-radius: var(--radius-xl); box-shadow: var(--shadow-soft); width: 100%; max-width: 900px; padding: 40px; transition: max-width 0.5s ease, opacity 0.4s ease; display: flex; flex-direction: column; overflow: hidden; }
+.auth-container.is-narrow { max-width: 470px; }
+
+/* Phases */
+.phase { display: none; opacity: 0; flex-direction: column; animation: phaseIn 0.5s var(--trans-ease) forwards; }
+.phase.active { display: flex; }
+@keyframes phaseIn { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+/* Phase 1: Input */
+.phase-input-center { text-align: center; display: flex; flex-direction: column; align-items: center; width: 100%; }
+.auth-title { font-size: 26px; font-weight: 800; color: var(--text-main); margin: 0 0 12px 0; }
+.auth-sub { font-size: 14px; font-weight: 500; color: var(--text-sub); margin: 0 0 30px 0; line-height: 1.6; }
+.code-field { width: 100%; height: 60px; border-radius: 50px; border: none; background: rgba(128, 128, 128, 0.1); text-align: center; outline: none; transition: 0.3s; color: var(--text-main); font-size: 20px; font-weight: 800; letter-spacing: 1px; padding: 0 20px; }
+[data-theme="dark"] .code-field { background: rgba(255,255,255,0.1); }
+.code-field:focus { background: rgba(0, 125, 255, 0.1); border: 2px solid var(--primary); }
+
+/* Buttons */
+.btn-primary { width: 100%; height: 60px; margin-top: 20px; border: none; background: var(--text-main); color: var(--bg-color); border-radius: 50px; font-size: 16px; font-weight: 800; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
+.btn-primary:active { transform: scale(0.96); }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Phase 2, 3, 4: Wide Layouts */
+.auth-layout-flex { display: flex; gap: 30px; align-items: stretch; text-align: left; }
+.auth-left-col { width: 380px; flex-shrink: 0; display: flex; flex-direction: column; }
+.auth-left-col img { width: 100%; flex: 1; min-height: 220px; border-radius: 20px; object-fit: cover; background: rgba(128,128,128,0.2); }
+.auth-right-col { flex: 1; display: flex; flex-direction: column; min-width: 0; justify-content: center; }
+
+.label-text { font-size: 14px; font-weight: 700; color: var(--text-main); margin: 0 0 6px 0; }
+.item-title { font-size: 24px; font-weight: 800; color: var(--text-main); margin: 0 0 20px 0; line-height: 1.3; }
+.grey-box { background: rgba(128,128,128,0.1); border-radius: 16px; padding: 20px; flex: 1; display: flex; flex-direction: column; justify-content: center; margin-bottom: 24px; }
+[data-theme="dark"] .grey-box { background: rgba(255,255,255,0.08); }
+.box-text { font-size: 14px; font-weight: 700; line-height: 1.6; color: var(--text-main); margin: 0; white-space: pre-wrap; }
+.box-time { font-size: 16px; font-weight: 800; color: var(--text-main); margin: 20px 0 0 0; }
+
+/* ACTION BUTTONS: 3:7 Ratio for Preview, 100% for Success/Error */
+.btn-row-3-7 { display: flex; gap: 12px; margin-top: auto; height: 56px; width: 100%; }
+.btn-row-full { display: flex; gap: 12px; margin-top: auto; height: 56px; width: 100%; }
+
+.btn-outline { height: 100%; border-radius: 50px; border: 2px solid var(--text-main); background: transparent; color: var(--text-main); font-weight: 800; font-size: 16px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; flex: 3; } /* flex: 3 適用 */
+.btn-outline:hover { background: rgba(128,128,128,0.1); }
+[data-theme="dark"] .btn-outline { border-color: rgba(255,255,255,0.6); color: #fff; }
+[data-theme="dark"] .btn-outline:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
+
+.btn-solid { height: 100%; border-radius: 50px; border: none; background: var(--text-main); color: var(--bg-color); font-weight: 800; font-size: 16px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; flex: 7; } /* flex: 7 適用 */
+.btn-solid:hover:not(:disabled) { opacity: 0.8; }
+[data-theme="dark"] .btn-solid { background: #fff; color: #000; }
+
+.btn-row-full .btn-outline { flex: none; width: 100%; } /* Success/Error時は100%幅 */
+
+/* Error specifics */
+.error-title { color: #FF3B30; display: flex; align-items: center; gap: 8px; font-size: 26px; font-weight: 800; margin: 0 0 24px 0; }
+[data-theme="dark"] .error-title { color: #FF453A; }
+.error-main-msg { font-size: 20px; font-weight: 800; color: var(--text-main); margin: 0 0 20px 0; }
+
+/* Mobile Optimizations */
+.mobile-menu-trigger { display: none; background: transparent; border: none; color: var(--text-main); padding: 8px; cursor: pointer; }
+
+@media (max-width: 768px) {
+  .sidebar { position: fixed; left: -100%; top: 0; height: 100%; z-index: 1000; transition: left 0.3s ease; width: 85%; max-width: 320px; box-shadow: var(--shadow-soft); }
+  .sidebar.open { left: 0; }
+  .mobile-menu-trigger { display: block; position: absolute; top: 20px; left: 20px; z-index: 100; }
   
-  <style>
-    /* --- FONT DEFINITIONS --- */
-    @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
-    @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Medium.woff') format('woff'); font-weight: 500; font-style: normal; }
-    @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
-    @font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
-    @font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
-    @font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
-    @font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+  .main-content { padding: 80px 20px 20px; }
+  .auth-container { padding: 30px 20px; border-radius: 24px; }
+  
+  .auth-layout-flex { flex-direction: column; gap: 20px; }
+  .auth-left-col { width: 100%; }
+  .auth-left-col img { height: 200px; min-height: auto; border-radius: 16px; }
+  
+  .auth-title { font-size: 22px; }
+  .item-title { font-size: 20px; }
+  .grey-box { padding: 16px; }
+}
 
-    :root {
-      --primary: #007DFF;
-      --primary-hover: #0066D2;
-      --success: #04CF22;
-      --danger: #FF3B30;
-      
-      --bg: #09090b;
-      --card-bg: rgba(24, 24, 27, 0.6);
-      --card-border: rgba(255, 255, 255, 0.08);
-      --input-bg: rgba(255, 255, 255, 0.05);
-      --input-focus: rgba(0, 125, 255, 0.15);
-      --text-main: #ffffff;
-      --text-sub: #a1a1aa;
-      --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-      
-      --radius-lg: 24px;
-      --radius-md: 16px;
-      --radius-sm: 12px;
-      --trans: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-      --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
-    }
-
-    :root:lang(ja)    { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
-    :root:lang(en)    { --font-stack: 'HarmonyOS Sans', sans-serif; }
-    :root:lang(zh)    { --font-stack: 'HarmonyOS Sans SC', 'Microsoft YaHei', sans-serif; }
-    :root:lang(zh-TW) { --font-stack: 'HarmonyOS Sans TC', 'Microsoft JhengHei', sans-serif; }
-    :root:lang(ko)    { --font-stack: 'HarmonyOS Sans', 'Noto Sans KR', sans-serif; }
-    :root:lang(ru)    { --font-stack: 'HarmonyOS Sans', sans-serif; }
-
-    [data-theme="light"] {
-      --bg: #f8fafc;
-      --card-bg: rgba(255, 255, 255, 0.8);
-      --card-border: rgba(0, 0, 0, 0.08);
-      --input-bg: rgba(0, 0, 0, 0.04);
-      --input-focus: rgba(0, 125, 255, 0.1);
-      --text-main: #0f172a;
-      --text-sub: #64748b;
-      --shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
-    }
-
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-    body, html { width: 100%; height: 100%; }
-    
-    body {
-      font-family: var(--font-stack);
-      background-color: var(--bg);
-      color: var(--text-main);
-      overflow-x: hidden;
-      display: flex;
-      flex-direction: column;
-      transition: background-color var(--trans), color var(--trans);
-    }
-    
-    button, input { font-family: inherit; }
-
-    /* ===== Dynamic Background ===== */
-    .bg-elements {
-      position: fixed; inset: 0; z-index: -1;
-      overflow: hidden; pointer-events: none;
-    }
-    .orb {
-      position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.4;
-      animation: float 20s ease-in-out infinite alternate;
-    }
-    .orb-1 { width: 400px; height: 400px; background: var(--primary); top: -10%; left: -10%; }
-    .orb-2 { width: 500px; height: 500px; background: var(--success); bottom: -20%; right: -10%; animation-delay: -5s; opacity: 0.2; }
-    @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(10vw, 10vh) scale(1.2); } }
-
-    /* ===== Header ===== */
-    header {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 16px 24px; position: sticky; top: 0; z-index: 50;
-      background: linear-gradient(to bottom, var(--bg) 20%, transparent);
-      backdrop-filter: blur(10px);
-    }
-    .brand { display: flex; align-items: center; gap: 12px; }
-    .brand-icon {
-      width: 40px; height: 40px;
-      border-radius: var(--radius-sm);
-      background: var(--primary); color: #fff;
-      display: flex; justify-content: center; align-items: center;
-      box-shadow: 0 4px 14px rgba(0, 125, 255, 0.4);
-    }
-    .brand-text h1 { font-size: 16px; font-weight: 900; line-height: 1.2; letter-spacing: -0.5px; }
-    .brand-text p { font-size: 11px; color: var(--text-sub); font-weight: 700; }
-
-    .header-actions { display: flex; gap: 8px; align-items: center; }
-    .pill-btn {
-      height: 40px; padding: 0 16px;
-      border-radius: 99px; border: 1px solid var(--card-border);
-      background: var(--card-bg); color: var(--text-main);
-      font-size: 13px; font-weight: 700;
-      display: flex; align-items: center; gap: 8px;
-      cursor: pointer; transition: all var(--trans);
-      backdrop-filter: blur(10px);
-    }
-    .pill-btn:hover { transform: translateY(-2px); border-color: var(--primary); }
-    .pill-btn svg { width: 16px; height: 16px; }
-    
-    .clock-display { font-variant-numeric: tabular-nums; letter-spacing: 0.5px; }
-
-    /* ===== Dropdowns ===== */
-    .dropdown { position: relative; }
-    .dropdown-menu {
-      position: absolute; top: calc(100% + 8px); right: 0;
-      width: 200px; background: var(--card-bg);
-      border: 1px solid var(--card-border); border-radius: var(--radius-md);
-      box-shadow: var(--shadow); backdrop-filter: blur(20px);
-      padding: 8px; opacity: 0; visibility: hidden;
-      transform: translateY(-10px); transition: all 0.2s; z-index: 100;
-    }
-    .dropdown-menu.active { opacity: 1; visibility: visible; transform: translateY(0); }
-    .dropdown-item {
-      width: 100%; text-align: left; padding: 10px 12px;
-      background: transparent; border: none; color: var(--text-main);
-      font-size: 13px; font-weight: 700; border-radius: 8px;
-      cursor: pointer; display: flex; justify-content: space-between;
-    }
-    .dropdown-item:hover { background: var(--input-bg); }
-    
-    /* ===== Main Container ===== */
-    main {
-      flex: 1; display: flex; justify-content: center; align-items: center;
-      padding: 24px;
-    }
-    
-    .card-container {
-      width: 100%; max-width: 640px; position: relative;
-    }
-
-    .glass-card {
-      background: var(--card-bg); border: 1px solid var(--card-border);
-      border-radius: var(--radius-lg); box-shadow: var(--shadow);
-      backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-      padding: 40px; overflow: hidden; position: relative;
-    }
-
-    /* ===== Views (No Modals) ===== */
-    .view-section {
-      display: flex; flex-direction: column; gap: 24px;
-      opacity: 0; visibility: hidden; position: absolute;
-      inset: 0; padding: 40px;
-      transform: translateY(20px) scale(0.98);
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    .view-section.active {
-      opacity: 1; visibility: visible; position: relative;
-      transform: translateY(0) scale(1); padding: 0;
-    }
-
-    /* --- Input View --- */
-    .header-text h2 { font-size: 28px; font-weight: 900; margin-bottom: 8px; letter-spacing: -1px; }
-    .header-text p { font-size: 14px; color: var(--text-sub); line-height: 1.6; }
-
-    .input-group { position: relative; display: flex; flex-direction: column; gap: 12px; }
-    .code-input {
-      width: 100%; height: 64px;
-      background: var(--input-bg); border: 2px solid var(--card-border);
-      border-radius: var(--radius-md); color: var(--text-main);
-      font-size: 24px; font-weight: 900; text-align: center; letter-spacing: 2px;
-      transition: all var(--trans); outline: none;
-    }
-    .code-input:focus { border-color: var(--primary); background: var(--input-focus); box-shadow: 0 0 0 4px rgba(0, 125, 255, 0.1); }
-    
-    .btn-main {
-      width: 100%; height: 56px;
-      background: var(--primary); color: #fff;
-      border: none; border-radius: var(--radius-md);
-      font-size: 16px; font-weight: 900; cursor: pointer;
-      display: flex; justify-content: center; align-items: center; gap: 8px;
-      transition: all var(--trans);
-    }
-    .btn-main:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0, 125, 255, 0.3); }
-    .btn-main:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
-
-    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-top: 12px; }
-    .feature-box {
-      background: var(--input-bg); border: 1px solid var(--card-border);
-      border-radius: var(--radius-sm); padding: 16px;
-    }
-    .feature-box h4 { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 6px; }
-    .feature-box p { font-size: 12px; color: var(--text-sub); line-height: 1.5; }
-    
-    .status-text { text-align: center; font-size: 13px; font-weight: 700; color: var(--text-sub); display: flex; align-items: center; justify-content: center; gap: 6px; }
-    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-sub); }
-    .dot.pulse { background: var(--primary); box-shadow: 0 0 0 4px rgba(0, 125, 255, 0.2); animation: pulse 2s infinite; }
-    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0,125,255,0.4); } 70% { box-shadow: 0 0 0 10px rgba(0,125,255,0); } 100% { box-shadow: 0 0 0 0 rgba(0,125,255,0); } }
-
-    /* --- Result View --- */
-    .result-content { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 20px 0; }
-    .result-icon { width: 80px; height: 80px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 36px; }
-    .result-icon.success { background: rgba(4, 207, 34, 0.1); color: var(--success); border: 2px solid rgba(4, 207, 34, 0.2); }
-    .result-icon.error { background: rgba(255, 59, 48, 0.1); color: var(--danger); border: 2px solid rgba(255, 59, 48, 0.2); }
-    
-    .result-title { font-size: 28px; font-weight: 900; }
-    .result-msg { font-size: 15px; color: var(--text-sub); line-height: 1.6; white-space: pre-wrap; background: var(--input-bg); padding: 16px; border-radius: var(--radius-sm); width: 100%; border: 1px solid var(--card-border); }
-    .result-time { font-size: 12px; font-family: monospace; color: var(--text-sub); }
-
-    .result-actions { display: flex; gap: 12px; width: 100%; margin-top: 10px; }
-    .btn-secondary {
-      flex: 1; height: 56px; background: transparent; color: var(--text-main);
-      border: 2px solid var(--card-border); border-radius: var(--radius-md);
-      font-size: 16px; font-weight: 900; cursor: pointer; transition: all var(--trans);
-    }
-    .btn-secondary:hover { background: var(--input-bg); }
-
-    /* ===== Language Overlay (Full screen initial setup) ===== */
-    .lang-overlay {
-      position: fixed; inset: 0; background: var(--bg); z-index: 999;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 24px; transition: opacity 0.3s;
-    }
-    .lang-overlay.hidden { opacity: 0; pointer-events: none; }
-    .lang-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; width: 100%; max-width: 600px; margin-top: 32px; }
-    .lang-card {
-      background: var(--card-bg); border: 1px solid var(--card-border);
-      border-radius: var(--radius-md); padding: 24px 16px;
-      text-align: center; cursor: pointer; transition: all var(--trans);
-    }
-    .lang-card:hover { transform: translateY(-4px); border-color: var(--primary); }
-    .lang-card strong { display: block; font-size: 18px; margin-bottom: 4px; }
-    .lang-card small { color: var(--text-sub); font-size: 13px; }
-
-    /* ===== Responsive ===== */
-    @media (max-width: 600px) {
-      .header-actions .pill-btn span:not(.clock-display) { display: none; }
-      .glass-card { padding: 24px; }
-      .code-input { font-size: 20px; height: 56px; }
-      .header-text h2 { font-size: 24px; }
-      .lang-grid { grid-template-columns: 1fr; }
-      .result-actions { flex-direction: column; }
-    }
-  </style>
+/* Spinner */
+.spinner { width: 24px; height: 24px; border: 3px solid rgba(128,128,128,0.2); border-top-color: currentColor; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
 </head>
 <body>
 
-  <div class="bg-elements">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-  </div>
+<canvas id="particleCanvas"></canvas>
 
-  <div id="langOverlay" class="lang-overlay">
-    <div style="text-align: center;">
-      <h2 id="langSetupTitle" style="font-size:32px; font-weight:900;">Select Language</h2>
-      <p id="langSetupDesc" style="color:var(--text-sub); margin-top:8px;">Choose your preferred display language.</p>
-    </div>
-    <div class="lang-grid">
-      <div class="lang-card" data-lang="ja"><strong>日本語</strong><small>Japanese</small></div>
-      <div class="lang-card" data-lang="en"><strong>English</strong><small>English</small></div>
-      <div class="lang-card" data-lang="zh"><strong>简体中文</strong><small>Simplified</small></div>
-      <div class="lang-card" data-lang="zh-TW"><strong>繁體中文</strong><small>Traditional</small></div>
-      <div class="lang-card" data-lang="ko"><strong>한국어</strong><small>Korean</small></div>
-      <div class="lang-card" data-lang="ru"><strong>Русский</strong><small>Russian</small></div>
-    </div>
-  </div>
+<button class="mobile-menu-trigger" id="mobileMenuBtn">
+  <i data-lucide="menu" width="28" height="28"></i>
+</button>
 
-  <header>
-    <div class="brand">
-      <div class="brand-icon">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
-      </div>
-      <div class="brand-text">
-        <h1 id="brandName">Redeem Center</h1>
-        <p id="brandSub">Secure Verification</p>
-      </div>
+<div class="wrapper">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand-area">
+      <i data-lucide="globe-lock"></i>
+      <span data-translate="header_brand">kiryu11 Pro</span>
     </div>
     
-    <div class="header-actions">
-      <button class="pill-btn" style="cursor:default;">
-        <span id="clockText" class="clock-display">--:--</span>
-      </button>
-
-      <div class="dropdown">
-        <button class="pill-btn" id="langToggle">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path><path d="M2 12h20"></path></svg>
-          <span id="currentLangLabel">JA</span>
-        </button>
-        <div class="dropdown-menu" id="langMenu">
-          <button class="dropdown-item" data-lang="ja">日本語 <span></span></button>
-          <button class="dropdown-item" data-lang="en">English <span></span></button>
-          <button class="dropdown-item" data-lang="zh">简体中文 <span></span></button>
-          <button class="dropdown-item" data-lang="zh-TW">繁體中文 <span></span></button>
-          <button class="dropdown-item" data-lang="ko">한국어 <span></span></button>
-          <button class="dropdown-item" data-lang="ru">Русский <span></span></button>
-        </div>
-      </div>
-
-      <button class="pill-btn" id="themeToggle">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-      </button>
-
-      <div class="dropdown">
-        <button class="pill-btn" id="userToggle">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-        </button>
-        <div class="dropdown-menu" id="userMenu" style="width: 250px;">
-          <div style="padding: 12px; border-bottom: 1px solid var(--card-border); margin-bottom: 8px;">
-            <div id="userLabel" style="font-size:11px; color:var(--text-sub);">USER ID</div>
-            <div id="userValue" style="font-weight:900; font-size:14px; word-break: break-all; margin-top:4px;">-</div>
-          </div>
-          <button class="dropdown-item" id="logoutBtn" style="color: var(--danger);">
-            <span id="logoutText">Logout</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-          </button>
-        </div>
+    <div class="menu-section">
+      <div class="menu-item active">
+        <i data-lucide="key-round"></i>
+        <span data-translate="menu_redeem">コード認証</span>
       </div>
     </div>
-  </header>
 
-  <main>
-    <div class="card-container">
-      <div class="glass-card">
-        
-        <div id="view-input" class="view-section active">
-          <div class="header-text">
-            <h2 id="heroTitle">コード認証センター</h2>
-            <p id="heroSub">引き換えコードを入力して認証します。認証後にコンテンツが解放されます。</p>
-          </div>
-          
-          <div class="input-group">
-            <input id="codeInput" class="code-input" type="text" autocomplete="off" inputmode="latin" placeholder="XXXX-XXXX-XXXX-XXXX" />
-            <div class="status-text" id="statusLine">
-              <div class="dot pulse" id="statusDot"></div>
-              <span id="statusText">Ready</span>
-            </div>
-            <button id="checkBtn" class="btn-main">
-              <span id="checkBtnText">確認</span>
-            </button>
-          </div>
+    <div class="bottom-controls">
+      <button class="theme-toggle" id="themeToggle">
+        <span style="display:flex;align-items:center;gap:8px;"><i data-lucide="moon" id="themeIcon"></i> Theme</span>
+      </button>
 
-          <div class="features">
-            <div class="feature-box">
-              <h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> <span id="hint1Title">安全な検証</span></h4>
-              <p id="hint1Body">セッションを流用し、サーバー側でコードの有効性を確認します。</p>
-            </div>
-            <div class="feature-box">
-              <h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg> <span id="hint2Title">自動整形</span></h4>
-              <p id="hint2Body">英数字のみを抽出し、ハイフンを自動挿入して読みやすくします。</p>
-            </div>
-          </div>
-        </div>
-
-        <div id="view-result" class="view-section">
-          <div class="result-content">
-            <div id="resultIcon" class="result-icon success">
-              </div>
-            <h2 id="resultTitle" class="result-title">Result</h2>
-            <p id="resultMsg" class="result-msg">Message goes here</p>
-            <div id="resultTime" class="result-time">2026-06-03 12:00:00</div>
-          </div>
-          
-          <div class="result-actions">
-            <button id="btnReset" class="btn-secondary">閉じる</button>
-            <button id="btnPrimary" class="btn-main" style="display: none;">引き換える</button>
-          </div>
-        </div>
-
+      <div class="lang-dropdown">
+        <button class="lang-trigger" id="langTrigger">
+          <span style="display:flex;align-items:center;gap:8px;"><i data-lucide="globe"></i> <span id="currentLangLabel">日本語</span></span>
+          <i data-lucide="chevron-up" style="opacity:0.5;"></i>
+        </button>
+        <ul class="lang-list" id="langMenu">
+          <li data-value="ja">日本語</li>
+          <li data-value="en">English</li>
+          <li data-value="zh">简体中文</li>
+          <li data-value="zh-TW">繁體中文</li>
+          <li data-value="ko">한국어</li>
+          <li data-value="ru">Русский</li>
+        </ul>
       </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="auth-container is-narrow" id="authContainer">
+      
+      <div id="phase-input" class="phase active">
+        <div class="phase-input-center">
+          <h2 class="auth-title" data-translate="modal_title">コード認証</h2>
+          <p class="auth-sub" data-translate="modal_sub">アクティベーションコードを入力して認証を行ってください。</p>
+          <input type="text" id="activationCode" class="code-field" placeholder="AAAA-BBBB-CCCC" autocomplete="off">
+          <button id="btnConfirm" class="btn-primary"><span data-translate="modal_btn_auth">確認</span></button>
+        </div>
+      </div>
+
+      <div id="phase-preview" class="phase">
+        <h2 class="auth-title" data-translate="preview_title">引き換えの確認</h2>
+        <div class="auth-layout-flex">
+          <div class="auth-left-col">
+            <img id="previewImage" src="" alt="Thumbnail">
+          </div>
+          <div class="auth-right-col">
+            <p class="label-text" data-translate="preview_desc">続行すると以下のコンテンツが引き換えられます:</p>
+            <h3 id="previewTitle" class="item-title"></h3>
+            <div class="grey-box" id="previewWarningBox" style="display:none;">
+              <p class="box-text" id="previewWarningText" style="opacity:0.8;"></p>
+            </div>
+            
+            <div class="btn-row-3-7">
+              <button class="btn-outline" id="btnPreviewClose" data-translate="btn_close">閉じる</button>
+              <button class="btn-solid" id="btnPreviewRedeem" data-translate="btn_continue">引き換える</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="phase-success" class="phase">
+        <h2 class="auth-title" data-translate="success_title_final">引き換え成功!!</h2>
+        <div class="auth-layout-flex">
+          <div class="auth-left-col">
+            <img id="successImage" src="" alt="Thumbnail">
+          </div>
+          <div class="auth-right-col">
+            <p class="label-text" data-translate="success_desc">以下のコンテンツを引き換えました:</p>
+            <h3 id="successBundleName" class="item-title"></h3>
+            <div class="grey-box">
+              <p class="box-text" id="successMessageText"></p>
+              <p class="box-time" id="successTime"></p>
+            </div>
+            
+            <div class="btn-row-full">
+              <button class="btn-outline" id="btnSuccessClose" data-translate="btn_close">閉じる</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="phase-error" class="phase">
+        <h2 class="error-title">
+          <i data-lucide="alert-triangle"></i>
+          <span data-translate="error_title_prefix">エラー</span> 
+          <a href="#" id="errorCodeText" style="color:inherit; text-decoration:underline; font-size:16px;"></a>
+        </h2>
+        <div class="auth-layout-flex" style="flex-direction: column;">
+          <h3 id="errorMessage" class="error-main-msg"></h3>
+          <div class="grey-box" id="errorInfoBox">
+            <p class="box-text" id="errorSubMessage"></p>
+            <p class="box-time" id="errorTime"></p>
+          </div>
+          
+          <div class="btn-row-full">
+            <button class="btn-outline" id="btnErrorClose" data-translate="btn_close">閉じる</button>
+          </div>
+        </div>
+      </div>
+
     </div>
   </main>
+</div>
 
-  <script>
-    /*********************
-     * Config & Variables
-     *********************/
-    const GAS_API_URL = "/api/proxy";
-    const LS_LANG = "user_lang";
-    const LS_IDENTITY = "user_session_identity";
-    const LS_TOKEN = "user_session_token";
-    let CURRENT_LANG = "ja";
-    let pendingCode = "";
+<script>
+const GAS_API_URL = "api/proxy";
+let CURRENT_LANG = "ja";
+let currentAuthTime = "";
+let currentContentData = {};
+
+const T = {
+  ja: {
+    header_brand: "kiryu11 Pro", menu_redeem: "コード認証", modal_title: "コード引き換え", modal_sub: "お手持ちのアクティベーションコードを入力し、認証を行ってください。", modal_btn_auth: "確認",
+    preview_title: "引き換えの確認", preview_desc: "続行すると、以下のコンテンツが引き換えられます:", btn_close: "閉じる", btn_continue: "引き換える",
+    success_title_final: "引き換え成功!!", success_desc: "以下のコンテンツを引き換えました:", success_msg_box: "正常に処理されました。\n※ダウンロードはライブラリまたは購入履歴から行ってください。",
+    error_title_prefix: "エラー", error_used_msg: "このコードは引き換え済みです。", msg_invalid: "このコードは無効です。", msg_error: "エラーが発生しました。", error_owned_msg: "既に所有しているようです。"
+  },
+  en: {
+    header_brand: "kiryu11 Pro", menu_redeem: "Redeem Code", modal_title: "Redeem Code", modal_sub: "Enter your activation code to authenticate and unlock content.", modal_btn_auth: "CHECK",
+    preview_title: "Confirm Redemption", preview_desc: "If you continue, you will redeem the following content:", btn_close: "Close", btn_continue: "Redeem",
+    success_title_final: "Redemption Successful!!", success_desc: "The following content has been redeemed:", success_msg_box: "Processed successfully.\n*Please download from your library or purchase history.",
+    error_title_prefix: "Error", error_used_msg: "This code has already been redeemed.", msg_invalid: "This code is invalid.", msg_error: "An error occurred.", error_owned_msg: "You already own this content."
+  },
+  zh: {
+    header_brand: "kiryu11 Pro", menu_redeem: "兑换代码", modal_title: "兑换代码", modal_sub: "请输入激活码以进行验证。", modal_btn_auth: "检查",
+    preview_title: "确认兑换", preview_desc: "继续操作将兑换以下内容:", btn_close: "关闭", btn_continue: "兑换",
+    success_title_final: "兑换成功!!", success_desc: "以下内容兑换成功:", success_msg_box: "处理成功。\n※请从库或购买记录中下载。",
+    error_title_prefix: "错误", error_used_msg: "此代码已被兑换。", msg_invalid: "该代码无效。", msg_error: "发生错误。", error_owned_msg: "您已拥有此项目。"
+  },
+  "zh-TW": {
+    header_brand: "kiryu11 Pro", menu_redeem: "兌換代碼", modal_title: "兌換代碼", modal_sub: "請輸入啟動碼以進行驗證。", modal_btn_auth: "檢查",
+    preview_title: "確認兌換", preview_desc: "如果您繼續，您將收到以下內容:", btn_close: "關閉", btn_continue: "兌換",
+    success_title_final: "兌換成功!!", success_desc: "該代碼已兌換以下內容:", success_msg_box: "已成功處理。\n※請從庫或購買紀錄中下載。",
+    error_title_prefix: "錯誤", error_used_msg: "此代碼已兌換。", msg_invalid: "該代碼無效。", msg_error: "發生錯誤。", error_owned_msg: "你已經擁有了。"
+  },
+  ko: {
+    header_brand: "kiryu11 Pro", menu_redeem: "코드 교환", modal_title: "코드 교환", modal_sub: "활성화 코드를 입력하여 인증을 진행해 주세요.", modal_btn_auth: "확인",
+    preview_title: "교환 확인", preview_desc: "계속하면 다음 콘텐츠를 받게됩니다:", btn_close: "닫기", btn_continue: "사용",
+    success_title_final: "교환 완료!!", success_desc: "다음 콘텐츠가 활성화되었습니다:", success_msg_box: "정상적으로 처리되었습니다.\n※다운로드는 라이브러리 또는 구매 내역에서 진행해 주세요.",
+    error_title_prefix: "오류", error_used_msg: "이 코드는 이미 사용되었습니다.", msg_invalid: "유효하지 않은 코드입니다.", msg_error: "오류가 발생했습니다.", error_owned_msg: "이미 소유하고 있습니다."
+  },
+  ru: {
+    header_brand: "kiryu11 Pro", menu_redeem: "Код активации", modal_title: "Код активации", modal_sub: "Введите код активации для аутентификации.", modal_btn_auth: "Проверить",
+    preview_title: "Подтвердить", preview_desc: "Вы получите следующее содержимое:", btn_close: "Закрыть", btn_continue: "Погасить",
+    success_title_final: "Успешно!!", success_desc: "Вы получили следующий контент:", success_msg_box: "Успешно обработано.\n*Скачивайте из библиотеки или истории покупок.",
+    error_title_prefix: "Ошибка", error_used_msg: "Этот код уже активирован.", msg_invalid: "Неверный код.", msg_error: "Произошла ошибка.", error_owned_msg: "Оно у вас уже есть."
+  }
+};
+
+const gId = id => document.getElementById(id);
+const escapeHTML = str => String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+
+function formatCodeInput(val) {
+    if (!val) return "";
+    let clean = val.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    let sz = clean.length >= 25 ? 5 : 4; 
+    let res = '';
+    for(let i=0; i<clean.length; i++) { if(i > 0 && i % sz === 0) res += '-'; res += clean[i]; }
+    return res;
+}
+
+function getFormattedTime() {
+    const d = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+
+function generateErrorCode() {
+    return 'ERR.' + Math.floor(Math.random() * 9000 + 1000);
+}
+
+// 疑似Fetch (UI動作確認用。実環境では元の safeFetch に戻してください)
+async function safeFetch(bodyObj) {
+    const token = localStorage.getItem('user_session_token') || "";
+    try {
+        const response = await fetch(GAS_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify(bodyObj)
+        });
+        return await response.json();
+    } catch(e) {
+        // デモ用のモック動作（通信できない環境でもUIの動きを確認できるように）
+        return new Promise(resolve => setTimeout(() => {
+            if(bodyObj.type === 'check') {
+                if(bodyObj.code === 'ERROR') resolve({ success: false, message: "Invalid code" });
+                else resolve({ success: true, bundleLabel: "Premium Pack", message: "Unlocked exclusive items.", detailedTitle: "Special Edition Game", imageUrl: "https://via.placeholder.com/380x220?text=Preview+Image" });
+            } else {
+                resolve({ success: true, message: "Success" });
+            }
+        }, 800));
+    }
+}
+
+// --- UI / Phase Control ---
+function switchPhase(phaseId) {
+    document.querySelectorAll('.phase').forEach(el => { el.classList.remove('active'); });
+    gId(phaseId).classList.add('active');
     
-    const $ = id => document.getElementById(id);
-
-    /*********************
-     * Translations Dictionary
-     *********************/
-    const T = {
-      ja: {
-        brandName: "Redeem Center", brandSub: "Secure Code Verification",
-        heroTitle: "コード認証センター", heroSub: "引き換えコードを入力して認証します。認証後にコンテンツが解放されます。",
-        check: "確認", checking: "確認中…", ready: "待機中",
-        needLogin: "未ログインです。Access.html に移動します…",
-        okTitle: "認証完了", okMsg: "このコードは有効です。\n続行すると引き換えを実行します。",
-        redeem: "引き換える", redeemedTitle: "引き換え完了", redeemedMsg: "引き換えが完了しました。",
-        usedTitle: "使用済み", usedMsg: "このコードは既に引き換え済みです。",
-        invalidTitle: "無効なコード", invalidMsg: "このコードは無効です。",
-        errTitle: "エラー", errMsg: "エラーが発生しました。しばらくしてから再度お試しください。",
-        close: "閉じる", userLabel: "個人識別子", logout: "ログアウト",
-        hint1Title: "安全な検証", hint1Body: "セッションを流用し、サーバー側でコードの有効性を確認します。",
-        hint2Title: "自動整形", hint2Body: "英数字のみを抽出し、ハイフンを自動挿入して読みやすくします。"
-      },
-      en: {
-        brandName: "Redeem Center", brandSub: "Secure Verification",
-        heroTitle: "Verification Center", heroSub: "Enter a code to verify and unlock content.",
-        check: "CHECK", checking: "Checking…", ready: "Ready",
-        needLogin: "Not logged in. Redirecting to Access.html…",
-        okTitle: "Verified", okMsg: "This code is valid.\nContinue to redeem it.",
-        redeem: "REDEEM", redeemedTitle: "Redeemed", redeemedMsg: "Redemption completed successfully.",
-        usedTitle: "Already Used", usedMsg: "This code has already been redeemed.",
-        invalidTitle: "Invalid Code", invalidMsg: "This code is invalid.",
-        errTitle: "Error", errMsg: "Something went wrong. Please try again.",
-        close: "Close", userLabel: "USER ID", logout: "Logout",
-        hint1Title: "Secure", hint1Body: "Verifies the code securely on the server side.",
-        hint2Title: "Auto Format", hint2Body: "Extracts alphanumerics and inserts hyphens automatically."
-      },
-      zh: {
-        brandName: "Redeem Center", brandSub: "安全验证",
-        heroTitle: "兑换码验证中心", heroSub: "输入兑换码进行验证。验证后将解锁内容。",
-        check: "检查", checking: "检查中…", ready: "就绪",
-        needLogin: "未登录。正在跳转…",
-        okTitle: "验证通过", okMsg: "该代码有效。\n继续将执行兑换。",
-        redeem: "兑换", redeemedTitle: "兑换完成", redeemedMsg: "兑换已成功完成。",
-        usedTitle: "已使用", usedMsg: "该代码已被兑换。",
-        invalidTitle: "无效代码", invalidMsg: "该代码无效。",
-        errTitle: "错误", errMsg: "发生错误，请稍后重试。",
-        close: "关闭", userLabel: "用户ID", logout: "退出",
-        hint1Title: "安全验证", hint1Body: "复用会话并在服务器端验证代码。",
-        hint2Title: "自动格式化", hint2Body: "提取字母数字并自动插入连字符。"
-      },
-      "zh-TW": {
-        brandName: "Redeem Center", brandSub: "安全驗證",
-        heroTitle: "兌換碼驗證中心", heroSub: "輸入兌換碼進行驗證。驗證後將解鎖內容。",
-        check: "檢查", checking: "檢查中…", ready: "就緒",
-        needLogin: "未登入。正在跳轉…",
-        okTitle: "驗證通過", okMsg: "此代碼有效。\n繼續將執行兌換。",
-        redeem: "兌換", redeemedTitle: "兌換完成", redeemedMsg: "兌換已成功完成。",
-        usedTitle: "已使用", usedMsg: "此代碼已兌換。",
-        invalidTitle: "無效代碼", invalidMsg: "此代碼無效。",
-        errTitle: "錯誤", errMsg: "發生錯誤，請稍後再試。",
-        close: "關閉", userLabel: "用戶ID", logout: "退出",
-        hint1Title: "安全驗證", hint1Body: "沿用會話並在伺服器端驗證代碼。",
-        hint2Title: "自動格式化", hint2Body: "擷取英數並自動插入連字號。"
-      },
-      ko: {
-        brandName: "Redeem Center", brandSub: "보안 검증",
-        heroTitle: "코드 인증 센터", heroSub: "교환 코드를 입력하여 인증합니다. 인증 후 콘텐츠가 해제됩니다.",
-        check: "확인", checking: "확인 중…", ready: "대기 중",
-        needLogin: "로그인되지 않았습니다. 이동합니다…",
-        okTitle: "인증 완료", okMsg: "이 코드는 유효합니다.\n계속하면 교환을 실행합니다.",
-        redeem: "교환", redeemedTitle: "교환 완료", redeemedMsg: "교환이 완료되었습니다.",
-        usedTitle: "이미 사용됨", usedMsg: "이 코드는 이미 사용되었습니다.",
-        invalidTitle: "유효하지 않음", invalidMsg: "유효하지 않은 코드입니다.",
-        errTitle: "오류", errMsg: "오류가 발생했습니다. 다시 시도해 주세요.",
-        close: "닫기", userLabel: "사용자 ID", logout: "로그아웃",
-        hint1Title: "안전한 검증", hint1Body: "세션을 재사용하고 서버에서 코드를 검증합니다.",
-        hint2Title: "자동 서식", hint2Body: "영숫자만 추출하고 하이픈을 자동 삽입합니다."
-      },
-      ru: {
-        brandName: "Redeem Center", brandSub: "Безопасная проверка",
-        heroTitle: "Центр проверки", heroSub: "Введите код для проверки. После проверки контент будет разблокирован.",
-        check: "Проверить", checking: "Проверка…", ready: "Готово",
-        needLogin: "Вы не вошли. Переход…",
-        okTitle: "Подтверждено", okMsg: "Код действителен.\nПродолжите, чтобы погасить.",
-        redeem: "Погасить", redeemedTitle: "Успешно", redeemedMsg: "Погашение выполнено успешно.",
-        usedTitle: "Уже использован", usedMsg: "Этот код уже активирован.",
-        invalidTitle: "Неверный код", invalidMsg: "Этот код недействителен.",
-        errTitle: "Ошибка", errMsg: "Произошла ошибка. Повторите попытку позже.",
-        close: "Закрыть", userLabel: "ID пользователя", logout: "Выйти",
-        hint1Title: "Безопасность", hint1Body: "Использует сессию и проверяет код на сервере.",
-        hint2Title: "Автоформат", hint2Body: "Оставляет только символы и вставляет дефисы автоматически."
-      }
-    };
-
-    /*********************
-     * Utils
-     *********************/
-    function formatLocalTime(dateObj, lang) {
-      try {
-        const f = new Intl.DateTimeFormat('en-US', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false });
-        const p = {}; f.formatToParts(dateObj).forEach(pt => p[pt.type] = pt.value);
-        let hr = p.hour === '24' ? '00' : p.hour;
-        if(lang==='ja' || lang==='zh' || lang==='zh-TW') return `${p.year}/${p.month}/${p.day} ${hr}:${p.minute}:${p.second}`;
-        return `${p.year}-${p.month}-${p.day} ${hr}:${p.minute}:${p.second}`;
-      } catch (e) { return dateObj.toLocaleString(); }
+    const container = gId('authContainer');
+    if(phaseId === 'phase-input') {
+        container.classList.add('is-narrow');
+        gId('activationCode').value = '';
+        gId('activationCode').disabled = false;
+        gId('btnConfirm').disabled = false;
+        gId('btnConfirm').innerHTML = `<span>${T[CURRENT_LANG].modal_btn_auth}</span>`;
+    } else {
+        container.classList.remove('is-narrow');
     }
+    try { lucide.createIcons(); } catch(e){}
+}
 
-    function formatCodeInput(val) {
-      const clean = String(val).toUpperCase().replace(/[^A-Z0-9]/g, "");
-      const sz = clean.length >= 25 ? 5 : 4;
-      let res = "";
-      for (let i=0; i<clean.length; i++){ if(i>0 && i%sz===0) res += "-"; res += clean[i]; }
-      return res;
-    }
-
-    async function safeFetch(bodyObj) {
-      const token = localStorage.getItem(LS_TOKEN) || "";
-      const headers = { "Content-Type": "application/json" };
-      if (token) headers["Authorization"] = `Bearer ${token}`;
-      try {
-        const res = await fetch(GAS_API_URL, { method: "POST", headers, body: JSON.stringify(bodyObj) });
-        return await res.json();
-      } catch (e) { return { success: false, message: "Network error" }; }
-    }
-
-    /*********************
-     * UI Setup
-     *********************/
-    function applyLang(lang) {
-      CURRENT_LANG = lang;
-      localStorage.setItem(LS_LANG, lang);
-      document.documentElement.lang = lang;
-      
-      const t = T[lang] || T.ja;
-      $("brandName").textContent = t.brandName; $("brandSub").textContent = t.brandSub;
-      $("heroTitle").textContent = t.heroTitle; $("heroSub").textContent = t.heroSub;
-      $("checkBtnText").textContent = t.check;
-      $("userLabel").textContent = t.userLabel; $("logoutText").textContent = t.logout;
-      $("hint1Title").textContent = t.hint1Title; $("hint1Body").textContent = t.hint1Body;
-      $("hint2Title").textContent = t.hint2Title; $("hint2Body").textContent = t.hint2Body;
-      $("btnReset").textContent = t.close;
-      $("statusText").textContent = t.ready;
-
-      // Label Update
-      const map = { ja:"JA", en:"EN", zh:"ZH", "zh-TW":"TW", ko:"KO", ru:"RU" };
-      $("currentLangLabel").textContent = map[lang] || "EN";
-      
-      document.querySelectorAll("#langMenu .dropdown-item").forEach(btn => {
-        btn.querySelector("span").textContent = (btn.dataset.lang===lang) ? "✓" : "";
-      });
-    }
-
-    function toggleTheme() {
-      const curr = document.documentElement.getAttribute("data-theme");
-      const next = curr === "dark" ? "light" : "dark";
-      document.documentElement.setAttribute("data-theme", next);
-      localStorage.setItem("ui_theme", next);
-    }
-
-    function switchView(viewId) {
-      document.querySelectorAll(".view-section").forEach(el => el.classList.remove("active"));
-      $(viewId).classList.add("active");
-    }
-
-    function showResult(title, msg, type, showPrimaryAction=false, primaryText="", primaryCallback=null) {
-      $("resultTitle").textContent = title;
-      $("resultMsg").textContent = msg;
-      $("resultTime").textContent = formatLocalTime(new Date(), CURRENT_LANG);
-      
-      const icon = $("resultIcon");
-      if(type === 'success') {
-        icon.className = "result-icon success";
-        icon.innerHTML = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-      } else {
-        icon.className = "result-icon error";
-        icon.innerHTML = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
-      }
-
-      const primary = $("btnPrimary");
-      if(showPrimaryAction) {
-        primary.style.display = "flex";
-        primary.textContent = primaryText;
-        primary.onclick = primaryCallback;
-      } else {
-        primary.style.display = "none";
-        primary.onclick = null;
-      }
-      
-      switchView("view-result");
-    }
-
-    function resetToInput() {
-      $("codeInput").value = "";
-      pendingCode = "";
-      switchView("view-input");
-    }
-
-    /*********************
-     * Main Auth Logic
-     *********************/
-    async function performAuth(code, mode="check") {
-      const t = T[CURRENT_LANG] || T.ja;
-      const safeCode = formatCodeInput(code);
-      if(!safeCode) return;
-
-      $("checkBtn").disabled = true;
-      $("checkBtnText").textContent = t.checking;
-      $("statusDot").classList.remove("pulse");
-      
-      try {
-        const payload = { type: mode, code: safeCode };
-        const identity = localStorage.getItem(LS_IDENTITY);
-        if(identity) payload.identity = identity;
-
-        const d = await safeFetch(payload);
-        const data = d && (d.result || d.data || d);
-        const status = (data && (data.status || data.state || data.codeStatus)) || "";
-        const msg = (data && (data.message || data.msg)) || d.message || "";
-
-        if(mode === "check") {
-          const isValid = d.success === true && ["valid","ok","success",""].includes(String(status).toLowerCase());
-          const isUsed = String(status).toLowerCase()==="used" || String(msg).toLowerCase().includes("already") || String(msg).includes("引き換え済");
-          const isInvalid = d.success === false && (String(status).toLowerCase()==="invalid" || String(msg).toLowerCase().includes("invalid"));
-
-          if(isUsed) {
-            showResult(t.usedTitle, t.usedMsg, 'error');
-          } else if(isInvalid) {
-            showResult(t.invalidTitle, t.invalidMsg, 'error');
-          } else if(isValid) {
-            pendingCode = safeCode;
-            // 認証成功時：「引き換える」ボタンを表示。
-            showResult(t.okTitle, t.okMsg, 'success', true, t.redeem, async () => {
-              await performAuth(pendingCode, "redeem");
-            });
-          } else {
-            showResult(t.errTitle, msg || t.errMsg, 'error');
-          }
-        } else {
-          // 引き換え(Redeem)実行後
-          if(d.success) {
-            // 要件: いずれも認証（引き換え）したらダウンロードボタン等は表示せず「閉じるボタンのみ」にする
-            showResult(t.redeemedTitle, (data && data.message) ? data.message : t.redeemedMsg, 'success', false);
-          } else {
-            showResult(t.errTitle, msg || t.errMsg, 'error');
-          }
-        }
-      } catch(e) {
-        showResult((T[CURRENT_LANG]||T.ja).errTitle, (T[CURRENT_LANG]||T.ja).errMsg, 'error');
-      } finally {
-        $("checkBtn").disabled = false;
-        $("checkBtnText").textContent = (T[CURRENT_LANG]||T.ja).check;
-        $("statusDot").classList.add("pulse");
-      }
-    }
-
-    /*********************
-     * Init & Events
-     *********************/
-    window.addEventListener("DOMContentLoaded", () => {
-      // Theme Setup
-      const savedTheme = localStorage.getItem("ui_theme") || "dark";
-      document.documentElement.setAttribute("data-theme", savedTheme);
-      $("themeToggle").addEventListener("click", toggleTheme);
-
-      // Lang Setup
-      let lang = localStorage.getItem(LS_LANG);
-      if(!lang) {
-        $("langOverlay").classList.remove("hidden");
-      } else {
-        applyLang(lang);
-      }
-      
-      document.querySelectorAll(".lang-card").forEach(el => {
-        el.addEventListener("click", () => {
-          applyLang(el.dataset.lang);
-          $("langOverlay").classList.add("hidden");
-        });
-      });
-
-      // Dropdowns
-      const toggles = [{btn: "langToggle", menu: "langMenu"}, {btn: "userToggle", menu: "userMenu"}];
-      toggles.forEach(t => {
-        $(t.btn).addEventListener("click", (e) => {
-          e.stopPropagation();
-          const menu = $(t.menu);
-          const isAct = menu.classList.contains("active");
-          document.querySelectorAll(".dropdown-menu").forEach(m => m.classList.remove("active"));
-          if(!isAct) menu.classList.add("active");
-        });
-      });
-      document.addEventListener("click", () => {
-        document.querySelectorAll(".dropdown-menu").forEach(m => m.classList.remove("active"));
-      });
-
-      document.querySelectorAll("#langMenu .dropdown-item").forEach(btn => {
-        btn.addEventListener("click", () => applyLang(btn.dataset.lang));
-      });
-
-      // Input Logic
-      $("codeInput").addEventListener("input", e => e.target.value = formatCodeInput(e.target.value));
-      $("codeInput").addEventListener("keydown", e => { if(e.key === "Enter") performAuth($("codeInput").value, "check"); });
-      $("checkBtn").addEventListener("click", () => performAuth($("codeInput").value, "check"));
-      
-      // Result Logic
-      $("btnReset").addEventListener("click", resetToInput);
-
-      // Session & Identity
-      const identity = localStorage.getItem(LS_IDENTITY);
-      if(!identity) {
-        $("userValue").textContent = "GUEST";
-      } else {
-        $("userValue").textContent = identity;
-      }
-      
-      $("logoutBtn").addEventListener("click", () => {
-        localStorage.removeItem(LS_IDENTITY);
-        localStorage.removeItem(LS_TOKEN);
-        window.location.href = "Access.html" + window.location.search;
-      });
-
-      // Clock
-      setInterval(() => $("clockText").textContent = formatLocalTime(new Date(), CURRENT_LANG).split(" ")[1], 1000);
-      $("clockText").textContent = formatLocalTime(new Date(), CURRENT_LANG).split(" ")[1];
+function updateLanguage(lang) {
+    CURRENT_LANG = lang;
+    document.documentElement.lang = lang;
+    const t = T[lang];
+    if(!t) return;
+    
+    document.querySelectorAll('[data-translate]').forEach(el => {
+        const key = el.getAttribute('data-translate');
+        if (t[key]) el.innerHTML = t[key];
     });
-  </script>
+    
+    const langMap = { ja: '日本語', en: 'English', zh: '简体中文', 'zh-TW': '繁體中文', ko: '한국어', ru: 'Русский' };
+    gId('currentLangLabel').textContent = langMap[lang];
+}
+
+// --- Auth Logic ---
+async function performAuth(code, mode = 'check') {
+    const safeCode = formatCodeInput(code);
+    if(!safeCode) return;
+    
+    const t = T[CURRENT_LANG];
+    const spinnerHtml = `<div class="spinner"></div>`;
+    
+    if (mode === 'check') {
+        gId('activationCode').disabled = true;
+        gId('btnConfirm').disabled = true;
+        gId('btnConfirm').innerHTML = spinnerHtml;
+    } else {
+        gId('btnPreviewRedeem').disabled = true;
+        gId('btnPreviewRedeem').innerHTML = spinnerHtml;
+        currentAuthTime = getFormattedTime();
+    }
+
+    try {
+        const d = await safeFetch({ type: mode, code: safeCode, lang: CURRENT_LANG, app_tier: 'enterprise' });
+
+        if (mode === 'check') {
+            if (d.success) {
+                currentContentData = { title: d.detailedTitle || d.bundleLabel, desc: d.detailedDesc || "", img: d.imageUrl };
+                gId('previewImage').src = currentContentData.img;
+                gId('previewTitle').textContent = currentContentData.title;
+                if(d.detailedDesc) { gId('previewWarningText').innerHTML = escapeHTML(d.detailedDesc); gId('previewWarningBox').style.display='flex'; }
+                else { gId('previewWarningBox').style.display='none'; }
+                
+                gId('btnPreviewRedeem').disabled = false;
+                gId('btnPreviewRedeem').innerHTML = `<span>${t.btn_continue}</span>`;
+                
+                switchPhase('phase-preview');
+            } else { throw new Error(d.message); }
+        } else {
+            if (d.success) {
+                gId('successImage').src = currentContentData.img;
+                gId('successBundleName').textContent = currentContentData.title;
+                gId('successMessageText').innerHTML = t.success_msg_box.replace(/\n/g, '<br>');
+                gId('successTime').textContent = currentAuthTime;
+                
+                switchPhase('phase-success');
+            } else { throw new Error(d.message); }
+        }
+    } catch(e) {
+        let msg = e.message.toLowerCase();
+        let errorMain = t.msg_error;
+        let specificCode = generateErrorCode();
+        
+        if (msg.includes("used")) { errorMain = t.error_used_msg; specificCode = "1013"; }
+        else if (msg.includes("invalid") || msg.includes("not found")) { errorMain = t.msg_invalid; specificCode = "1012"; }
+        else if (msg.includes("owned")) { errorMain = t.error_owned_msg; specificCode = "1011"; }
+
+        gId('errorCodeText').textContent = specificCode;
+        gId('errorCodeText').href = `error.html?code=${specificCode}`;
+        gId('errorMessage').textContent = errorMain;
+        gId('errorSubMessage').textContent = e.message;
+        gId('errorTime').textContent = getFormattedTime();
+        
+        if (mode === 'check') { gId('activationCode').disabled = false; gId('btnConfirm').disabled = false; }
+        else { gId('btnPreviewRedeem').disabled = false; }
+        
+        switchPhase('phase-error');
+    }
+}
+
+// --- Initialization ---
+document.addEventListener('DOMContentLoaded', () => {
+    lucide.createIcons();
+    
+    // Theme setup
+    const toggleThemeBtn = gId('themeToggle');
+    const applyTheme = (theme) => {
+        document.documentElement.setAttribute('data-theme', theme);
+        gId('themeIcon').setAttribute('data-lucide', theme === 'light' ? 'sun' : 'moon');
+        lucide.createIcons();
+    };
+    applyTheme(localStorage.getItem('user_theme') || 'dark');
+    toggleThemeBtn.addEventListener('click', () => {
+        const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        localStorage.setItem('user_theme', next);
+        applyTheme(next);
+    });
+
+    // Language Dropdown
+    const langTrigger = gId('langTrigger');
+    const langMenu = gId('langMenu');
+    langTrigger.addEventListener('click', (e) => { e.stopPropagation(); langMenu.classList.toggle('open'); });
+    document.querySelectorAll('#langMenu li').forEach(li => {
+        li.addEventListener('click', () => {
+            const val = li.getAttribute('data-value');
+            localStorage.setItem('user_lang', val);
+            updateLanguage(val);
+            langMenu.classList.remove('open');
+        });
+    });
+    document.addEventListener('click', () => langMenu.classList.remove('open'));
+    updateLanguage(localStorage.getItem('user_lang') || 'ja');
+
+    // Mobile Sidebar
+    const mobileBtn = gId('mobileMenuBtn');
+    const sidebar = gId('sidebar');
+    mobileBtn.addEventListener('click', (e) => { e.stopPropagation(); sidebar.classList.toggle('open'); });
+    document.addEventListener('click', (e) => { if(!sidebar.contains(e.target) && !mobileBtn.contains(e.target)) sidebar.classList.remove('open'); });
+
+    // Input events
+    const codeInput = gId('activationCode');
+    const btnConfirm = gId('btnConfirm');
+    codeInput.addEventListener('input', () => codeInput.value = formatCodeInput(codeInput.value));
+    codeInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') btnConfirm.click(); });
+    btnConfirm.addEventListener('click', () => performAuth(codeInput.value, 'check'));
+
+    // Buttons
+    gId('btnPreviewRedeem').addEventListener('click', () => performAuth(codeInput.value, 'redeem'));
+    
+    // All Close buttons return to input phase
+    ['btnPreviewClose', 'btnSuccessClose', 'btnErrorClose'].forEach(id => {
+        gId(id).addEventListener('click', () => switchPhase('phase-input'));
+    });
+
+    // Particles setup
+    const canvas = gId('particleCanvas'); const ctx = canvas.getContext('2d');
+    let p = [];
+    const resize = () => { canvas.width = innerWidth; canvas.height = innerHeight; };
+    resize(); window.addEventListener('resize', resize);
+    for(let i=0; i<8; i++) p.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*150+50, sx: Math.random()*0.2-0.1, sy: Math.random()*0.2-0.1, op: Math.random()*0.3+0.1 });
+    const animate = () => {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+        p.forEach(i => {
+            i.x+=i.sx; i.y+=i.sy; if(i.x<0||i.x>canvas.width)i.sx*=-1; if(i.y<0||i.y>canvas.height)i.sy*=-1;
+            ctx.fillStyle = `hsla(${isLight?210:220}, 100%, 50%, ${i.op*0.2})`;
+            ctx.beginPath(); ctx.arc(i.x,i.y,i.s,0,Math.PI*2); ctx.fill();
+        });
+        requestAnimationFrame(animate);
+    };
+    animate();
+});
+</script>
 </body>
 </html>
