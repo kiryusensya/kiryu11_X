@@ -787,16 +787,24 @@ const maskActionUrl = (rawUrl) => {
       const lMap = { ja: 'jp', en: 'en', zh: 'zh', 'zh-TW': 'zh-TW', ko: 'ko', ru: 'ru' };
       const suffix = lMap[lang] || 'jp';
 
+      // ★ show: ストア表示 / hide: 所有済みのみ表示（コード認証後ライブラリに出る）
       const filteredContents = (allContents || []).filter(c => {
-          const isShow = String(c["show/ hide"] || "").trim().toLowerCase() === 'show';
-          if (!isShow) return false;
+          const showHide = String(c["show/ hide"] || "").trim().toLowerCase();
+          // 有効期限切れは除外
           if (c["有効時間"] && new Date(c["有効時間"]).getTime() <= Date.now()) return false;
-          
-          // ★ エンタープライズ版APIのため制限なしで表示
-          return true;
+          if (showHide === 'show') return true;
+          // hide: 所有済みのユーザーにのみ返す
+          if (showHide === 'hide') {
+              return ownedContentIds.has(c.id) || (c["重複"] && ownedGroupIds.has(c["重複"]));
+          }
+          return false;
       });
 
       const items = filteredContents.map(content => {
+        const showHide = String(content["show/ hide"] || "").trim().toLowerCase();
+        const isHideContent = showHide === 'hide'; // hideコンテンツ = 購入ボタン非表示
+        const contentType = String(content["Types"] || "base").trim().toLowerCase(); // "base" or "addon"
+        const parentId = content["parent_id"] || null; // addonの場合に基本コンテンツのparent_id
         const isOwned = ownedContentIds.has(content.id) || (content["重複"] && ownedGroupIds.has(content["重複"]));
         
         // ▼ 追加: 現在時刻と解禁時間を比較
@@ -815,7 +823,12 @@ const maskActionUrl = (rawUrl) => {
           imageUrl: content.Imag_Url, 
           url: safeUrl, // ★ 修正
           releaseDateIso: content["解禁時間"], expireDateIso: content["有効時間"], icon: content.アイコン || 'download',
-          groupId: content["重複"], buttonLabel: content[`ボタン(${suffix})`] || content["ボタン(jp)"], price: content["価格"] || 0, isOwned: isOwned
+          groupId: content["重複"], buttonLabel: content[`ボタン(${suffix})`] || content["ボタン(jp)"],
+          price: isHideContent ? 0 : (content["価格"] || 0), // hideコンテンツは購入不可（価格を返さない）
+          isOwned: isOwned,
+          isHideContent: isHideContent,   // フロント側で購入ボタン表示/非表示に使用
+          contentType: contentType,       // "base" or "addon"
+          parentId: parentId              // addon の場合は基本コンテンツの parent_id
         };
       });
       return res.status(200).json({ success: true, items });
@@ -854,7 +867,11 @@ const maskActionUrl = (rawUrl) => {
           url: safeUrl, // ★ 修正: safeUrlを適用
           imageUrl: c.Imag_Url,
           icon: c.アイコン || 'download', releaseDateIso: c["解禁時間"], expireDateIso: c["有効時間"], extraInfo: c[`詳細(${suffix})`] || c["詳細(jp)"],
-          groupId: c["重複"], buttonLabel: c[`ボタン(${suffix})`] || c["ボタン(jp)"], price: c["価格"] || 0
+          groupId: c["重複"], buttonLabel: c[`ボタン(${suffix})`] || c["ボタン(jp)"],
+          price: c["価格"] || 0,
+          isHideContent: String(c["show/ hide"] || "").trim().toLowerCase() === 'hide',
+          contentType: String(c["Types"] || "base").trim().toLowerCase(),
+          parentId: c["parent_id"] || null
         };
       }).filter(Boolean);
       return res.status(200).json({ success: true, points: user?.points || 0, history: historyData });
@@ -866,6 +883,12 @@ const maskActionUrl = (rawUrl) => {
       
       const { data: contentMaster } = await supabase.from('contents').select('*').eq('id', contentId).maybeSingle();
       if (!contentMaster) return res.status(200).json({ success: false, message: "Item not found" });
+      
+      // ★ hideコンテンツはコード認証専用 — 購入不可
+      const purchaseShowHide = String(contentMaster["show/ hide"] || "").trim().toLowerCase();
+      if (purchaseShowHide === 'hide') {
+          return res.status(200).json({ success: false, message: "This item requires a code to unlock." });
+      }
       
       // ★ エンタープライズ版APIのため、制限ブロックをバイパス
 
@@ -934,10 +957,14 @@ const maskActionUrl = (rawUrl) => {
       };
 
       if (mode === 'check') {
+        const contentTypeCheck = String(content["Types"] || "base").trim().toLowerCase();
         return res.status(200).json({
           success: true, bundleLabel: txt.bundle, message: txt.message, detailedTitle: txt.title, detailedDesc: txt.desc,
           buttonLabel: txt.btnLabel, imageUrl: content.Imag_Url, icon: content.アイコン || 'download', groupId: content["重複"],
-          isRare: content.is_rare || false // ★ rare機能を復活
+          isRare: content.is_rare || false,
+          contentType: contentTypeCheck,
+          parentId: content["parent_id"] || null,
+          isHideContent: String(content["show/ hide"] || "").trim().toLowerCase() === 'hide'
         });
       }
 
@@ -953,12 +980,20 @@ const maskActionUrl = (rawUrl) => {
       }
 
       if (codeType !== 'POINT') {
+        // コンテンツ種別を判定 (contents.Types: "base" or "addon")
+        const contentType = String(content["Types"] || "base").trim().toLowerCase();
+        const isAddon = contentType === 'addon';
+
         let isOwned = false;
         if (targetId) {
           const { data: existingHist } = await supabase.from('histories').select('codes(content_id, contents("重複"))').eq('user_id', targetId);
           if (existingHist) {
             isOwned = existingHist.some(h => {
                 if (!h.codes) return false;
+                // addonは重複グループID一致での所有チェックをスキップ（別コンテンツ扱い）
+                if (isAddon) {
+                    return h.codes.content_id === content.id;
+                }
                 return h.codes.content_id === content.id || (content["重複"] && h.codes.contents && h.codes.contents["重複"] === content["重複"]);
             });
           }
