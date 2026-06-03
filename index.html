@@ -2911,14 +2911,45 @@ function openManageModal(item) {
     const list = els.manageContentList;
     list.innerHTML = '';
     
-    // 親アイテムの有効期限を取得
     const parentExpireDate = item.expireDateIso ? new Date(item.expireDateIso) : null;
     
     let subItems = [];
     const targetUrl = item.url || item.actionUrl;
-    try { subItems = JSON.parse(targetUrl); } catch(e) { return; }
+    try { 
+        if (targetUrl && targetUrl.trim().startsWith('[')) {
+            subItems = JSON.parse(targetUrl); 
+        }
+    } catch(e) {}
     
-    const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja; 
+    // ★ 追加：所有済みのアドオンがあれば、ダウンロードリストに合流させる
+    if (item.addons && item.addons.length > 0) {
+        item.addons.forEach(addon => {
+            if (addon.isOwned) { 
+                subItems.push({
+                    title: addon.title,
+                    type: addon.extraInfo || 'アドオン',
+                    url: addon.url || addon.actionUrl,
+                    releaseDateIso: addon.releaseDateIso,
+                    expireDateIso: addon.expireDateIso,
+                    buttonLabel: addon.buttonLabel
+                });
+            }
+        });
+    }
+
+    // ★ 追加：アドオンが存在し、かつ本編が単一ファイル(ZIP等)の場合は、本編自体もリストの先頭に追加する
+    if (subItems.length > 0 && targetUrl && !targetUrl.trim().startsWith('[')) {
+        subItems.unshift({
+            title: item.title + " (本編)",
+            type: "ベースシステム",
+            url: targetUrl,
+            releaseDateIso: item.releaseDateIso,
+            expireDateIso: item.expireDateIso,
+            buttonLabel: item.buttonLabel
+        });
+    }
+
+    const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja;
 
     // ★ 期限切れ用の多言語辞書
     const expiredTextMap = {
@@ -3644,21 +3675,34 @@ function updateAccountUI() {
     if(gId('ptValue')) gId('ptValue').textContent = currentUser.points || 0;
     
     const hasHistory = (currentUser.history && currentUser.history.length > 0);
-    if (hasHistory) {
-      els.secLibrary.style.display = 'block';
-      els.libraryListSidebar.innerHTML = "";
-      currentUser.history.forEach((item, index) => {
-            const div = document.createElement('div');
-            div.className = 'sidebar-game-item';
-            div.onclick = () => {
-                document.querySelectorAll('.sidebar-game-item').forEach(el => el.classList.remove('active'));
-                div.classList.add('active');
-                updateHeroView(item, true); 
-            };
-            const imgUrl = (item.imageUrl && item.imageUrl.startsWith('http')) ? item.imageUrl : 'https://via.placeholder.com/32';
-            div.innerHTML = `<div class="sidebar-game-info"><img src="${escapeHTML(imgUrl)}" class="sidebar-game-thumb" onerror="this.style.background='#555'"><div class="sidebar-game-text"><div class="sidebar-game-title">${escapeHTML(item.message || item.title)}</div></div></div>`;
-            els.libraryListSidebar.appendChild(div);
-      });
+        if (hasHistory) {
+            els.secLibrary.style.display = 'block';
+            els.libraryListSidebar.innerHTML = "";
+
+            // ★ 1. 親(ベース)と子(アドオン)を振り分ける
+            const baseHistory = currentUser.history.filter(item => !item.parentId);
+            const addonHistory = currentUser.history.filter(item => item.parentId);
+
+            // ★ 2. ベース(本編)だけをサイドバーに描画する
+            baseHistory.forEach((item, index) => {
+                
+                // ★ 3. ベースアイテムのデータ内に、自分が所有しているアドオンを紐付けて隠し持つ
+                const ownedAddons = addonHistory.filter(addon => addon.parentId === item.contentId || addon.parentId === item.code);
+                ownedAddons.forEach(a => a.isOwned = true);
+                item.isOwned = true;
+                item.addons = ownedAddons;
+
+                const div = document.createElement('div');
+                div.className = 'sidebar-game-item';
+                div.onclick = () => {
+                    document.querySelectorAll('.sidebar-game-item').forEach(el => el.classList.remove('active'));
+                    div.classList.add('active');
+                    updateHeroView(item, true); 
+                };
+                const imgUrl = (item.imageUrl && item.imageUrl.startsWith('http')) ? item.imageUrl : 'https://via.placeholder.com/32';
+                div.innerHTML = `<div class="sidebar-game-info"><img src="${escapeHTML(imgUrl)}" class="sidebar-game-thumb" onerror="this.style.background='#555'"><div class="sidebar-game-text"><div class="sidebar-game-title">${escapeHTML(item.message || item.title)}</div></div></div>`;
+                els.libraryListSidebar.appendChild(div);
+            });
       
       const now = Date.now();
       let hasLockedItems = currentUser.history.some(item => {
