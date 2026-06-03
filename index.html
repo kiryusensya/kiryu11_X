@@ -2391,7 +2391,8 @@ function setupEventListeners() {
         const isAddonItem = selectedHeroItem.contentType === 'addon'; // ★追加
         let isMulti = false;
         try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
-        if (isMulti || isAddonItem) { openManageModal(selectedHeroItem); } // ★ || isAddonItem
+        if (isMulti || isAddonItem) {
+        openManageModal(selectedHeroItem);
         } else if (targetUrl) {
             const isYouTube = targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be');
             if (isYouTube) {
