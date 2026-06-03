@@ -3893,6 +3893,135 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
         }
     }
 }
+// ==========================================
+// 追加コンテンツ対応: 詳細モーダル＆ダウンロード管理
+// ==========================================
+
+// 詳細モーダルを開く関数
+function openItemDetail(item) {
+    const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja;
+    
+    document.getElementById('detailThumb').src = item.imageUrl || "https://via.placeholder.com/300";
+    document.getElementById('detailTitle').textContent = item.title;
+    
+    // ▼ ベースアイテムのボタン設定 ▼
+    const baseBtn = document.getElementById('btnBuyBase');
+    document.getElementById('detailBasePrice').textContent = item.price > 0 ? `${item.price} pt` : "無料";
+    
+    if (item.isOwned) {
+        // 所有済みの場合はダウンロードボタンにする
+        baseBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg> ${t.btn_download || "ダウンロード"}`;
+        baseBtn.style.background = "rgba(0, 125, 255, 0.1)";
+        baseBtn.style.color = "var(--primary)";
+        baseBtn.style.border = "1px solid rgba(0, 125, 255, 0.3)";
+        baseBtn.disabled = false;
+        baseBtn.onclick = () => executeDownload(item);
+    } else {
+        // 未所有の場合は購入ボタンにする
+        baseBtn.textContent = t.btn_buy || "購入する";
+        baseBtn.style.background = "var(--modal-text-main)";
+        baseBtn.style.color = "var(--bg-color)";
+        baseBtn.style.border = "none";
+        baseBtn.disabled = false;
+        baseBtn.onclick = () => {
+            closeItemDetailModal();
+            showPurchasePreview(item, item.price);
+        };
+    }
+
+    // ▼ 追加コンテンツ(アドオン)のリスト描画 ▼
+    const addonsContainer = document.getElementById('addonsContainer');
+    addonsContainer.innerHTML = ''; // クリア
+
+    if (item.addons && item.addons.length > 0) {
+        item.addons.forEach(addon => {
+            const row = document.createElement('div');
+            row.className = 'manage-item-row';
+            
+            // ベースを所有していない場合はアドオンを購入不可にする
+            const isBaseMissing = !item.isOwned;
+            
+            let btnHtml = "";
+            
+            if (addon.isOwned) {
+                // アドオンを所有している場合 -> ダウンロードボタン
+                btnHtml = `
+                    <button class="btn-outline" style="height: 36px; width: 120px; flex: none; font-size: 12px; background: rgba(0, 125, 255, 0.1); color: var(--primary); border: 1px solid rgba(0, 125, 255, 0.3);" 
+                            onclick='executeDownload(${JSON.stringify(addon)})'>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg> 
+                        ${t.btn_download || "ダウンロード"}
+                    </button>
+                `;
+            } else if (isBaseMissing) {
+                // ベースを持っていない場合 -> ロック状態
+                btnHtml = `
+                    <button class="btn-outline" style="height: 36px; width: 120px; flex: none; font-size: 12px; opacity: 0.5;" disabled>
+                        ベースが必要
+                    </button>
+                `;
+            } else {
+                // 購入可能な状態
+                btnHtml = `
+                    <button class="btn-outline" style="height: 36px; width: 120px; flex: none; font-size: 12px;" 
+                            onclick='handleAddonPurchase(${JSON.stringify(addon)})'>
+                        ${t.btn_buy || "購入する"}
+                    </button>
+                `;
+            }
+
+            row.innerHTML = `
+                <div class="manage-item-info">
+                    <span class="manage-item-title" style="font-size: 14px;">${escapeHTML(addon.title)}</span>
+                    <span style="font-size: 12px; opacity: 0.7;">${escapeHTML(addon.extraInfo || "")}</span>
+                    <span style="color: var(--primary); font-weight: 700; font-size: 13px;">${addon.price > 0 ? addon.price + ' pt' : '無料'}</span>
+                </div>
+                ${btnHtml}
+            `;
+            addonsContainer.appendChild(row);
+        });
+    } else {
+        addonsContainer.innerHTML = '<p style="font-size: 13px; opacity: 0.5;">追加コンテンツはありません。</p>';
+    }
+
+    document.getElementById('itemDetailModal').classList.add('active');
+}
+
+function closeItemDetailModal() {
+    document.getElementById('itemDetailModal').classList.remove('active');
+}
+
+// アドオン購入ボタン用のハンドラー
+function handleAddonPurchase(addon) {
+    closeItemDetailModal();
+    showPurchasePreview(addon, addon.price);
+}
+
+// 共通のダウンロード実行・振り分け関数
+function executeDownload(item) {
+    const targetUrl = item.url || item.actionUrl;
+    let isMulti = false;
+    
+    // JSON配列形式（複数ファイル）かどうかを判定
+    try { 
+        if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; 
+    } catch(e) {}
+
+    if (isMulti) {
+        // 複数ファイルの場合は、既存のダウンロード管理モーダルを再利用して展開する
+        openManageModal(item);
+    } else if (targetUrl) {
+        // 単一ファイルの場合は直接ダウンロード（または動画再生）
+        const isYouTube = targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be');
+        if (isYouTube) {
+            window.open(`videos.html?code=${item.code}&target=${encodeURIComponent(targetUrl)}`, '_blank');
+        } else {
+            const token = localStorage.getItem('user_session_token') || "";
+            window.open(`/api/proxy?type=download&code=${item.code}&token=${token}`, '_blank');
+        }
+    } else {
+        alert("ダウンロードリンクが設定されていません。");
+    }
+}
 
 async function fetchAvailableContent() {
     const list = els.availableListSidebar;
