@@ -1805,7 +1805,7 @@ const TRANSLATIONS={
   error_expired_msg: "このコンテンツは配信終了しました。", btn_expired: "配信終了",
   error_owned_msg: "既に所有しているようです。",
   error_owned_sub: "コンテンツを選択してダウンロードしてください。",
-  btn_close:"閉じる",btn_continue:"引き換える",btn_download:"ダウンロード", btn_buy:"購入する", 
+  btn_close:"閉じる",btn_continue:"引き換える",btn_download:"ダウンロード", btn_open:"開く", btn_manage:"管理", btn_buy:"購入する", 
   
   preview_buy_title: "購入確認",
   preview_buy_desc: "以下のコンテンツを %s ポイントで購入します:",
@@ -1854,7 +1854,7 @@ const TRANSLATIONS={
   error_expired_msg: "This content is no longer available.", btn_expired: "No longer available",
   error_owned_msg: "You already own this content.",
   error_owned_sub: "Please select and download the content.",
-  btn_close:"Close",btn_continue:"Redeem",btn_download:"Download", btn_buy:"Buy",
+  btn_close:"Close",btn_continue:"Redeem",btn_download:"Download", btn_open:"Open", btn_manage:"Manage", btn_buy:"Buy",
   
   preview_buy_title: "Confirm Purchase",
   preview_buy_desc: "You will purchase the following content for %s Point:",
@@ -1903,7 +1903,7 @@ const TRANSLATIONS={
   error_expired_msg: "此内容已停止提供。", btn_expired: "停止提供",
   error_owned_msg: "您已拥有此项目。",
   error_owned_sub: "请选择并下载内容。",
-  btn_close:"关闭",btn_continue:"兑換",btn_download:"下载", btn_buy:"购买", 
+  btn_close:"关闭",btn_continue:"兑換",btn_download:"下载", btn_open:"打开", btn_manage:"管理", btn_buy:"购买", 
   
   preview_buy_title: "确认购买",
   preview_buy_desc: "您将使用 %s 积分购买以下内容:",
@@ -1952,7 +1952,7 @@ const TRANSLATIONS={
   error_expired_msg: "此內容已結束配信。", btn_expired: "結束配信",
   error_owned_msg: "你已經擁有了。",
   error_owned_sub: "請選擇內容並下載。",
-  btn_close:"關閉",btn_continue:"兌換",btn_download:"下載", btn_buy:"購買", 
+  btn_close:"關閉",btn_continue:"兌換",btn_download:"下載", btn_open:"開啟", btn_manage:"管理", btn_buy:"購買", 
   
   preview_buy_title: "確認購買",
   preview_buy_desc: "您將使用 %s 積分購買以下內容:",
@@ -2001,7 +2001,7 @@ const TRANSLATIONS={
   error_expired_msg: "이 콘텐츠는 배포가 종료되었습니다.", btn_expired: "제공 종료",
   error_owned_msg: "이미 가지고 있습니다.",
   error_owned_sub: "콘텐츠를 선택하여 다운로드해 주세요.",
-  btn_close:"닫기",btn_continue:"사용",btn_download:"다운로드", btn_buy:"구매", 
+  btn_close:"닫기",btn_continue:"사용",btn_download:"다운로드", btn_open:"열기", btn_manage:"관리", btn_buy:"구매", 
   
   preview_buy_title: "구매 확인",
   preview_buy_desc: "다음 콘텐츠를 %s 포인트로 구매합니다:",
@@ -2050,7 +2050,7 @@ const TRANSLATIONS={
   error_expired_msg: "Срок действия этого контента истек.", btn_expired: "Раздача окончена",
   error_owned_msg: "Оно у вас уже есть.",
   error_owned_sub: "Выберите контент и загрузите.",
-  btn_close:"Закрыть", btn_continue:"Погасить",btn_download:"Скачать", btn_buy:"Купить", 
+  btn_close:"Закрыть", btn_continue:"Погасить",btn_download:"Скачать", btn_open:"Открыть", btn_manage:"Управление", btn_buy:"Купить", 
   
   preview_buy_title: "Подтверждение покупки",
   preview_buy_desc: "Вы приобретете следующий контент за %s Баллы:",
@@ -2389,7 +2389,6 @@ function setupEventListeners() {
         }
         const targetUrl = selectedHeroItem.url || selectedHeroItem.actionUrl;
         const isAddonItem = selectedHeroItem.contentType === 'addon';
-        // JSON配列・addonコンテンツ・マスク済みURLは全てダウンロード管理モーダルへ
         const isMasked = targetUrl && targetUrl.startsWith('__MASKED_URL__');
         let isMulti = false;
         try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
@@ -3791,7 +3790,8 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
     if (!mobileList) return;
 
     const isActuallyOwned = (item.groupId && ownedGroups.has(item.groupId)) || (!item.groupId && ownedCodes.has(item.code)) || (item.title && ownedTitles.has(item.title));
-    const isFree = (!item.price || item.price <= 0);
+    // addonコンテンツはpriceが0でも「所有済み扱い」にしない（コード認証専用）
+    const isFree = (!item.price || item.price <= 0) && item.contentType !== 'addon';
     const treatAsOwned = isActuallyOwned || isFree;
 
     const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja;
@@ -3814,6 +3814,10 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
     } else if (item.isHideContent) {
     // hideコンテンツ: 未所有でも購入ボタン非表示（コード引き換えのみ）
     btnHtml = '';
+} else if (item.contentType === 'addon') {
+    // addonコンテンツ未所有: コード引き換えボタンを表示
+    const redeemLabel = (TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja).btn_redeem_code || 'コード引き換え';
+    btnHtml = `<button class="mobile-store-btn" style="background:rgba(128,128,128,0.3);color:var(--modal-text-main);">${redeemLabel}</button>`;
 } else {
     btnHtml = `<button class="mobile-store-btn">${item.price} pt</button>`;
 }
@@ -3920,6 +3924,15 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                     if (updateMobileCountdown()) clearInterval(timerId);
                 }, 1000);
             }
+        }
+    } else if (item.contentType === 'addon') {
+        // addon未所有: クリックでコード引き換えモーダルを開く
+        const addonBtn = mDiv.querySelector('.mobile-store-btn');
+        if (addonBtn) {
+            addonBtn.onclick = (e) => {
+                e.stopPropagation();
+                openAuthModal();
+            };
         }
     } else {
         const mBtn = mDiv.querySelector('.mobile-store-btn');
