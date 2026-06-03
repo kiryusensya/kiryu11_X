@@ -1002,7 +1002,7 @@ const maskActionUrl = (rawUrl) => {
         }
 
         return res.status(200).json({
-          success: true, actionUrl: retUrl, bundleLabel: txt.bundle, message: txt.message,         
+          success: true, actionUrl: retUrl, contentId: content.id, parentId: content.parent_id || null, bundleLabel: txt.bundle, message: txt.message,         
           detailedTitle: txt.title, detailedDesc: txt.desc, buttonLabel: txt.btnLabel,
           imageUrl: content.Imag_Url, isReleaseDateReached: isRelease, releaseDateIso: content["解禁時間"],
           expireDateIso: content["有効時間"], btnIcon: content.アイコン || 'download', groupId: content["重複"],
