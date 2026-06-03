@@ -815,8 +815,7 @@ const maskActionUrl = (rawUrl) => {
           imageUrl: content.Imag_Url, 
           url: safeUrl, // ★ 修正
           releaseDateIso: content["解禁時間"], expireDateIso: content["有効時間"], icon: content.アイコン || 'download',
-          groupId: content["重複"], buttonLabel: content[`ボタン(${suffix})`] || content["ボタン(jp)"], price: content["価格"] || 0, isOwned: isOwned,
-          parentId: content.parent_id || null
+          groupId: content["重複"], buttonLabel: content[`ボタン(${suffix})`] || content["ボタン(jp)"], price: content["価格"] || 0, isOwned: isOwned
         };
       });
       return res.status(200).json({ success: true, items });
@@ -850,12 +849,9 @@ const maskActionUrl = (rawUrl) => {
         const safeUrl = (isLocked || isExpired) ? null : maskActionUrl(c.Action_url);
 
         return {
-          code: codeRec["アクティベーションコード"],
-          contentId: codeRec.content_id, // ★ 追加: ベースとの紐付けに必要
-          parentId: c.parent_id,         // ★ 追加: 自分がアドオンかどうかの判定に必要
-          date: h.created_at, title: c[`タイトル(${suffix})`] || c["タイトル(jp)"],
+          code: codeRec["アクティベーションコード"], date: h.created_at, title: c[`タイトル(${suffix})`] || c["タイトル(jp)"],
           message: c[`メッセージ(${suffix})`] || c["メッセージ(jp)"], 
-          url: safeUrl,
+          url: safeUrl, // ★ 修正: safeUrlを適用
           imageUrl: c.Imag_Url,
           icon: c.アイコン || 'download', releaseDateIso: c["解禁時間"], expireDateIso: c["有効時間"], extraInfo: c[`詳細(${suffix})`] || c["詳細(jp)"],
           groupId: c["重複"], buttonLabel: c[`ボタン(${suffix})`] || c["ボタン(jp)"], price: c["価格"] || 0
@@ -879,17 +875,6 @@ const maskActionUrl = (rawUrl) => {
       let alreadyOwned = false;
       if (existingHist) alreadyOwned = existingHist.some(h => h.codes && String(h.codes.content_id) === String(contentId));
       if (alreadyOwned) return res.status(200).json({ success: false, message: "Already owned" });
-
-      if (contentMaster.parent_id) {
-          if (!ownedContentIds.includes(String(contentMaster.parent_id))) {
-              return res.status(200).json({ 
-                  success: false, 
-                  message: "Base content required", 
-                  // フロントで専用のエラーを出すためのフラグ
-                  missingParent: true 
-              });
-          }
-      }
 
       const price = contentMaster["価格"] || 0;
       if (user.points < price) return res.status(200).json({ success: false, message: "Not enough points" });
@@ -1002,7 +987,7 @@ const maskActionUrl = (rawUrl) => {
         }
 
         return res.status(200).json({
-          success: true, actionUrl: retUrl, contentId: content.id, parentId: content.parent_id || null, bundleLabel: txt.bundle, message: txt.message,         
+          success: true, actionUrl: retUrl, bundleLabel: txt.bundle, message: txt.message,         
           detailedTitle: txt.title, detailedDesc: txt.desc, buttonLabel: txt.btnLabel,
           imageUrl: content.Imag_Url, isReleaseDateReached: isRelease, releaseDateIso: content["解禁時間"],
           expireDateIso: content["有効時間"], btnIcon: content.アイコン || 'download', groupId: content["重複"],
