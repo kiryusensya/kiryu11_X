@@ -2370,25 +2370,31 @@ function setupEventListeners() {
 
   setListener(els.heroActionBtn, 'click', (e) => {
      e.stopPropagation();
-     if (checkBan()) return;
+    if (checkBan()) return;
      
      if(window.innerWidth > 768 && currentHeroContext === 'owned' && selectedHeroItem) {
-        // (期限切れ・解禁待ちのエラー処理はそのまま残す)
+       if (selectedHeroItem.expireDateIso) {
+            const expireDate = new Date(selectedHeroItem.expireDateIso);
+            if (expireDate <= new Date()) {
+                showExpiredError();
+                return; 
+            }
+        }
+        if (selectedHeroItem.releaseDateIso) {
+            const releaseDate = new Date(selectedHeroItem.releaseDateIso);
+            if (releaseDate > new Date()) {
+                showLockedError(); // ★修正：エラー3001を表示させる
+                return; 
+            }
+        }
         
         const targetUrl = selectedHeroItem.url || selectedHeroItem.actionUrl;
         let isMulti = false;
-        try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(err){}
+        try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
 
-        // ★ 変更箇所: アドオンを持っている場合も、必ずダウンロード管理モーダルを開く
-        if (isMulti || (selectedHeroItem.addons && selectedHeroItem.addons.length > 0)) {
-            // 前回の openItemDetail がある場合はそちらを、なければ既存の manageModal を開く
-            if (typeof openItemDetail === 'function') {
-                openItemDetail(selectedHeroItem);
-            } else {
-                openManageModal(selectedHeroItem); 
-            }
+        if (isMulti) {
+            openManageModal(selectedHeroItem); // 複数なら独立モーダルを開く
         } else if (targetUrl) {
-            // 単一ファイルでアドオンもない場合は直接ダウンロード
             const isYouTube = targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be');
             if (isYouTube) {
                window.open(`videos.html?code=${selectedHeroItem.code}&target=${encodeURIComponent(targetUrl)}`, '_blank');
@@ -2613,7 +2619,7 @@ function showPurchasePreview(item, price) {
     setTimeout(() => els.phasePreview.style.opacity = '1', 50);
 }
   
-async function buyItemWithPoints(contentId, price) {
+async function buyItemWithPoints(contentId, price) { // ⭕ 引数を変更
     const thisRequestId = currentAuthRequestId;
     const t = TRANSLATIONS[CURRENT_LANG];
     const spinnerHtml = `<span class="loading-spinner" style="border-top-color:currentColor; width:18px; height:18px; border-width:2px; margin:0;"></span>`;
@@ -2625,24 +2631,30 @@ async function buyItemWithPoints(contentId, price) {
         const data = await safeFetch({
             type: 'purchase',
             userId: currentUser.userId,
-            contentId: contentId, 
-            code: contentId,      
-            app_tier: 'enterprise',
+            contentId: contentId, // APIが contentId で待っている場合用
+            code: contentId,      // APIが code で待っている場合用
+            app_tier: 'enterprise', // ★ここを追加！
             _t: Date.now()
         });
         if (thisRequestId !== currentAuthRequestId) return;
         
+        // index.html の 846行目付近
+// buyItemWithPoints 関数内の if (data.success) { ... } の中身を以下に置き換えます
+
         if (data.success) {
             currentUser.points = data.remainingPoints;
             updateAccountUI();
             
+            // ★サーバーから最新の履歴を取得（今買ったアイテムが history[0] に入ります）
             await fetchUserHistory(); 
 
+            // ★ スマホ版とPC版で表示を分ける＆UIの更新
             if (window.innerWidth <= 768) {
-                // スマホ版
+                // スマホ版：ダウンロードボタン付きの専用モーダル関数に任せる
                 const boughtItem = currentUser.history.length > 0 ? currentUser.history[0] : currentContentData;
                 showMobileItemDetail(boughtItem, true);
                 
+                // タイトルや文言を購入完了用に上書き
                 const successTops = els.phaseSuccess.querySelectorAll('.modal-title-top, .mobile-title');
                 successTops.forEach(el => el.textContent = t.success_buy_title || "購入完了");
                 const label = els.phaseSuccess.querySelector('.modal-label');
@@ -2650,7 +2662,7 @@ async function buyItemWithPoints(contentId, price) {
                 els.successMessageText.innerHTML = t.success_msg_box.replace(/\n/g, '<br>');
                 
             } else {
-                // PC版
+                // PC版：モーダルを更新しつつ、背景のHeroエリアも更新
                 const successTops = els.phaseSuccess.querySelectorAll('.modal-title-top, .mobile-title');
                 successTops.forEach(el => el.textContent = t.success_buy_title || "購入完了");
                 const label = els.phaseSuccess.querySelector('.modal-label');
@@ -2664,7 +2676,7 @@ async function buyItemWithPoints(contentId, price) {
                 
                 els.btnSuccessClose.style.flex = "none";
                 els.btnSuccessClose.style.width = "100%";
-                els.btnSuccessDownload.style.display = "none"; 
+                els.btnSuccessDownload.style.display = "none"; // PC版はモーダル内ではなくHeroエリアでダウンロードさせる
                 
                 els.phasePreview.style.opacity = '0';
                 setTimeout(() => {
@@ -2674,22 +2686,13 @@ async function buyItemWithPoints(contentId, price) {
                   setTimeout(() => els.phaseSuccess.style.opacity = '1', 50);
                 }, 400);
 
+                // ★ PC版のHeroエリア（背景とダウンロードボタン）を即座に更新！
                 if (currentUser.history.length > 0) {
                     updateHeroView(currentUser.history[0], true); 
                 }
             }
             try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
         } else {
-            
-            // ▼▼▼ 追加箇所: アドオンのベース（親）を未所有の場合のエラーハンドリング ▼▼▼
-            if (data.missingParent) {
-                alert("この追加コンテンツを購入するには、ベースとなるシステムを先に所有している必要があります。");
-                els.btnPreviewRedeem.disabled = false;
-                els.btnPreviewRedeem.innerHTML = t.btn_buy_confirm || "購入確定";
-                return;
-            }
-            // ▲▲▲ ここまで追加 ▲▲▲
-
             let specificErrorCode = generateErrorCode();
             if (data.message === "Already owned") specificErrorCode = "1011";
             els.errorCodeText.textContent = specificErrorCode;
@@ -2905,45 +2908,14 @@ function openManageModal(item) {
     const list = els.manageContentList;
     list.innerHTML = '';
     
+    // 親アイテムの有効期限を取得
     const parentExpireDate = item.expireDateIso ? new Date(item.expireDateIso) : null;
     
     let subItems = [];
     const targetUrl = item.url || item.actionUrl;
-    try { 
-        if (targetUrl && targetUrl.trim().startsWith('[')) {
-            subItems = JSON.parse(targetUrl); 
-        }
-    } catch(e) {}
+    try { subItems = JSON.parse(targetUrl); } catch(e) { return; }
     
-    // ★ 追加：所有済みのアドオンがあれば、ダウンロードリストに合流させる
-    if (item.addons && item.addons.length > 0) {
-        item.addons.forEach(addon => {
-            if (addon.isOwned) { 
-                subItems.push({
-                    title: addon.title,
-                    type: addon.extraInfo || 'アドオン',
-                    url: addon.url || addon.actionUrl,
-                    releaseDateIso: addon.releaseDateIso,
-                    expireDateIso: addon.expireDateIso,
-                    buttonLabel: addon.buttonLabel
-                });
-            }
-        });
-    }
-
-    // ★ 追加：アドオンが存在し、かつ本編が単一ファイル(ZIP等)の場合は、本編自体もリストの先頭に追加する
-    if (subItems.length > 0 && targetUrl && !targetUrl.trim().startsWith('[')) {
-        subItems.unshift({
-            title: item.title + " (本編)",
-            type: "ベースシステム",
-            url: targetUrl,
-            releaseDateIso: item.releaseDateIso,
-            expireDateIso: item.expireDateIso,
-            buttonLabel: item.buttonLabel
-        });
-    }
-
-    const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja;
+    const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja; 
 
     // ★ 期限切れ用の多言語辞書
     const expiredTextMap = {
@@ -3624,12 +3596,7 @@ function updateHeroView(item, isOwned) {
     document.querySelector('.rgl-hero-content').style.display = 'block';
     els.heroTitle.textContent = item.message || item.title; 
     if(heroTimer) { clearInterval(heroTimer); heroTimer = null; }
-    if (item.extraInfo || item.message) {
-    els.heroDesc.textContent = item.extraInfo || '';
-    els.heroDesc.style.display = item.extraInfo ? 'block' : 'none';
-    } else {
     els.heroDesc.style.display = 'none';
-    }
     if (item.imageUrl && item.imageUrl.trim().startsWith('http')) {
         els.heroBgImage.style.backgroundImage = `url('${item.imageUrl.trim()}')`;
     } else {
@@ -3666,53 +3633,29 @@ function updateAccountUI() {
   if (currentUser) {
     document.body.classList.add('is-logged-in');
     
-    document.querySelector('.rgl-hero-content').style.display = selectedHeroItem ? 'block' : 'none';
+    if (!selectedHeroItem) {
+        document.querySelector('.rgl-hero-content').style.display = 'none';
+    }
     if (els.loggedInView) els.loggedInView.style.display = 'block';
     if(els.displayUserEmail) els.displayUserEmail.textContent = currentUser.email || '-';
     if(gId('ptValue')) gId('ptValue').textContent = currentUser.points || 0;
     
     const hasHistory = (currentUser.history && currentUser.history.length > 0);
-        if (hasHistory) {
-            els.secLibrary.style.display = 'block';
-            els.libraryListSidebar.innerHTML = "";
-
-            // ★ 1. 親(ベース)と子(アドオン)を振り分ける
-            const baseHistory = currentUser.history.filter(item => !item.parentId);
-            const addonHistory = currentUser.history.filter(item => item.parentId);
-
-            // ★ 2. ベース(本編)だけをサイドバーに描画する
-            baseHistory.forEach((item, index) => {
-                
-                // ★ 3. ベースアイテムのデータ内に、自分が所有しているアドオンを紐付けて隠し持つ
-                const ownedAddons = addonHistory.filter(addon =>
-                String(addon.parentId) === String(item.contentId) ||
-                String(addon.parentId) === String(item.code)
-              );
-                ownedAddons.forEach(a => a.isOwned = true);
-                item.isOwned = true;
-                item.addons = ownedAddons;
-
-                const div = document.createElement('div');
-                div.className = 'sidebar-game-item';
-                div.onclick = () => {
-                    document.querySelectorAll('.sidebar-game-item').forEach(el => el.classList.remove('active'));
-                    div.classList.add('active');
-                    updateHeroView(item, true); 
-                };
-                const imgUrl = (item.imageUrl && item.imageUrl.startsWith('http')) ? item.imageUrl : 'https://via.placeholder.com/32';
-                div.innerHTML = `<div class="sidebar-game-info"><img src="${escapeHTML(imgUrl)}" class="sidebar-game-thumb" onerror="this.style.background='#555'"><div class="sidebar-game-text"><div class="sidebar-game-title">${escapeHTML(item.message || item.title)}</div></div></div>`;
-                els.libraryListSidebar.appendChild(div);
-            });
-     if (selectedHeroItem) {
-                const allItems = els.libraryListSidebar.querySelectorAll('.sidebar-game-item');
-                allItems.forEach((el, i) => {
-                    if (baseHistory[i] && baseHistory[i].code === selectedHeroItem.code) {
-                        el.classList.add('active');
-                    }
-                });
-                const latestItem = baseHistory.find(h => h.code === selectedHeroItem.code);
-                if (latestItem) updateHeroView(latestItem, true);
-            }
+    if (hasHistory) {
+      els.secLibrary.style.display = 'block';
+      els.libraryListSidebar.innerHTML = "";
+      currentUser.history.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'sidebar-game-item';
+            div.onclick = () => {
+                document.querySelectorAll('.sidebar-game-item').forEach(el => el.classList.remove('active'));
+                div.classList.add('active');
+                updateHeroView(item, true); 
+            };
+            const imgUrl = (item.imageUrl && item.imageUrl.startsWith('http')) ? item.imageUrl : 'https://via.placeholder.com/32';
+            div.innerHTML = `<div class="sidebar-game-info"><img src="${escapeHTML(imgUrl)}" class="sidebar-game-thumb" onerror="this.style.background='#555'"><div class="sidebar-game-text"><div class="sidebar-game-title">${escapeHTML(item.message || item.title)}</div></div></div>`;
+            els.libraryListSidebar.appendChild(div);
+      });
       
       const now = Date.now();
       let hasLockedItems = currentUser.history.some(item => {
@@ -3766,8 +3709,6 @@ async function saveUnlockedItemLocal(data, code) {
   }
   const newItem = {
     code: code, 
-    contentId: data.contentId || null,
-    parentId: data.parentId || null,
     title: data.bundleLabel || data.message || "Unknown Content", 
     message: data.message,
     url: data.actionUrl, 
@@ -3949,135 +3890,6 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
         }
     }
 }
-// ==========================================
-// 追加コンテンツ対応: 詳細モーダル＆ダウンロード管理
-// ==========================================
-
-// 詳細モーダルを開く関数
-function openItemDetail(item) {
-    const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja;
-    
-    document.getElementById('detailThumb').src = item.imageUrl || "https://via.placeholder.com/300";
-    document.getElementById('detailTitle').textContent = item.title;
-    
-    // ▼ ベースアイテムのボタン設定 ▼
-    const baseBtn = document.getElementById('btnBuyBase');
-    document.getElementById('detailBasePrice').textContent = item.price > 0 ? `${item.price} pt` : "無料";
-    
-    if (item.isOwned) {
-        // 所有済みの場合はダウンロードボタンにする
-        baseBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg> ${t.btn_download || "ダウンロード"}`;
-        baseBtn.style.background = "rgba(0, 125, 255, 0.1)";
-        baseBtn.style.color = "var(--primary)";
-        baseBtn.style.border = "1px solid rgba(0, 125, 255, 0.3)";
-        baseBtn.disabled = false;
-        baseBtn.onclick = () => executeDownload(item);
-    } else {
-        // 未所有の場合は購入ボタンにする
-        baseBtn.textContent = t.btn_buy || "購入する";
-        baseBtn.style.background = "var(--modal-text-main)";
-        baseBtn.style.color = "var(--bg-color)";
-        baseBtn.style.border = "none";
-        baseBtn.disabled = false;
-        baseBtn.onclick = () => {
-            closeItemDetailModal();
-            showPurchasePreview(item, item.price);
-        };
-    }
-
-    // ▼ 追加コンテンツ(アドオン)のリスト描画 ▼
-    const addonsContainer = document.getElementById('addonsContainer');
-    addonsContainer.innerHTML = ''; // クリア
-
-    if (item.addons && item.addons.length > 0) {
-        item.addons.forEach(addon => {
-            const row = document.createElement('div');
-            row.className = 'manage-item-row';
-            
-            // ベースを所有していない場合はアドオンを購入不可にする
-            const isBaseMissing = !item.isOwned;
-            
-            let btnHtml = "";
-            
-            if (addon.isOwned) {
-                // アドオンを所有している場合 -> ダウンロードボタン
-                btnHtml = `
-                    <button class="btn-outline" style="height: 36px; width: 120px; flex: none; font-size: 12px; background: rgba(0, 125, 255, 0.1); color: var(--primary); border: 1px solid rgba(0, 125, 255, 0.3);" 
-                            onclick='executeDownload(${JSON.stringify(addon)})'>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg> 
-                        ${t.btn_download || "ダウンロード"}
-                    </button>
-                `;
-            } else if (isBaseMissing) {
-                // ベースを持っていない場合 -> ロック状態
-                btnHtml = `
-                    <button class="btn-outline" style="height: 36px; width: 120px; flex: none; font-size: 12px; opacity: 0.5;" disabled>
-                        ベースが必要
-                    </button>
-                `;
-            } else {
-                // 購入可能な状態
-                btnHtml = `
-                    <button class="btn-outline" style="height: 36px; width: 120px; flex: none; font-size: 12px;" 
-                            onclick='handleAddonPurchase(${JSON.stringify(addon)})'>
-                        ${t.btn_buy || "購入する"}
-                    </button>
-                `;
-            }
-
-            row.innerHTML = `
-                <div class="manage-item-info">
-                    <span class="manage-item-title" style="font-size: 14px;">${escapeHTML(addon.title)}</span>
-                    <span style="font-size: 12px; opacity: 0.7;">${escapeHTML(addon.extraInfo || "")}</span>
-                    <span style="color: var(--primary); font-weight: 700; font-size: 13px;">${addon.price > 0 ? addon.price + ' pt' : '無料'}</span>
-                </div>
-                ${btnHtml}
-            `;
-            addonsContainer.appendChild(row);
-        });
-    } else {
-        addonsContainer.innerHTML = '<p style="font-size: 13px; opacity: 0.5;">追加コンテンツはありません。</p>';
-    }
-
-    document.getElementById('itemDetailModal').classList.add('active');
-}
-
-function closeItemDetailModal() {
-    document.getElementById('itemDetailModal').classList.remove('active');
-}
-
-// アドオン購入ボタン用のハンドラー
-function handleAddonPurchase(addon) {
-    closeItemDetailModal();
-    showPurchasePreview(addon, addon.price);
-}
-
-// 共通のダウンロード実行・振り分け関数
-function executeDownload(item) {
-    const targetUrl = item.url || item.actionUrl;
-    let isMulti = false;
-    
-    // JSON配列形式（複数ファイル）かどうかを判定
-    try { 
-        if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; 
-    } catch(e) {}
-
-    if (isMulti) {
-        // 複数ファイルの場合は、既存のダウンロード管理モーダルを再利用して展開する
-        openManageModal(item);
-    } else if (targetUrl) {
-        // 単一ファイルの場合は直接ダウンロード（または動画再生）
-        const isYouTube = targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be');
-        if (isYouTube) {
-            window.open(`videos.html?code=${item.code}&target=${encodeURIComponent(targetUrl)}`, '_blank');
-        } else {
-            const token = localStorage.getItem('user_session_token') || "";
-            window.open(`/api/proxy?type=download&code=${item.code}&token=${token}`, '_blank');
-        }
-    } else {
-        alert("ダウンロードリンクが設定されていません。");
-    }
-}
 
 async function fetchAvailableContent() {
     const list = els.availableListSidebar;
@@ -4100,7 +3912,6 @@ async function fetchAvailableContent() {
         let hasMobileItems = false;
         let hasItems = false; 
         
-        // ユーザーの所有履歴をセットにまとめる
         if (currentUser && currentUser.history) {
             currentUser.history.forEach(h => {
                 if (h.groupId) ownedGroups.add(h.groupId); 
@@ -4113,25 +3924,14 @@ async function fetchAvailableContent() {
         }
 
         if(d.success && d.items && d.items.length > 0) {
-            // ★ 追加箇所: 親(ベース)と子(アドオン)を振り分ける
-            const baseItems = d.items.filter(item => !item.parentId);
-            const addOnItems = d.items.filter(item => item.parentId);
-
-            // ★ 変更箇所: baseItems（ベースコンテンツ）のみをループして描画する
-            baseItems.forEach((item, index) => {
-                // ★ 追加箇所: このベースアイテムに関連するアドオンを配列として持たせる
-                item.addons = addOnItems.filter(addon => addon.parentId === item.code);
-
+            d.items.forEach((item, index) => {
                 const isOwned = (item.groupId && ownedGroups.has(item.groupId)) || (!item.groupId && ownedCodes.has(item.code)) || (item.title && ownedTitles.has(item.title));
                 
-                // スマホ用ストアグリッドへの描画
                 if (!isOwned) {
-                    // ※現状はスマホ版でもベースのみを表示させます
                     renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles);
                     hasMobileItems = true;
                 }
 
-                // すでに持っているならサイドバーには「利用可能」として出さないのでスキップ
                 if (isOwned) return; 
                 
                 hasItems = true;
@@ -4144,20 +3944,12 @@ async function fetchAvailableContent() {
                 div.onclick = () => {
                     document.querySelectorAll('.sidebar-game-item').forEach(el => el.classList.remove('active'));
                     div.classList.add('active');
-                    
-                    // ★ 変更箇所: 背景(Hero)を更新するのではなく、アドオンを含めた詳細モーダルを開く
-                    if (typeof openItemDetail === 'function') {
-                        openItemDetail(item);
-                    } else {
-                        // openItemDetail関数が未定義の場合はフォールバックとしてHeroを更新
-                        updateHeroView(item, false); 
-                    }
+                    updateHeroView(item, false); 
                 };
                 
                 div.innerHTML = `<div class="sidebar-game-info"><img src="${escapeHTML(item.imageUrl)}" class="sidebar-game-thumb"><div class="sidebar-game-text"><div class="sidebar-game-title">${escapeHTML(item.message || item.title)}</div></div></div>`;
                 list.appendChild(div);
                 
-                // 初期選択の処理
                 if (!selectedHeroItem && !document.querySelector('.sidebar-game-item.active') && (!currentUser || !currentUser.history.length)) {
                     updateHeroView(item, false);
                     div.classList.add('active');
@@ -4219,6 +4011,89 @@ async function fetchUserHistory() {
   } finally {
       fetchAvailableContent();
   }
+}
+async function fetchAvailableContent() {
+    const list = els.availableListSidebar;
+    const t = TRANSLATIONS[CURRENT_LANG];
+    
+    list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">Loading...</div>`;
+    const mobileList = gId('mobileStoreGrid');
+
+    try {
+        const d = await safeFetch({
+            type: 'get_available',
+            lang: CURRENT_LANG
+        });
+        
+        list.innerHTML = '';
+        if (mobileList) mobileList.innerHTML = '';
+        
+        const ownedGroups = new Set(); const ownedCodes = new Set(); const ownedTitles = new Set();
+        let hasMobileItems = false;
+        let hasItems = false; 
+        
+        if (currentUser && currentUser.history) {
+            currentUser.history.forEach(h => {
+                if (h.groupId) ownedGroups.add(h.groupId); 
+                if (h.code) ownedCodes.add(h.code);
+                if (h.title) ownedTitles.add(h.title);         
+                
+                renderMobileStoreItem(h, ownedGroups, ownedCodes, ownedTitles);
+                hasMobileItems = true;
+            });
+        }
+
+        if(d.success && d.items && d.items.length > 0) {
+            d.items.forEach((item, index) => {
+                const isOwned = (item.groupId && ownedGroups.has(item.groupId)) || (!item.groupId && ownedCodes.has(item.code)) || (item.title && ownedTitles.has(item.title));
+                
+                if (!isOwned) {
+                    renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles);
+                    hasMobileItems = true;
+                }
+
+                if (isOwned) return; 
+                
+                hasItems = true;
+                const div = document.createElement('div');
+                div.className = 'sidebar-game-item';
+                div.setAttribute('data-code', item.code);
+                if(item.groupId) div.setAttribute('data-group-id', item.groupId);
+                if(item.title) div.setAttribute('data-title', item.title);
+                
+                div.onclick = () => {
+                    document.querySelectorAll('.sidebar-game-item').forEach(el => el.classList.remove('active'));
+                    div.classList.add('active');
+                    updateHeroView(item, false); 
+                };
+                
+                div.innerHTML = `<div class="sidebar-game-info"><img src="${escapeHTML(item.imageUrl)}" class="sidebar-game-thumb"><div class="sidebar-game-text"><div class="sidebar-game-title">${escapeHTML(item.message || item.title)}</div></div></div>`;
+                list.appendChild(div);
+                
+                if (!selectedHeroItem && !document.querySelector('.sidebar-game-item.active') && (!currentUser || !currentUser.history.length)) {
+                    updateHeroView(item, false);
+                    div.classList.add('active');
+                }
+            });
+        } 
+        
+        const totalItems = (currentUser && currentUser.history ? currentUser.history.length : 0) + (hasItems ? 1 : 0); // ← 途切れていた閉じカッコ
+        if (totalItems === 0) {
+            resetHeroToDefault();
+        }
+
+        if (!hasItems) {
+             list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">${t.msg_empty_lib || "No content"}</div>`;
+        }
+        
+        if (!hasMobileItems && mobileList) {
+             mobileList.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px; grid-column: 1 / -1; text-align:center;">${t.msg_empty_lib || "No content"}</div>`;
+        }
+    } catch(e) {
+        console.error("Fetch Error:", e);
+        list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">-</div>`;
+        if (mobileList) mobileList.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px; grid-column: 1 / -1; text-align:center;">-</div>`;
+    }
 }
 
 async function fetchUserHistory() {
