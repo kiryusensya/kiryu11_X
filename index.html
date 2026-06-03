@@ -2388,12 +2388,10 @@ function setupEventListeners() {
             }
         }
         
-        const targetUrl = selectedHeroItem.url || selectedHeroItem.actionUrl;
+        const isAddonItem = selectedHeroItem.contentType === 'addon'; // ★追加
         let isMulti = false;
         try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
-
-        if (isMulti) {
-            openManageModal(selectedHeroItem); // 複数なら独立モーダルを開く
+        if (isMulti || isAddonItem) { openManageModal(selectedHeroItem); } // ★ || isAddonItem
         } else if (targetUrl) {
             const isYouTube = targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be');
             if (isYouTube) {
@@ -2913,7 +2911,21 @@ function openManageModal(item) {
     
     let subItems = [];
     const targetUrl = item.url || item.actionUrl;
-    try { subItems = JSON.parse(targetUrl); } catch(e) { return; }
+    try {
+    const parsed = JSON.parse(targetUrl);
+    subItems = Array.isArray(parsed) ? parsed : [parsed];
+} catch(e) {
+    if (targetUrl) {
+        subItems = [{
+            url: targetUrl,
+            title: item.title || item.message || "",
+            type: item.contentType === 'addon' ? 'Addon' : 'Download',
+            buttonLabel: item.buttonLabel || null
+        }];
+    } else {
+        return;
+    }
+}
     
     const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja; 
 
@@ -3182,8 +3194,12 @@ function showMobileItemDetail(item, isNewRedeem = false) {
             let isMulti = false;
             try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
 
-            if (isMulti) {
-                // 複数ある場合、ボタンを押すと独立モーダルが開く
+           // ★ ここに追加 ★
+            const isAddonDl = item.contentType === 'addon'; 
+
+            // ★ 条件式を変更 ★
+            if (isMulti || isAddonDl) {
+                // 複数ある場合、またはアドオンの場合、ボタンを押すと独立モーダルが開く
                 els.btnSuccessDownload.removeAttribute('href');
                 els.btnSuccessDownload.onclick = (e) => {
                     e.preventDefault();
@@ -3485,6 +3501,8 @@ function setHeroButtonState(state, forceUnlock = false) {
     const buyBtn = els.heroBuyBtn;
     const t = TRANSLATIONS[CURRENT_LANG];
     
+    // ★ 安全のため、関数実行時に毎回クリックイベントをリセット
+    btn.onclick = null; 
     btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer'; btn.classList.remove('is-download'); 
 
     if (state === 'owned') {
@@ -3504,21 +3522,38 @@ function setHeroButtonState(state, forceUnlock = false) {
             btn.style.color = 'var(--modal-text-main)';
             btn.innerHTML = `<span>${t.btn_expired || "期限切れ"}</span>`;
         }
-        // ★ 修正2: 「解禁待ち」の条件だけを独立させる
+        // 「解禁待ち」の条件
         else if (!forceUnlock && releaseDate && releaseDate > now) {
             startHeroCountdown(releaseDate, expireDate);
         } else {
-            // 通常のダウンロード状態
-            let iconName = selectedHeroItem.icon || 'download';
-            const displayLabel = selectedHeroItem.buttonLabel || t.btn_hero_download;
+            // 通常のダウンロード状態（またはアドオン管理状態）
             btn.style.background = ''; btn.style.color = ''; // リセット
-            btn.innerHTML = `<span>${displayLabel}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="${iconName}" aria-hidden="true" size="20" class="lucide lucide-${iconName}"></svg>`;
+
+            // ★ ここから追加・修正 ★
+            const isAddonHero = selectedHeroItem.contentType === 'addon';
+
+            if (isAddonHero) {
+                // アドオンの場合は管理モーダルを開く
+                const manageLabel = t.btn_manage || "管理"; 
+                btn.innerHTML = `<span>${manageLabel}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="package-open" aria-hidden="true" size="20" class="lucide lucide-package-open"></svg>`;
+                btn.onclick = (e) => { 
+                    e.stopPropagation(); 
+                    openManageModal(selectedHeroItem); 
+                };
+            } else {
+                // 従来通りのダウンロード処理
+                let iconName = selectedHeroItem.icon || 'download';
+                const displayLabel = selectedHeroItem.buttonLabel || t.btn_hero_download;
+                btn.innerHTML = `<span>${displayLabel}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="${iconName}" aria-hidden="true" size="20" class="lucide lucide-${iconName}"></svg>`;
+            }
+            // ★ ここまで追加・修正 ★
+
             btn.classList.add('is-download');
             try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
-          if (!forceUnlock && expireDate && expireDate > now) {
+            if (!forceUnlock && expireDate && expireDate > now) {
                 startHeroCountdown(null, expireDate);
+            }
         }
-      }
     } else {
         btn.innerHTML = `<span data-translate="btn_redeem_code">${t.btn_redeem_code}</span>`;
         btn.classList.remove('is-download');
@@ -3645,6 +3680,7 @@ function updateAccountUI() {
       els.secLibrary.style.display = 'block';
       els.libraryListSidebar.innerHTML = "";
       currentUser.history.forEach((item, index) => {
+            if (item.contentType === 'addon') return;
             const div = document.createElement('div');
             div.className = 'sidebar-game-item';
             div.onclick = () => {
@@ -3860,7 +3896,11 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                         let isMulti = false;
                         try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(err){}
                         
-                        if (isMulti) { 
+                        // ★ ここに追加 ★
+                        const isAddonBtn = item.contentType === 'addon';
+
+                        // ★ 条件式を変更 ★
+                        if (isMulti || isAddonBtn) { 
                             openManageModal(item); 
                         } else if (targetUrl) { 
                             const isYouTube = targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be');
@@ -3936,7 +3976,7 @@ async function fetchAvailableContent() {
                 }
 
                 if (isOwned) return; 
-                
+                if (item.contentType === 'addon') return;
                 hasItems = true;
                 const div = document.createElement('div');
                 div.className = 'sidebar-game-item';
