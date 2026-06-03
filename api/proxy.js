@@ -815,7 +815,8 @@ const maskActionUrl = (rawUrl) => {
           imageUrl: content.Imag_Url, 
           url: safeUrl, // ★ 修正
           releaseDateIso: content["解禁時間"], expireDateIso: content["有効時間"], icon: content.アイコン || 'download',
-          groupId: content["重複"], buttonLabel: content[`ボタン(${suffix})`] || content["ボタン(jp)"], price: content["価格"] || 0, isOwned: isOwned
+          groupId: content["重複"], buttonLabel: content[`ボタン(${suffix})`] || content["ボタン(jp)"], price: content["価格"] || 0, isOwned: isOwned,
+          parentId: content.parent_id || null
         };
       });
       return res.status(200).json({ success: true, items });
@@ -875,6 +876,17 @@ const maskActionUrl = (rawUrl) => {
       let alreadyOwned = false;
       if (existingHist) alreadyOwned = existingHist.some(h => h.codes && String(h.codes.content_id) === String(contentId));
       if (alreadyOwned) return res.status(200).json({ success: false, message: "Already owned" });
+
+      if (contentMaster.parent_id) {
+          if (!ownedContentIds.includes(String(contentMaster.parent_id))) {
+              return res.status(200).json({ 
+                  success: false, 
+                  message: "Base content required", 
+                  // フロントで専用のエラーを出すためのフラグ
+                  missingParent: true 
+              });
+          }
+      }
 
       const price = contentMaster["価格"] || 0;
       if (user.points < price) return res.status(200).json({ success: false, message: "Not enough points" });
