@@ -3261,15 +3261,22 @@ async function performAuth(code, mode = 'check') {
           els.confirm.disabled = false;
           els.confirm.textContent = t.modal_btn_auth;
 
-          // 指定されたエラーメッセージを組み立ててUIに赤字で表示
-          const baseMsg = t.invalid_code_format || "無効です。";
-          const errorMsg = `${baseMsg}<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE`;
+         // 翻訳テキストを取得し、"<br>"を境目に配列として分割する
+          const fullMsg = t.invalid_code_format || "無効です。<br>コードのフォーマット方式は以下のとおりです:";
+          const msgParts = fullMsg.split("<br>"); 
           
-          const errorHtml = `<span style="color:#FF3B30; font-size:13px; font-weight:700; line-height:1.5;">${errorMsg}</span>`;
+          const baseMsg = msgParts[0]; // 前半：「無効です。」（各言語）
+          const pcDescText = msgParts[1] || ""; // 後半：「フォーマット方式は...」（各言語）
+          
+          // スマートフォン版は前半（baseMsg）のみ表示
+          const mobileErrorHtml = `<span style="color:#FF3B30; font-size:13px; font-weight:700; line-height:1.5;">${baseMsg}</span>`;
+          
+          // PC版は前半＋後半＋フォーマット例 をすべて繋げて表示
+          const pcErrorHtml = `<span style="color:#FF3B30; font-size:13px; font-weight:700; line-height:1.5;">${baseMsg}<br>${pcDescText}<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>`;
 
-          // PC版・スマホ版それぞれの説明文エリアをエラー表示で上書き
-          if (els.pcInputDesc) els.pcInputDesc.innerHTML = errorHtml;
-          if (els.mobileInputDesc) els.mobileInputDesc.innerHTML = errorHtml;
+          // PC版・スマホ版それぞれの説明文エリアに、出し分けたエラー表示を上書き
+          if (els.pcInputDesc) els.pcInputDesc.innerHTML = pcErrorHtml;
+          if (els.mobileInputDesc) els.mobileInputDesc.innerHTML = mobileErrorHtml;
 
           return; // ここで処理を中断し、サーバー(GAS)にはリクエストを送らない
       }
