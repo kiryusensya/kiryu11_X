@@ -1642,8 +1642,19 @@ button, input, textarea { font-family: var(--font-stack); }
     </div>
 </div>
 <script>
-const GAS_API_URL="api/proxy"; 
+const GAS_API_URL="api/proxy";
 
+let serverTimeOffset = 0; // サーバー時刻とローカル時刻のズレを保持
+
+// 常にサーバーと同期された正確な現在時刻（ミリ秒）を取得
+function getServerNow() {
+    return Date.now() + serverTimeOffset;
+}
+
+// 常にサーバーと同期された正確なDateオブジェクトを取得
+function getServerDate() {
+    return new Date(getServerNow());
+}
 let CURRENT_LANG="ja";
 let currentUser = null; 
 let pendingActivationCode = null;
@@ -1686,12 +1697,19 @@ async function safeFetch(bodyObj) {
   }
   
   try {
+      const startTime = Date.now(); // 通信開始時刻
       const response = await fetch(GAS_API_URL, {
           method: 'POST',
           headers: headers,
           body: JSON.stringify(bodyObj)
       });
       const data = await response.json();
+      const endTime = Date.now();
+    if (data.serverTime) {
+          const latency = (endTime - startTime) / 2; // 通信の片道時間
+          const actualServerTime = data.serverTime + latency;
+          serverTimeOffset = actualServerTime - Date.now(); // ズレを記録
+      }
       
       // BAN判定レスポンスをキャッチ
       if (data.isBanned) {
@@ -1764,7 +1782,7 @@ function formatLocalTime(dateObj, lang) {
     }
 }
 function getFormattedCurrentTime(lang) {
-    return formatLocalTime(new Date(), lang);
+    return formatLocalTime(getServerDate(), lang);
 }
 
 function formatSavedTime(timeStr, lang) {
@@ -3551,7 +3569,7 @@ function startHeroCountdown(releaseDate, expireDate) {
     const ruMonths = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
 
     const update = () => {
-        const now = new Date();
+        const now = getServerDate();
 
         // 1. 期限切れリアルタイムチェック
         if (expireDate && expireDate <= now) {
@@ -3657,7 +3675,7 @@ function updateAccountUI() {
             els.libraryListSidebar.appendChild(div);
       });
       
-      const now = Date.now();
+      const now = getServerNow();
       let hasLockedItems = currentUser.history.some(item => {
           return (item.releaseDateIso && new Date(item.releaseDateIso).getTime() > now)
     || (item.expireDateIso && new Date(item.expireDateIso).getTime() > now);
@@ -3810,7 +3828,7 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
 
             const updateMobileCountdown = () => {
                 if (!document.body.contains(dlBtn)) return true;
-                const currentNow = new Date();
+                const currentNow = getServerDate();
                 const diffExpire = expireDate ? expireDate - currentNow : 1;
                 const diffRelease = releaseDate ? releaseDate - currentNow : -1;
 
