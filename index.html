@@ -1826,7 +1826,7 @@ const TRANSLATIONS={
   success_desc: "以下のコンテンツを引き換えました:",
   success_msg_box: "正常に処理されました。\nコンテンツを選択してダウンロードしてください。",
   error_title_prefix: "エラー",
-  error_used_msg: "このコードは引き換え済みです。",
+  error_used_msg: "このコードは引き換え済みです。", invalid_code_format: "このコードは無効です。<br>コードのフォーマット方式は以下のとおりです:",
   error_locked_msg: "このコンテンツは解禁していません。",
   error_expired_msg: "このコンテンツは配信終了しました。", btn_expired: "配信終了",
   error_owned_msg: "既に所有しているようです。",
@@ -1875,7 +1875,7 @@ const TRANSLATIONS={
   success_desc: "The following content has been redeemed:",
   success_msg_box: "Processed successfully.\nPlease select and download your content.",
   error_title_prefix: "Error",
-  error_used_msg: "This code has already been redeemed.",
+  error_used_msg: "This code has already been redeemed.", invalid_code_format: "This code is invalid.<br>The code format is as follows:",
   error_locked_msg: "This content has not been released.",
   error_expired_msg: "This content is no longer available.", btn_expired: "No longer available",
   error_owned_msg: "You already own this content.",
@@ -1924,7 +1924,7 @@ const TRANSLATIONS={
   success_desc: "以下内容兑换成功:",
   success_msg_box: "处理成功。\n请选择并下载内容。",
   error_title_prefix: "错误",
-  error_used_msg: "此代码已被兑换。",
+  error_used_msg: "此代码已被兑换。", invalid_code_format: "该代码无效。<br>代码格式如下：",
   error_locked_msg: "此内容尚未发布。",
   error_expired_msg: "此内容已停止提供。", btn_expired: "停止提供",
   error_owned_msg: "您已拥有此项目。",
@@ -1973,7 +1973,7 @@ const TRANSLATIONS={
   success_desc: "該代碼已兌換以下內容:",
   success_msg_box: "已成功處理。\n請選擇內容並下載",
   error_title_prefix: "錯誤",
-  error_used_msg: "此代碼已兌換。",
+  error_used_msg: "此代碼已兌換。", invalid_code_format: "該代碼無效。<br>代碼格式如下：",
   error_locked_msg: "此內容尚未發佈。",
   error_expired_msg: "此內容已結束配信。", btn_expired: "結束配信",
   error_owned_msg: "你已經擁有了。",
@@ -2022,8 +2022,8 @@ const TRANSLATIONS={
   success_desc: "다음 콘텐츠가 활성화되었습니다:",
   success_msg_box: "정상적으로 처리되었습니다.\n콘텐츠를 선택하여 다운로드해 주세요.",
   error_title_prefix: "오류",
-  error_used_msg: "이 코드는 이미 사용되었습니다.",
-  error_locked_msg: "이 콘텐츠는 아직 출시되지 않았습니다.",
+  error_used_msg: "이 코드는 이미 사용되었습니다.", invalid_code_format: "유효하지 않은 코드입니다.<br>코드 형식은 다음과 같습니다:",
+  error_locked_msg: "이 콘텐츠는 아직 출시되지 않았습니다.", 
   error_expired_msg: "이 콘텐츠는 배포가 종료되었습니다.", btn_expired: "제공 종료",
   error_owned_msg: "이미 가지고 있습니다.",
   error_owned_sub: "콘텐츠를 선택하여 다운로드해 주세요.",
@@ -2071,7 +2071,7 @@ const TRANSLATIONS={
   success_desc: "Если вы продолжите, вы получите следующий контент:",
   success_msg_box: "Успешно обработано.\nВыберите контент и загрузите.",
   error_title_prefix: "Ошибка",
-  error_used_msg: "Этот код уже активирован.",
+  error_used_msg: "Этот код уже активирован.", invalid_code_format: "Неверный код.<br>Формат кода следующий:",
   error_locked_msg: "Этот контент еще не выпущен.",
   error_expired_msg: "Срок действия этого контента истек.", btn_expired: "Раздача окончена",
   error_owned_msg: "Оно у вас уже есть.",
@@ -3262,7 +3262,9 @@ async function performAuth(code, mode = 'check') {
           els.confirm.textContent = t.modal_btn_auth;
 
           // 指定されたエラーメッセージを組み立ててUIに赤字で表示
-          const errorMsg = `無効です。<br>コードのフォーマット方式は以下のとおりです:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE`;
+          const baseMsg = t.invalid_code_format || "無効です。";
+          const errorMsg = `${baseMsg}<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE`;
+          
           const errorHtml = `<span style="color:#FF3B30; font-size:13px; font-weight:700; line-height:1.5;">${errorMsg}</span>`;
 
           // PC版・スマホ版それぞれの説明文エリアをエラー表示で上書き
