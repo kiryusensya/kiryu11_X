@@ -1736,8 +1736,16 @@ const formatDisplayCode = (code) => {
 
 const formatCodeInput = (val) => {
     if (!val) return "";
+    // ハイフンや英数字以外を除外し、大文字に変換
     let clean = val.toUpperCase().replace(/[^A-Z0-9]/g, '');
-    let sz = clean.length >= 25 ? 5 : 4; 
+    
+    // 【追加】純粋な英数字のみの状態で、最大25文字に制限
+    if (clean.length > 25) {
+        clean = clean.slice(0, 25);
+    }
+    
+    // 25文字に達した場合は5文字区切り、それ以下は4文字区切り
+    let sz = clean.length === 25 ? 5 : 4; 
     let res = '';
     for(let i=0; i<clean.length; i++) {
         if(i > 0 && i % sz === 0) res += '-';
@@ -3243,6 +3251,27 @@ async function performAuth(code, mode = 'check') {
   const thisRequestId = currentAuthRequestId;
   
   const safeCode = formatCodeInput(code);
+  if (mode === 'check') {
+      // 12桁(4-4-4), 16桁(4-4-4-4), 25桁(5-5-5-5-5) のいずれかに完全一致するかチェック
+      const isValidFormat = /^([A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}|[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}|[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5})$/.test(safeCode);
+
+      if (!isValidFormat) {
+          // ボタンの状態をリセット
+          els.code.disabled = false; 
+          els.confirm.disabled = false;
+          els.confirm.textContent = t.modal_btn_auth;
+
+          // 指定されたエラーメッセージを組み立ててUIに赤字で表示
+          const errorMsg = `無効です。<br>コードのフォーマット方式は以下のとおりです:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE`;
+          const errorHtml = `<span style="color:#FF3B30; font-size:13px; font-weight:700; line-height:1.5;">${errorMsg}</span>`;
+
+          // PC版・スマホ版それぞれの説明文エリアをエラー表示で上書き
+          if (els.pcInputDesc) els.pcInputDesc.innerHTML = errorHtml;
+          if (els.mobileInputDesc) els.mobileInputDesc.innerHTML = errorHtml;
+
+          return; // ここで処理を中断し、サーバー(GAS)にはリクエストを送らない
+      }
+  }
   const spinnerHtml = `<span class="loading-spinner" style="border-top-color:currentColor; width:18px; height:18px; border-width:2px; margin:0;"></span>`;
 
   if (mode === 'check') {
