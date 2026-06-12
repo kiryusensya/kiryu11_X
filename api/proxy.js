@@ -18,7 +18,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 const ALLOWED_ORIGINS = [
   'https://kiryu11.vercel.app',
-  'https://kiryu11-pro.vercel.app',
+  'https://kiryu11-x.vercel.app',
   'http://localhost:3000'
 ];
 
@@ -32,6 +32,15 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
+
+  const originalJson = res.json;
+  res.json = function(body) {
+    if (body && typeof body === 'object' && !Array.isArray(body)) {
+        // サーバー自身の正確な時刻（UTCベースのエポックミリ秒）を付与
+        body.serverTime = Date.now();
+    }
+    return originalJson.call(this, body);
+  };
 
   try {
     // ==========================================
