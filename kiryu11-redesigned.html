@@ -1159,12 +1159,40 @@ function setupEventListeners() {
       document.getElementById('userMenu').classList.remove('active');
     }
     
-    // Close modals on outside click
+    // モーダル外クリックで閉じる
     if (e.target.classList.contains('modal')) {
       e.target.classList.remove('active');
       if (e.target.id === 'loginModal') resetSlider();
     }
   });
+
+  // --- 追加：コード入力欄の自動整形・制限 ---
+  const codeInput = document.getElementById('codeInput');
+  if (codeInput) {
+    codeInput.addEventListener('input', (e) => {
+      // 半角英数字以外を除外して大文字化
+      let val = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+      
+      // 最大文字数を25文字に制限（ハイフン除く）
+      if (val.length > 25) {
+        val = val.substring(0, 25);
+      }
+      
+      let formatted = '';
+      // 17文字以上の入力（25文字ターゲット）の場合は5文字区切りに動的変更
+      if (val.length > 16) {
+        formatted = val.match(/.{1,5}/g)?.join('-') || '';
+      } else {
+        // 16文字以下の場合は4文字区切り
+        formatted = val.match(/.{1,4}/g)?.join('-') || '';
+      }
+      
+      e.target.value = formatted;
+      
+      // 入力中はエラーメッセージを非表示にする
+      clearErrors();
+    });
+  }
 }
 
 function toggleTheme() {
@@ -1456,9 +1484,23 @@ async function submitCode() {
     return;
   }
 
+  // --- 追加：フロントエンドでのコードフォーマット検証 ---
+  // AAAA-BBBB-CCCC (12文字 + ハイフン2つ)
+  const format12 = /^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
+  // AAAA-BBBB-CCCC-DDDD (16文字 + ハイフン3つ)
+  const format16 = /^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
+  // AAAAA-BBBBB-CCCCC-DDDDD-EEEEE (25文字 + ハイフン4つ)
+  const format25 = /^[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}$/;
+
+  // 上記のいずれのフォーマットにも一致しない場合はAPIを叩かずに弾く
+  if (!format12.test(code) && !format16.test(code) && !format25.test(code)) {
+    showError(getT('msg_invalid_code')); 
+    return;
+  }
+
   const submitBtn = document.getElementById('submitBtn');
   submitBtn.disabled = true;
-  submitBtn.innerHTML = '<span class="loading-spinner"></span>'; // Checking... を廃止
+  submitBtn.innerHTML = '<span class="loading-spinner"></span>'; 
 
   const result = await safeFetch({
     type: 'check',
