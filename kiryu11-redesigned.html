@@ -183,6 +183,9 @@
       font-size: 16px;
       transition: all 0.3s ease;
       box-shadow: 0 10px 30px rgba(0, 125, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .btn-primary:hover {
@@ -351,6 +354,7 @@
       width: 90%;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
       animation: slideUp 0.3s ease;
+      position: relative;
     }
 
     @keyframes slideUp {
@@ -396,6 +400,9 @@
       border-radius: 8px;
       font-weight: 700;
       transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .btn-cancel {
@@ -433,18 +440,120 @@
 
     .loading-spinner {
       display: inline-block;
-      width: 16px;
-      height: 16px;
-      border: 2px solid rgba(0, 125, 255, 0.2);
-      border-top: 2px solid var(--primary);
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top: 2px solid #fff;
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
-      margin-right: 8px;
+    }
+
+    /* Modal Button Loader overrides */
+    .btn-confirm .loading-spinner {
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top: 2px solid #fff;
     }
 
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
+
+    /* --- LOGIN UI SPECIFIC --- */
+    .login-modal-content {
+      max-width: 420px;
+      text-align: center;
+      padding: 50px 40px;
+    }
+    
+    .login-header {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 40px;
+      letter-spacing: 0.5px;
+    }
+
+    .login-input-rounded {
+      border-radius: 30px !important;
+      padding: 16px 24px !important;
+      margin-bottom: 20px !important;
+      font-size: 15px;
+      background-color: transparent !important;
+    }
+
+    .slider-container {
+      position: relative;
+      width: 100%;
+      height: 56px;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 10px;
+      overflow: hidden;
+      touch-action: none; /* Prevent scroll on mobile drag */
+    }
+
+    .slider-text {
+      color: var(--text-sub);
+      font-weight: 700;
+      font-size: 15px;
+      pointer-events: none;
+      user-select: none;
+      z-index: 1;
+    }
+
+    .slider-thumb {
+      position: absolute;
+      left: 4px;
+      top: 4px;
+      width: 48px;
+      height: 48px;
+      background-color: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      cursor: grab;
+      z-index: 3;
+      box-shadow: 0 4px 12px rgba(0, 125, 255, 0.3);
+      transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+
+    .slider-thumb:active {
+      cursor: grabbing;
+      transition: none;
+    }
+
+    .slider-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(0,125,255,0.1) 0%, rgba(0,125,255,0) 100%);
+      z-index: 2;
+    }
+
+    .login-footer-links {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-top: 30px;
+    }
+
+    .login-footer-links a {
+      color: var(--text-sub);
+      font-weight: 500;
+    }
+
+    .login-footer-links a:hover {
+      color: var(--text-main);
+      text-decoration: none;
+    }
+
 
     /* --- RESPONSIVE --- */
     @media (max-width: 768px) {
@@ -643,7 +752,7 @@
       </button>
       <div class="user-menu" id="userMenu">
         <div class="user-info" id="userInfo">Guest User</div>
-        <button class="user-menu-item" onclick="openRedeemModal()" data-translate="btn_redeem">Redeem Code</button>
+        <button class="user-menu-item action-redeem-btn" onclick="openRedeemModal()" data-translate="btn_login_to_redeem">Login to Redeem</button>
         <button class="user-menu-item" id="loginBtn" onclick="handleLogin()" data-translate="btn_login">Login</button>
         <button class="user-menu-item" id="logoutBtn" onclick="handleLogout()" style="display: none;" data-translate="btn_logout">Logout</button>
       </div>
@@ -657,7 +766,7 @@
     <h1 data-translate="hero_title">Secure Content Authentication</h1>
     <p data-translate="hero_desc">Authenticate and access your exclusive content with ease. Secure, reliable, and multi-language support.</p>
     <div class="hero-buttons">
-      <button class="btn-primary" onclick="openRedeemModal()" data-translate="btn_redeem">Redeem Code</button>
+      <button class="btn-primary action-redeem-btn" onclick="openRedeemModal()" data-translate="btn_login_to_redeem">Login to Redeem</button>
       <button class="btn-secondary" onclick="document.getElementById('content').scrollIntoView({behavior: 'smooth'})" data-translate="btn_explore">Explore Content</button>
     </div>
   </div>
@@ -679,6 +788,29 @@
   </div>
   <p>&copy; 2024 kiryu11. All rights reserved.</p>
 </footer>
+
+<!-- LOGIN MODAL (Slide to Login) -->
+<div class="modal" id="loginModal">
+  <div class="modal-content login-modal-content">
+    <div class="login-header" data-translate="login_title">セキュア入域管理</div>
+    <div class="modal-body" style="margin-bottom: 0;">
+      <input type="text" class="modal-input login-input-rounded" id="loginIdInput" placeholder="個人識別子" data-translate-placeholder="login_id_placeholder">
+      <input type="password" class="modal-input login-input-rounded" id="loginPwInput" placeholder="パスワード" data-translate-placeholder="login_pw_placeholder">
+      
+      <div class="slider-container" id="loginSlider">
+        <div class="slider-fill" id="sliderFill"></div>
+        <div class="slider-text" data-translate="login_slide_text">スライドして進む</div>
+        <div class="slider-thumb" id="sliderThumb">
+          <i class="fas fa-arrow-right"></i>
+        </div>
+      </div>
+    </div>
+    <div class="login-footer-links">
+      <a href="#" data-translate="login_link_help">許可されない場合</a>
+      <a href="#" data-translate="login_link_terms">利用規約 <i class="fas fa-external-link-square-alt" style="margin-left: 2px;"></i></a>
+    </div>
+  </div>
+</div>
 
 <!-- REDEEM MODAL -->
 <div class="modal" id="redeemModal">
@@ -722,6 +854,7 @@ const TRANSLATIONS = {
     hero_title: 'セキュアなコンテンツ認証',
     hero_desc: '簡単にコードで認証してコンテンツにアクセス。セキュア、信頼性、多言語対応。',
     btn_redeem: 'コードを引き換える',
+    btn_login_to_redeem: 'ログインして引き換える',
     btn_explore: 'コンテンツを探索',
     btn_login: 'ログイン',
     btn_logout: 'ログアウト',
@@ -732,6 +865,25 @@ const TRANSLATIONS = {
     modal_code_placeholder: 'コードを入力してください',
     footer_terms: '利用規約',
     footer_contact: 'お問い合わせ',
+    
+    // Login Screen
+    login_title: 'セキュア入域管理',
+    login_id_placeholder: '個人識別子',
+    login_pw_placeholder: 'パスワード',
+    login_slide_text: 'スライドして進む',
+    login_link_help: '許可されない場合',
+    login_link_terms: '利用規約',
+    
+    // Messages
+    msg_enter_code: 'コードを入力してください',
+    msg_invalid_code: '無効なコードです',
+    msg_network_error: 'ネットワークエラーが発生しました',
+    msg_redeem_success: 'コンテンツの引き換えに成功しました！',
+    msg_redeem_failed: '引き換えに失敗しました',
+    msg_already_owned: 'すでにこのコンテンツを所有しています',
+    msg_unlocks_on: 'ロック解除: ',
+    status_owned: '所有済み',
+    status_available: '利用可能'
   },
   en: {
     nav_home: 'Home',
@@ -739,6 +891,7 @@ const TRANSLATIONS = {
     hero_title: 'Secure Content Authentication',
     hero_desc: 'Authenticate and access your exclusive content with ease. Secure, reliable, and multi-language support.',
     btn_redeem: 'Redeem Code',
+    btn_login_to_redeem: 'Login to Redeem',
     btn_explore: 'Explore Content',
     btn_login: 'Login',
     btn_logout: 'Logout',
@@ -749,6 +902,23 @@ const TRANSLATIONS = {
     modal_code_placeholder: 'Enter your code',
     footer_terms: 'Terms of Service',
     footer_contact: 'Contact',
+
+    login_title: 'Secure Access',
+    login_id_placeholder: 'Personal Identifier',
+    login_pw_placeholder: 'Password',
+    login_slide_text: 'Slide to proceed',
+    login_link_help: 'Cannot access?',
+    login_link_terms: 'Terms of Use',
+
+    msg_enter_code: 'Please enter a code',
+    msg_invalid_code: 'Invalid code',
+    msg_network_error: 'Network error occurred',
+    msg_redeem_success: 'Content redeemed successfully!',
+    msg_redeem_failed: 'Redeem failed',
+    msg_already_owned: 'You already own this content',
+    msg_unlocks_on: 'Unlocks on: ',
+    status_owned: 'Owned',
+    status_available: 'Available'
   },
   zh: {
     nav_home: '首页',
@@ -756,6 +926,7 @@ const TRANSLATIONS = {
     hero_title: '安全内容认证',
     hero_desc: '轻松验证并访问您的专属内容。安全、可靠、多语言支持。',
     btn_redeem: '兑换代码',
+    btn_login_to_redeem: '登录后兑换',
     btn_explore: '浏览内容',
     btn_login: '登录',
     btn_logout: '登出',
@@ -766,6 +937,23 @@ const TRANSLATIONS = {
     modal_code_placeholder: '输入您的代码',
     footer_terms: '服务条款',
     footer_contact: '联系我们',
+
+    login_title: '安全访问管理',
+    login_id_placeholder: '个人标识符',
+    login_pw_placeholder: '密码',
+    login_slide_text: '滑动以继续',
+    login_link_help: '无法访问？',
+    login_link_terms: '使用条款',
+
+    msg_enter_code: '请输入代码',
+    msg_invalid_code: '无效代码',
+    msg_network_error: '网络错误',
+    msg_redeem_success: '内容兑换成功！',
+    msg_redeem_failed: '兑换失败',
+    msg_already_owned: '您已拥有此内容',
+    msg_unlocks_on: '解锁时间：',
+    status_owned: '已拥有',
+    status_available: '可用'
   },
   'zh-TW': {
     nav_home: '首頁',
@@ -773,6 +961,7 @@ const TRANSLATIONS = {
     hero_title: '安全內容認證',
     hero_desc: '輕鬆驗證並訪問您的專屬內容。安全、可靠、多語言支援。',
     btn_redeem: '兌換代碼',
+    btn_login_to_redeem: '登入後兌換',
     btn_explore: '瀏覽內容',
     btn_login: '登入',
     btn_logout: '登出',
@@ -783,6 +972,23 @@ const TRANSLATIONS = {
     modal_code_placeholder: '輸入您的代碼',
     footer_terms: '服務條款',
     footer_contact: '聯絡我們',
+
+    login_title: '安全訪問管理',
+    login_id_placeholder: '個人標識符',
+    login_pw_placeholder: '密碼',
+    login_slide_text: '滑動以繼續',
+    login_link_help: '無法訪問？',
+    login_link_terms: '使用條款',
+
+    msg_enter_code: '請輸入代碼',
+    msg_invalid_code: '無效代碼',
+    msg_network_error: '網路錯誤',
+    msg_redeem_success: '內容兌換成功！',
+    msg_redeem_failed: '兌換失敗',
+    msg_already_owned: '您已擁有此內容',
+    msg_unlocks_on: '解鎖時間：',
+    status_owned: '已擁有',
+    status_available: '可用'
   },
   ko: {
     nav_home: '홈',
@@ -790,6 +996,7 @@ const TRANSLATIONS = {
     hero_title: '안전한 콘텐츠 인증',
     hero_desc: '쉽게 인증하고 독점 콘텐츠에 접근하세요. 안전하고 신뢰할 수 있으며 다국어 지원.',
     btn_redeem: '코드 환전',
+    btn_login_to_redeem: '로그인하여 환전하기',
     btn_explore: '콘텐츠 탐색',
     btn_login: '로그인',
     btn_logout: '로그아웃',
@@ -800,6 +1007,23 @@ const TRANSLATIONS = {
     modal_code_placeholder: '코드를 입력하세요',
     footer_terms: '서비스 약관',
     footer_contact: '문의',
+
+    login_title: '보안 액세스',
+    login_id_placeholder: '개인 식별자',
+    login_pw_placeholder: '비밀번호',
+    login_slide_text: '슬라이드하여 진행',
+    login_link_help: '접근할 수 없습니까?',
+    login_link_terms: '이용 약관',
+
+    msg_enter_code: '코드를 입력해주세요',
+    msg_invalid_code: '유효하지 않은 코드입니다',
+    msg_network_error: '네트워크 오류가 발생했습니다',
+    msg_redeem_success: '콘텐츠 환전에 성공했습니다!',
+    msg_redeem_failed: '환전에 실패했습니다',
+    msg_already_owned: '이미 소유하고 있는 콘텐츠입니다',
+    msg_unlocks_on: '잠금 해제: ',
+    status_owned: '소유함',
+    status_available: '이용 가능'
   },
   ru: {
     nav_home: 'Главная',
@@ -807,6 +1031,7 @@ const TRANSLATIONS = {
     hero_title: 'Безопасная аутентификация контента',
     hero_desc: 'Легко аутентифицируйте и получайте доступ к эксклюзивному контенту. Безопасно, надежно и поддержка нескольких языков.',
     btn_redeem: 'Обменять код',
+    btn_login_to_redeem: 'Войдите, чтобы обменять',
     btn_explore: 'Просмотреть контент',
     btn_login: 'Вход',
     btn_logout: 'Выход',
@@ -817,6 +1042,23 @@ const TRANSLATIONS = {
     modal_code_placeholder: 'Введите ваш код',
     footer_terms: 'Условия использования',
     footer_contact: 'Контакты',
+
+    login_title: 'Безопасный доступ',
+    login_id_placeholder: 'Личный идентификатор',
+    login_pw_placeholder: 'Пароль',
+    login_slide_text: 'Проведите, чтобы продолжить',
+    login_link_help: 'Нет доступа?',
+    login_link_terms: 'Условия использования',
+
+    msg_enter_code: 'Пожалуйста, введите код',
+    msg_invalid_code: 'Неверный код',
+    msg_network_error: 'Произошла ошибка сети',
+    msg_redeem_success: 'Контент успешно обменян!',
+    msg_redeem_failed: 'Ошибка обмена',
+    msg_already_owned: 'У вас уже есть этот контент',
+    msg_unlocks_on: 'Разблокируется: ',
+    status_owned: 'Приобретено',
+    status_available: 'Доступно'
   },
 };
 
@@ -833,6 +1075,14 @@ const API_BASE = '/api/proxy';
 const APP_TIER = 'enterprise';
 
 // ==========================================
+// UTILITY
+// ==========================================
+function getT(key) {
+  const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.en;
+  return t[key] || TRANSLATIONS.en[key] || '';
+}
+
+// ==========================================
 // INITIALIZATION
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -841,6 +1091,7 @@ document.addEventListener('DOMContentLoaded', () => {
   restoreSession();
   loadContent();
   setupEventListeners();
+  initLoginSlider();
 });
 
 // ==========================================
@@ -855,6 +1106,7 @@ function initTheme() {
 function initLanguage() {
   document.documentElement.setAttribute('lang', CURRENT_LANG);
   updateTranslations();
+  updateUserUI(); // update buttons with current language state
 }
 
 function updateThemeIcon() {
@@ -884,7 +1136,7 @@ function setupEventListeners() {
     document.getElementById('userMenu').classList.toggle('active');
   });
 
-  // ハンバーガーメニューの開閉処理
+  // ハンバーガーメニュー
   const hamburgerBtn = document.getElementById('hamburgerBtn');
   const navMenu = document.getElementById('navMenu');
   hamburgerBtn.addEventListener('click', () => {
@@ -905,6 +1157,12 @@ function setupEventListeners() {
     }
     if (!e.target.closest('.user-toggle') && !e.target.closest('.user-menu')) {
       document.getElementById('userMenu').classList.remove('active');
+    }
+    
+    // Close modals on outside click
+    if (e.target.classList.contains('modal')) {
+      e.target.classList.remove('active');
+      if (e.target.id === 'loginModal') resetSlider();
     }
   });
 }
@@ -947,10 +1205,14 @@ async function safeFetch(params) {
     if (data.serverTime) {
       SERVER_TIME_OFFSET = data.serverTime - Date.now();
     }
+    // Convert server error to localized error if needed
+    if (!data.success && data.message === 'Network error') {
+      data.message = getT('msg_network_error');
+    }
     return data;
   } catch (error) {
     console.error('API Error:', error);
-    return { success: false, message: 'Network error' };
+    return { success: false, message: getT('msg_network_error') };
   }
 }
 
@@ -968,29 +1230,47 @@ function restoreSession() {
   if (savedToken && savedIdentity) {
     CURRENT_TOKEN = savedToken;
     CURRENT_USER = JSON.parse(savedIdentity);
-    updateUserUI();
   }
+  updateUserUI();
 }
 
 function updateUserUI() {
   const userInfo = document.getElementById('userInfo');
   const loginBtn = document.getElementById('loginBtn');
   const logoutBtn = document.getElementById('logoutBtn');
+  const actionBtns = document.querySelectorAll('.action-redeem-btn');
 
   if (CURRENT_USER) {
     userInfo.textContent = CURRENT_USER.email || 'User';
     loginBtn.style.display = 'none';
     logoutBtn.style.display = 'block';
+    
+    // Set redeem buttons to "Redeem Code"
+    actionBtns.forEach(btn => {
+      btn.setAttribute('data-translate', 'btn_redeem');
+      btn.textContent = getT('btn_redeem');
+    });
   } else {
     userInfo.textContent = 'Guest User';
     loginBtn.style.display = 'block';
     logoutBtn.style.display = 'none';
+    
+    // Set redeem buttons to "Login to Redeem"
+    actionBtns.forEach(btn => {
+      btn.setAttribute('data-translate', 'btn_login_to_redeem');
+      btn.textContent = getT('btn_login_to_redeem');
+    });
   }
 }
 
 function handleLogin() {
-  // TODO: Implement login modal
-  alert('Login functionality to be implemented');
+  document.getElementById('loginModal').classList.add('active');
+  resetSlider();
+}
+
+function closeLoginModal() {
+  document.getElementById('loginModal').classList.remove('active');
+  resetSlider();
 }
 
 function handleLogout() {
@@ -1003,19 +1283,116 @@ function handleLogout() {
 }
 
 // ==========================================
+// LOGIN SLIDER LOGIC
+// ==========================================
+let isSliderDragging = false;
+let sliderStartX = 0;
+let sliderCurrentX = 0;
+const sliderThumb = document.getElementById('sliderThumb');
+const sliderContainer = document.getElementById('loginSlider');
+const sliderFill = document.getElementById('sliderFill');
+
+function initLoginSlider() {
+  // Mouse events
+  sliderThumb.addEventListener('mousedown', startSliderDrag);
+  document.addEventListener('mousemove', dragSlider);
+  document.addEventListener('mouseup', endSliderDrag);
+  
+  // Touch events
+  sliderThumb.addEventListener('touchstart', startSliderDrag, {passive: true});
+  document.addEventListener('touchmove', dragSlider, {passive: false});
+  document.addEventListener('touchend', endSliderDrag);
+}
+
+function startSliderDrag(e) {
+  isSliderDragging = true;
+  sliderStartX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+  sliderThumb.style.transition = 'none';
+  sliderFill.style.transition = 'none';
+}
+
+function dragSlider(e) {
+  if (!isSliderDragging) return;
+  const x = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+  let deltaX = x - sliderStartX;
+  
+  // Max drag distance: container width - thumb width - padding(4px*2)
+  const maxDrag = sliderContainer.offsetWidth - sliderThumb.offsetWidth - 8;
+  
+  if (deltaX < 0) deltaX = 0;
+  if (deltaX > maxDrag) deltaX = maxDrag;
+  
+  sliderCurrentX = deltaX;
+  sliderThumb.style.transform = `translateX(${deltaX}px)`;
+  sliderFill.style.width = `${deltaX + (sliderThumb.offsetWidth / 2)}px`;
+  
+  if (e.type.includes('touch')) {
+    e.preventDefault(); // prevent scrolling
+  }
+}
+
+function endSliderDrag() {
+  if (!isSliderDragging) return;
+  isSliderDragging = false;
+  
+  sliderThumb.style.transition = 'transform 0.3s ease';
+  sliderFill.style.transition = 'width 0.3s ease';
+  
+  const maxDrag = sliderContainer.offsetWidth - sliderThumb.offsetWidth - 8;
+  
+  // If pulled nearly to the end, trigger login
+  if (sliderCurrentX >= maxDrag - 5) {
+    processMockLogin();
+  } else {
+    resetSlider();
+  }
+}
+
+function resetSlider() {
+  sliderThumb.style.transform = `translateX(0px)`;
+  sliderFill.style.width = '0px';
+  sliderCurrentX = 0;
+}
+
+function processMockLogin() {
+  // Show spinner on thumb temporarily
+  sliderThumb.innerHTML = '<span class="loading-spinner" style="width:16px;height:16px;"></span>';
+  
+  setTimeout(() => {
+    const userId = document.getElementById('loginIdInput').value || 'User';
+    CURRENT_USER = { id: 'U' + Math.floor(Math.random()*1000), email: userId };
+    CURRENT_TOKEN = 'mock_jwt_token';
+    localStorage.setItem('user_session_token', CURRENT_TOKEN);
+    localStorage.setItem('user_session_identity', JSON.stringify(CURRENT_USER));
+    
+    closeLoginModal();
+    updateUserUI();
+    loadContent();
+    
+    // Reset icon
+    sliderThumb.innerHTML = '<i class="fas fa-arrow-right"></i>';
+    document.getElementById('loginIdInput').value = '';
+    document.getElementById('loginPwInput').value = '';
+  }, 600);
+}
+
+
+// ==========================================
 // CONTENT LOADING
 // ==========================================
 async function loadContent() {
   const result = await safeFetch({ type: 'get_available', userId: CURRENT_USER?.id || 'GUEST' });
   
   if (!result.success || !result.items) {
-    document.getElementById('contentGrid').innerHTML = '<p>Failed to load content</p>';
+    // Generate mock content visually if API fails for demonstration
+    const grid = document.getElementById('contentGrid');
+    grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-sub);">No content available.</p>';
     return;
   }
 
   const grid = document.getElementById('contentGrid');
   grid.innerHTML = result.items.map(item => {
-    const statusText = item.isOwned ? 'Owned' : 'Available';
+    const statusText = item.isOwned ? getT('status_owned') : getT('status_available');
     const statusClass = item.isOwned ? 'owned' : '';
     
     let releaseInfo = '';
@@ -1023,7 +1400,7 @@ async function loadContent() {
       const releaseDate = new Date(item.releaseDateIso);
       const now = getServerDate();
       if (releaseDate > now) {
-        releaseInfo = `<br><small style="color: #FF9500;">Unlocks: ${releaseDate.toLocaleDateString()}</small>`;
+        releaseInfo = `<br><small style="color: #FF9500;">${getT('msg_unlocks_on')}${releaseDate.toLocaleDateString()}</small>`;
       }
     }
 
@@ -1032,7 +1409,7 @@ async function loadContent() {
         <div class="content-card-image" style="${item.imageUrl ? `background-image: url('${item.imageUrl}')` : ''}">${!item.imageUrl ? '📦' : ''}</div>
         <div class="content-card-body">
           <div class="content-card-title">${item.title || 'Untitled'}</div>
-          <div class="content-card-desc">${item.message || 'No description'}</div>
+          <div class="content-card-desc">${item.message || ''}</div>
           <div class="content-card-status">
             <span>${statusText}${releaseInfo}</span>
             <span class="status-badge ${statusClass}">${statusText}</span>
@@ -1047,6 +1424,10 @@ async function loadContent() {
 // REDEEM FLOW
 // ==========================================
 function openRedeemModal() {
+  if (!CURRENT_USER) {
+    handleLogin();
+    return;
+  }
   document.getElementById('redeemModal').classList.add('active');
   document.getElementById('codeInput').focus();
   clearErrors();
@@ -1071,13 +1452,13 @@ function clearErrors() {
 async function submitCode() {
   const code = document.getElementById('codeInput').value.trim();
   if (!code) {
-    showError('Please enter a code');
+    showError(getT('msg_enter_code'));
     return;
   }
 
   const submitBtn = document.getElementById('submitBtn');
   submitBtn.disabled = true;
-  submitBtn.innerHTML = '<span class="loading-spinner"></span>Checking...';
+  submitBtn.innerHTML = '<span class="loading-spinner"></span>'; // Checking... を廃止
 
   const result = await safeFetch({
     type: 'check',
@@ -1086,14 +1467,14 @@ async function submitCode() {
   });
 
   submitBtn.disabled = false;
-  submitBtn.innerHTML = 'Submit';
+  submitBtn.innerHTML = getT('btn_submit');
 
   if (result.success) {
     PREVIEW_DATA = result;
     showPreview(result);
     closeRedeemModal();
   } else {
-    showError(result.message || 'Invalid code');
+    showError(result.message || getT('msg_invalid_code'));
   }
 }
 
@@ -1110,6 +1491,8 @@ function showPreview(data) {
     const img = document.getElementById('previewImage');
     img.src = data.imageUrl;
     img.style.display = 'block';
+  } else {
+    document.getElementById('previewImage').style.display = 'none';
   }
 
   document.getElementById('previewMessage').textContent = data.message || '';
@@ -1117,9 +1500,9 @@ function showPreview(data) {
 
   let statusText = '';
   if (data.isAlreadyOwned) {
-    statusText = 'You already own this content';
-  } else if (!data.isReleaseDateReached) {
-    statusText = `Unlocks on: ${new Date(data.releaseDateIso).toLocaleDateString()}`;
+    statusText = getT('msg_already_owned');
+  } else if (data.releaseDateIso && !data.isReleaseDateReached) {
+    statusText = `${getT('msg_unlocks_on')}${new Date(data.releaseDateIso).toLocaleDateString()}`;
   }
   document.getElementById('previewStatus').textContent = statusText;
 
@@ -1131,7 +1514,7 @@ async function confirmRedeem() {
 
   const redeemBtn = document.getElementById('redeemBtn');
   redeemBtn.disabled = true;
-  redeemBtn.innerHTML = '<span class="loading-spinner"></span>Redeeming...';
+  redeemBtn.innerHTML = '<span class="loading-spinner"></span>'; // Redeeming... を廃止
 
   const result = await safeFetch({
     type: 'redeem',
@@ -1140,14 +1523,14 @@ async function confirmRedeem() {
   });
 
   redeemBtn.disabled = false;
-  redeemBtn.innerHTML = 'Redeem';
+  redeemBtn.innerHTML = getT('btn_redeem');
 
   if (result.success) {
-    alert('Content redeemed successfully!');
+    alert(getT('msg_redeem_success'));
     closePreviewModal();
     loadContent();
   } else {
-    alert(result.message || 'Redeem failed');
+    alert(result.message || getT('msg_redeem_failed'));
   }
 }
 
@@ -1163,12 +1546,6 @@ async function previewContent(code) {
     showPreview(result);
   }
 }
-
-// Close modals when clicking outside
-document.addEventListener('click', (e) => {
-  if (e.target.id === 'redeemModal') closeRedeemModal();
-  if (e.target.id === 'previewModal') closePreviewModal();
-});
 </script>
 
 </body>
