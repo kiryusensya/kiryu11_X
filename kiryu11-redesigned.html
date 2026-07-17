@@ -833,6 +833,11 @@
     <div style="font-size: 60px; color: var(--accent-green); margin-bottom: 20px; animation: slideUp 0.5s ease;">
       <i class="fas fa-check-circle"></i>
     </div>
+    <div class="modal-header" style="margin-bottom: 10px;" data-translate="msg_redeem_success">コンテンツの引き換えに成功しました！</div>
+    <p style="color: var(--text-sub); font-size: 14px; margin-bottom: 30px;" data-translate="msg_auth_success">認証が完了し、ライセンスが付与されました。</p>
+    <button class="btn-confirm" style="width: 100%;" onclick="closeSuccessModal()" data-translate="btn_close">閉じる</button>
+  </div>
+</div>
 
 <!-- PREVIEW MODAL -->
 <div class="modal" id="previewModal">
@@ -844,9 +849,10 @@
       <p id="previewDesc" style="font-size: 13px; color: var(--text-sub); margin-bottom: 16px;"></p>
       <div id="previewStatus" style="font-size: 12px; color: var(--text-sub); margin-bottom: 16px;"></div>
     </div>
-    <div class="modal-header" style="margin-bottom: 10px;" data-translate="msg_redeem_success">コンテンツの引き換えに成功しました！</div>
-    <p style="color: var(--text-sub); font-size: 14px; margin-bottom: 30px;" data-translate="msg_auth_success">認証が完了し、ライセンスが付与されました。</p>
-    <button class="btn-confirm" style="width: 100%;" onclick="closeSuccessModal()" data-translate="btn_close">閉じる</button>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closePreviewModal()" data-translate="btn_cancel">Cancel</button>
+      <button class="btn-confirm" id="redeemBtn" onclick="confirmRedeem()" data-translate="btn_redeem">Redeem</button>
+    </div>
   </div>
 </div>
     <div class="modal-footer">
