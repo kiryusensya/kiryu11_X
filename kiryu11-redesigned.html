@@ -554,8 +554,14 @@
       text-decoration: none;
     }
 
+    @media (min-width: 769px) {
+  #successModal .modal-content,
+  #previewModal .modal-content {
+    max-width: 700px !important;
+  }
+}
 
-    /* --- RESPONSIVE --- */
+/* --- RESPONSIVE --- */
     @media (max-width: 768px) {
       nav {
         padding: 16px 20px;
@@ -829,7 +835,7 @@
 
 <!-- SUCCESS MODAL -->
 <div class="modal" id="successModal">
-  <div class="modal-content" style="max-width: 400px; text-align: center; padding: 40px;">
+  <div class="modal-content" style="text-align: center; padding: 40px;">
     <div style="font-size: 60px; color: var(--accent-green); margin-bottom: 20px; animation: slideUp 0.5s ease;">
       <i class="fas fa-check-circle"></i>
     </div>
@@ -844,7 +850,7 @@
   <div class="modal-content">
     <div class="modal-header" id="previewTitle"></div>
     <div class="modal-body">
-      <img id="previewImage" style="width: 100%; border-radius: 8px; margin-bottom: 16px; display: none;">
+      <!-- 画像タグを削除しました -->
       <p id="previewMessage" style="margin-bottom: 16px;"></p>
       <p id="previewDesc" style="font-size: 13px; color: var(--text-sub); margin-bottom: 16px;"></p>
       <div id="previewStatus" style="font-size: 12px; color: var(--text-sub); margin-bottom: 16px;"></div>
