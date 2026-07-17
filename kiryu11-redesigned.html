@@ -1261,6 +1261,7 @@ async function safeFetch(params) {
       } else if (data.message === 'Invalid code') {
         data.message = getT('msg_invalid_code');
       }
+    }
     return data;
   } catch (error) {
     console.error('API Error:', error);
