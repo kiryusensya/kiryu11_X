@@ -1192,9 +1192,31 @@ function setupEventListeners() {
       // 入力中はエラーメッセージを非表示にする
       clearErrors();
     });
+  // --- 新規追加: Enterキーでコードを送信 ---
+    codeInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault(); // デフォルトの動作を防止
+        submitCode();       // 送信処理を実行
+      }
+    });
   }
-}
 
+  // --- 新規追加: Escキーで開いているモーダルを閉じる ---
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (document.getElementById('loginModal').classList.contains('active')) {
+        closeLoginModal();
+      }
+      if (document.getElementById('redeemModal').classList.contains('active')) {
+        closeRedeemModal();
+      }
+      if (document.getElementById('previewModal').classList.contains('active')) {
+        closePreviewModal();
+      }
+    }
+  });
+}
+  
 function toggleTheme() {
   const current = document.documentElement.getAttribute('data-theme');
   const newTheme = current === 'dark' ? 'light' : 'dark';
@@ -1233,10 +1255,12 @@ async function safeFetch(params) {
     if (data.serverTime) {
       SERVER_TIME_OFFSET = data.serverTime - Date.now();
     }
-    // Convert server error to localized error if needed
-    if (!data.success && data.message === 'Network error') {
-      data.message = getT('msg_network_error');
-    }
+    if (!data.success && data.message) {
+      if (data.message === 'Network error') {
+        data.message = getT('msg_network_error');
+      } else if (data.message === 'Invalid code') {
+        data.message = getT('msg_invalid_code');
+      }
     return data;
   } catch (error) {
     console.error('API Error:', error);
