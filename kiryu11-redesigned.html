@@ -838,6 +838,17 @@
       <p id="previewDesc" style="font-size: 13px; color: var(--text-sub); margin-bottom: 16px;"></p>
       <div id="previewStatus" style="font-size: 12px; color: var(--text-sub); margin-bottom: 16px;"></div>
     </div>
+    <!-- SUCCESS MODAL -->
+<div class="modal" id="successModal">
+  <div class="modal-content" style="max-width: 400px; text-align: center; padding: 40px;">
+    <div style="font-size: 60px; color: var(--accent-green); margin-bottom: 20px; animation: slideUp 0.5s ease;">
+      <i class="fas fa-check-circle"></i>
+    </div>
+    <div class="modal-header" style="margin-bottom: 10px;" data-translate="msg_redeem_success">コンテンツの引き換えに成功しました！</div>
+    <p style="color: var(--text-sub); font-size: 14px; margin-bottom: 30px;" data-translate="msg_auth_success">認証が完了し、ライセンスが付与されました。</p>
+    <button class="btn-confirm" style="width: 100%;" onclick="closeSuccessModal()" data-translate="btn_close">閉じる</button>
+  </div>
+</div>
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closePreviewModal()" data-translate="btn_cancel">Cancel</button>
       <button class="btn-confirm" id="redeemBtn" onclick="confirmRedeem()" data-translate="btn_redeem">Redeem</button>
@@ -862,7 +873,7 @@ const TRANSLATIONS = {
     btn_submit: '送信',
     content_title: '利用可能なコンテンツ',
     modal_redeem_title: 'コードを引き換える',
-    modal_code_placeholder: 'コードを入力してください',
+    modal_code_placeholder: 'コードを入力してください', msg_auth_success: '認証が完了し、ライセンスが付与されました。', btn_close: '閉じる',
     footer_terms: '利用規約',
     footer_contact: 'お問い合わせ',
     
@@ -899,7 +910,7 @@ const TRANSLATIONS = {
     btn_submit: 'Submit',
     content_title: 'Available Content',
     modal_redeem_title: 'Redeem Code',
-    modal_code_placeholder: 'Enter your code',
+    modal_code_placeholder: 'Enter your code', msg_auth_success: 'Authentication complete and license granted.', btn_close: 'Close',
     footer_terms: 'Terms of Service',
     footer_contact: 'Contact',
 
@@ -934,7 +945,7 @@ const TRANSLATIONS = {
     btn_submit: '提交',
     content_title: '可用内容',
     modal_redeem_title: '兑换代码',
-    modal_code_placeholder: '输入您的代码',
+    modal_code_placeholder: '输入您的代码', msg_auth_success: '认证完成，已授予许可证。', btn_close: '关闭',
     footer_terms: '服务条款',
     footer_contact: '联系我们',
 
@@ -969,7 +980,7 @@ const TRANSLATIONS = {
     btn_submit: '提交',
     content_title: '可用內容',
     modal_redeem_title: '兌換代碼',
-    modal_code_placeholder: '輸入您的代碼',
+    modal_code_placeholder: '輸入您的代碼', msg_auth_success: '認證完成，已授予許可證。', btn_close: '關閉',
     footer_terms: '服務條款',
     footer_contact: '聯絡我們',
 
@@ -1004,7 +1015,7 @@ const TRANSLATIONS = {
     btn_submit: '제출',
     content_title: '사용 가능한 콘텐츠',
     modal_redeem_title: '코드 환전',
-    modal_code_placeholder: '코드를 입력하세요',
+    modal_code_placeholder: '코드를 입력하세요', msg_auth_success: '인증이 완료되었으며 라이선스가 부여되었습니다.', btn_close: '닫기'
     footer_terms: '서비스 약관',
     footer_contact: '문의',
 
@@ -1039,7 +1050,7 @@ const TRANSLATIONS = {
     btn_submit: 'Отправить',
     content_title: 'Доступный контент',
     modal_redeem_title: 'Обменять код',
-    modal_code_placeholder: 'Введите ваш код',
+    modal_code_placeholder: 'Введите ваш код', msg_auth_success: 'Аутентификация завершена, лицензия предоставлена.', btn_close: 'Закрыть'
     footer_terms: 'Условия использования',
     footer_contact: 'Контакты',
 
@@ -1070,6 +1081,7 @@ let CURRENT_USER = null;
 let CURRENT_TOKEN = null;
 let SERVER_TIME_OFFSET = 0;
 let PREVIEW_DATA = null;
+const LOCAL_REDEEMED = new Set();
 
 const API_BASE = '/api/proxy';
 const APP_TIER = 'enterprise';
@@ -1213,6 +1225,8 @@ function setupEventListeners() {
       if (document.getElementById('previewModal').classList.contains('active')) {
         closePreviewModal();
       }
+      if (document.getElementById('successModal').classList.contains('active')) {
+        closeSuccessModal();
     }
   });
 }
@@ -1437,7 +1451,6 @@ async function loadContent() {
   const result = await safeFetch({ type: 'get_available', userId: CURRENT_USER?.id || 'GUEST' });
   
   if (!result.success || !result.items) {
-    // Generate mock content visually if API fails for demonstration
     const grid = document.getElementById('contentGrid');
     grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-sub);">No content available.</p>';
     return;
@@ -1445,8 +1458,10 @@ async function loadContent() {
 
   const grid = document.getElementById('contentGrid');
   grid.innerHTML = result.items.map(item => {
-    const statusText = item.isOwned ? getT('status_owned') : getT('status_available');
-    const statusClass = item.isOwned ? 'owned' : '';
+    // 変更：APIの返り値、またはセッション内の引き換え履歴を参照して所有判定を行う
+    const isActuallyOwned = item.isOwned || LOCAL_REDEEMED.has(item.code);
+    const statusText = isActuallyOwned ? getT('status_owned') : getT('status_available');
+    const statusClass = isActuallyOwned ? 'owned' : '';
     
     let releaseInfo = '';
     if (item.releaseDateIso) {
@@ -1472,7 +1487,6 @@ async function loadContent() {
     `;
   }).join('');
 }
-
 // ==========================================
 // REDEEM FLOW
 // ==========================================
@@ -1582,7 +1596,7 @@ async function confirmRedeem() {
 
   const redeemBtn = document.getElementById('redeemBtn');
   redeemBtn.disabled = true;
-  redeemBtn.innerHTML = '<span class="loading-spinner"></span>'; // Redeeming... を廃止
+  redeemBtn.innerHTML = '<span class="loading-spinner"></span>';
 
   const result = await safeFetch({
     type: 'redeem',
@@ -1594,12 +1608,25 @@ async function confirmRedeem() {
   redeemBtn.innerHTML = getT('btn_redeem');
 
   if (result.success) {
-    alert(getT('msg_redeem_success'));
+    // alert(getT('msg_redeem_success')); // 標準アラートを廃止
+    LOCAL_REDEEMED.add(PREVIEW_DATA.code); // 成功したコードをローカル状態に保存
     closePreviewModal();
-    loadContent();
+    showSuccessModal(); // 認証風モーダルの呼び出し
+    loadContent(); // コンテンツ一覧を再読み込み（所有済みに切り替わる）
   } else {
+    // 失敗時は既存通りブラウザ標準エラー、またはエラーモーダルにしたい場合は適宜調整
     alert(result.message || getT('msg_redeem_failed'));
   }
+}
+
+// 以下の2つの関数を REDEEM FLOW セクションの最後等に追加
+function showSuccessModal() {
+  document.getElementById('successModal').classList.add('active');
+  updateTranslations(); // 動的に挿入されたモーダルの多言語テキストを最新化
+}
+
+function closeSuccessModal() {
+  document.getElementById('successModal').classList.remove('active');
 }
 
 async function previewContent(code) {
