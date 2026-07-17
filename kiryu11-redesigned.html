@@ -1537,6 +1537,7 @@ async function submitCode() {
   submitBtn.innerHTML = getT('btn_submit');
 
   if (result.success) {
+    result.code = code;
     PREVIEW_DATA = result;
     showPreview(result);
     closeRedeemModal();
@@ -1609,6 +1610,7 @@ async function previewContent(code) {
   });
 
   if (result.success) {
+    result.code = code;
     PREVIEW_DATA = result;
     showPreview(result);
   }
