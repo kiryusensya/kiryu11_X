@@ -1288,6 +1288,61 @@ button, input, textarea { font-family: var(--font-stack); }
   border-radius: 32px !important;/* 標準modal-sheetと同じ */
 }
 
+/* --- Standard website layout refresh --- */
+body { min-height: 100vh; height: auto; overflow: auto; background: #f7f9fc; color: #14213d; }
+#particleCanvas { display: none; }
+.rgl-wrapper { display: block; min-height: 100vh; }
+.rgl-sidebar {
+  position: sticky; top: 0; width: 100%; height: 76px; padding: 0 clamp(24px, 7vw, 112px);
+  flex-direction: row; align-items: center; overflow: visible; z-index: 200;
+  background: rgba(255,255,255,.94); border-right: 0; border-bottom: 1px solid #e8edf5;
+  backdrop-filter: blur(16px);
+}
+.rgl-brand-area { padding: 0; }
+.rgl-brand { color: #14213d; font-size: 19px; letter-spacing: -.3px; }
+.rgl-brand i { color: #2563eb; }
+.sidebar-main-nav { display: flex; gap: 30px; margin-left: 64px; }
+.rgl-tab { color: #53627a; text-decoration: none; font-size: 14px; font-weight: 700; padding: 10px 0; border-radius: 0; }
+.rgl-tab.active, .rgl-tab:hover { color: #2563eb; background: transparent; }
+.rgl-scroll-content, .rgl-bottom-controls { display: none; }
+.rgl-main { min-height: calc(100vh - 76px); overflow: visible; background: #f7f9fc; }
+.rgl-header { position: absolute; top: -76px; right: clamp(24px, 7vw, 112px); height: 76px; padding: 0; gap: 12px; }
+.theme-pill { width: 38px; height: 38px; color: #334155; background: #fff; border-color: #e2e8f0; box-shadow: 0 2px 8px rgba(15, 23, 42, .05); }
+.rgl-hero {
+  min-height: calc(100vh - 76px); padding: clamp(64px, 10vw, 140px) clamp(24px, 12vw, 180px);
+  justify-content: center; overflow: hidden; background: linear-gradient(135deg, #f8fbff 0%, #edf4ff 100%) !important;
+}
+.rgl-hero::before { content: '' !important; display: block !important; position: absolute; width: 590px; height: 590px; right: 7%; top: 50%; transform: translateY(-50%); border-radius: 48% 52% 58% 42%; background: linear-gradient(145deg, #2563eb, #38bdf8) !important; opacity: .96; box-shadow: -28px 30px 80px rgba(37,99,235,.22); }
+.rgl-hero::after { content: 'Secure access' !important; display: flex !important; position: absolute; right: 13%; top: 50%; width: 320px; height: 390px; transform: translateY(-50%) rotate(6deg); align-items: flex-end; justify-content: center; padding-bottom: 48px; border-radius: 28px; background: rgba(255,255,255,.94) !important; color: #2563eb; font-size: 18px; font-weight: 700; letter-spacing: .08em; box-shadow: 0 24px 60px rgba(15,23,42,.18); }
+.rgl-bg-image { display: none; }
+.rgl-hero-content { max-width: 600px; text-shadow: none; }
+.rgl-logo-text { color: #14213d; font-size: clamp(42px, 5.2vw, 70px); line-height: 1.12; letter-spacing: -.055em; margin-bottom: 22px; }
+.rgl-desc { display: block !important; color: #5b6b84; font-size: 18px; line-height: 1.8; margin: 0 0 34px; max-width: 540px; }
+.rgl-action-bar { gap: 14px; }
+.rgl-cta-btn, .rgl-buy-btn { min-width: 0; height: 52px; padding: 0 27px; border-radius: 10px; font-size: 15px; box-shadow: none; }
+.rgl-cta-btn, .rgl-cta-btn.is-download { background: #2563eb; color: #fff; }
+.rgl-cta-btn:hover { background: #1d4ed8; box-shadow: 0 12px 24px rgba(37,99,235,.22); }
+[data-theme="dark"] body, [data-theme="dark"] .rgl-main { background: #0f172a; }
+[data-theme="dark"] .rgl-sidebar { background: rgba(15,23,42,.94); border-color: #23304a; }
+[data-theme="dark"] .rgl-brand, [data-theme="dark"] .rgl-logo-text { color: #f8fafc; }
+[data-theme="dark"] .rgl-tab { color: #aab7cb; }
+[data-theme="dark"] .rgl-hero { background: linear-gradient(135deg, #0f172a, #172554) !important; }
+[data-theme="dark"] .rgl-desc { color: #c0cce0; }
+[data-theme="dark"] .theme-pill { background: #172033; color: #e4eaf5; border-color: #2b3a55; }
+
+@media (max-width: 820px) {
+  .rgl-sidebar { height: 64px; padding: 0 20px; }
+  .rgl-main { min-height: calc(100vh - 64px); }
+  .rgl-header { top: -64px; right: 20px; height: 64px; }
+  .sidebar-main-nav { display: none; }
+  .mobile-menu-trigger { display: none; }
+  .rgl-hero { min-height: calc(100vh - 64px); padding: 72px 28px 64px; justify-content: flex-start; }
+  .rgl-hero::before { width: 300px; height: 300px; right: -90px; top: auto; bottom: -110px; transform: none; }
+  .rgl-hero::after { display: none !important; }
+  .rgl-logo-text { max-width: 470px; font-size: 45px; }
+  .rgl-desc { font-size: 16px; max-width: 440px; }
+}
+
 </style>
 </head>
 <body>
@@ -1390,7 +1445,7 @@ button, input, textarea { font-family: var(--font-stack); }
             </div>
             
             <div style="margin-top: 20px; font-size: 10px; opacity: 0.3; text-align: center;">
-                © 2026 kiryu-sensya V7.0
+                ©2026 kiryu-sensya V7.0
            </div>
         </div>
     </aside>
@@ -1537,7 +1592,7 @@ button, input, textarea { font-family: var(--font-stack); }
     <div style="position:absolute; top:20px; right:20px; cursor:pointer; z-index:10;" id="modalCloseBtn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" size="24" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></div>
     
     <div id="phase-input" style="display: flex; opacity: 1;">
-      <h2 class="modal-title phase-input-title" data-translate="modal_title">アクティベーション</h2>
+      <h2 class="modal-title phase-input-title" data-translate="modal_title">アクティベーションコード</h2>
       <p class="modal-sub phase-input-sub-mobile" id="mobileInputDesc" data-translate="modal_sub">アクティベーションコードを使用すると、コンテンツにアクセスできます。アクティベーションコードを利用するには、以下の入力欄に入力してください。</p>
       
       <div class="phase-input-body">
@@ -1815,23 +1870,23 @@ const TRANSLATIONS={
  ja:{
   header_brand:"kiryu11 X", hero_title:"個人認証センター", hero_sub:"アクセス権限とリソースの管理。コードを入力してコンテンツを解除してください。",
   card1_title:"ホーム", tab_store:"ストア", card3_title:"サポート",
-  modal_title:"コード引き換え",modal_sub:"コードを引き換えると、コンテンツにアクセスできます。<span class=\"pc-only-text\"><br>コードのフォーマット方式は以下のとおりです:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"引き換えコード",modal_btn_auth:"確認",
+  modal_title:"認証する",modal_sub:"コンテンツを認証するために、アクティベーションコードを入力してください。<br>この処理にはインターネット接続が必要です。<span class=\"pc-only-text\"><br>アクティベーションコードのフォーマット方式は以下のとおりです:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"アクティベーションコード",modal_btn_auth:"確認",
   msg_verifying:"確認中",msg_success_btn:"成功",
-  msg_invalid:"このコードは無効です。",msg_used:"このコードは引き換え済みです。",msg_error:"エラーが発生しました。", 
+  msg_invalid:"このアクティベーションコードは無効です。",msg_used:"アクティベーションコードは使用済みです。",msg_error:"エラーが発生しました。", 
   msg_already_owned: "このコンテンツは既に所有しています。", msg_already_owned_mobile: "コンテンツを選択してダウンロードしてください。", btn_open_library: "ライブラリを開く",
   success_badge:"コードが認証されました。",
-  preview_title: "引き換えの確認",
-  preview_desc: "続行すると、以下のコンテンツが引き換えられます:",
-  success_title_final: "引き換え成功!!",
-  success_desc: "以下のコンテンツを引き換えました:",
+  preview_title: "コンテンツの確認",
+  preview_desc: "続行すると、以下のコンテンツが有効化されます:",
+  success_title_final: "認証成功!!",
+  success_desc: "以下のコンテンツが有効化されました:",
   success_msg_box: "正常に処理されました。\nコンテンツを選択してダウンロードしてください。",
   error_title_prefix: "エラー",
-  error_used_msg: "このコードは引き換え済みです。", invalid_code_format: "このコードは無効です。<br>コードのフォーマット方式は以下のとおりです:",
+  error_used_msg: "このアクティベーションコードは使用済みです。", invalid_code_format: "このアクティベーションコードは無効です。<br>アクティベーションコードのフォーマット方式は以下のとおりです:",
   error_locked_msg: "このコンテンツは解禁していません。",
   error_expired_msg: "このコンテンツは配信終了しました。", btn_expired: "配信終了",
   error_owned_msg: "既に所有しているようです。",
   error_owned_sub: "コンテンツを選択してダウンロードしてください。",
-  btn_close:"閉じる",btn_continue:"引き換える",btn_download:"ダウンロード", btn_buy:"購入する", 
+  btn_close:"閉じる",btn_continue:"認証",btn_download:"ダウンロード", btn_buy:"購入する", 
   
   preview_buy_title: "購入確認",
   preview_buy_desc: "以下のコンテンツを %s ポイントで購入します:",
@@ -1852,9 +1907,9 @@ const TRANSLATIONS={
   msg_empty_lib: "配信されていません。",
   msg_logging_in: "ログイン中", msg_signing_up: "新規作成中",
   label_store_cat: "ストア", label_available: "利用可能",
-  btn_redeem_code: "コード引き換え", btn_hero_download: "ダウンロード",
+  btn_redeem_code: "コード認証", btn_hero_download: "ダウンロード",
   status_owned: "所有済み", status_locked: "未所有",
-  btn_have_code: "コードをお持ちですか?",
+  btn_have_code: "アクティベーションコードをお持ちですか?",
   login_desc: "利用するにはアカウントが必要です。<br>ログインでお困りの場合は<a href='support.html' style='color: var(--primary); text-decoration: underline; font-weight: 700;'>こちら</a>",
   msg_login_empty: "ユーザー名とパスワードを入力してください。",
   msg_login_invalid: "無効なユーザー名またはパスワードです。", ban_title: "アカウント停止中", ban_message: "すべての機能へのアクセスが遮断されています。",
@@ -1864,18 +1919,18 @@ const TRANSLATIONS={
  en:{
   header_brand:"kiryu11 X", hero_title:"Personal Activation Center", hero_sub:"Manage your access and resources. Redeem your code to unlock exclusive content.",
   card1_title:"Home", tab_store:"Store", card3_title:"Support",
-  modal_title:"Redeem Code",modal_sub:"Redeem the code to download the content.<span class=\"pc-only-text\"><br>Codes are formatted like:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"Redeem Code",modal_btn_auth:"CHECK",
+  modal_title:"Activation Code",modal_sub:"Please enter the Activation Code to activate the content. <br>A valid internet connection is required for this process.<span class=\"pc-only-text\"><br>Activation Codes are formatted like:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"Activation Code",modal_btn_auth:"CHECK",
   msg_verifying:"Checking",msg_success_btn:"Success",
-  msg_invalid:"This code is invalid.",msg_used:"This code has already been redeemed.",msg_error:"Error occurred", 
+  msg_invalid:"This Activation Code is invalid.",msg_used:"This Activation Code has already been used.",msg_error:"Error occurred", 
   msg_already_owned: "You already own this content.", msg_already_owned_mobile: "Please select and download the content.", btn_open_library: "Open Library",
-  success_badge:"Code Verified",
-  preview_title: "Confirm Redemption",
-  preview_desc: "If you continue, you will redeem the following content:",
-  success_title_final: "Redemption Successful!!",
-  success_desc: "The following content has been redeemed:",
+  success_badge:"Activation Code Verified",
+  preview_title: "Check Content Details",
+  preview_desc: "If you continue, you will activate the following content:",
+  success_title_final: "Activation Successful!!",
+  success_desc: "The following content has been activated:",
   success_msg_box: "Processed successfully.\nPlease select and download your content.",
   error_title_prefix: "Error",
-  error_used_msg: "This code has already been redeemed.", invalid_code_format: "This code is invalid.<br>Codes are formatted like:",
+  error_used_msg: "This Activation Code has already been used.", invalid_code_format: "This Activation Code is invalid.<br>Activation Codes are formatted like:",
   error_locked_msg: "This content has not been released.",
   error_expired_msg: "This content is no longer available.", btn_expired: "No longer available",
   error_owned_msg: "You already own this content.",
@@ -1903,7 +1958,7 @@ const TRANSLATIONS={
   label_store_cat: "Store", label_available: "Available",
   btn_redeem_code: "Redeem Code", btn_hero_download: "DOWNLOAD",
   status_owned: "Owned", status_locked: "Not Owned",
-  btn_have_code: "Do you have a code?",
+  btn_have_code: "Do you have an Activation Code?",
   login_desc: "An account is required to use this service.<br>If you cannot log in, please contact us <a href='support.html' style='color: var(--primary); text-decoration: underline; font-weight: 700;'>here</a>.",
   msg_login_empty: "Please enter Personal Identifier and Password.",
   msg_login_invalid: "Invalid Personal Identifier or Password.", ban_title: "Account Banned", ban_message: "Access to all system functions has been denied.",
@@ -1913,23 +1968,23 @@ const TRANSLATIONS={
  zh:{ 
   header_brand:"kiryu11 X", hero_title:"个人代码检查中心", hero_sub:"管理您的访问权限和资源。兑換产品代码以解锁独家内容。", 
   card1_title:"首页", tab_store:"商店", card3_title:"支持", 
-  modal_title:"兑换代码",modal_sub:"兑换代码即可下载内容。<span class=\"pc-only-text\"><br>代码格式如下:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"兑換代码",modal_btn_auth:"检查", 
+  modal_title:"激活代码",modal_sub:"请输入激活码以激活内容。<br>此过程需要有效的互联网连接。<span class=\"pc-only-text\"><br>激活代码格式如下:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"激活代码",modal_btn_auth:"检查", 
   msg_verifying:"正在检查",msg_success_btn:"成功", 
-  msg_invalid:"该代码无效。",msg_used:"此代码已被兑换。",msg_error:"错误", 
+  msg_invalid:"该激活代码无效。",msg_used:"此激活代码已被激活。",msg_error:"错误", 
   msg_already_owned: "您已经拥有此内容。", msg_already_owned_mobile: "请选择并下载内容。", btn_open_library: "打开库",
   success_badge:"代码已检查",
-  preview_title: "确认兑换",
-  preview_desc: "继续操作将兑换以下内容:",
-  success_title_final: "兑换成功!!",
-  success_desc: "以下内容兑换成功:",
+  preview_title: "确认内容详情",
+  preview_desc: "继续操作将激活以下内容:",
+  success_title_final: "激活成功!!",
+  success_desc: "以下内容激活成功:",
   success_msg_box: "处理成功。\n请选择并下载内容。",
   error_title_prefix: "错误",
-  error_used_msg: "此代码已被兑换。", invalid_code_format: "该代码无效。<br>代码格式如下：",
+  error_used_msg: "此激活代码已被激活。", invalid_code_format: "该激活代码无效。<br>激活代码格式如下：",
   error_locked_msg: "此内容尚未发布。",
   error_expired_msg: "此内容已停止提供。", btn_expired: "停止提供",
   error_owned_msg: "您已拥有此项目。",
   error_owned_sub: "请选择并下载内容。",
-  btn_close:"关闭",btn_continue:"兑換",btn_download:"下载", btn_buy:"购买", 
+  btn_close:"关闭",btn_continue:"兌換",btn_download:"下载", btn_buy:"购买", 
   
   preview_buy_title: "确认购买",
   preview_buy_desc: "您将使用 %s 积分购买以下内容:",
@@ -1952,7 +2007,7 @@ const TRANSLATIONS={
   label_store_cat: "商店", label_available: "可用",
   btn_redeem_code: "兑換代码", btn_hero_download: "下载",
   status_owned: "已拥有", status_locked: "未拥有",
-  btn_have_code: "有兑换代码吗？",
+  btn_have_code: "有激活代码吗？",
   login_desc: "使用本服务需要账户。<br>如果您无法登录，请在<a href='support.html' style='color: var(--primary); text-decoration: underline; font-weight: 700;'>此处</a>查询。",
   msg_login_empty: "请输入用户名和密码。",
   msg_login_invalid: "用户名或密码无效。", ban_title: "账号已被封禁", ban_message: "所有功能的访问权限已被彻底阻断。",
@@ -1960,20 +2015,20 @@ const TRANSLATIONS={
   manage_title: "下载管理", manage_desc: "请选择要下载的内容:", footer_terms: "服务条款"
  },
  "zh-TW":{ 
-  header_brand:"kiryu11 X", hero_title:"個人代碼檢查中心", hero_sub:"管理您的存取權限與資源。兌換產品代碼以解鎖獨家內容。", 
+  header_brand:"kiryu11 X", hero_title:"個人代碼檢查中心", hero_sub:"管理您的存取權限與資源。啟用產品代碼以解鎖獨家內容。", 
   card1_title:"首頁", tab_store:"商店", card3_title:"支援", 
-  modal_title:"兌換代碼",modal_sub:"兌換代碼以下載內容。<span class=\"pc-only-text\"><br>代碼格式如下:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"兌換代碼",modal_btn_auth:"檢查", 
+  modal_title:"啟用代碼",modal_sub:"請輸入啟用碼以啟用內容。<br>此過程需要有效的網際網路連接。<span class=\"pc-only-text\"><br>啟用代碼格式如下:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"啟用代碼",modal_btn_auth:"檢查", 
   msg_verifying:"正在檢查",msg_success_btn:"成功", 
-  msg_invalid:"該代碼無效。",msg_used:"此代碼已兌換。",msg_error:"錯誤", 
+  msg_invalid:"該啟用代碼無效。",msg_used:"此啟用代碼已啟用。",msg_error:"錯誤", 
   msg_already_owned: "您已經擁有此內容。", msg_already_owned_mobile: "請選擇內容並下載。", btn_open_library: "打開庫",
-  success_badge:"代碼已檢查",
-  preview_title: "確認兌換",
+  success_badge:"啟用代碼已檢查",
+  preview_title: "查看內容",
   preview_desc: "如果您繼續，您將收到以下內容:",
-  success_title_final: "兌換成功!!",
-  success_desc: "該代碼已兌換以下內容:",
+  success_title_final: "啟用成功!!",
+  success_desc: "該代碼已啟用以下內容:",
   success_msg_box: "已成功處理。\n請選擇內容並下載",
   error_title_prefix: "錯誤",
-  error_used_msg: "此代碼已兌換。", invalid_code_format: "該代碼無效。<br>代碼格式如下：",
+  error_used_msg: "此啟用代碼已啟用。", invalid_code_format: "該啟用代碼無效。<br>啟用代碼格式如下：",
   error_locked_msg: "此內容尚未發佈。",
   error_expired_msg: "此內容已結束配信。", btn_expired: "結束配信",
   error_owned_msg: "你已經擁有了。",
@@ -2001,7 +2056,7 @@ const TRANSLATIONS={
   label_store_cat: "商店", label_available: "可用",
   btn_redeem_code: "兌換代碼", btn_hero_download: "下載",
   status_owned: "已擁有", status_locked: "未擁有",
-  btn_have_code: "有兌換碼嗎？",
+  btn_have_code: "您有啟用代碼嗎？",
   login_desc: "使用本服務需要帳戶。<br>如果您無法登入，請在<a href='support.html' style='color: var(--primary); text-decoration: underline; font-weight: 700;'>此處</a>查詢。",
   msg_login_empty: "請輸入使用者名稱和密碼。",
   msg_login_invalid: "使用者名稱或密碼無效。", ban_title: "帳號已被封鎖", ban_message: "所有功能的存取權限已被徹底阻斷。",
@@ -2011,12 +2066,12 @@ const TRANSLATIONS={
  ko:{ 
   header_brand:"kiryu11 X", hero_title:"개인 코드 검사 센터", hero_sub:"액세스 권한 및 리소스 관리. 제품 코드를 사용하여 콘텐츠 잠금을 해제하세요.", 
   card1_title:"홈", tab_store:"상점", card3_title:"지원", 
-  modal_title:"교환 코드",modal_sub:"코드를 입력하여 콘텐츠를 다운로드하세요.<span class=\"pc-only-text\"><br>코드 형식은 다음과 같습니다:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"활성화 코드",modal_btn_auth:"확인", 
+  modal_title:"활성화 코드",modal_sub:"콘텐츠를 활성화하려면 활성화 코드를 입력해 주세요.<br>이 과정에는 유효한 인터넷 연결이 필요합니다.<span class=\"pc-only-text\"><br>코드 형식은 다음과 같습니다:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"활성화 코드",modal_btn_auth:"확인", 
   msg_verifying:"확인 중",msg_success_btn:"성공", 
   msg_invalid:"유효하지 않은 코드입니다.",msg_used:"이 코드는 이미 사용되었습니다.",msg_error:"오류", 
   msg_already_owned: "이미 이 콘텐츠를 소유하고 있습니다.", msg_already_owned_mobile: "콘텐츠를 선택하여 다운로드해 주세요.", btn_open_library: "라이브러리 열기",
   success_badge:"코드 인증됨",
-  preview_title: "교환 확인",
+  preview_title: "콘텐츠 확인",
   preview_desc: "계속하면 다음 콘텐츠를 받게됩니다:",
   success_title_final: "교환 완료!!",
   success_desc: "다음 콘텐츠가 활성화되었습니다:",
@@ -2050,7 +2105,7 @@ const TRANSLATIONS={
   label_store_cat: "상점", label_available: "사용 가능",
   btn_redeem_code: "코드 교환", btn_hero_download: "다운로드",
   status_owned: "소유함", status_locked: "미소유",
-  btn_have_code: "코드가 있으신가요?",
+  btn_have_code: "활성화 코드가 있으신가요?",
   login_desc: "이용하려면 계정이 필요합니다.<br>로그인할 수 없는 경우 <a href='support.html' style='color: var(--primary); text-decoration: underline; font 가중치: 700;'>여기</a>에서 문의해 주세요.",
   msg_login_empty: "사용자 이름과 비밀번호를 입력해 주세요.",
   msg_login_invalid: "사용자 이름 또는 비밀번호가 올바르지 않습니다.", ban_title: "계정 이용 정지", ban_message: "모든 기능에 대한 접근이 완전히 차단되었습니다.",
@@ -2060,12 +2115,12 @@ const TRANSLATIONS={
  ru:{ 
   header_brand:"kiryu11 X", hero_title:"Центр личной активации", hero_sub:"Управление доступом и ресурсами. Активируйте код продукта для разблокировки.", 
   card1_title:"Главная", tab_store:"Магазин", card3_title:"Поддержка", 
-  modal_title:"Kод активации",modal_sub:"Введите код, чтобы загрузить контент.<span class=\"pc-only-text\"><br>Коды имеют следующий формат:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"Код активации",modal_btn_auth:"Проверить", 
+  modal_title:"Kод Aктивации",modal_sub:"Пожалуйста, введите код активации, чтобы активировать контент. <br>Для этого процесса требуется активное интернет-соединение.<span class=\"pc-only-text\"><br>Коды имеют следующий формат:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"Код активации",modal_btn_auth:"Проверить", 
   msg_verifying:"Подтверждение",msg_success_btn:"Успех", 
   msg_invalid:"Неверный код.",msg_used:"Этот код уже активирован.",msg_error:"Ошибка", 
   msg_already_owned: "Вы уже владеете этим контентом.", msg_already_owned_mobile: "Выберите контент и загрузите.", btn_open_library: "Открыть библиотеку",
   success_badge:"Подтверждено", 
-  preview_title: "Подтвердить получение",
+  preview_title: "Проверить контент",
   preview_desc: "Вы получите следующее содержимое:",
   success_title_final: "Успешно активировано!!",
   success_desc: "Если вы продолжите, вы получите следующий контент:",
@@ -2099,7 +2154,7 @@ const TRANSLATIONS={
   label_store_cat: "Магазин", label_available: "Доступно",
   btn_redeem_code: "Активировать код", btn_hero_download: "Скачать",
   status_owned: "В наличии", status_locked: "Не в наличии",
-  btn_have_code: "Есть код?",
+  btn_have_code: "У вас есть код активации?",
   login_desc: "Для использования требуется учетная запись.<br>Если вы не можете войти, пожалуйста, обратитесь <a href='support.html' style='color: var(--primary); text-decoration: underline; font-weight: 700;'>сюда</a>.",
   msg_login_empty: "Пожалуйста, введите имя пользователя и пароль.",
   msg_login_invalid: "Неверное имя пользователя или пароль.", ban_title: "Аккаунт заблокирован", ban_message: "Доступ ко всем функциям полностью заблокирован.",
