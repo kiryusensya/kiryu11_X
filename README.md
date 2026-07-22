@@ -7,7 +7,6 @@ Copyright (c) kiryu-sensya All Rights Reserved.
 このプロジェクトは、シリアルコードを利用したコンテンツ配信およびユーザー権限（Tier）管理を行うためのフルスタックWebアプリケーションです。
 
 ###  主な機能
-* **マルチティア権限:** `標準版` / `プロフェッショナル版` の階層別アクセス制御。
 * **ポイントシステム:** コンテンツ購入やコードによるポイントチャージ。
 * **時限解放:** 日本時間（JST）に基づいた厳密な解放・有効期限管理。
 
@@ -19,7 +18,6 @@ Copyright (c) kiryu-sensya All Rights Reserved.
 This project is a full-stack web application for content distribution and user permission (Tier) management using serial codes.
 
 ###  Main Features
-* **Multi-Tier Permissions:** Tiered access control for `Standard Edition` / `Professional Edition`.
 * **Point System:** Points charged through content purchases and codes.
 * **Time-Limited Release:** Strict release and expiration date management based on Japan Standard Time (JST).
 
@@ -32,7 +30,6 @@ This project is a full-stack web application for content distribution and user p
 本项目是一个全栈式 Web 应用，用于使用序列号进行内容分发和用户权限（分级）管理。
 
 ###  主要功能
-* **多层权限：** 针对“标准版”/“专业版”进行分级访问控制。
 * **积分系统：** 通过购买内容和兑换码获得积分。
 * **限时发布：** 基于日本标准时间 (JST) 的严格发布和过期日期管理。
 
@@ -44,7 +41,6 @@ This project is a full-stack web application for content distribution and user p
 本專案是一個全端式 Web 應用，用於使用序號進行內容分發和使用者權限（分級）管理。
 
 ###  主要功能
-* **多層權限：** 針對「標準版」/「專業版」進行分級存取控制。
 * **積分系統：** 透過內容購買和代碼兌換獲得積分。
 * **限時發布：** 基於日本標準時間 (JST) 的嚴格發布和到期日期管理。
 
@@ -56,7 +52,6 @@ This project is a full-stack web application for content distribution and user p
 이 프로젝트는 시리얼 코드를 이용한 콘텐츠 배포 및 사용자 권한(Tier) 관리를 위한 풀 스택 웹 애플리케이션입니다.
 
 ###  주요 기능
-* **멀티 티어 권한:** `표준 버전`/`프로페셔널 버전`의 계층 적 액세스 제어.
 * **포인트 시스템:** 콘텐츠 구매 및 코드로 포인트 충전.
 * **시한 해방:** 일본 시간(JST)에 근거한 엄밀한 해방·유효 기한 관리.
 
@@ -68,7 +63,6 @@ This project is a full-stack web application for content distribution and user p
 Этот проект представляет собой полнофункциональное веб-приложение для распространения контента и управления правами доступа пользователей (уровнями) с использованием серийных кодов.
 
 ###  Основные функции
-* **Многоуровневые разрешения:** Многоуровневый контроль доступа для «Стандартной версии» / «Профессиональной версии».
 * **Система баллов:** Баллы можно начислять за покупку контента или кодов.
 * **Ограниченный по времени выпуск:** Строгое управление датами выпуска и истечения срока действия на основе японского стандартного времени (JST).
 
