@@ -20,7 +20,7 @@
     /* --- THEME VARIABLES --- */
     :root {
       --primary: #007DFF;
-      --accent-green: #107C10; /* Updated to match Xbox Green */
+      --accent-green: #04CF22;
       --bg-color: #FFFFFF;
       --text-main: #000000;
       --text-sub: #666666;
@@ -192,125 +192,6 @@
       transform: translateY(-2px);
       box-shadow: 0 15px 40px rgba(0, 125, 255, 0.4);
     }
-
-    .btn-secondary {
-      padding: 14px 40px;
-      background-color: transparent;
-      color: var(--text-main);
-      border: 2px solid var(--border-color);
-      border-radius: 50px;
-      font-weight: 700;
-      font-size: 16px;
-      transition: all 0.3s ease;
-    }
-
-    .btn-secondary:hover {
-      border-color: var(--primary);
-      color: var(--primary);
-      transform: translateY(-2px);
-    }
-
-    /* --- POST REDEEM FEATURES --- */
-    .features-section {
-      padding: 80px 40px 40px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .features-title {
-      font-size: 32px;
-      font-weight: 800;
-      text-align: center;
-      margin-bottom: 60px;
-    }
-
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 24px;
-    }
-
-    .feature-card {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .feature-icon-box {
-      background-color: var(--accent-green);
-      color: #fff;
-      height: 180px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 64px;
-      margin-bottom: 20px;
-      border-radius: 4px;
-      box-shadow: var(--shadow-soft);
-      transition: transform 0.3s ease;
-    }
-    
-    .feature-icon-box:hover {
-      transform: translateY(-5px);
-    }
-
-    .feature-text h3 {
-      font-size: 16px;
-      font-weight: 700;
-      margin-bottom: 10px;
-      line-height: 1.4;
-    }
-
-    .feature-text p {
-      font-size: 13px;
-      color: var(--text-sub);
-    }
-
-    /* --- FAQ SECTION --- */
-    .faq-section {
-      padding: 20px 40px 80px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .faq-title {
-      font-size: 28px;
-      font-weight: 800;
-      margin-bottom: 30px;
-    }
-
-    .faq-list {
-      border-top: 1px solid var(--border-color);
-    }
-
-    .faq-item {
-      padding: 24px 0;
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      cursor: pointer;
-      transition: background-color 0.3s ease, padding-left 0.3s ease;
-      color: var(--text-main);
-      font-size: 15px;
-      font-weight: 500;
-    }
-
-    .faq-item:hover {
-      background-color: var(--card-bg);
-      padding-left: 10px;
-    }
-
-    .faq-item i {
-      color: var(--text-sub);
-      font-size: 14px;
-      transition: transform 0.3s ease;
-    }
-
-    .faq-item:hover i {
-      color: var(--accent-green);
-      transform: translateX(4px);
-    }
-
 
     /* --- FOOTER --- */
     footer {
@@ -503,7 +384,7 @@
       justify-content: center;
       margin-top: 10px;
       overflow: hidden;
-      touch-action: none;
+      touch-action: none; /* Prevent scroll on mobile drag */
     }
 
     .slider-text {
@@ -566,17 +447,13 @@
     }
 
     @media (min-width: 769px) {
-      #successModal .modal-content,
-      #previewModal .modal-content {
-        max-width: 700px !important;
-      }
-    }
+  #successModal .modal-content,
+  #previewModal .modal-content {
+    max-width: 700px !important;
+  }
+}
 
-    /* --- RESPONSIVE --- */
-    @media (max-width: 900px) {
-      .features-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-
+/* --- RESPONSIVE --- */
     @media (max-width: 768px) {
       nav {
         padding: 16px 20px;
@@ -626,12 +503,8 @@
         flex-direction: column;
       }
 
-      .btn-primary, .btn-secondary {
+      .btn-primary {
         width: 100%;
-      }
-
-      .features-grid {
-        grid-template-columns: 1fr;
       }
 
       .modal-content {
@@ -737,7 +610,6 @@
   
   <ul class="nav-menu" id="navMenu">
     <li><a href="#home" data-translate="nav_home">Home</a></li>
-    <li><a href="#features" data-translate="nav_features">Features</a></li>
   </ul>
 
   <div class="nav-controls">
@@ -778,64 +650,6 @@
     <p data-translate="hero_desc">Authenticate and access your exclusive content with ease. Secure, reliable, and multi-language support.</p>
     <div class="hero-buttons">
       <button class="btn-primary action-redeem-btn" onclick="openRedeemModal()" data-translate="btn_login_to_redeem">Login to Redeem</button>
-      <button class="btn-secondary" onclick="document.getElementById('features').scrollIntoView({behavior: 'smooth'})" data-translate="btn_explore">Explore Features</button>
-    </div>
-  </div>
-</section>
-
-<!-- FEATURES SECTION (Replaces Content) -->
-<section class="features-section" id="features">
-  <h2 class="features-title">コードを引き換えた後、どうすればいいでしょうか？</h2>
-  <div class="features-grid">
-    <div class="feature-card">
-      <div class="feature-icon-box"><i class="fas fa-shopping-cart"></i></div>
-      <div class="feature-text">
-        <h3>ギフト カードと引き換えますか？</h3>
-        <p>ゲームを購入するか、サブスクリプションで引き換えて数百ものゲームをプレイできます。</p>
-      </div>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon-box">
-        <i class="fas fa-download"></i>
-        <i class="fas fa-gamepad" style="font-size: 32px; margin-left: 12px;"></i>
-      </div>
-      <div class="feature-text">
-        <h3>コードを特定のゲームに引き換えますか？</h3>
-        <p>ゲームをコンソールまたは PC からインストールしてください。</p>
-      </div>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon-box"><i class="fab fa-xbox"></i></div>
-      <div class="feature-text">
-        <h3>Game Pass を初めてご利用ですか？</h3>
-        <p>ライブラリを閲覧し、XBOX PC アプリまたは XBOX モバイル アプリをインストールしてメンバーシップを管理してください。</p>
-      </div>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon-box"><i class="fas fa-history"></i></div>
-      <div class="feature-text">
-        <h3>注文履歴を管理する</h3>
-        <p>注文履歴と引き換えられたコードは、アカウントで確認できます。</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- FAQ SECTION -->
-<section class="faq-section" id="faq">
-  <h2 class="faq-title">よくあるご質問</h2>
-  <div class="faq-list">
-    <div class="faq-item">
-      <i class="fas fa-chevron-right"></i>
-      <span>XBOX Series X|S および XBOX One コンソールでのコードの引き換え方法</span>
-    </div>
-    <div class="faq-item">
-      <i class="fas fa-chevron-right"></i>
-      <span>Windows 上の Microsoft Store でのコード引き換え方法</span>
-    </div>
-    <div class="faq-item">
-      <i class="fas fa-chevron-right"></i>
-      <span>XBOX PC アプリでコードを引き換える方法を教えてください。</span>
     </div>
   </div>
 </section>
@@ -915,22 +729,22 @@
     </div>
   </div>
 </div>
-
 <!-- TRANSLATIONS -->
 <script>
 const TRANSLATIONS = {
   ja: {
     nav_home: 'ホーム',
-    nav_features: '特徴',
+    nav_content: 'コンテンツ',
     hero_title: 'アクティベーション',
     hero_desc: 'コンテンツを認証するために、アクティベーションコードを入力してください。',
     btn_redeem: 'コードを使用',
     btn_login_to_redeem: 'ログインして認証する',
-    btn_explore: '探索',
+    btn_explore: 'コンテンツを探索',
     btn_login: '入域',
     btn_logout: '退出',
     btn_cancel: 'キャンセル',
     btn_submit: '確認',
+    content_title: '利用可能なコンテンツ',
     modal_redeem_title: 'アクティベーションコード',
     modal_code_placeholder: 'アクティベーションコード', msg_auth_success: '認証が完了し、コンテンツが有効化されました。', btn_close: '閉じる',
     footer_terms: '利用規約',
@@ -957,16 +771,17 @@ const TRANSLATIONS = {
   },
   en: {
     nav_home: 'Home',
-    nav_features: 'Features',
+    nav_content: 'Content',
     hero_title: 'Activation',
     hero_desc: 'Please enter the Activation Code to activate the content. ',
     btn_redeem: 'Redeem Code',
     btn_login_to_redeem: 'Access to Redeem',
-    btn_explore: 'Explore',
+    btn_explore: 'Explore Content',
     btn_login: 'Access',
     btn_logout: 'Exit',
     btn_cancel: 'Cancel',
     btn_submit: 'Submit',
+    content_title: 'Available Content',
     modal_redeem_title: 'Activation Code',
     modal_code_placeholder: 'Activation Code', msg_auth_success: 'The content has been activated.', btn_close: 'Close',
     footer_terms: 'Terms of Service',
@@ -988,7 +803,147 @@ const TRANSLATIONS = {
     msg_unlocks_on: 'Unlocks on: ',
     status_owned: 'Owned',
     status_available: 'Available'
-  }
+  },
+  zh: {
+    nav_home: '首页',
+    nav_content: '内容',
+    hero_title: '激活',
+    hero_desc: '请输入激活码以激活内容。',
+    btn_redeem: '激活代码',
+    btn_login_to_redeem: '检查后激活',
+    btn_explore: '浏览内容',
+    btn_login: '登录',
+    btn_logout: '登出',
+    btn_cancel: '取消',
+    btn_submit: '检查',
+    content_title: '可用内容',
+    modal_redeem_title: '激活代码',
+    modal_code_placeholder: '激活代码', msg_auth_success: '内容已激活。', btn_close: '关闭',
+    footer_terms: '服务条款',
+    footer_contact: '联系我们',
+
+    login_title: '安全访问管理',
+    login_id_placeholder: '个人标识符',
+    login_pw_placeholder: '密码',
+    login_slide_text: '滑动以继续',
+    login_link_help: '无法访问？',
+    login_link_terms: '使用条款',
+
+    msg_enter_code: '请输入激活代码',
+    msg_invalid_code: '无效激活代码',
+    msg_network_error: '网络错误',
+    msg_redeem_success: '激活成功！',
+    msg_redeem_failed: '激活失败',
+    msg_already_owned: '您已拥有此内容',
+    msg_unlocks_on: '解锁时间：',
+    status_owned: '已拥有',
+    status_available: '可用'
+  },
+  'zh-TW': {
+    nav_home: '首頁',
+    nav_content: '內容',
+    hero_title: '啟用',
+    hero_desc: '請輸入啟用代碼以啟用內容。',
+    btn_redeem: '啟用代碼',
+    btn_login_to_redeem: '登入後啟用',
+    btn_explore: '瀏覽內容',
+    btn_login: '登入',
+    btn_logout: '登出',
+    btn_cancel: '取消',
+    btn_submit: '檢查',
+    content_title: '可用內容',
+    modal_redeem_title: '啟用代碼',
+    modal_code_placeholder: '啟用代碼', msg_auth_success: '內容已啟用。', btn_close: '關閉',
+    footer_terms: '服務條款',
+    footer_contact: '聯絡我們',
+
+    login_title: '安全訪問管理',
+    login_id_placeholder: '個人標識符',
+    login_pw_placeholder: '密碼',
+    login_slide_text: '滑動以繼續',
+    login_link_help: '無法訪問？',
+    login_link_terms: '使用條款',
+
+    msg_enter_code: '請輸入啟用代碼',
+    msg_invalid_code: '無效啟用代碼',
+    msg_network_error: '網路錯誤',
+    msg_redeem_success: '內容啟用成功！',
+    msg_redeem_failed: '啟用失敗',
+    msg_already_owned: '您已擁有此內容',
+    msg_unlocks_on: '解鎖時間：',
+    status_owned: '已擁有',
+    status_available: '可用'
+  },
+  ko: {
+    nav_home: '홈',
+    nav_content: '콘텐츠',
+    hero_title: '안전한 콘텐츠 인증',
+    hero_desc: '쉽게 인증하고 독점 콘텐츠에 접근하세요. 안전하고 신뢰할 수 있으며 다국어 지원.',
+    btn_redeem: '코드 환전',
+    btn_login_to_redeem: '로그인하여 환전하기',
+    btn_explore: '콘텐츠 탐색',
+    btn_login: '로그인',
+    btn_logout: '로그아웃',
+    btn_cancel: '취소',
+    btn_submit: '제출',
+    content_title: '사용 가능한 콘텐츠',
+    modal_redeem_title: '코드 환전',
+    modal_code_placeholder: '코드를 입력하세요', msg_auth_success: '인증이 완료되었으며 라이선스가 부여되었습니다.', btn_close: '닫기',
+    footer_terms: '서비스 약관',
+    footer_contact: '문의',
+
+    login_title: '보안 액세스',
+    login_id_placeholder: '개인 식별자',
+    login_pw_placeholder: '비밀번호',
+    login_slide_text: '슬라이드하여 진행',
+    login_link_help: '접근할 수 없습니까?',
+    login_link_terms: '이용 약관',
+
+    msg_enter_code: '코드를 입력해주세요',
+    msg_invalid_code: '유효하지 않은 코드입니다',
+    msg_network_error: '네트워크 오류가 발생했습니다',
+    msg_redeem_success: '콘텐츠 환전에 성공했습니다!',
+    msg_redeem_failed: '환전에 실패했습니다',
+    msg_already_owned: '이미 소유하고 있는 콘텐츠입니다',
+    msg_unlocks_on: '잠금 해제: ',
+    status_owned: '소유함',
+    status_available: '이용 가능'
+  },
+  ru: {
+    nav_home: 'Главная',
+    nav_content: 'Контент',
+    hero_title: 'Безопасная аутентификация контента',
+    hero_desc: 'Легко аутентифицируйте и получайте доступ к эксклюзивному контенту. Безопасно, надежно и поддержка нескольких языков.',
+    btn_redeem: 'Обменять код',
+    btn_login_to_redeem: 'Войдите, чтобы обменять',
+    btn_explore: 'Просмотреть контент',
+    btn_login: 'Вход',
+    btn_logout: 'Выход',
+    btn_cancel: 'Отмена',
+    btn_submit: 'Отправить',
+    content_title: 'Доступный контент',
+    modal_redeem_title: 'Обменять код',
+    modal_code_placeholder: 'Введите ваш код', msg_auth_success: 'Аутентификация завершена, лицензия предоставлена.', btn_close: 'Закрыть',
+    footer_terms: 'Условия использования',
+    footer_contact: 'Контакты',
+
+    login_title: 'Безопасный доступ',
+    login_id_placeholder: 'Личный идентификатор',
+    login_pw_placeholder: 'Пароль',
+    login_slide_text: 'Проведите, чтобы продолжить',
+    login_link_help: 'Нет доступа?',
+    login_link_terms: 'Условия использования',
+
+    msg_enter_code: 'Пожалуйста, введите код',
+    msg_invalid_code: 'Неверный код',
+    msg_network_error: 'Произошла ошибка сети',
+    msg_redeem_success: 'Контент успешно обменян!',
+    msg_redeem_failed: 'Ошибка обмена',
+    msg_already_owned: 'У вас уже есть этот контент',
+    msg_unlocks_on: 'Разблокируется: ',
+    status_owned: 'Приобретено',
+    status_available: 'Доступно'
+  },
 };
 
 // ==========================================
@@ -1035,7 +990,7 @@ function initTheme() {
 function initLanguage() {
   document.documentElement.setAttribute('lang', CURRENT_LANG);
   updateTranslations();
-  updateUserUI(); 
+  updateUserUI(); // update buttons with current language state
 }
 
 function updateThemeIcon() {
@@ -1065,6 +1020,7 @@ function setupEventListeners() {
     document.getElementById('userMenu').classList.toggle('active');
   });
 
+  // ハンバーガーメニュー
   const hamburgerBtn = document.getElementById('hamburgerBtn');
   const navMenu = document.getElementById('navMenu');
   hamburgerBtn.addEventListener('click', () => {
@@ -1086,42 +1042,66 @@ function setupEventListeners() {
     if (!e.target.closest('.user-toggle') && !e.target.closest('.user-menu')) {
       document.getElementById('userMenu').classList.remove('active');
     }
+    
+    // モーダル外クリックで閉じる
     if (e.target.classList.contains('modal')) {
       e.target.classList.remove('active');
       if (e.target.id === 'loginModal') resetSlider();
     }
   });
 
+  // --- 追加：コード入力欄の自動整形・制限 ---
   const codeInput = document.getElementById('codeInput');
   if (codeInput) {
     codeInput.addEventListener('input', (e) => {
+      // 半角英数字以外を除外して大文字化
       let val = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-      if (val.length > 25) { val = val.substring(0, 25); }
+      
+      // 最大文字数を25文字に制限（ハイフン除く）
+      if (val.length > 25) {
+        val = val.substring(0, 25);
+      }
+      
       let formatted = '';
+      // 17文字以上の入力（25文字ターゲット）の場合は5文字区切りに動的変更
       if (val.length > 16) {
         formatted = val.match(/.{1,5}/g)?.join('-') || '';
       } else {
+        // 16文字以下の場合は4文字区切り
         formatted = val.match(/.{1,4}/g)?.join('-') || '';
       }
+      
       e.target.value = formatted;
+      
+      // 入力中はエラーメッセージを非表示にする
       clearErrors();
     });
+  // --- 新規追加: Enterキーでコードを送信 ---
     codeInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
-        e.preventDefault(); 
-        submitCode();       
+        e.preventDefault(); // デフォルトの動作を防止
+        submitCode();       // 送信処理を実行
       }
     });
   }
 
+  // --- 新規追加: Escキーで開いているモーダルを閉じる ---
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      if (document.getElementById('loginModal').classList.contains('active')) closeLoginModal();
-      if (document.getElementById('redeemModal').classList.contains('active')) closeRedeemModal();
-      if (document.getElementById('previewModal').classList.contains('active')) closePreviewModal();
-      if (document.getElementById('successModal').classList.contains('active')) closeSuccessModal();
+      if (document.getElementById('loginModal').classList.contains('active')) {
+        closeLoginModal();
+      }
+      if (document.getElementById('redeemModal').classList.contains('active')) {
+        closeRedeemModal();
+      }
+      if (document.getElementById('previewModal').classList.contains('active')) {
+        closePreviewModal();
+      }
+      if (document.getElementById('successModal').classList.contains('active')) {
+        closeSuccessModal();
     }
-  });
+  }
+});
 }
   
 function toggleTheme() {
@@ -1156,11 +1136,17 @@ async function safeFetch(params) {
         app_tier: APP_TIER
       })
     });
+
     const data = await response.json();
-    if (data.serverTime) { SERVER_TIME_OFFSET = data.serverTime - Date.now(); }
+    if (data.serverTime) {
+      SERVER_TIME_OFFSET = data.serverTime - Date.now();
+    }
     if (!data.success && data.message) {
-      if (data.message === 'Network error') { data.message = getT('msg_network_error'); } 
-      else if (data.message === 'Invalid code') { data.message = getT('msg_invalid_code'); }
+      if (data.message === 'Network error') {
+        data.message = getT('msg_network_error');
+      } else if (data.message === 'Invalid code') {
+        data.message = getT('msg_invalid_code');
+      }
     }
     return data;
   } catch (error) {
@@ -1179,6 +1165,7 @@ function getServerDate() {
 function restoreSession() {
   const savedToken = localStorage.getItem('user_session_token');
   const savedIdentity = localStorage.getItem('user_session_identity');
+  
   if (savedToken && savedIdentity) {
     CURRENT_TOKEN = savedToken;
     CURRENT_USER = JSON.parse(savedIdentity);
@@ -1196,6 +1183,8 @@ function updateUserUI() {
     userInfo.textContent = CURRENT_USER.email || 'User';
     loginBtn.style.display = 'none';
     logoutBtn.style.display = 'block';
+    
+    // Set redeem buttons to "Redeem Code"
     actionBtns.forEach(btn => {
       btn.setAttribute('data-translate', 'btn_redeem');
       btn.textContent = getT('btn_redeem');
@@ -1204,6 +1193,8 @@ function updateUserUI() {
     userInfo.textContent = 'Guest User';
     loginBtn.style.display = 'block';
     logoutBtn.style.display = 'none';
+    
+    // Set redeem buttons to "Login to Redeem"
     actionBtns.forEach(btn => {
       btn.setAttribute('data-translate', 'btn_login_to_redeem');
       btn.textContent = getT('btn_login_to_redeem');
@@ -1240,9 +1231,12 @@ const sliderContainer = document.getElementById('loginSlider');
 const sliderFill = document.getElementById('sliderFill');
 
 function initLoginSlider() {
+  // Mouse events
   sliderThumb.addEventListener('mousedown', startSliderDrag);
   document.addEventListener('mousemove', dragSlider);
   document.addEventListener('mouseup', endSliderDrag);
+  
+  // Touch events
   sliderThumb.addEventListener('touchstart', startSliderDrag, {passive: true});
   document.addEventListener('touchmove', dragSlider, {passive: false});
   document.addEventListener('touchend', endSliderDrag);
@@ -1259,23 +1253,32 @@ function dragSlider(e) {
   if (!isSliderDragging) return;
   const x = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
   let deltaX = x - sliderStartX;
+  
+  // Max drag distance: container width - thumb width - padding(4px*2)
   const maxDrag = sliderContainer.offsetWidth - sliderThumb.offsetWidth - 8;
+  
   if (deltaX < 0) deltaX = 0;
   if (deltaX > maxDrag) deltaX = maxDrag;
   
   sliderCurrentX = deltaX;
   sliderThumb.style.transform = `translateX(${deltaX}px)`;
   sliderFill.style.width = `${deltaX + (sliderThumb.offsetWidth / 2)}px`;
-  if (e.type.includes('touch')) e.preventDefault();
+  
+  if (e.type.includes('touch')) {
+    e.preventDefault(); // prevent scrolling
+  }
 }
 
 function endSliderDrag() {
   if (!isSliderDragging) return;
   isSliderDragging = false;
+  
   sliderThumb.style.transition = 'transform 0.3s ease';
   sliderFill.style.transition = 'width 0.3s ease';
+  
   const maxDrag = sliderContainer.offsetWidth - sliderThumb.offsetWidth - 8;
   
+  // If pulled nearly to the end, trigger login
   if (sliderCurrentX >= maxDrag - 5) {
     processMockLogin();
   } else {
@@ -1290,7 +1293,9 @@ function resetSlider() {
 }
 
 function processMockLogin() {
+  // Show spinner on thumb temporarily
   sliderThumb.innerHTML = '<span class="loading-spinner" style="width:16px;height:16px;"></span>';
+  
   setTimeout(() => {
     const userId = document.getElementById('loginIdInput').value || 'User';
     CURRENT_USER = { id: 'U' + Math.floor(Math.random()*1000), email: userId };
@@ -1300,6 +1305,8 @@ function processMockLogin() {
     
     closeLoginModal();
     updateUserUI();
+    
+    // Reset icon
     sliderThumb.innerHTML = '<i class="fas fa-arrow-right"></i>';
     document.getElementById('loginIdInput').value = '';
     document.getElementById('loginPwInput').value = '';
@@ -1337,12 +1344,20 @@ function clearErrors() {
 
 async function submitCode() {
   const code = document.getElementById('codeInput').value.trim();
-  if (!code) { showError(getT('msg_enter_code')); return; }
+  if (!code) {
+    showError(getT('msg_enter_code'));
+    return;
+  }
 
+  // --- 追加：フロントエンドでのコードフォーマット検証 ---
+  // AAAA-BBBB-CCCC (12文字 + ハイフン2つ)
   const format12 = /^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
+  // AAAA-BBBB-CCCC-DDDD (16文字 + ハイフン3つ)
   const format16 = /^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
+  // AAAAA-BBBBB-CCCCC-DDDDD-EEEEE (25文字 + ハイフン4つ)
   const format25 = /^[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}$/;
 
+  // 上記のいずれのフォーマットにも一致しない場合はAPIを叩かずに弾く
   if (!format12.test(code) && !format16.test(code) && !format25.test(code)) {
     showError(getT('msg_invalid_code')); 
     return;
@@ -1352,7 +1367,11 @@ async function submitCode() {
   submitBtn.disabled = true;
   submitBtn.innerHTML = '<span class="loading-spinner"></span>'; 
 
-  const result = await safeFetch({ type: 'check', code: code, userId: CURRENT_USER?.id || 'GUEST' });
+  const result = await safeFetch({
+    type: 'check',
+    code: code,
+    userId: CURRENT_USER?.id || 'GUEST'
+  });
 
   submitBtn.disabled = false;
   submitBtn.innerHTML = getT('btn_submit');
@@ -1375,8 +1394,10 @@ function showError(message) {
 
 function showPreview(data) {
   document.getElementById('previewTitle').textContent = data.detailedTitle || 'Content Preview';
+
   document.getElementById('previewMessage').textContent = data.message || '';
   document.getElementById('previewDesc').textContent = data.detailedDesc || '';
+
   let statusText = '';
   if (data.isAlreadyOwned) {
     statusText = getT('msg_already_owned');
@@ -1384,37 +1405,47 @@ function showPreview(data) {
     statusText = `${getT('msg_unlocks_on')}${new Date(data.releaseDateIso).toLocaleDateString()}`;
   }
   document.getElementById('previewStatus').textContent = statusText;
+
   document.getElementById('previewModal').classList.add('active');
 }
 
 async function confirmRedeem() {
   if (!PREVIEW_DATA) return;
+
   const redeemBtn = document.getElementById('redeemBtn');
   redeemBtn.disabled = true;
   redeemBtn.innerHTML = '<span class="loading-spinner"></span>';
 
-  const result = await safeFetch({ type: 'redeem', code: PREVIEW_DATA.code, userId: CURRENT_USER?.id || 'GUEST' });
+  const result = await safeFetch({
+    type: 'redeem',
+    code: PREVIEW_DATA.code,
+    userId: CURRENT_USER?.id || 'GUEST'
+  });
 
   redeemBtn.disabled = false;
   redeemBtn.innerHTML = getT('btn_redeem');
 
   if (result.success) {
-    LOCAL_REDEEMED.add(PREVIEW_DATA.code); 
+    // alert(getT('msg_redeem_success')); // 標準アラートを廃止
+    LOCAL_REDEEMED.add(PREVIEW_DATA.code); // 成功したコードをローカル状態に保存
     closePreviewModal();
-    showSuccessModal(); 
+    showSuccessModal(); // 認証風モーダルの呼び出し
   } else {
+    // 失敗時は既存通りブラウザ標準エラー、またはエラーモーダルにしたい場合は適宜調整
     alert(result.message || getT('msg_redeem_failed'));
   }
 }
 
+// 以下の2つの関数を REDEEM FLOW セクションの最後等に追加
 function showSuccessModal() {
   document.getElementById('successModal').classList.add('active');
-  updateTranslations(); 
+  updateTranslations(); // 動的に挿入されたモーダルの多言語テキストを最新化
 }
 
 function closeSuccessModal() {
   document.getElementById('successModal').classList.remove('active');
 }
+
 </script>
 
 </body>
