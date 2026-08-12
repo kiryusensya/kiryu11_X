@@ -1,136 +1,27 @@
 import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
- 
+
 const requestCounts = new Map();
 const RATE_LIMIT_WINDOW = 60 * 1000;
 const MAX_REQUESTS = 100;
- 
-// ==========================================
-// ★追加: URL種別判定・共通プロキシ配信ヘルパー
-// ==========================================
- 
-// URLの種類を判定する (youtube / video(mp4等) / website(通常サイト) / file(直リンクファイル))
-function detectLinkType(rawUrl) {
-    if (!rawUrl) return 'file';
-    const strUrl = String(rawUrl).trim();
- 
-    if (strUrl.includes('youtube.com') || strUrl.includes('youtu.be')) return 'youtube';
- 
-    let pathname = strUrl;
-    try { pathname = new URL(strUrl).pathname; } catch (e) { /* 相対パス等はそのまま扱う */ }
- 
-    const lastSegment = pathname.split('/').pop() || '';
-    const dotIdx = lastSegment.lastIndexOf('.');
-    const ext = dotIdx >= 0 ? lastSegment.slice(dotIdx + 1).toLowerCase() : '';
- 
-    const videoExts = ['mp4', 'webm', 'mov', 'm4v', 'ogv', 'ogg'];
-    if (videoExts.includes(ext)) return 'video';
- 
-    const fileExts = [
-        'zip', 'rar', '7z', 'pdf', 'apk', 'exe', 'dmg', 'pkg', 'msi',
-        'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'iso',
-        'png', 'jpg', 'jpeg', 'gif', 'webp', 'mp3', 'wav', 'flac', 'txt', 'csv'
-    ];
-    if (fileExts.includes(ext)) return 'file';
- 
-    // 拡張子が無い（または .html 等）＝ブラウザで開く通常のWebページとみなす
-    if (!ext || ext === 'html' || ext === 'htm' || ext === 'php' || ext.length > 5) return 'website';
- 
-    return 'file';
-}
- 
-// マスク済みtarget（__MASKED_URL__:index）またはYouTube等の生URLから、実際のURLを復元する共通処理
-function resolveTargetUrl(content, target) {
-    let resolvedUrl = content.Action_url;
- 
-    const pickFromArray = (idx) => {
-        const strUrl = String(content.Action_url).trim();
-        if (!strUrl.startsWith('[')) return null;
-        try {
-            const arr = JSON.parse(strUrl);
-            return (arr[idx] && arr[idx].url) ? arr[idx].url : null;
-        } catch (e) { return null; }
-    };
- 
-    if (target) {
-        const rawTarget = decodeURIComponent(target);
-        if (rawTarget.startsWith('__MASKED_URL__:')) {
-            const idx = parseInt(rawTarget.split(':')[1], 10) || 0;
-            const picked = pickFromArray(idx);
-            if (picked) resolvedUrl = picked;
-        } else {
-            // ダミー文字以外（YouTube・通常サイト等）が送られてきた場合はそのまま使用
-            resolvedUrl = rawTarget;
-        }
-    } else {
-        // targetが無い場合、配列なら先頭要素をデフォルトとして採用
-        const picked = pickFromArray(0);
-        if (picked) resolvedUrl = picked;
-    }
-    return resolvedUrl;
-}
- 
-// fetchしたレスポンスをそのままクライアントへ中継する（ダウンロード/動画ストリーミング共通）
-// inline: true の場合は動画再生等インライン表示向けのヘッダーにする（Rangeリクエストにも対応）
-async function proxyStream(req, res, targetUrl, { inline = false } = {}) {
-    const fetchHeaders = {};
-    if (req.headers.range) fetchHeaders['Range'] = req.headers.range;
- 
-    const fetchResponse = await fetch(targetUrl, { headers: fetchHeaders });
-    if (!fetchResponse.ok && fetchResponse.status !== 206) {
-        return res.status(fetchResponse.status).send(`Error fetching file: ${fetchResponse.statusText}`);
-    }
- 
-    const contentType = fetchResponse.headers.get('content-type');
-    const contentLength = fetchResponse.headers.get('content-length');
-    const contentRange = fetchResponse.headers.get('content-range');
-    const acceptRanges = fetchResponse.headers.get('accept-ranges');
-    const contentDisposition = fetchResponse.headers.get('content-disposition');
- 
-    if (contentType) res.setHeader('Content-Type', contentType);
-    if (contentLength) res.setHeader('Content-Length', contentLength);
-    if (contentRange) res.setHeader('Content-Range', contentRange);
-    res.setHeader('Accept-Ranges', acceptRanges || 'bytes');
- 
-    if (inline) {
-        // 動画などはブラウザ内で再生させたいのでinline指定（ダウンロードダイアログを出さない）
-        res.setHeader('Content-Disposition', 'inline');
-    } else if (contentDisposition) {
-        res.setHeader('Content-Disposition', contentDisposition);
-    } else {
-        res.setHeader('Content-Disposition', 'attachment');
-    }
- 
-    res.status(fetchResponse.status === 206 ? 206 : 200);
- 
-    if (fetchResponse.body) {
-        return fetchResponse.body.pipeTo(new WritableStream({
-            write(chunk) { res.write(chunk); },
-            close() { res.end(); }
-        }));
-    } else {
-        const buffer = await fetchResponse.arrayBuffer();
-        return res.send(Buffer.from(buffer));
-    }
-}
- 
+
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const JWT_SECRET = process.env.JWT_SECRET;
- 
+
 if (!supabaseUrl || !supabaseKey || !JWT_SECRET) {
-  throw new Error("FATAL ERROR: 必須の環境変数が設定されていません。");
+  throw new Error("FATAL ERROR: å¿…é ˆã®ç’°å¢ƒå¤‰æ•°ãŒè¨­å®šã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚");
 }
- 
+
 const supabase = createClient(supabaseUrl, supabaseKey);
- 
+
 const ALLOWED_ORIGINS = [
   'https://kiryu11.vercel.app',
   'https://kiryu11-x.vercel.app',
   'http://localhost:3000'
 ];
- 
+
 export default async function handler(req, res) {
   const origin = req.headers.origin || '';
   if (ALLOWED_ORIGINS.includes(origin)) {
@@ -139,21 +30,21 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
- 
+
   if (req.method === 'OPTIONS') return res.status(200).end();
- 
+
   const originalJson = res.json;
   res.json = function(body) {
     if (body && typeof body === 'object' && !Array.isArray(body)) {
-        // サーバー自身の正確な時刻（UTCベースのエポックミリ秒）を付与
+        // ã‚µãƒ¼ãƒãƒ¼è‡ªèº«ã®æ­£ç¢ºãªæ™‚åˆ»ï¼ˆUTCãƒ™ãƒ¼ã‚¹ã®ã‚¨ãƒãƒƒã‚¯ãƒŸãƒªç§’ï¼‰ã‚’ä»˜ä¸Ž
         body.serverTime = Date.now();
     }
     return originalJson.call(this, body);
   };
- 
+
   try {
     // ==========================================
-    // レートリミット (Rate Limiting)
+    // ãƒ¬ãƒ¼ãƒˆãƒªãƒŸãƒƒãƒˆ (Rate Limiting)
     // ==========================================
     const ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown';
     const now = Date.now();
@@ -166,13 +57,13 @@ export default async function handler(req, res) {
         } else {
             data.count++;
             if (data.count > MAX_REQUESTS) {
-                return res.status(429).json({ success: false, message: "リクエストが多すぎます。しばらく待ってから再試行してください。" });
+                return res.status(429).json({ success: false, message: "ãƒªã‚¯ã‚¨ã‚¹ãƒˆãŒå¤šã™ãŽã¾ã™ã€‚ã—ã°ã‚‰ãå¾…ã£ã¦ã‹ã‚‰å†è©¦è¡Œã—ã¦ãã ã•ã„ã€‚" });
             }
         }
     }
- 
+
     // ==========================================
-    // パラメータ取得
+    // ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿å–å¾—
     // ==========================================
     let params = {};
     if (req.method === 'POST') {
@@ -189,17 +80,17 @@ export default async function handler(req, res) {
     const lang = params.lang || 'ja';
     
     // ==========================================
-    // ★完全に固定: エンタープライズ版API
+    // â˜…å®Œå…¨ã«å›ºå®š: ã‚¨ãƒ³ã‚¿ãƒ¼ãƒ—ãƒ©ã‚¤ã‚ºç‰ˆAPI
     // ==========================================
     const appTier = 'enterprise'; 
- 
+
     // ==========================================
-    // 認証 (JWT Token Verification)
+    // èªè¨¼ (JWT Token Verification)
     // ==========================================
     let authUserId = null;
     let isAdmin = false;
     let token = null;
- 
+
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
         token = authHeader.split(' ')[1];
@@ -215,24 +106,24 @@ export default async function handler(req, res) {
         });
       if (!token && cookies.admin_token) token = cookies.admin_token;
     }
- 
+
     if (token) {
       try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        // ブラックリスト（ログアウト済み）に登録されているか確認
+        // ãƒ–ãƒ©ãƒƒã‚¯ãƒªã‚¹ãƒˆï¼ˆãƒ­ã‚°ã‚¢ã‚¦ãƒˆæ¸ˆã¿ï¼‰ã«ç™»éŒ²ã•ã‚Œã¦ã„ã‚‹ã‹ç¢ºèª
         const { data: revoked } = await supabase.from('revoked_tokens').select('id').eq('token', token).maybeSingle();
         if (revoked) throw new Error("Token has been revoked");
- 
+
         authUserId = decoded.userId;
         isAdmin = decoded.isAdmin || false;
       } catch (e) {
-        token = null; // 無効化
+        token = null; // ç„¡åŠ¹åŒ–
         authUserId = null;
         isAdmin = false;
       }
     }
- 
-    // ▼▼▼ ここから追加: アカウントBANの判定とブロック ▼▼▼
+
+    // â–¼â–¼â–¼ ã“ã“ã‹ã‚‰è¿½åŠ : ã‚¢ã‚«ã‚¦ãƒ³ãƒˆBANã®åˆ¤å®šã¨ãƒ–ãƒ­ãƒƒã‚¯ â–¼â–¼â–¼
     let isBanned = false;
     if (authUserId) {
         const { data: banCheckUser } = await supabase.from('users').select('banned_until, is_admin').eq('id', authUserId).maybeSingle();
@@ -244,143 +135,141 @@ export default async function handler(req, res) {
         }
     }
     
-// ✅ 追加：BAN状態だけ返す（解除検知用）
+// âœ… è¿½åŠ ï¼šBANçŠ¶æ…‹ã ã‘è¿”ã™ï¼ˆè§£é™¤æ¤œçŸ¥ç”¨ï¼‰
 if (type === 'check_ban_status') {
-  // 未ログインならBAN判定できない
+  // æœªãƒ­ã‚°ã‚¤ãƒ³ãªã‚‰BANåˆ¤å®šã§ããªã„
   if (!authUserId) {
     return res.status(200).json({ success: false, isBanned: false, message: "Unauthorized" });
   }
   return res.status(200).json({ success: true, isBanned });
 }
- 
- 
-    // BANされている場合、主要なユーザーアクションで「isBanned: true」を返してフロントでモーダルを出させる
-    const restrictedActions = ['purchase', 'check', 'redeem', 'change_password', 'get_video_url', 'get_media_url', 'get_available', 'get_history'];
+
+
+    // BANã•ã‚Œã¦ã„ã‚‹å ´åˆã€ä¸»è¦ãªãƒ¦ãƒ¼ã‚¶ãƒ¼ã‚¢ã‚¯ã‚·ãƒ§ãƒ³ã§ã€ŒisBanned: trueã€ã‚’è¿”ã—ã¦ãƒ•ãƒ­ãƒ³ãƒˆã§ãƒ¢ãƒ¼ãƒ€ãƒ«ã‚’å‡ºã•ã›ã‚‹
+    const restrictedActions = ['purchase', 'check', 'redeem', 'change_password', 'get_video_url', 'get_available', 'get_history'];
     if (isBanned && restrictedActions.includes(type)) {
-        return res.status(200).json({ success: false, isBanned: true, message: "アクセスが禁止されています。" });
+        return res.status(200).json({ success: false, isBanned: true, message: "ã‚¢ã‚¯ã‚»ã‚¹ãŒç¦æ­¢ã•ã‚Œã¦ã„ã¾ã™ã€‚" });
     }
-    // 直接ファイル/動画を取得するエンドポイントは403で弾く
-    if (isBanned && (type === 'download' || type === 'stream')) {
-        return res.status(403).send("Forbidden: アクセスが禁止されています。");
+    // ç›´æŽ¥ãƒ•ã‚¡ã‚¤ãƒ«ã‚’å–å¾—ã™ã‚‹ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰ã‚¨ãƒ³ãƒ‰ãƒã‚¤ãƒ³ãƒˆã¯403ã§å¼¾ã
+    if (isBanned && type === 'download') {
+        return res.status(403).send("Forbidden: ã‚¢ã‚¯ã‚»ã‚¹ãŒç¦æ­¢ã•ã‚Œã¦ã„ã¾ã™ã€‚");
     }
-    // ▲▲▲ ここまで追加 ▲▲▲
- 
+    // â–²â–²â–² ã“ã“ã¾ã§è¿½åŠ  â–²â–²â–²
+
     // ==========================================
-    // ▼ エラー検索機能 (error.html用) ▼
+    // â–¼ ã‚¨ãƒ©ãƒ¼æ¤œç´¢æ©Ÿèƒ½ (error.htmlç”¨) â–¼
     // ==========================================
     if (type === 'error_search') {
       const { code } = params;
       if (!code) return res.status(200).json({ success: false, message: "Code is required" });
- 
+
       const { data: errData, error } = await supabase.from('errors').select('*').eq('code', code).maybeSingle();
       
       if (error || !errData) {
         return res.status(200).json({ success: false, message: "Error code not found" });
       }
- 
+
       const langColMap = { ja: 'ja', en: 'en', zh: 'zh', 'zh-TW': 'zh_TW', ko: 'ko', ru: 'ru' };
       const colIdx = langColMap[lang] || 'ja';
-      const msg = errData[colIdx] || errData['ja'] || errData.message || "エラー詳細が見つかりません。";
- 
+      const msg = errData[colIdx] || errData['ja'] || errData.message || "ã‚¨ãƒ©ãƒ¼è©³ç´°ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚";
+
       return res.status(200).json({ success: true, code: errData.code, errorMessage: msg });
     }
- 
+
     // ==========================================
-    // ▼ ダウンロード（プロキシ）処理 ▼
+    // â–¼ ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰ï¼ˆãƒ—ãƒ­ã‚­ã‚·ï¼‰å‡¦ç† â–¼
     // ==========================================
     if (type === 'download') {
         const { code, target } = params;
-        if (!authUserId) return res.status(401).send("Unauthorized: ログインが必要です。");
- 
+        if (!authUserId) return res.status(401).send("Unauthorized: ãƒ­ã‚°ã‚¤ãƒ³ãŒå¿…è¦ã§ã™ã€‚");
+
         const { data: userHistories } = await supabase
             .from('histories')
-            .select('id, codes(id, content_id, アクティベーションコード, target_tier, contents(Action_url, "有効時間", "解禁時間", target_tier))')
+            .select('id, codes(id, content_id, ã‚¢ã‚¯ãƒ†ã‚£ãƒ™ãƒ¼ã‚·ãƒ§ãƒ³ã‚³ãƒ¼ãƒ‰, target_tier, contents(Action_url, "æœ‰åŠ¹æ™‚é–“", "è§£ç¦æ™‚é–“", target_tier))')
             .eq('user_id', authUserId);
- 
-        if (!userHistories || userHistories.length === 0) return res.status(403).send("Forbidden: 履歴が存在しません。");
- 
+
+        if (!userHistories || userHistories.length === 0) return res.status(403).send("Forbidden: å±¥æ­´ãŒå­˜åœ¨ã—ã¾ã›ã‚“ã€‚");
+
         const cleanTargetCode = String(code).replace(/[^A-Z0-9]/gi, "").toUpperCase();
         const matchedHistory = userHistories.find(h => {
             if (!h.codes) return false;
             const dbContentId = String(h.codes.content_id);
-            const cleanDbCode = String(h.codes["アクティベーションコード"]).replace(/[^A-Z0-9]/gi, "").toUpperCase();
+            const cleanDbCode = String(h.codes["ã‚¢ã‚¯ãƒ†ã‚£ãƒ™ãƒ¼ã‚·ãƒ§ãƒ³ã‚³ãƒ¼ãƒ‰"]).replace(/[^A-Z0-9]/gi, "").toUpperCase();
             return dbContentId === String(code) || cleanDbCode === cleanTargetCode;
         });
- 
+
         if (!matchedHistory || !matchedHistory.codes || !matchedHistory.codes.contents) {
-            return res.status(403).send("Forbidden: このコンテンツを所有していません。");
+            return res.status(403).send("Forbidden: ã“ã®ã‚³ãƒ³ãƒ†ãƒ³ãƒ„ã‚’æ‰€æœ‰ã—ã¦ã„ã¾ã›ã‚“ã€‚");
         }
- 
+
         const content = matchedHistory.codes.contents;
         
-        // ★ エンタープライズ版APIのため、ブロック処理はバイパス(通過)させます
- 
+        // â˜… ã‚¨ãƒ³ã‚¿ãƒ¼ãƒ—ãƒ©ã‚¤ã‚ºç‰ˆAPIã®ãŸã‚ã€ãƒ–ãƒ­ãƒƒã‚¯å‡¦ç†ã¯ãƒã‚¤ãƒ‘ã‚¹(é€šéŽ)ã•ã›ã¾ã™
+
         const checkNow = new Date();
-        if (content["有効時間"] && checkNow > new Date(content["有効時間"])) return res.status(403).send("Forbidden: 有効期限が切れています。");
-        if (content["解禁時間"] && checkNow < new Date(content["解禁時間"])) return res.status(403).send("Forbidden: まだ解禁されていません。");
- 
-        // ★ URL復元・存在チェック
-        const downloadTargetUrl = resolveTargetUrl(content, target);
-        if (!downloadTargetUrl || String(downloadTargetUrl).startsWith('__MASKED_URL__')) {
-            return res.status(404).send("Not Found: ダウンロードURLが設定されていません。");
+        if (content["æœ‰åŠ¹æ™‚é–“"] && checkNow > new Date(content["æœ‰åŠ¹æ™‚é–“"])) return res.status(403).send("Forbidden: æœ‰åŠ¹æœŸé™ãŒåˆ‡ã‚Œã¦ã„ã¾ã™ã€‚");
+        if (content["è§£ç¦æ™‚é–“"] && checkNow < new Date(content["è§£ç¦æ™‚é–“"])) return res.status(403).send("Forbidden: ã¾ã è§£ç¦ã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚");
+
+        // â˜… URLå¾©å…ƒãƒ»å­˜åœ¨ãƒã‚§ãƒƒã‚¯
+        let downloadTargetUrl = content.Action_url;
+        if (target) {
+            let rawTarget = decodeURIComponent(target);
+            // é€ã‚‰ã‚Œã¦ããŸã®ãŒãƒ€ãƒŸãƒ¼æ–‡å­—ãªã‚‰ã€ãƒ‡ãƒ¼ã‚¿ãƒ™ãƒ¼ã‚¹ã®æœ¬æ¥ã®URLã‚’å¾©å…ƒã™ã‚‹
+            if (rawTarget.startsWith('__MASKED_URL__:')) {
+                const idx = parseInt(rawTarget.split(':')[1], 10) || 0;
+                const strUrl = String(content.Action_url).trim();
+                
+                if (strUrl.startsWith('[')) {
+                    try {
+                        const arr = JSON.parse(strUrl);
+                        if (arr[idx] && arr[idx].url) {
+                            downloadTargetUrl = arr[idx].url;
+                        }
+                    } catch(e) {
+                        // ãƒ‘ãƒ¼ã‚¹å¤±æ•—æ™‚ã¯ãƒ•ã‚©ãƒ¼ãƒ«ãƒãƒƒã‚¯
+                    }
+                }
+            } else {
+                // ãƒ€ãƒŸãƒ¼æ–‡å­—ä»¥å¤–ï¼ˆYouTubeç­‰ï¼‰ãŒé€ã‚‰ã‚Œã¦ããŸå ´åˆã¯ãã®ã¾ã¾ä½¿ç”¨
+                downloadTargetUrl = rawTarget;
+            }
         }
- 
+        
+        // ãƒ€ãƒŸãƒ¼æ–‡å­—ã®ã¾ã¾å¾©å…ƒã§ããªã‹ã£ãŸã‚Šã€URLãŒå­˜åœ¨ã—ãªã„å ´åˆã¯ã‚¨ãƒ©ãƒ¼
+        if (!downloadTargetUrl || downloadTargetUrl.startsWith('__MASKED_URL__')) {
+            return res.status(404).send("Not Found: ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰URLãŒè¨­å®šã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚");
+        }
+
         try {
-            return await proxyStream(req, res, downloadTargetUrl, { inline: false });
+            const fetchResponse = await fetch(downloadTargetUrl);
+            if (!fetchResponse.ok) return res.status(fetchResponse.status).send(`Error fetching file: ${fetchResponse.statusText}`);
+
+            const contentType = fetchResponse.headers.get('content-type');
+            const contentDisposition = fetchResponse.headers.get('content-disposition');
+            if (contentType) res.setHeader('Content-Type', contentType);
+            if (contentDisposition) res.setHeader('Content-Disposition', contentDisposition);
+            else res.setHeader('Content-Disposition', 'attachment');
+
+            if (fetchResponse.body) {
+                return fetchResponse.body.pipeTo(new WritableStream({
+                    write(chunk) { res.write(chunk); },
+                    close() { res.end(); }
+                }));
+            } else {
+                 const buffer = await fetchResponse.arrayBuffer();
+                 return res.send(Buffer.from(buffer));
+            }
         } catch (downloadError) {
-            return res.status(500).send("Internal Server Error: ファイルの取得に失敗しました。");
+            return res.status(500).send("Internal Server Error: ãƒ•ã‚¡ã‚¤ãƒ«ã®å–å¾—ã«å¤±æ•—ã—ã¾ã—ãŸã€‚");
         }
     }
- 
+
     // ==========================================
-    // ▼ 動画ストリーミング（mp4等の直リンク動画をブラウザ内再生用に中継） ▼
-    // ==========================================
-    if (type === 'stream') {
-        const { code, target } = params;
-        if (!authUserId) return res.status(401).send("Unauthorized: ログインが必要です。");
- 
-        const { data: userHistories } = await supabase
-            .from('histories')
-            .select('id, codes(id, content_id, アクティベーションコード, contents(Action_url, "有効時間", "解禁時間"))')
-            .eq('user_id', authUserId);
- 
-        if (!userHistories || userHistories.length === 0) return res.status(403).send("Forbidden: 履歴が存在しません。");
- 
-        const cleanTargetCode = String(code).replace(/[^A-Z0-9]/gi, "").toUpperCase();
-        const matchedHistory = userHistories.find(h => {
-            if (!h.codes) return false;
-            const dbContentId = String(h.codes.content_id);
-            const cleanDbCode = String(h.codes["アクティベーションコード"]).replace(/[^A-Z0-9]/gi, "").toUpperCase();
-            return dbContentId === String(code) || cleanDbCode === cleanTargetCode;
-        });
- 
-        if (!matchedHistory || !matchedHistory.codes || !matchedHistory.codes.contents) {
-            return res.status(403).send("Forbidden: このコンテンツを所有していません。");
-        }
- 
-        const content = matchedHistory.codes.contents;
-        const checkNow = new Date();
-        if (content["有効時間"] && checkNow > new Date(content["有効時間"])) return res.status(403).send("Forbidden: 有効期限が切れています。");
-        if (content["解禁時間"] && checkNow < new Date(content["解禁時間"])) return res.status(403).send("Forbidden: まだ解禁されていません。");
- 
-        const streamTargetUrl = resolveTargetUrl(content, target);
-        if (!streamTargetUrl || String(streamTargetUrl).startsWith('__MASKED_URL__')) {
-            return res.status(404).send("Not Found: 動画URLが設定されていません。");
-        }
- 
-        try {
-            return await proxyStream(req, res, streamTargetUrl, { inline: true });
-        } catch (streamError) {
-            return res.status(500).send("Internal Server Error: 動画の取得に失敗しました。");
-        }
-    }
- 
-    // ==========================================
-    // ▼ アクセスログ・監査ログ ▼
+    // â–¼ ã‚¢ã‚¯ã‚»ã‚¹ãƒ­ã‚°ãƒ»ç›£æŸ»ãƒ­ã‚° â–¼
     // ==========================================
     const userAgent = req.headers['user-agent'] || 'unknown';
     const safeType = type || 'unknown';
-    const ignoredActions = ['get_history', 'get_available', 'error_search', 'admin_get_access_logs', 'admin_search', 'admin_set_points', 'get_video_url', 'get_media_url'];
+    const ignoredActions = ['get_history', 'get_available', 'error_search', 'admin_get_access_logs', 'admin_search', 'admin_set_points', 'get_video_url'];
     
     let targetCode = null;
     if (safeType === 'check' || safeType === 'redeem') {
@@ -407,9 +296,9 @@ if (type === 'check_ban_status') {
             }
         } catch (e) {}
     };
- 
+
     // ==========================================
-    // ▼ 認証系処理 ▼
+    // â–¼ èªè¨¼ç³»å‡¦ç† â–¼
     // ==========================================
     if (type === 'register') {
       const { email, password } = params;
@@ -423,7 +312,7 @@ if (type === 'check_ban_status') {
       if (error) throw error;
       return res.status(200).json({ success: true, userId: newUser.id, message: "OK" });
     }
- 
+
     if (type === 'user_login') {
       const { email, password } = params;
       const { data: user } = await supabase.from('users').select('*').eq('email', email).maybeSingle();
@@ -431,11 +320,11 @@ if (type === 'check_ban_status') {
       if (user && await bcrypt.compare(password, user.password)) {
           const userTier = String(user.app_tier || 'standard').toLowerCase();
           
-          // ★ アカウントの互換性チェック（エンタープライズ版はスタンダードアカウントを弾く）
+          // â˜… ã‚¢ã‚«ã‚¦ãƒ³ãƒˆã®äº’æ›æ€§ãƒã‚§ãƒƒã‚¯ï¼ˆã‚¨ãƒ³ã‚¿ãƒ¼ãƒ—ãƒ©ã‚¤ã‚ºç‰ˆã¯ã‚¹ã‚¿ãƒ³ãƒ€ãƒ¼ãƒ‰ã‚¢ã‚«ã‚¦ãƒ³ãƒˆã‚’å¼¾ãï¼‰
           if (appTier === 'enterprise' && userTier !== 'enterprise') {
               return res.status(200).json({ success: false, message: "Invalid" });
           }
- 
+
           const isUserAdmin = user.is_admin === true;
           if (user.needs_password_change && !isUserAdmin) {
               return res.status(200).json({ success: true, requirePasswordChange: true, userId: user.id });
@@ -453,31 +342,31 @@ if (type === 'check_ban_status') {
       }
       return res.status(200).json({ success: false, message: "Invalid" });
     }
- 
+
     if (type === 'change_password') {
       const { userId, oldPassword, newPassword } = params;
       if (!userId || !oldPassword || !newPassword) return res.status(200).json({ success: false, message: "Missing fields" });
- 
+
       const { data: user } = await supabase.from('users').select('*').eq('id', userId).maybeSingle();
       if (!user) return res.status(200).json({ success: false, message: "User not found" });
- 
+
       const isMatch = await bcrypt.compare(oldPassword, user.password);
       if (!isMatch) return res.status(200).json({ success: false, message: "Invalid current password" });
- 
+
       const hashedNewPassword = await bcrypt.hash(newPassword, 10);
       const { error } = await supabase.from('users').update({ password: hashedNewPassword, needs_password_change: false }).eq('id', userId);
       if (error) return res.status(200).json({ success: false, message: "Database update failed" });
- 
+
       return res.status(200).json({ success: true, message: "Password updated successfully" });
     }
- 
+
     if (type === 'admin_logout') {
         if (token) {
             try {
                 const decoded = jwt.decode(token);
                 if (decoded && decoded.exp) {
                     const expiresAt = new Date(decoded.exp * 1000).toISOString();
-                    // ブラックリストに登録
+                    // ãƒ–ãƒ©ãƒƒã‚¯ãƒªã‚¹ãƒˆã«ç™»éŒ²
                     await supabase.from('revoked_tokens').insert([{ token: token, expires_at: expiresAt }]);
                 }
             } catch (e) {}
@@ -488,24 +377,24 @@ if (type === 'check_ban_status') {
         ]);
         return res.status(200).json({ success: true });
     }
- 
-    // proxy.js の type判定の並び（admin_logoutの下など）に追加
+
+    // proxy.js ã® typeåˆ¤å®šã®ä¸¦ã³ï¼ˆadmin_logoutã®ä¸‹ãªã©ï¼‰ã«è¿½åŠ 
     if (type === 'admin_verify') {
         if (!isAdmin || !authUserId) return res.status(401).json({ success: false, message: "Unauthorized" });
-        // 必要に応じてデータベース上で現在も管理者権限を持っているか再確認する
+        // å¿…è¦ã«å¿œã˜ã¦ãƒ‡ãƒ¼ã‚¿ãƒ™ãƒ¼ã‚¹ä¸Šã§ç¾åœ¨ã‚‚ç®¡ç†è€…æ¨©é™ã‚’æŒã£ã¦ã„ã‚‹ã‹å†ç¢ºèªã™ã‚‹
         const { data: adminUser } = await supabase.from('users').select('is_admin').eq('id', authUserId).maybeSingle();
-        if (!adminUser || !adminUser.is_admin) return res.status(401).json({ success: false, message: "管理者権限が取り消されています" });
+        if (!adminUser || !adminUser.is_admin) return res.status(401).json({ success: false, message: "ç®¡ç†è€…æ¨©é™ãŒå–ã‚Šæ¶ˆã•ã‚Œã¦ã„ã¾ã™" });
         
         return res.status(200).json({ success: true });
     }
- 
+
     // ==========================================
-    // ▼ 管理者用機能 (完全実装) ▼
+    // â–¼ ç®¡ç†è€…ç”¨æ©Ÿèƒ½ (å®Œå…¨å®Ÿè£…) â–¼
     // ==========================================
     if (type.startsWith('admin_')) {
-        if (!isAdmin) return res.status(401).json({ success: false, message: "管理者権限がありません" });
+        if (!isAdmin) return res.status(401).json({ success: false, message: "ç®¡ç†è€…æ¨©é™ãŒã‚ã‚Šã¾ã›ã‚“" });
         
-        // 1. アクセスログ取得
+        // 1. ã‚¢ã‚¯ã‚»ã‚¹ãƒ­ã‚°å–å¾—
         if (type === 'admin_get_access_logs') {
             const limit = params.limit || 100;
             const { data: logs, error } = await supabase.from('access_logs')
@@ -513,30 +402,30 @@ if (type === 'check_ban_status') {
                 .neq('action_type', 'admin_get_access_logs')
                 .order('created_at', { ascending: false })
                 .limit(limit);
- 
-            if (error) return res.status(200).json({ success: false, message: "ログの取得に失敗しました", error: error.message });
- 
+
+            if (error) return res.status(200).json({ success: false, message: "ãƒ­ã‚°ã®å–å¾—ã«å¤±æ•—ã—ã¾ã—ãŸ", error: error.message });
+
             const formattedLogs = (logs || []).map(log => ({
                 id: log.id,
-                // ★ 修正: 日本時間に固定して出力
+                // â˜… ä¿®æ­£: æ—¥æœ¬æ™‚é–“ã«å›ºå®šã—ã¦å‡ºåŠ›
                 date: new Date(log.created_at).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }),
                 ip: log.ip_address,
                 type: log.action_type,
                 code: log.target_code || '-',
-                email: log.user_id ? `ID: ${log.user_id.substring(0, 8)}...` : '未ログイン (GUEST)',
+                email: log.user_id ? `ID: ${log.user_id.substring(0, 8)}...` : 'æœªãƒ­ã‚°ã‚¤ãƒ³ (GUEST)',
                 userAgent: log.user_agent,
-                appTier: log.app_tier || '不明'
+                appTier: log.app_tier || 'ä¸æ˜Ž'
             }));
             return res.status(200).json({ success: true, logs: formattedLogs });
         }
         
-        // 2. ユーザー作成
+        // 2. ãƒ¦ãƒ¼ã‚¶ãƒ¼ä½œæˆ
         if (type === 'admin_create_user') {
             const { email, password, target_tier } = params; 
-            const tierToAssign = target_tier || 'standard'; // ★追加: HTMLから受け取ったTier
+            const tierToAssign = target_tier || 'standard'; // â˜…è¿½åŠ : HTMLã‹ã‚‰å—ã‘å–ã£ãŸTier
             if (!email || !password) return res.status(200).json({ success: false, message: "Missing credentials" });
             const { data: existing } = await supabase.from('users').select('id').eq('email', email).maybeSingle();
-            if (existing) return res.status(200).json({ success: false, message: "そのIDは既に存在します" });
+            if (existing) return res.status(200).json({ success: false, message: "ãã®IDã¯æ—¢ã«å­˜åœ¨ã—ã¾ã™" });
             
             const hashedPassword = await bcrypt.hash(password, 10);
             const { error } = await supabase.from('users').insert([{ email, password: hashedPassword, points: 0, needs_password_change: true, app_tier: tierToAssign }]);
@@ -544,8 +433,8 @@ if (type === 'check_ban_status') {
             await logAudit('CREATE_USER', email, { tier: tierToAssign });
             return res.status(200).json({ success: true, message: "OK" });
         }
- 
-        // 3. パスワードリセット
+
+        // 3. ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ãƒªã‚»ãƒƒãƒˆ
         if (type === 'admin_reset_password') {
             const { targetEmail, newPassword } = params;
             if (!targetEmail || !newPassword) return res.status(200).json({ success: false, message: "Missing credentials" });
@@ -555,50 +444,50 @@ if (type === 'check_ban_status') {
             await logAudit('RESET_PASSWORD', targetEmail, {});
             return res.status(200).json({ success: true });
         }
- 
-      // ▼▼▼ ここから追加: アカウント停止 (BAN) 機能 ▼▼▼
+
+      // â–¼â–¼â–¼ ã“ã“ã‹ã‚‰è¿½åŠ : ã‚¢ã‚«ã‚¦ãƒ³ãƒˆåœæ­¢ (BAN) æ©Ÿèƒ½ â–¼â–¼â–¼
         if (type === 'admin_ban_user') {
             const { targetEmail, banType, banUntil } = params;
             if (!targetEmail || !banType) return res.status(200).json({ success: false, message: "Missing parameters" });
- 
+
             let targetDate = null;
             if (banType === 'temporary' && banUntil) {
-                // ★ 修正: 送られてきた日時(YYYY-MM-DDThh:mm)を日本時間(+09:00)として解釈し、DB保存用のUTCに変換
+                // â˜… ä¿®æ­£: é€ã‚‰ã‚Œã¦ããŸæ—¥æ™‚(YYYY-MM-DDThh:mm)ã‚’æ—¥æœ¬æ™‚é–“(+09:00)ã¨ã—ã¦è§£é‡ˆã—ã€DBä¿å­˜ç”¨ã®UTCã«å¤‰æ›
                 targetDate = new Date(banUntil + '+09:00').toISOString();
             } else if (banType === 'permanent') {
-                targetDate = '2099-12-31T23:59:59.000Z'; // 永久BANは未来の日付を設定
-            } // 'none' (解除) の場合は null のまま
- 
+                targetDate = '2099-12-31T23:59:59.000Z'; // æ°¸ä¹…BANã¯æœªæ¥ã®æ—¥ä»˜ã‚’è¨­å®š
+            } // 'none' (è§£é™¤) ã®å ´åˆã¯ null ã®ã¾ã¾
+
             const { error } = await supabase.from('users').update({ banned_until: targetDate }).eq('email', targetEmail);
             if (error) return res.status(200).json({ success: false, message: error.message });
- 
+
             await logAudit('BAN_USER', targetEmail, { banType, targetDate });
-            return res.status(200).json({ success: true, message: "アカウントのアクセス制限を適用しました" });
+            return res.status(200).json({ success: true, message: "ã‚¢ã‚«ã‚¦ãƒ³ãƒˆã®ã‚¢ã‚¯ã‚»ã‚¹åˆ¶é™ã‚’é©ç”¨ã—ã¾ã—ãŸ" });
         }
- 
-       // 4. ユーザー情報検索
+
+       // 4. ãƒ¦ãƒ¼ã‚¶ãƒ¼æƒ…å ±æ¤œç´¢
         if (type === 'admin_search') {
             const { targetEmail } = params;
             const { data: user, error } = await supabase.from('users').select('id, email, points, app_tier, banned_until').eq('email', targetEmail).maybeSingle();
-            if (error || !user) return res.status(200).json({ success: false, message: "ユーザーが見つかりません" });
- 
+            if (error || !user) return res.status(200).json({ success: false, message: "ãƒ¦ãƒ¼ã‚¶ãƒ¼ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“" });
+
             const { data: histories } = await supabase.from('histories')
                 .select('created_at, codes(*, contents(*))')
                 .eq('user_id', user.id)
                 .order('created_at', { ascending: false });
- 
+
             const historyList = (histories || []).map(h => {
                 const codeData = h.codes || {};
                 const contentData = codeData.contents || {};
                 
                 return {
-                    title: contentData['タイトル(jp)'] || '不明なコンテンツ',
-                    code: codeData['アクティベーションコード'] || '-',
-                    // ★ 修正: 履歴の日時を日本時間に固定
+                    title: contentData['ã‚¿ã‚¤ãƒˆãƒ«(jp)'] || 'ä¸æ˜Žãªã‚³ãƒ³ãƒ†ãƒ³ãƒ„',
+                    code: codeData['ã‚¢ã‚¯ãƒ†ã‚£ãƒ™ãƒ¼ã‚·ãƒ§ãƒ³ã‚³ãƒ¼ãƒ‰'] || '-',
+                    // â˜… ä¿®æ­£: å±¥æ­´ã®æ—¥æ™‚ã‚’æ—¥æœ¬æ™‚é–“ã«å›ºå®š
                     date: new Date(h.created_at).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })
                 };
             });
- 
+
             return res.status(200).json({ 
                 success: true, 
                 userId: user.email, 
@@ -608,8 +497,8 @@ if (type === 'check_ban_status') {
                 history: historyList 
             });
         }
- 
-        // 5. ポイント付与・変更
+
+        // 5. ãƒã‚¤ãƒ³ãƒˆä»˜ä¸Žãƒ»å¤‰æ›´
         if (type === 'admin_set_points') {
             const { targetEmail, amount } = params;
             const { error } = await supabase.from('users').update({ points: amount }).eq('email', targetEmail);
@@ -617,14 +506,14 @@ if (type === 'check_ban_status') {
             await logAudit('SET_POINTS', targetEmail, { amount });
             return res.status(200).json({ success: true });
         }
-      // ★ 追加: 5-2. ユーザー権限(Tier)の変更
+      // â˜… è¿½åŠ : 5-2. ãƒ¦ãƒ¼ã‚¶ãƒ¼æ¨©é™(Tier)ã®å¤‰æ›´
         if (type === 'admin_set_tier') {
             const { targetEmail, targetTier } = params;
             if (!targetEmail || !targetTier) {
-                return res.status(200).json({ success: false, message: "必要なパラメータが不足しています" });
+                return res.status(200).json({ success: false, message: "å¿…è¦ãªãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ãŒä¸è¶³ã—ã¦ã„ã¾ã™" });
             }
             
-            // Tierの値を standard か enterprise にバリデーション
+            // Tierã®å€¤ã‚’ standard ã‹ enterprise ã«ãƒãƒªãƒ‡ãƒ¼ã‚·ãƒ§ãƒ³
             const safeTier = targetTier === 'enterprise' ? 'enterprise' : 'standard';
             
             const { error } = await supabase.from('users').update({ app_tier: safeTier }).eq('email', targetEmail);
@@ -633,38 +522,38 @@ if (type === 'check_ban_status') {
                 return res.status(200).json({ success: false, message: error.message });
             }
             
-            // 監査ログに権限変更を記録
+            // ç›£æŸ»ãƒ­ã‚°ã«æ¨©é™å¤‰æ›´ã‚’è¨˜éŒ²
             await logAudit('SET_TIER', targetEmail, { newTier: safeTier });
             
-            return res.status(200).json({ success: true, message: `権限を ${safeTier} に変更しました` });
+            return res.status(200).json({ success: true, message: `æ¨©é™ã‚’ ${safeTier} ã«å¤‰æ›´ã—ã¾ã—ãŸ` });
         }
- 
-        // 6. ユーザー削除
+
+        // 6. ãƒ¦ãƒ¼ã‚¶ãƒ¼å‰Šé™¤
         if (type === 'admin_delete_user') {
             const { targetEmail, adminPassword } = params;
             
-            // 再認証: 送信された管理者のパスワードを検証
-            if (!adminPassword) return res.status(200).json({ success: false, message: "再認証のため管理者パスワードが必要です" });
+            // å†èªè¨¼: é€ä¿¡ã•ã‚ŒãŸç®¡ç†è€…ã®ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ã‚’æ¤œè¨¼
+            if (!adminPassword) return res.status(200).json({ success: false, message: "å†èªè¨¼ã®ãŸã‚ç®¡ç†è€…ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ãŒå¿…è¦ã§ã™" });
             const { data: adminUser } = await supabase.from('users').select('password').eq('id', authUserId).maybeSingle();
             if (!adminUser || !(await bcrypt.compare(adminPassword, adminUser.password))) {
-                return res.status(200).json({ success: false, message: "管理者パスワードが間違っています。操作は取り消されました" });
+                return res.status(200).json({ success: false, message: "ç®¡ç†è€…ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ãŒé–“é•ã£ã¦ã„ã¾ã™ã€‚æ“ä½œã¯å–ã‚Šæ¶ˆã•ã‚Œã¾ã—ãŸ" });
             }
- 
+
             const { data: user } = await supabase.from('users').select('id').eq('email', targetEmail).maybeSingle();
-            if (!user) return res.status(200).json({ success: false, message: "ユーザーが見つかりません" });
+            if (!user) return res.status(200).json({ success: false, message: "ãƒ¦ãƒ¼ã‚¶ãƒ¼ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“" });
             const { error } = await supabase.from('users').delete().eq('email', targetEmail);
             if (error) return res.status(200).json({ success: false, message: error.message });
             await logAudit('DELETE_USER', targetEmail, {});
             return res.status(200).json({ success: true });
         }
- 
-        // 7. 所持コンテンツ剥奪
+
+        // 7. æ‰€æŒã‚³ãƒ³ãƒ†ãƒ³ãƒ„å‰¥å¥ª
         if (type === 'admin_revoke_content') {
             const { targetEmail, code } = params;
             const { data: user } = await supabase.from('users').select('id').eq('email', targetEmail).maybeSingle();
-            if (!user) return res.status(200).json({ success: false, message: "ユーザーが見つかりません" });
- 
-            const { data: codeData } = await supabase.from('codes').select('id').eq('アクティベーションコード', code).maybeSingle();
+            if (!user) return res.status(200).json({ success: false, message: "ãƒ¦ãƒ¼ã‚¶ãƒ¼ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“" });
+
+            const { data: codeData } = await supabase.from('codes').select('id').eq('ã‚¢ã‚¯ãƒ†ã‚£ãƒ™ãƒ¼ã‚·ãƒ§ãƒ³ã‚³ãƒ¼ãƒ‰', code).maybeSingle();
             if (codeData) {
                 const { error } = await supabase.from('histories').delete().eq('user_id', user.id).eq('code_id', codeData.id);
                 if (error) return res.status(200).json({ success: false, message: error.message });
@@ -672,11 +561,11 @@ if (type === 'check_ban_status') {
             await logAudit('REVOKE_CONTENT', targetEmail, { code });
             return res.status(200).json({ success: true });
         }
- 
-        // 8. コンテンツ(マスターデータ)登録・更新
+
+        // 8. ã‚³ãƒ³ãƒ†ãƒ³ãƒ„(ãƒžã‚¹ã‚¿ãƒ¼ãƒ‡ãƒ¼ã‚¿)ç™»éŒ²ãƒ»æ›´æ–°
         if (type === 'admin_save_content') {
             const { payload } = params;
-            if (!payload) return res.status(200).json({ success: false, message: "データがありません" });
+            if (!payload) return res.status(200).json({ success: false, message: "ãƒ‡ãƒ¼ã‚¿ãŒã‚ã‚Šã¾ã›ã‚“" });
             
             let result;
             if (payload.id) {
@@ -688,34 +577,34 @@ if (type === 'check_ban_status') {
             await logAudit('SAVE_CONTENT', 'system', { contentId: result.data.id });
             return res.status(200).json({ success: true, contentId: result.data.id });
         }
- 
-        // 9. コード発行
+
+        // 9. ã‚³ãƒ¼ãƒ‰ç™ºè¡Œ
         if (type === 'admin_create_code') {
-            const { contentId, code, codeType, pointPpp, isActive, targetTier } = params; // ★ targetTierを追加
+            const { contentId, code, codeType, pointPpp, isActive, targetTier } = params; // â˜… targetTierã‚’è¿½åŠ 
             const { error } = await supabase.from('codes').insert([{
                 content_id: contentId,
-                'アクティベーションコード': code,
+                'ã‚¢ã‚¯ãƒ†ã‚£ãƒ™ãƒ¼ã‚·ãƒ§ãƒ³ã‚³ãƒ¼ãƒ‰': code,
                 Types: codeType,
                 'Point PPP': pointPpp,
-                '有効/無効': isActive,
+                'æœ‰åŠ¹/ç„¡åŠ¹': isActive,
                 'USED?': false,
-                target_tier: targetTier // ★ データベースにTierを保存
+                target_tier: targetTier // â˜… ãƒ‡ãƒ¼ã‚¿ãƒ™ãƒ¼ã‚¹ã«Tierã‚’ä¿å­˜
             }]);
             if (error) return res.status(200).json({ success: false, message: error.message });
             await logAudit('CREATE_CODE', 'system', { code });
             return res.status(200).json({ success: true });
         }
- 
-        // 10. コードステータス確認
+
+        // 10. ã‚³ãƒ¼ãƒ‰ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ç¢ºèª
         if (type === 'admin_check_code') {
             const { code } = params;
-            // ★追加: target_tier を取得するよう変更
-            const { data: codeData, error } = await supabase.from('codes').select('*, contents("タイトル(jp)", target_tier)').eq('アクティベーションコード', code).maybeSingle();
-            if (error || !codeData) return res.status(200).json({ success: false, message: "コードが見つかりません" });
- 
+            // â˜…è¿½åŠ : target_tier ã‚’å–å¾—ã™ã‚‹ã‚ˆã†å¤‰æ›´
+            const { data: codeData, error } = await supabase.from('codes').select('*, contents("ã‚¿ã‚¤ãƒˆãƒ«(jp)", target_tier)').eq('ã‚¢ã‚¯ãƒ†ã‚£ãƒ™ãƒ¼ã‚·ãƒ§ãƒ³ã‚³ãƒ¼ãƒ‰', code).maybeSingle();
+            if (error || !codeData) return res.status(200).json({ success: false, message: "ã‚³ãƒ¼ãƒ‰ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“" });
+
             let usedTime = null;
             let usedBy = null;
- 
+
             if (codeData['USED?']) {
                 const { data: hist } = await supabase.from('histories').select('created_at, users(email)').eq('code_id', codeData.id).maybeSingle();
                 if (hist) {
@@ -724,26 +613,26 @@ if (type === 'check_ban_status') {
                 }
             }
             
-            // ★ コードの階層、またはコンテンツの階層を判別
+            // â˜… ã‚³ãƒ¼ãƒ‰ã®éšŽå±¤ã€ã¾ãŸã¯ã‚³ãƒ³ãƒ†ãƒ³ãƒ„ã®éšŽå±¤ã‚’åˆ¤åˆ¥
             const tTier = codeData.target_tier || codeData.contents?.target_tier || 'all';
- 
+
             return res.status(200).json({
                 success: true,
-                code: codeData['アクティベーションコード'],
-                title: codeData.contents?.['タイトル(jp)'],
+                code: codeData['ã‚¢ã‚¯ãƒ†ã‚£ãƒ™ãƒ¼ã‚·ãƒ§ãƒ³ã‚³ãƒ¼ãƒ‰'],
+                title: codeData.contents?.['ã‚¿ã‚¤ãƒˆãƒ«(jp)'],
                 isUsed: codeData['USED?'],
                 usedTime,
                 usedBy,
-                targetTier: tTier // ★追加: 確認結果としてTierを返す
+                targetTier: tTier // â˜…è¿½åŠ : ç¢ºèªçµæžœã¨ã—ã¦Tierã‚’è¿”ã™
             });
         }
- 
-        // 11. コードステータス(使用済み)の解除
+
+        // 11. ã‚³ãƒ¼ãƒ‰ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹(ä½¿ç”¨æ¸ˆã¿)ã®è§£é™¤
         if (type === 'admin_reset_code') {
             const { code } = params;
-            const { data: codeData } = await supabase.from('codes').select('id').eq('アクティベーションコード', code).maybeSingle();
-            if (!codeData) return res.status(200).json({ success: false, message: "コードが見つかりません" });
- 
+            const { data: codeData } = await supabase.from('codes').select('id').eq('ã‚¢ã‚¯ãƒ†ã‚£ãƒ™ãƒ¼ã‚·ãƒ§ãƒ³ã‚³ãƒ¼ãƒ‰', code).maybeSingle();
+            if (!codeData) return res.status(200).json({ success: false, message: "ã‚³ãƒ¼ãƒ‰ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“" });
+
             await supabase.from('histories').delete().eq('code_id', codeData.id);
             const { error } = await supabase.from('codes').update({ 'USED?': false }).eq('id', codeData.id);
             
@@ -753,119 +642,100 @@ if (type === 'check_ban_status') {
         }
     }
     // ==========================================
-    // ▼ 視聴・閲覧用の一時URL取得処理（YouTube / mp4動画 / 通常サイト / ファイル を判別） ▼
+    // â–¼ å‹•ç”»è¦–è´ç”¨ã®ä¸€æ™‚URLå–å¾—å‡¦ç† â–¼
     // ==========================================
-    if (type === 'get_video_url' || type === 'get_media_url') {
+    if (type === 'get_video_url') {
         const { code, target } = params;
         if (!authUserId) return res.status(401).json({ success: false, message: "Unauthorized" });
- 
+
         const { data: userHistories } = await supabase.from('histories')
-            .select('id, codes(id, content_id, アクティベーションコード, contents(Action_url, "有効時間", "解禁時間"))')
+            .select('id, codes(id, content_id, ã‚¢ã‚¯ãƒ†ã‚£ãƒ™ãƒ¼ã‚·ãƒ§ãƒ³ã‚³ãƒ¼ãƒ‰, contents(Action_url, "æœ‰åŠ¹æ™‚é–“", "è§£ç¦æ™‚é–“"))')
             .eq('user_id', authUserId);
- 
+
         if (!userHistories || userHistories.length === 0) return res.status(403).json({ success: false, message: "Forbidden" });
- 
+
         const cleanTargetCode = String(code).replace(/[^A-Z0-9]/gi, "").toUpperCase();
         const matchedHistory = userHistories.find(h => {
             if (!h.codes) return false;
             const dbContentId = String(h.codes.content_id);
-            const cleanDbCode = String(h.codes["アクティベーションコード"]).replace(/[^A-Z0-9]/gi, "").toUpperCase();
+            const cleanDbCode = String(h.codes["ã‚¢ã‚¯ãƒ†ã‚£ãƒ™ãƒ¼ã‚·ãƒ§ãƒ³ã‚³ãƒ¼ãƒ‰"]).replace(/[^A-Z0-9]/gi, "").toUpperCase();
             return dbContentId === String(code) || cleanDbCode === cleanTargetCode;
         });
- 
+
         if (!matchedHistory || !matchedHistory.codes || !matchedHistory.codes.contents) return res.status(403).json({ success: false, message: "Forbidden" });
- 
+
         const content = matchedHistory.codes.contents;
         const checkNow = new Date();
- 
-        if (content["有効時間"] && checkNow > new Date(content["有効時間"])) return res.status(403).json({ success: false, message: "Expired" });
-        if (content["解禁時間"] && checkNow < new Date(content["解禁時間"])) return res.status(403).json({ success: false, message: "Locked" });
- 
-        const resolvedUrl = resolveTargetUrl(content, target);
-        if (!resolvedUrl || String(resolvedUrl).startsWith('__MASKED_URL__')) {
-            return res.status(404).json({ success: false, message: "URL not found" });
-        }
- 
-        const linkType = detectLinkType(resolvedUrl);
- 
-        // --- YouTube: 従来通りembed URLを返す ---
-        if (linkType === 'youtube') {
-            let embedUrl = "";
+
+        if (content["æœ‰åŠ¹æ™‚é–“"] && checkNow > new Date(content["æœ‰åŠ¹æ™‚é–“"])) return res.status(403).json({ success: false, message: "Expired" });
+        if (content["è§£ç¦æ™‚é–“"] && checkNow < new Date(content["è§£ç¦æ™‚é–“"])) return res.status(403).json({ success: false, message: "Locked" });
+
+        let videoUrl = content.Action_url;
+        if (target) {
+            videoUrl = decodeURIComponent(target);
+        } else {
             try {
-                const urlStr = String(resolvedUrl);
-                if (urlStr.includes('youtube.com/watch')) {
-                    const videoId = new URL(urlStr).searchParams.get('v');
-                    if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}?rel=0`;
-                } else if (urlStr.includes('youtu.be/')) {
-                    const videoId = urlStr.split('youtu.be/')[1].split('?')[0];
-                    if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}?rel=0`;
+                if (videoUrl && String(videoUrl).trim().startsWith('[')) {
+                    const parsedArr = JSON.parse(videoUrl);
+                    const ytItem = parsedArr.find(obj => obj.url && (obj.url.includes('youtube.com') || obj.url.includes('youtu.be')));
+                    if (ytItem) videoUrl = ytItem.url;
                 }
             } catch (e) {}
-            if (!embedUrl) return res.status(400).json({ success: false, message: "Invalid YouTube URL" });
-            return res.status(200).json({ success: true, mediaType: 'youtube', embedUrl });
         }
- 
-        // --- mp4等の直リンク動画: 自前のstreamエンドポイント経由で配信し、元URLは隠す ---
-        if (linkType === 'video') {
-            const streamTarget = encodeURIComponent(target || resolvedUrl);
-            const streamUrl = `/api/proxy?type=stream&code=${encodeURIComponent(code)}&target=${streamTarget}${token ? `&token=${encodeURIComponent(token)}` : ''}`;
-            return res.status(200).json({ success: true, mediaType: 'video', streamUrl });
-        }
- 
-        // --- 通常サイト: iframe埋め込み or 新規タブ用に実URLを返す ---
-        if (linkType === 'website') {
-            return res.status(200).json({ success: true, mediaType: 'website', embedUrl: resolvedUrl });
-        }
- 
-        // --- それ以外（zip/pdf等の直リンクファイル）: ダウンロード用エンドポイントへ誘導 ---
-        const dlTarget = encodeURIComponent(target || resolvedUrl);
-        const downloadUrl = `/api/proxy?type=download&code=${encodeURIComponent(code)}&target=${dlTarget}${token ? `&token=${encodeURIComponent(token)}` : ''}`;
-        return res.status(200).json({ success: true, mediaType: 'file', downloadUrl });
+
+        let embedUrl = "";
+        try {
+            const urlStr = String(videoUrl);
+            if (urlStr.includes('youtube.com/watch')) {
+                const videoId = new URL(urlStr).searchParams.get('v');
+                if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}?rel=0`;
+            } else if (urlStr.includes('youtu.be/')) {
+                const videoId = urlStr.split('youtu.be/')[1].split('?')[0];
+                if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}?rel=0`;
+            }
+        } catch (e) {}
+
+        if (!embedUrl) return res.status(400).json({ success: false, message: "Invalid YouTube URL" });
+        return res.status(200).json({ success: true, embedUrl: embedUrl });
     }
     // ==========================================
-    // ★ 直リンク隠蔽（マスキング）用ヘルパー関数
-    // ==========================================
-    const maskActionUrl = (rawUrl) => {
-      if (!rawUrl) return null;
-      let strUrl = String(rawUrl).trim();
- 
-      // JSON配列（複数リンク）の場合、各URLをダミー文字列に置き換える
-      if (strUrl.startsWith('[')) {
-          try {
-              const arr = JSON.parse(strUrl);
-              const maskedArr = arr.map((item, index) => {
-                  const linkType = detectLinkType(item.url);
-                  // YouTubeは動画再生に直接必要なので隠蔽しない。
-                  // mp4動画・通常サイト・ファイルは全て隠蔽し、linkTypeをフロントに伝えて
-                  // get_media_url / stream / download の使い分けをさせる。
-                  const isYouTube = linkType === 'youtube';
-                  return {
-                      ...item,
-                      linkType,
-                      url: isYouTube ? item.url : `__MASKED_URL__:${index}`
-                  };
-              });
-              return JSON.stringify(maskedArr);
-          } catch (e) {
-              return `__MASKED_URL__:0`;
-          }
+// â˜… ç›´ãƒªãƒ³ã‚¯éš è”½ï¼ˆãƒžã‚¹ã‚­ãƒ³ã‚°ï¼‰ç”¨ãƒ˜ãƒ«ãƒ‘ãƒ¼é–¢æ•°
+// ==========================================
+const maskActionUrl = (rawUrl) => {
+  if (!rawUrl) return null;
+  let strUrl = String(rawUrl).trim();
+  
+  // JSONé…åˆ—ï¼ˆè¤‡æ•°ãƒªãƒ³ã‚¯ï¼‰ã®å ´åˆã€å„URLã‚’ãƒ€ãƒŸãƒ¼æ–‡å­—åˆ—ã«ç½®ãæ›ãˆã‚‹
+  if (strUrl.startsWith('[')) {
+      try {
+          const arr = JSON.parse(strUrl);
+          const maskedArr = arr.map((item, index) => {
+              // YouTubeã¯å‹•ç”»å†ç”Ÿã«ç›´æŽ¥å¿…è¦ãªã®ã§éš è”½ã—ãªã„
+              const isYouTube = item.url && (item.url.includes('youtube.com') || item.url.includes('youtu.be'));
+              return {
+                  ...item,
+                  url: isYouTube ? item.url : `__MASKED_URL__:${index}`
+              };
+          });
+          return JSON.stringify(maskedArr);
+      } catch (e) {
+          return `__MASKED_URL__:0`;
       }
- 
-      // 単一リンクの場合
-      const linkType = detectLinkType(strUrl);
-      if (linkType === 'youtube') return strUrl;
- 
-      // mp4動画・通常サイト・ファイルはすべて完全にダミー文字列へ置き換える
-      // （フロントは content.url が __MASKED_URL__ の場合、get_media_url を呼んで
-      //   mediaType (video/website/file) に応じた表示方法を選択する）
-      return `__MASKED_URL__:0`;
-    };
- 
+  }
+  
+  // å˜ä¸€ãƒªãƒ³ã‚¯ã®å ´åˆ
+  const isYouTube = strUrl.includes('youtube.com') || strUrl.includes('youtu.be');
+  if (isYouTube) return strUrl; 
+  
+  // Wixãªã©ã®ç›´ãƒªãƒ³ã‚¯ã¯å®Œå…¨ã«ãƒ€ãƒŸãƒ¼æ–‡å­—åˆ—ã«ç½®ãæ›ãˆã‚‹
+  return `__MASKED_URL__:0`;
+};
+
     // ==========================================
-    // ▼ 一般ユーザー用機能 ▼
+    // â–¼ ä¸€èˆ¬ãƒ¦ãƒ¼ã‚¶ãƒ¼ç”¨æ©Ÿèƒ½ â–¼
     // ==========================================
     // ==========================================
-    // ▼ サポートリンク集機能 ▼
+    // â–¼ ã‚µãƒãƒ¼ãƒˆãƒªãƒ³ã‚¯é›†æ©Ÿèƒ½ â–¼
     // ==========================================
     if (type === 'get_support_links') {
         const { data: links, error } = await supabase
@@ -873,35 +743,35 @@ if (type === 'check_ban_status') {
             .select('*')
             .eq('is_active', true)
             .order('sort_order', { ascending: true });
- 
+
         if (error) {
-            return res.status(500).json({ success: false, message: "リンクの取得に失敗しました。" });
+            return res.status(500).json({ success: false, message: "ãƒªãƒ³ã‚¯ã®å–å¾—ã«å¤±æ•—ã—ã¾ã—ãŸã€‚" });
         }
         return res.status(200).json({ success: true, links: links || [] });
     }
- 
-    // ▼ ブラックリスト方式に変更
+
+    // â–¼ ãƒ–ãƒ©ãƒƒã‚¯ãƒªã‚¹ãƒˆæ–¹å¼ã«å¤‰æ›´
     if (type === 'auth_instagram') {
         const { username } = params;
-        if (!username) return res.status(200).json({ success: false, message: "ユーザー名を入力してください" });
- 
-        // Supabaseのブラックリストを検索 (大文字小文字を区別せずに一致チェック)
+        if (!username) return res.status(200).json({ success: false, message: "ãƒ¦ãƒ¼ã‚¶ãƒ¼åã‚’å…¥åŠ›ã—ã¦ãã ã•ã„" });
+
+        // Supabaseã®ãƒ–ãƒ©ãƒƒã‚¯ãƒªã‚¹ãƒˆã‚’æ¤œç´¢ (å¤§æ–‡å­—å°æ–‡å­—ã‚’åŒºåˆ¥ã›ãšã«ä¸€è‡´ãƒã‚§ãƒƒã‚¯)
         const { data: blockedUser, error } = await supabase
             .from('blocked_instagram_users')
             .select('username')
             .ilike('username', username)
             .maybeSingle();
- 
-        // ブラックリストに登録されている場合 -> 拒否
+
+        // ãƒ–ãƒ©ãƒƒã‚¯ãƒªã‚¹ãƒˆã«ç™»éŒ²ã•ã‚Œã¦ã„ã‚‹å ´åˆ -> æ‹’å¦
         if (blockedUser) {
             await logAudit('INSTAGRAM_AUTH_BLOCKED', username, { status: 'blocked' });
-            return res.status(403).json({ success: false, message: "このアカウントからのアクセスは制限されています。" });
+            return res.status(403).json({ success: false, message: "ã“ã®ã‚¢ã‚«ã‚¦ãƒ³ãƒˆã‹ã‚‰ã®ã‚¢ã‚¯ã‚»ã‚¹ã¯åˆ¶é™ã•ã‚Œã¦ã„ã¾ã™ã€‚" });
         }
- 
-        // 登録されていない場合 -> 許可 (通過)
+
+        // ç™»éŒ²ã•ã‚Œã¦ã„ãªã„å ´åˆ -> è¨±å¯ (é€šéŽ)
         const redirectUrl = params.targetUrl || "https://ig.me/m/your_support_account";
         await logAudit('INSTAGRAM_AUTH_SUCCESS', username, { status: 'passed' });
- 
+
         return res.status(200).json({ success: true, redirectUrl });
     }
     if (type === 'get_available') {
@@ -910,56 +780,56 @@ if (type === 'check_ban_status') {
       const { data: allContents } = await supabase.from('contents').select('*').order('id', { ascending: true });
       let ownedContentIds = new Set(); 
       let ownedGroupIds = new Set();
- 
+
       if (targetId) {
         const { data: history } = await supabase.from('histories').select('codes(content_id)').eq('user_id', targetId);
         if (history) {
             const contentIds = history.map(h => h.codes?.content_id).filter(Boolean);
             ownedContentIds = new Set(contentIds);
             if (contentIds.length > 0) {
-                const { data: ownedContents } = await supabase.from('contents').select('重複').in('id', contentIds);
-                if(ownedContents) ownedGroupIds = new Set(ownedContents.map(c => c["重複"]).filter(Boolean));
+                const { data: ownedContents } = await supabase.from('contents').select('é‡è¤‡').in('id', contentIds);
+                if(ownedContents) ownedGroupIds = new Set(ownedContents.map(c => c["é‡è¤‡"]).filter(Boolean));
             }
         }
       }
- 
+
       const lMap = { ja: 'jp', en: 'en', zh: 'zh', 'zh-TW': 'zh-TW', ko: 'ko', ru: 'ru' };
       const suffix = lMap[lang] || 'jp';
- 
+
       const filteredContents = (allContents || []).filter(c => {
           const isShow = String(c["show/ hide"] || "").trim().toLowerCase() === 'show';
           if (!isShow) return false;
-          if (c["有効時間"] && new Date(c["有効時間"]).getTime() <= Date.now()) return false;
+          if (c["æœ‰åŠ¹æ™‚é–“"] && new Date(c["æœ‰åŠ¹æ™‚é–“"]).getTime() <= Date.now()) return false;
           
-          // ★ エンタープライズ版APIのため制限なしで表示
+          // â˜… ã‚¨ãƒ³ã‚¿ãƒ¼ãƒ—ãƒ©ã‚¤ã‚ºç‰ˆAPIã®ãŸã‚åˆ¶é™ãªã—ã§è¡¨ç¤º
           return true;
       });
- 
+
       const items = filteredContents.map(content => {
-        const isOwned = ownedContentIds.has(content.id) || (content["重複"] && ownedGroupIds.has(content["重複"]));
+        const isOwned = ownedContentIds.has(content.id) || (content["é‡è¤‡"] && ownedGroupIds.has(content["é‡è¤‡"]));
         
-        // ▼ 追加: 現在時刻と解禁時間を比較
+        // â–¼ è¿½åŠ : ç¾åœ¨æ™‚åˆ»ã¨è§£ç¦æ™‚é–“ã‚’æ¯”è¼ƒ
         const now = Date.now();
-        const releaseTime = content["解禁時間"] ? new Date(content["解禁時間"]).getTime() : null;
+        const releaseTime = content["è§£ç¦æ™‚é–“"] ? new Date(content["è§£ç¦æ™‚é–“"]).getTime() : null;
         const isLocked = releaseTime && releaseTime > now;
- 
-        // ★ 所有済みであっても、解禁前の場合はURLを隠蔽する (期限切れは上のfilterで除外済み)
+
+        // â˜… æ‰€æœ‰æ¸ˆã¿ã§ã‚ã£ã¦ã‚‚ã€è§£ç¦å‰ã®å ´åˆã¯URLã‚’éš è”½ã™ã‚‹ (æœŸé™åˆ‡ã‚Œã¯ä¸Šã®filterã§é™¤å¤–æ¸ˆã¿)
         const safeUrl = (isOwned && !isLocked) ? maskActionUrl(content.Action_url) : null;
- 
+
         return {
           code: content.id,
-          title: content[`タイトル(${suffix})`] || content["タイトル(jp)"],
-          message: content[`メッセージ(${suffix})`] || content["メッセージ(jp)"], 
-          extraInfo: content[`詳細(${suffix})`] || content["詳細(jp)"],
+          title: content[`ã‚¿ã‚¤ãƒˆãƒ«(${suffix})`] || content["ã‚¿ã‚¤ãƒˆãƒ«(jp)"],
+          message: content[`ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸(${suffix})`] || content["ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸(jp)"], 
+          extraInfo: content[`è©³ç´°(${suffix})`] || content["è©³ç´°(jp)"],
           imageUrl: content.Imag_Url, 
-          url: safeUrl, // ★ 修正
-          releaseDateIso: content["解禁時間"], expireDateIso: content["有効時間"], icon: content.アイコン || 'download',
-          groupId: content["重複"], buttonLabel: content[`ボタン(${suffix})`] || content["ボタン(jp)"], price: content["価格"] || 0, isOwned: isOwned
+          url: safeUrl, // â˜… ä¿®æ­£
+          releaseDateIso: content["è§£ç¦æ™‚é–“"], expireDateIso: content["æœ‰åŠ¹æ™‚é–“"], icon: content.ã‚¢ã‚¤ã‚³ãƒ³ || 'download',
+          groupId: content["é‡è¤‡"], buttonLabel: content[`ãƒœã‚¿ãƒ³(${suffix})`] || content["ãƒœã‚¿ãƒ³(jp)"], price: content["ä¾¡æ ¼"] || 0, isOwned: isOwned
         };
       });
       return res.status(200).json({ success: true, items });
     }
- 
+
     if (type === 'get_history') {
       if (!authUserId) return res.status(401).json({ success: false, message: "Unauthorized" });
       const { data: user } = await supabase.from('users').select('points').eq('id', authUserId).maybeSingle();
@@ -969,36 +839,36 @@ if (type === 'check_ban_status') {
       
       const lMap = { ja: 'jp', en: 'en', zh: 'zh', 'zh-TW': 'zh-TW', ko: 'ko', ru: 'ru' };
       const suffix = lMap[lang] || 'jp';
- 
+
       const historyData = (histories || []).map(h => {
         const codeRec = h.codes;
         if(!codeRec) return null;
         const c = codeRec.contents; 
         if(!c) return null;
- 
-        // ▼ 追加: 現在時刻と解禁時間・有効時間を比較
+
+        // â–¼ è¿½åŠ : ç¾åœ¨æ™‚åˆ»ã¨è§£ç¦æ™‚é–“ãƒ»æœ‰åŠ¹æ™‚é–“ã‚’æ¯”è¼ƒ
         const now = Date.now();
-        const releaseTime = c["解禁時間"] ? new Date(c["解禁時間"]).getTime() : null;
-        const expireTime = c["有効時間"] ? new Date(c["有効時間"]).getTime() : null;
+        const releaseTime = c["è§£ç¦æ™‚é–“"] ? new Date(c["è§£ç¦æ™‚é–“"]).getTime() : null;
+        const expireTime = c["æœ‰åŠ¹æ™‚é–“"] ? new Date(c["æœ‰åŠ¹æ™‚é–“"]).getTime() : null;
         
         const isLocked = releaseTime && releaseTime > now;
         const isExpired = expireTime && expireTime <= now;
         
-        // ★ 未解禁・または期限切れの場合はURLを完全に隠蔽
+        // â˜… æœªè§£ç¦ãƒ»ã¾ãŸã¯æœŸé™åˆ‡ã‚Œã®å ´åˆã¯URLã‚’å®Œå…¨ã«éš è”½
         const safeUrl = (isLocked || isExpired) ? null : maskActionUrl(c.Action_url);
- 
+
         return {
-          code: codeRec["アクティベーションコード"], date: h.created_at, title: c[`タイトル(${suffix})`] || c["タイトル(jp)"],
-          message: c[`メッセージ(${suffix})`] || c["メッセージ(jp)"], 
-          url: safeUrl, // ★ 修正: safeUrlを適用
+          code: codeRec["ã‚¢ã‚¯ãƒ†ã‚£ãƒ™ãƒ¼ã‚·ãƒ§ãƒ³ã‚³ãƒ¼ãƒ‰"], date: h.created_at, title: c[`ã‚¿ã‚¤ãƒˆãƒ«(${suffix})`] || c["ã‚¿ã‚¤ãƒˆãƒ«(jp)"],
+          message: c[`ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸(${suffix})`] || c["ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸(jp)"], 
+          url: safeUrl, // â˜… ä¿®æ­£: safeUrlã‚’é©ç”¨
           imageUrl: c.Imag_Url,
-          icon: c.アイコン || 'download', releaseDateIso: c["解禁時間"], expireDateIso: c["有効時間"], extraInfo: c[`詳細(${suffix})`] || c["詳細(jp)"],
-          groupId: c["重複"], buttonLabel: c[`ボタン(${suffix})`] || c["ボタン(jp)"], price: c["価格"] || 0
+          icon: c.ã‚¢ã‚¤ã‚³ãƒ³ || 'download', releaseDateIso: c["è§£ç¦æ™‚é–“"], expireDateIso: c["æœ‰åŠ¹æ™‚é–“"], extraInfo: c[`è©³ç´°(${suffix})`] || c["è©³ç´°(jp)"],
+          groupId: c["é‡è¤‡"], buttonLabel: c[`ãƒœã‚¿ãƒ³(${suffix})`] || c["ãƒœã‚¿ãƒ³(jp)"], price: c["ä¾¡æ ¼"] || 0
         };
       }).filter(Boolean);
       return res.status(200).json({ success: true, points: user?.points || 0, history: historyData });
     }
- 
+
     if (type === 'purchase') {
       const contentId = params.code; 
       if (!authUserId) return res.status(401).json({ success: false, message: "Unauthorized" });
@@ -1006,137 +876,137 @@ if (type === 'check_ban_status') {
       const { data: contentMaster } = await supabase.from('contents').select('*').eq('id', contentId).maybeSingle();
       if (!contentMaster) return res.status(200).json({ success: false, message: "Item not found" });
       
-      // ★ エンタープライズ版APIのため、制限ブロックをバイパス
- 
+      // â˜… ã‚¨ãƒ³ã‚¿ãƒ¼ãƒ—ãƒ©ã‚¤ã‚ºç‰ˆAPIã®ãŸã‚ã€åˆ¶é™ãƒ–ãƒ­ãƒƒã‚¯ã‚’ãƒã‚¤ãƒ‘ã‚¹
+
       const { data: user } = await supabase.from('users').select('points').eq('id', authUserId).maybeSingle();
       const { data: existingHist } = await supabase.from('histories').select('codes(content_id)').eq('user_id', authUserId);
       
       let alreadyOwned = false;
       if (existingHist) alreadyOwned = existingHist.some(h => h.codes && String(h.codes.content_id) === String(contentId));
       if (alreadyOwned) return res.status(200).json({ success: false, message: "Already owned" });
- 
-      const price = contentMaster["価格"] || 0;
+
+      const price = contentMaster["ä¾¡æ ¼"] || 0;
       if (user.points < price) return res.status(200).json({ success: false, message: "Not enough points" });
- 
+
       const systemCode = `STORE-BUY-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
       const { data: newCode, error: codeErr } = await supabase.from('codes').insert([{
               content_id: contentId,
-              "アクティベーションコード": systemCode,
+              "ã‚¢ã‚¯ãƒ†ã‚£ãƒ™ãƒ¼ã‚·ãƒ§ãƒ³ã‚³ãƒ¼ãƒ‰": systemCode,
               "USED?": true,
-              "有効/無効": true
+              "æœ‰åŠ¹/ç„¡åŠ¹": true
           }]).select('id').single();
- 
-      if (codeErr || !newCode) return res.status(200).json({ success: false, message: "システムエラーにより購入に失敗しました" });
+
+      if (codeErr || !newCode) return res.status(200).json({ success: false, message: "ã‚·ã‚¹ãƒ†ãƒ ã‚¨ãƒ©ãƒ¼ã«ã‚ˆã‚Šè³¼å…¥ã«å¤±æ•—ã—ã¾ã—ãŸ" });
       
       await supabase.from('users').update({ points: user.points - price }).eq('id', authUserId);
       await supabase.from('histories').insert([{ user_id: authUserId, code_id: newCode.id }]);
       
       return res.status(200).json({ success: true, remainingPoints: user.points - price });
     }
- 
+
     if (type === 'check' || type === 'redeem') {
       const key = params.code || params.key; 
       const mode = params.mode || type;
       const targetId = authUserId; 
- 
+
       const safeCode = (key || "").replace(/[^A-Z0-9\-]/gi, "").toUpperCase();
-      const { data: master, error } = await supabase.from('codes').select('*, contents(*)').eq('アクティベーションコード', safeCode).maybeSingle();
- 
+      const { data: master, error } = await supabase.from('codes').select('*, contents(*)').eq('ã‚¢ã‚¯ãƒ†ã‚£ãƒ™ãƒ¼ã‚·ãƒ§ãƒ³ã‚³ãƒ¼ãƒ‰', safeCode).maybeSingle();
+
       if (error || !master || !master.contents) return res.status(200).json({ success: false, message: "Invalid code" });
- 
+
       const content = master.contents;
       
-      // ★ エンタープライズ版APIのため、制限ブロックをバイパス
- 
-      const isActive = master["有効/無効"] === true || String(master["有効/無効"]).trim().toUpperCase() === 'TRUE';
+      // â˜… ã‚¨ãƒ³ã‚¿ãƒ¼ãƒ—ãƒ©ã‚¤ã‚ºç‰ˆAPIã®ãŸã‚ã€åˆ¶é™ãƒ–ãƒ­ãƒƒã‚¯ã‚’ãƒã‚¤ãƒ‘ã‚¹
+
+      const isActive = master["æœ‰åŠ¹/ç„¡åŠ¹"] === true || String(master["æœ‰åŠ¹/ç„¡åŠ¹"]).trim().toUpperCase() === 'TRUE';
       if (!isActive) return res.status(200).json({ success: false, message: "Invalid code" });
- 
+
       const checkNow = new Date();
-      if (content["有効時間"] && checkNow > new Date(content["有効時間"])) return res.status(200).json({ success: false, message: "Invalid code" });
- 
+      if (content["æœ‰åŠ¹æ™‚é–“"] && checkNow > new Date(content["æœ‰åŠ¹æ™‚é–“"])) return res.status(200).json({ success: false, message: "Invalid code" });
+
       const codeType = (master.Types || "").trim().toUpperCase();
       const isOnce = (codeType === 'ONCE' || codeType === '');
       const rawUsed = master["USED?"];
       const isCodeUsed = rawUsed === true || String(rawUsed).trim().toUpperCase() === 'TRUE';
- 
+
       if ((isOnce || codeType === 'POINT') && isCodeUsed) {
         return res.status(200).json({ success: false, message: "This code has already been used." });
       }
       
       const lMap = { ja: 'jp', en: 'en', zh: 'zh', 'zh-TW': 'zh-TW', ko: 'ko', ru: 'ru' };
       const suffix = lMap[lang] || 'jp';
- 
+
       const txt = {
-        btnLabel: content[`ボタン(${suffix})`] || content["ボタン(jp)"], bundle: content[`バンドル(${suffix})`] || content["バンドル(jp)"],
-        message: content[`メッセージ(${suffix})`] || content["メッセージ(jp)"], title: content[`タイトル(${suffix})`] || content["タイトル(jp)"],
-        desc: content[`詳細(${suffix})`] || content["詳細(jp)"]
+        btnLabel: content[`ãƒœã‚¿ãƒ³(${suffix})`] || content["ãƒœã‚¿ãƒ³(jp)"], bundle: content[`ãƒãƒ³ãƒ‰ãƒ«(${suffix})`] || content["ãƒãƒ³ãƒ‰ãƒ«(jp)"],
+        message: content[`ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸(${suffix})`] || content["ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸(jp)"], title: content[`ã‚¿ã‚¤ãƒˆãƒ«(${suffix})`] || content["ã‚¿ã‚¤ãƒˆãƒ«(jp)"],
+        desc: content[`è©³ç´°(${suffix})`] || content["è©³ç´°(jp)"]
       };
- 
+
       if (mode === 'check') {
         return res.status(200).json({
           success: true, bundleLabel: txt.bundle, message: txt.message, detailedTitle: txt.title, detailedDesc: txt.desc,
-          buttonLabel: txt.btnLabel, imageUrl: content.Imag_Url, icon: content.アイコン || 'download', groupId: content["重複"],
-          isRare: content.is_rare || false // ★ rare機能を復活
+          buttonLabel: txt.btnLabel, imageUrl: content.Imag_Url, icon: content.ã‚¢ã‚¤ã‚³ãƒ³ || 'download', groupId: content["é‡è¤‡"],
+          isRare: content.is_rare || false // â˜… rareæ©Ÿèƒ½ã‚’å¾©æ´»
         });
       }
- 
+
       if (codeType === 'POINT') {
         if (!targetId) return res.status(200).json({ success: false, message: "Login required" });
         const { data: user } = await supabase.from('users').select('points').eq('id', targetId).maybeSingle();
         if (user) {
-           // URLエラーを避けるため、シンプルな更新処理に戻します
+           // URLã‚¨ãƒ©ãƒ¼ã‚’é¿ã‘ã‚‹ãŸã‚ã€ã‚·ãƒ³ãƒ—ãƒ«ãªæ›´æ–°å‡¦ç†ã«æˆ»ã—ã¾ã™
            await supabase.from('codes').update({ "USED?": true }).eq('id', master.id);
            await supabase.from('users').update({ points: user.points + (master["Point PPP"] || 0) }).eq('id', targetId);
         }
-        return res.status(200).json({ success: true, isPointMode: true, addedPoints: master["Point PPP"] || 0, message: `${master["Point PPP"] || 0} pt`, title: txt.title || "ポイントチャージ完了" });
+        return res.status(200).json({ success: true, isPointMode: true, addedPoints: master["Point PPP"] || 0, message: `${master["Point PPP"] || 0} pt`, title: txt.title || "ãƒã‚¤ãƒ³ãƒˆãƒãƒ£ãƒ¼ã‚¸å®Œäº†" });
       }
- 
+
       if (codeType !== 'POINT') {
         let isOwned = false;
         if (targetId) {
-          const { data: existingHist } = await supabase.from('histories').select('codes(content_id, contents("重複"))').eq('user_id', targetId);
+          const { data: existingHist } = await supabase.from('histories').select('codes(content_id, contents("é‡è¤‡"))').eq('user_id', targetId);
           if (existingHist) {
             isOwned = existingHist.some(h => {
                 if (!h.codes) return false;
-                return h.codes.content_id === content.id || (content["重複"] && h.codes.contents && h.codes.contents["重複"] === content["重複"]);
+                return h.codes.content_id === content.id || (content["é‡è¤‡"] && h.codes.contents && h.codes.contents["é‡è¤‡"] === content["é‡è¤‡"]);
             });
           }
         }
         if (isOwned) return res.status(200).json({ success: false, isAlreadyOwned: true, message: "Already owned" });
- 
-        const isRelease = !content["解禁時間"] || (checkNow >= new Date(content["解禁時間"]));
-        // ★ 修正: 解禁日を迎えていない場合はURLを隠蔽する
+
+        const isRelease = !content["è§£ç¦æ™‚é–“"] || (checkNow >= new Date(content["è§£ç¦æ™‚é–“"]));
+        // â˜… ä¿®æ­£: è§£ç¦æ—¥ã‚’è¿Žãˆã¦ã„ãªã„å ´åˆã¯URLã‚’éš è”½ã™ã‚‹
         const retUrl = isRelease ? maskActionUrl(content.Action_url) : null;
- 
-        // URLエラーを避けるため、シンプルな更新処理に戻します
+
+        // URLã‚¨ãƒ©ãƒ¼ã‚’é¿ã‘ã‚‹ãŸã‚ã€ã‚·ãƒ³ãƒ—ãƒ«ãªæ›´æ–°å‡¦ç†ã«æˆ»ã—ã¾ã™
         if (isOnce) {
            await supabase.from('codes').update({ "USED?": true }).eq('id', master.id);
         }
- 
+
         if (targetId) {
-           // ★ 二重登録を少しでも防ぐため、すでにこのコードが誰かの履歴に存在しないか直前で確認します
+           // â˜… äºŒé‡ç™»éŒ²ã‚’å°‘ã—ã§ã‚‚é˜²ããŸã‚ã€ã™ã§ã«ã“ã®ã‚³ãƒ¼ãƒ‰ãŒèª°ã‹ã®å±¥æ­´ã«å­˜åœ¨ã—ãªã„ã‹ç›´å‰ã§ç¢ºèªã—ã¾ã™
            const { count } = await supabase.from('histories').select('id', { count: 'exact', head: true }).eq('code_id', master.id);
            
            if (count === 0) {
                await supabase.from('histories').insert([{ user_id: targetId, code_id: master.id }]);
            } else if (isOnce) {
-               // すでに誰かの履歴に入っているONCEコードならエラーを返す
+               // ã™ã§ã«èª°ã‹ã®å±¥æ­´ã«å…¥ã£ã¦ã„ã‚‹ONCEã‚³ãƒ¼ãƒ‰ãªã‚‰ã‚¨ãƒ©ãƒ¼ã‚’è¿”ã™
                return res.status(200).json({ success: false, message: "This code has already been used." });
            }
         }
- 
+
         return res.status(200).json({
           success: true, actionUrl: retUrl, bundleLabel: txt.bundle, message: txt.message,         
           detailedTitle: txt.title, detailedDesc: txt.desc, buttonLabel: txt.btnLabel,
-          imageUrl: content.Imag_Url, isReleaseDateReached: isRelease, releaseDateIso: content["解禁時間"],
-          expireDateIso: content["有効時間"], btnIcon: content.アイコン || 'download', groupId: content["重複"],
-          isRare: content.is_rare || false // ★ rare機能を復活
+          imageUrl: content.Imag_Url, isReleaseDateReached: isRelease, releaseDateIso: content["è§£ç¦æ™‚é–“"],
+          expireDateIso: content["æœ‰åŠ¹æ™‚é–“"], btnIcon: content.ã‚¢ã‚¤ã‚³ãƒ³ || 'download', groupId: content["é‡è¤‡"],
+          isRare: content.is_rare || false // â˜… rareæ©Ÿèƒ½ã‚’å¾©æ´»
         });
       }
     }
     
     return res.status(200).json({ success: false, message: "Invalid request" });
- 
+
   } catch (error) {
     console.error("Critical API Error:", error);
     return res.status(500).json({ success: false, message: "Internal Server Error" });
