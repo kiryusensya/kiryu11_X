@@ -1722,68 +1722,6 @@ async function safeFetch(bodyObj) {
   }
 }
 
-
-// コンテンツの実URLはフロント側で判定せず、認証済みAPIで種別を解決する
-async function openContentAction(item, index = 0) {
-  if (!item || item.code === undefined || item.code === null) {
-      alert('コンテンツ情報がありません。');
-      return;
-  }
-  if (checkBan()) return;
-
-  // 非同期処理後のwindow.openがポップアップブロックされないよう先に開く
-  const openedWindow = window.open('', '_blank');
-  if (openedWindow) {
-      try {
-          openedWindow.document.title = 'Loading...';
-          openedWindow.document.body.innerHTML = '<p style="font-family:sans-serif;padding:24px;">Loading...</p>';
-      } catch (e) {}
-  }
-
-  try {
-      const result = await safeFetch({
-          type: 'action',
-          code: item.code,
-          index: Number.isInteger(Number(index)) ? Number(index) : 0,
-          _t: Date.now()
-      });
-
-      if (!result || !result.success) {
-          if (openedWindow) openedWindow.close();
-          alert((result && result.message) || 'コンテンツを開けませんでした。');
-          return;
-      }
-
-      let destination = '';
-      switch (result.actionType) {
-          case 'youtube':
-              destination = `videos.html?code=${encodeURIComponent(item.code)}&index=${encodeURIComponent(result.index ?? index)}`;
-              break;
-          case 'video':
-              destination = `video-player.html?code=${encodeURIComponent(item.code)}&index=${encodeURIComponent(result.index ?? index)}`;
-              break;
-          case 'site':
-              destination = result.targetUrl || '';
-              break;
-          case 'download': {
-              const token = localStorage.getItem('user_session_token') || '';
-              destination = `/api/proxy?type=download&code=${encodeURIComponent(item.code)}&index=${encodeURIComponent(result.index ?? index)}&token=${encodeURIComponent(token)}`;
-              break;
-          }
-          default:
-              throw new Error('未対応のコンテンツ形式です。');
-      }
-
-      if (!destination) throw new Error('アクセス先が設定されていません。');
-      if (openedWindow) openedWindow.location.replace(destination);
-      else window.location.href = destination;
-  } catch (error) {
-      if (openedWindow) openedWindow.close();
-      console.error('Content action error:', error);
-      alert(error && error.message ? error.message : 'コンテンツを開けませんでした。');
-  }
-}
-
 const formatDisplayCode = (code) => {
   if (!code) return "";
   const clean = code.toUpperCase().replace(/[^A-Z0-9]/g, '');
@@ -2480,9 +2418,15 @@ function setupEventListeners() {
         try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(e){}
 
         if (isMulti) {
-            openManageModal(selectedHeroItem);
+            openManageModal(selectedHeroItem); // 複数なら独立モーダルを開く
         } else if (targetUrl) {
-            openContentAction(selectedHeroItem, 0);
+            const isYouTube = targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be');
+            if (isYouTube) {
+               window.open(`videos.html?code=${selectedHeroItem.code}&target=${encodeURIComponent(targetUrl)}`, '_blank');
+            } else {
+                const token = localStorage.getItem('user_session_token') || "";
+                window.open(`/api/proxy?type=download&code=${selectedHeroItem.code}&token=${token}`, '_blank');
+            }
         }
      } else {
         if (!currentUser) {
@@ -3018,7 +2962,7 @@ function openManageModal(item) {
     
     const timers = []; // 個別カウントダウン用
 
-    subItems.forEach((sub, subIndex) => {
+    subItems.forEach(sub => {
         const row = document.createElement('div');
         row.className = 'manage-item-row';
         
@@ -3056,15 +3000,23 @@ function openManageModal(item) {
                 btn: actionBtn, 
                 releaseDate: subReleaseDate, 
                 expireDate: subExpireDate,
-                url: sub.url,
-                index: subIndex,
+                url: sub.url, 
                 label: btnLabel 
             });
         } else {
             // 時間の縛りが一切ない（最初からずっとダウンロード可能）場合
             actionBtn.innerHTML = btnLabel;
             actionBtn.onclick = () => {
-                openContentAction(item, subIndex);
+                const isYouTube = sub.url && (sub.url.includes('youtube.com') || sub.url.includes('youtu.be'));
+                if (isYouTube) {
+                    // YouTube等の動画リンクはプロキシを通さず直接開く（または自前のプレイヤー画面を開く）
+                    window.open(sub.url, '_blank');
+                } else {
+                    // 通常のファイルはAPIプロキシを経由して安全にダウンロード
+                    const token = localStorage.getItem('user_session_token') || "";
+                    const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(sub.url)}&token=${token}`;
+                    window.open(dlUrl, '_blank');
+                }
             };
         }
         row.appendChild(infoDiv);
@@ -3100,8 +3052,15 @@ function openManageModal(item) {
                     tData.btn.style.cursor = 'pointer';
                     tData.btn.innerHTML = tData.label; 
                     tData.btn.onclick = () => {
-                        openContentAction(item, tData.index);
-                    };
+                    const isYouTube = tData.url && (tData.url.includes('youtube.com') || tData.url.includes('youtu.be'));
+                    if (isYouTube) {
+                        window.open(`videos.html?code=${item.code}&target=${encodeURIComponent(tData.url)}`, '_blank');
+                    } else {
+                        const token = localStorage.getItem('user_session_token') || "";
+                        const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(tData.url)}&token=${token}`;
+                        window.open(dlUrl, '_blank');
+                    }
+                };
                 }else {
                     // 解禁前
                     tData.btn.style.background = 'rgba(128,128,128,0.2)';
@@ -3139,7 +3098,14 @@ function openManageModal(item) {
                 tData.btn.style.cursor = 'pointer';
                 tData.btn.innerHTML = tData.label; 
                 tData.btn.onclick = () => {
-                        openContentAction(item, tData.index);
+                        const isYouTube = tData.url && (tData.url.includes('youtube.com') || tData.url.includes('youtu.be'));
+                        if (isYouTube) {
+                            window.open(`videos.html?code=${item.code}&target=${encodeURIComponent(tData.url)}`, '_blank');
+                        } else {
+                            const token = localStorage.getItem('user_session_token') || "";
+                            const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(tData.url)}&token=${token}`;
+                            window.open(dlUrl, '_blank');
+                        }
                     };
             }
         });
@@ -3249,12 +3215,20 @@ function showMobileItemDetail(item, isNewRedeem = false) {
                     openManageModal(item);
                 };
             } else {
-                els.btnSuccessDownload.removeAttribute('href');
-                els.btnSuccessDownload.removeAttribute('target');
-                els.btnSuccessDownload.onclick = (e) => {
-                    e.preventDefault();
-                    openContentAction(item, 0);
-                };
+                const isYouTube = targetUrl && (targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be'));
+                
+                if (isYouTube) {
+                    // YouTubeの場合はそのままリンクを設定する（ボタン名を「視聴する」等に変えてもOK）
+                    els.btnSuccessDownload.href = targetUrl;
+                    els.btnSuccessDownload.onclick = null;
+                    els.btnSuccessDownload.target = "_blank";
+                } else {
+                    // 単一ファイルの場合、APIを経由させる
+                    const token = localStorage.getItem('user_session_token') || "";
+                    els.btnSuccessDownload.href = `/api/proxy?type=download&code=${item.code}&token=${token}`;
+                    els.btnSuccessDownload.onclick = null; 
+                    els.btnSuccessDownload.target = "_blank";
+                }
             }
 
             const btnLabel = item.buttonLabel || t.btn_download || "ダウンロード";
@@ -3938,10 +3912,16 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                         let isMulti = false;
                         try { if (targetUrl && targetUrl.trim().startsWith('[')) isMulti = true; } catch(err){}
                         
-                        if (isMulti) {
-                            openManageModal(item);
-                        } else if (targetUrl) {
-                            openContentAction(item, 0);
+                        if (isMulti) { 
+                            openManageModal(item); 
+                        } else if (targetUrl) { 
+                            const isYouTube = targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be');
+                            if (isYouTube) {
+                                window.open(`videos.html?code=${item.code}&target=${encodeURIComponent(targetUrl)}`, '_blank');
+                            } else {
+                                const token = localStorage.getItem('user_session_token') || "";
+                                window.open(`/api/proxy?type=download&code=${item.code}&token=${token}`, '_blank');
+                            }
                         }
                     };
                     return expireDate ? false : true; // 期限があるならタイマー継続
