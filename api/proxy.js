@@ -36,16 +36,13 @@ export default async function handler(req, res) {
   const originalJson = res.json;
   res.json = function(body) {
     if (body && typeof body === 'object' && !Array.isArray(body)) {
-        // サーバー自身の正確な時刻（UTCベースのエポックミリ秒）を付与
         body.serverTime = Date.now();
     }
     return originalJson.call(this, body);
   };
 
   try {
-    // ==========================================
-    // レートリミット (Rate Limiting)
-    // ==========================================
+    // レートリミット
     const ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown';
     const now = Date.now();
     if (!requestCounts.has(ip)) {
@@ -62,9 +59,7 @@ export default async function handler(req, res) {
         }
     }
 
-    // ==========================================
     // パラメータ取得
-    // ==========================================
     let params = {};
     if (req.method === 'POST') {
         if (typeof req.body === 'string') {
@@ -78,15 +73,9 @@ export default async function handler(req, res) {
     
     const type = params.type || ''; 
     const lang = params.lang || 'ja';
-    
-    // ==========================================
-    // ★完全に固定: エンタープライズ版API
-    // ==========================================
     const appTier = 'enterprise'; 
 
-    // ==========================================
-    // 認証 (JWT Token Verification)
-    // ==========================================
+    // JWT Token Verification
     let authUserId = null;
     let isAdmin = false;
     let token = null;
@@ -110,20 +99,19 @@ export default async function handler(req, res) {
     if (token) {
       try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        // ブラックリスト（ログアウト済み）に登録されているか確認
         const { data: revoked } = await supabase.from('revoked_tokens').select('id').eq('token', token).maybeSingle();
         if (revoked) throw new Error("Token has been revoked");
 
         authUserId = decoded.userId;
         isAdmin = decoded.isAdmin || false;
       } catch (e) {
-        token = null; // 無効化
+        token = null;
         authUserId = null;
         isAdmin = false;
       }
     }
 
-    // ▼▼▼ ここから追加: アカウントBANの判定とブロック ▼▼▼
+    // BAN判定
     let isBanned = false;
     if (authUserId) {
         const { data: banCheckUser } = await supabase.from('users').select('banned_until, is_admin').eq('id', authUserId).maybeSingle();
@@ -135,36 +123,27 @@ export default async function handler(req, res) {
         }
     }
     
-// ✅ 追加：BAN状態だけ返す（解除検知用）
-if (type === 'check_ban_status') {
-  // 未ログインならBAN判定できない
-  if (!authUserId) {
-    return res.status(200).json({ success: false, isBanned: false, message: "Unauthorized" });
-  }
-  return res.status(200).json({ success: true, isBanned });
-}
+    if (type === 'check_ban_status') {
+      if (!authUserId) {
+        return res.status(200).json({ success: false, isBanned: false, message: "Unauthorized" });
+      }
+      return res.status(200).json({ success: true, isBanned });
+    }
 
-
-    // BANされている場合、主要なユーザーアクションで「isBanned: true」を返してフロントでモーダルを出させる
     const restrictedActions = ['purchase', 'check', 'redeem', 'change_password', 'get_video_url', 'get_available', 'get_history'];
     if (isBanned && restrictedActions.includes(type)) {
         return res.status(200).json({ success: false, isBanned: true, message: "アクセスが禁止されています。" });
     }
-    // 直接ファイルを取得するダウンロードエンドポイントは403で弾く
     if (isBanned && type === 'download') {
         return res.status(403).send("Forbidden: アクセスが禁止されています。");
     }
-    // ▲▲▲ ここまで追加 ▲▲▲
 
-    // ==========================================
-    // ▼ エラー検索機能 (error.html用) ▼
-    // ==========================================
+    // エラー検索機能
     if (type === 'error_search') {
       const { code } = params;
       if (!code) return res.status(200).json({ success: false, message: "Code is required" });
 
       const { data: errData, error } = await supabase.from('errors').select('*').eq('code', code).maybeSingle();
-      
       if (error || !errData) {
         return res.status(200).json({ success: false, message: "Error code not found" });
       }
@@ -176,9 +155,7 @@ if (type === 'check_ban_status') {
       return res.status(200).json({ success: true, code: errData.code, errorMessage: msg });
     }
 
-    // ==========================================
-    // ▼ ダウンロード（プロキシ）処理 ▼
-    // ==========================================
+    // ダウンロード処理
     if (type === 'download') {
         const { code, target } = params;
         if (!authUserId) return res.status(401).send("Unauthorized: ログインが必要です。");
@@ -203,18 +180,13 @@ if (type === 'check_ban_status') {
         }
 
         const content = matchedHistory.codes.contents;
-        
-        // ★ エンタープライズ版APIのため、ブロック処理はバイパス(通過)させます
-
         const checkNow = new Date();
         if (content["有効時間"] && checkNow > new Date(content["有効時間"])) return res.status(403).send("Forbidden: 有効期限が切れています。");
         if (content["解禁時間"] && checkNow < new Date(content["解禁時間"])) return res.status(403).send("Forbidden: まだ解禁されていません。");
 
-        // ★ URL復元・存在チェック
         let downloadTargetUrl = content.Action_url;
         if (target) {
             let rawTarget = decodeURIComponent(target);
-            // 送られてきたのがダミー文字なら、データベースの本来のURLを復元する
             if (rawTarget.startsWith('__MASKED_URL__:')) {
                 const idx = parseInt(rawTarget.split(':')[1], 10) || 0;
                 const strUrl = String(content.Action_url).trim();
@@ -225,17 +197,13 @@ if (type === 'check_ban_status') {
                         if (arr[idx] && arr[idx].url) {
                             downloadTargetUrl = arr[idx].url;
                         }
-                    } catch(e) {
-                        // パース失敗時はフォールバック
-                    }
+                    } catch(e) {}
                 }
             } else {
-                // ダミー文字以外（YouTube等）が送られてきた場合はそのまま使用
                 downloadTargetUrl = rawTarget;
             }
         }
         
-        // ダミー文字のまま復元できなかったり、URLが存在しない場合はエラー
         if (!downloadTargetUrl || downloadTargetUrl.startsWith('__MASKED_URL__')) {
             return res.status(404).send("Not Found: ダウンロードURLが設定されていません。");
         }
@@ -264,9 +232,7 @@ if (type === 'check_ban_status') {
         }
     }
 
-    // ==========================================
-    // ▼ アクセスログ・監査ログ ▼
-    // ==========================================
+    // アクセスログ記録
     const userAgent = req.headers['user-agent'] || 'unknown';
     const safeType = type || 'unknown';
     const ignoredActions = ['get_history', 'get_available', 'error_search', 'admin_get_access_logs', 'admin_search', 'admin_set_points', 'get_video_url'];
@@ -297,9 +263,7 @@ if (type === 'check_ban_status') {
         } catch (e) {}
     };
 
-    // ==========================================
-    // ▼ 認証系処理 ▼
-    // ==========================================
+    // 認証系処理
     if (type === 'register') {
       const { email, password } = params;
       if (!email || !password) return res.status(200).json({ success: false, message: "Missing credentials" });
@@ -319,8 +283,6 @@ if (type === 'check_ban_status') {
       
       if (user && await bcrypt.compare(password, user.password)) {
           const userTier = String(user.app_tier || 'standard').toLowerCase();
-          
-          // ★ アカウントの互換性チェック（エンタープライズ版はスタンダードアカウントを弾く）
           if (appTier === 'enterprise' && userTier !== 'enterprise') {
               return res.status(200).json({ success: false, message: "Invalid" });
           }
@@ -366,7 +328,6 @@ if (type === 'check_ban_status') {
                 const decoded = jwt.decode(token);
                 if (decoded && decoded.exp) {
                     const expiresAt = new Date(decoded.exp * 1000).toISOString();
-                    // ブラックリストに登録
                     await supabase.from('revoked_tokens').insert([{ token: token, expires_at: expiresAt }]);
                 }
             } catch (e) {}
@@ -378,23 +339,18 @@ if (type === 'check_ban_status') {
         return res.status(200).json({ success: true });
     }
 
-    // proxy.js の type判定の並び（admin_logoutの下など）に追加
     if (type === 'admin_verify') {
         if (!isAdmin || !authUserId) return res.status(401).json({ success: false, message: "Unauthorized" });
-        // 必要に応じてデータベース上で現在も管理者権限を持っているか再確認する
         const { data: adminUser } = await supabase.from('users').select('is_admin').eq('id', authUserId).maybeSingle();
         if (!adminUser || !adminUser.is_admin) return res.status(401).json({ success: false, message: "管理者権限が取り消されています" });
         
         return res.status(200).json({ success: true });
     }
 
-    // ==========================================
-    // ▼ 管理者用機能 (完全実装) ▼
-    // ==========================================
+    // 管理者用機能
     if (type.startsWith('admin_')) {
         if (!isAdmin) return res.status(401).json({ success: false, message: "管理者権限がありません" });
         
-        // 1. アクセスログ取得
         if (type === 'admin_get_access_logs') {
             const limit = params.limit || 100;
             const { data: logs, error } = await supabase.from('access_logs')
@@ -407,7 +363,6 @@ if (type === 'check_ban_status') {
 
             const formattedLogs = (logs || []).map(log => ({
                 id: log.id,
-                // ★ 修正: 日本時間に固定して出力
                 date: new Date(log.created_at).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }),
                 ip: log.ip_address,
                 type: log.action_type,
@@ -419,10 +374,9 @@ if (type === 'check_ban_status') {
             return res.status(200).json({ success: true, logs: formattedLogs });
         }
         
-        // 2. ユーザー作成
         if (type === 'admin_create_user') {
             const { email, password, target_tier } = params; 
-            const tierToAssign = target_tier || 'standard'; // ★追加: HTMLから受け取ったTier
+            const tierToAssign = target_tier || 'standard';
             if (!email || !password) return res.status(200).json({ success: false, message: "Missing credentials" });
             const { data: existing } = await supabase.from('users').select('id').eq('email', email).maybeSingle();
             if (existing) return res.status(200).json({ success: false, message: "そのIDは既に存在します" });
@@ -434,7 +388,6 @@ if (type === 'check_ban_status') {
             return res.status(200).json({ success: true, message: "OK" });
         }
 
-        // 3. パスワードリセット
         if (type === 'admin_reset_password') {
             const { targetEmail, newPassword } = params;
             if (!targetEmail || !newPassword) return res.status(200).json({ success: false, message: "Missing credentials" });
@@ -445,18 +398,16 @@ if (type === 'check_ban_status') {
             return res.status(200).json({ success: true });
         }
 
-      // ▼▼▼ ここから追加: アカウント停止 (BAN) 機能 ▼▼▼
         if (type === 'admin_ban_user') {
             const { targetEmail, banType, banUntil } = params;
             if (!targetEmail || !banType) return res.status(200).json({ success: false, message: "Missing parameters" });
 
             let targetDate = null;
             if (banType === 'temporary' && banUntil) {
-                // ★ 修正: 送られてきた日時(YYYY-MM-DDThh:mm)を日本時間(+09:00)として解釈し、DB保存用のUTCに変換
                 targetDate = new Date(banUntil + '+09:00').toISOString();
             } else if (banType === 'permanent') {
-                targetDate = '2099-12-31T23:59:59.000Z'; // 永久BANは未来の日付を設定
-            } // 'none' (解除) の場合は null のまま
+                targetDate = '2099-12-31T23:59:59.000Z';
+            }
 
             const { error } = await supabase.from('users').update({ banned_until: targetDate }).eq('email', targetEmail);
             if (error) return res.status(200).json({ success: false, message: error.message });
@@ -465,7 +416,6 @@ if (type === 'check_ban_status') {
             return res.status(200).json({ success: true, message: "アカウントのアクセス制限を適用しました" });
         }
 
-       // 4. ユーザー情報検索
         if (type === 'admin_search') {
             const { targetEmail } = params;
             const { data: user, error } = await supabase.from('users').select('id, email, points, app_tier, banned_until').eq('email', targetEmail).maybeSingle();
@@ -479,11 +429,9 @@ if (type === 'check_ban_status') {
             const historyList = (histories || []).map(h => {
                 const codeData = h.codes || {};
                 const contentData = codeData.contents || {};
-                
                 return {
                     title: contentData['タイトル(jp)'] || '不明なコンテンツ',
                     code: codeData['アクティベーションコード'] || '-',
-                    // ★ 修正: 履歴の日時を日本時間に固定
                     date: new Date(h.created_at).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })
                 };
             });
@@ -498,7 +446,6 @@ if (type === 'check_ban_status') {
             });
         }
 
-        // 5. ポイント付与・変更
         if (type === 'admin_set_points') {
             const { targetEmail, amount } = params;
             const { error } = await supabase.from('users').update({ points: amount }).eq('email', targetEmail);
@@ -506,33 +453,21 @@ if (type === 'check_ban_status') {
             await logAudit('SET_POINTS', targetEmail, { amount });
             return res.status(200).json({ success: true });
         }
-      // ★ 追加: 5-2. ユーザー権限(Tier)の変更
+
         if (type === 'admin_set_tier') {
             const { targetEmail, targetTier } = params;
             if (!targetEmail || !targetTier) {
                 return res.status(200).json({ success: false, message: "必要なパラメータが不足しています" });
             }
-            
-            // Tierの値を standard か enterprise にバリデーション
             const safeTier = targetTier === 'enterprise' ? 'enterprise' : 'standard';
-            
             const { error } = await supabase.from('users').update({ app_tier: safeTier }).eq('email', targetEmail);
-            
-            if (error) {
-                return res.status(200).json({ success: false, message: error.message });
-            }
-            
-            // 監査ログに権限変更を記録
+            if (error) return res.status(200).json({ success: false, message: error.message });
             await logAudit('SET_TIER', targetEmail, { newTier: safeTier });
-            
             return res.status(200).json({ success: true, message: `権限を ${safeTier} に変更しました` });
         }
 
-        // 6. ユーザー削除
         if (type === 'admin_delete_user') {
             const { targetEmail, adminPassword } = params;
-            
-            // 再認証: 送信された管理者のパスワードを検証
             if (!adminPassword) return res.status(200).json({ success: false, message: "再認証のため管理者パスワードが必要です" });
             const { data: adminUser } = await supabase.from('users').select('password').eq('id', authUserId).maybeSingle();
             if (!adminUser || !(await bcrypt.compare(adminPassword, adminUser.password))) {
@@ -547,7 +482,6 @@ if (type === 'check_ban_status') {
             return res.status(200).json({ success: true });
         }
 
-        // 7. 所持コンテンツ剥奪
         if (type === 'admin_revoke_content') {
             const { targetEmail, code } = params;
             const { data: user } = await supabase.from('users').select('id').eq('email', targetEmail).maybeSingle();
@@ -562,7 +496,6 @@ if (type === 'check_ban_status') {
             return res.status(200).json({ success: true });
         }
 
-        // 8. コンテンツ(マスターデータ)登録・更新
         if (type === 'admin_save_content') {
             const { payload } = params;
             if (!payload) return res.status(200).json({ success: false, message: "データがありません" });
@@ -578,9 +511,8 @@ if (type === 'check_ban_status') {
             return res.status(200).json({ success: true, contentId: result.data.id });
         }
 
-        // 9. コード発行
         if (type === 'admin_create_code') {
-            const { contentId, code, codeType, pointPpp, isActive, targetTier } = params; // ★ targetTierを追加
+            const { contentId, code, codeType, pointPpp, isActive, targetTier } = params;
             const { error } = await supabase.from('codes').insert([{
                 content_id: contentId,
                 'アクティベーションコード': code,
@@ -588,17 +520,15 @@ if (type === 'check_ban_status') {
                 'Point PPP': pointPpp,
                 '有効/無効': isActive,
                 'USED?': false,
-                target_tier: targetTier // ★ データベースにTierを保存
+                target_tier: targetTier
             }]);
             if (error) return res.status(200).json({ success: false, message: error.message });
             await logAudit('CREATE_CODE', 'system', { code });
             return res.status(200).json({ success: true });
         }
 
-        // 10. コードステータス確認
         if (type === 'admin_check_code') {
             const { code } = params;
-            // ★追加: target_tier を取得するよう変更
             const { data: codeData, error } = await supabase.from('codes').select('*, contents("タイトル(jp)", target_tier)').eq('アクティベーションコード', code).maybeSingle();
             if (error || !codeData) return res.status(200).json({ success: false, message: "コードが見つかりません" });
 
@@ -613,7 +543,6 @@ if (type === 'check_ban_status') {
                 }
             }
             
-            // ★ コードの階層、またはコンテンツの階層を判別
             const tTier = codeData.target_tier || codeData.contents?.target_tier || 'all';
 
             return res.status(200).json({
@@ -623,11 +552,10 @@ if (type === 'check_ban_status') {
                 isUsed: codeData['USED?'],
                 usedTime,
                 usedBy,
-                targetTier: tTier // ★追加: 確認結果としてTierを返す
+                targetTier: tTier
             });
         }
 
-        // 11. コードステータス(使用済み)の解除
         if (type === 'admin_reset_code') {
             const { code } = params;
             const { data: codeData } = await supabase.from('codes').select('id').eq('アクティベーションコード', code).maybeSingle();
@@ -641,9 +569,8 @@ if (type === 'check_ban_status') {
             return res.status(200).json({ success: true });
         }
     }
-    // ==========================================
-    // ▼ 動画視聴用の一時URL取得処理 ▼
-    // ==========================================
+
+    // 動画視聴用URL
     if (type === 'get_video_url') {
         const { code, target } = params;
         if (!authUserId) return res.status(401).json({ success: false, message: "Unauthorized" });
@@ -698,45 +625,31 @@ if (type === 'check_ban_status') {
         if (!embedUrl) return res.status(400).json({ success: false, message: "Invalid YouTube URL" });
         return res.status(200).json({ success: true, embedUrl: embedUrl });
     }
-    // ==========================================
-// ★ 直リンク隠蔽（マスキング）用ヘルパー関数
-// ==========================================
-const maskActionUrl = (rawUrl) => {
-  if (!rawUrl) return null;
-  let strUrl = String(rawUrl).trim();
-  
-  // JSON配列（複数リンク）の場合、各URLをダミー文字列に置き換える
-  if (strUrl.startsWith('[')) {
-      try {
-          const arr = JSON.parse(strUrl);
-          const maskedArr = arr.map((item, index) => {
-              // YouTubeは動画再生に直接必要なので隠蔽しない
-              const isYouTube = item.url && (item.url.includes('youtube.com') || item.url.includes('youtu.be'));
-              return {
-                  ...item,
-                  url: isYouTube ? item.url : `__MASKED_URL__:${index}`
-              };
-          });
-          return JSON.stringify(maskedArr);
-      } catch (e) {
-          return `__MASKED_URL__:0`;
-      }
-  }
-  
-  // 単一リンクの場合
-  const isYouTube = strUrl.includes('youtube.com') || strUrl.includes('youtu.be');
-  if (isYouTube) return strUrl; 
-  
-  // Wixなどの直リンクは完全にダミー文字列に置き換える
-  return `__MASKED_URL__:0`;
-};
 
-    // ==========================================
-    // ▼ 一般ユーザー用機能 ▼
-    // ==========================================
-    // ==========================================
-    // ▼ サポートリンク集機能 ▼
-    // ==========================================
+    const maskActionUrl = (rawUrl) => {
+      if (!rawUrl) return null;
+      let strUrl = String(rawUrl).trim();
+      if (strUrl.startsWith('[')) {
+          try {
+              const arr = JSON.parse(strUrl);
+              const maskedArr = arr.map((item, index) => {
+                  const isYouTube = item.url && (item.url.includes('youtube.com') || item.url.includes('youtu.be'));
+                  return {
+                      ...item,
+                      url: isYouTube ? item.url : `__MASKED_URL__:${index}`
+                  };
+              });
+              return JSON.stringify(maskedArr);
+          } catch (e) {
+              return `__MASKED_URL__:0`;
+          }
+      }
+      const isYouTube = strUrl.includes('youtube.com') || strUrl.includes('youtu.be');
+      if (isYouTube) return strUrl; 
+      return `__MASKED_URL__:0`;
+    };
+
+    // サポートリンク集機能
     if (type === 'get_support_links') {
         const { data: links, error } = await supabase
             .from('support_links')
@@ -750,33 +663,37 @@ const maskActionUrl = (rawUrl) => {
         return res.status(200).json({ success: true, links: links || [] });
     }
 
-    // ▼ ブラックリスト方式に変更
+    // ★ Instagram 認証＆ブラックリスト検証 (reasonカラムの取得と返却)
     if (type === 'auth_instagram') {
         const { username } = params;
         if (!username) return res.status(200).json({ success: false, message: "ユーザー名を入力してください" });
 
-        // Supabaseのブラックリストを検索 (大文字小文字を区別せずに一致チェック)
+        // Supabaseのブラックリストを検索 (username & reason を取得)
         const { data: blockedUser, error } = await supabase
             .from('blocked_instagram_users')
-            .select('username')
+            .select('username, reason')
             .ilike('username', username)
             .maybeSingle();
 
-        // ブラックリストに登録されている場合 -> 拒否
+        // ブラックリストに登録されている場合 -> 403とともに reason を返して拒否
         if (blockedUser) {
-            await logAudit('INSTAGRAM_AUTH_BLOCKED', username, { status: 'blocked' });
-            return res.status(403).json({ success: false, message: "このアカウントからのアクセスは制限されています。" });
+            await logAudit('INSTAGRAM_AUTH_BLOCKED', username, { status: 'blocked', reason: blockedUser.reason });
+            return res.status(403).json({ 
+                success: false, 
+                message: "このアカウントからのアクセスは制限されています。",
+                reason: blockedUser.reason || null
+            });
         }
 
-        // 登録されていない場合 -> 許可 (通過)
+        // 登録されていない場合 -> 通過
         const redirectUrl = params.targetUrl || "https://ig.me/m/your_support_account";
         await logAudit('INSTAGRAM_AUTH_SUCCESS', username, { status: 'passed' });
 
         return res.status(200).json({ success: true, redirectUrl });
     }
+
     if (type === 'get_available') {
       const targetId = (!params.userId || params.userId === "GUEST") ? null : authUserId; 
-      
       const { data: allContents } = await supabase.from('contents').select('*').order('id', { ascending: true });
       let ownedContentIds = new Set(); 
       let ownedGroupIds = new Set();
@@ -800,20 +717,14 @@ const maskActionUrl = (rawUrl) => {
           const isShow = String(c["show/ hide"] || "").trim().toLowerCase() === 'show';
           if (!isShow) return false;
           if (c["有効時間"] && new Date(c["有効時間"]).getTime() <= Date.now()) return false;
-          
-          // ★ エンタープライズ版APIのため制限なしで表示
           return true;
       });
 
       const items = filteredContents.map(content => {
         const isOwned = ownedContentIds.has(content.id) || (content["重複"] && ownedGroupIds.has(content["重複"]));
-        
-        // ▼ 追加: 現在時刻と解禁時間を比較
         const now = Date.now();
         const releaseTime = content["解禁時間"] ? new Date(content["解禁時間"]).getTime() : null;
         const isLocked = releaseTime && releaseTime > now;
-
-        // ★ 所有済みであっても、解禁前の場合はURLを隠蔽する (期限切れは上のfilterで除外済み)
         const safeUrl = (isOwned && !isLocked) ? maskActionUrl(content.Action_url) : null;
 
         return {
@@ -822,7 +733,7 @@ const maskActionUrl = (rawUrl) => {
           message: content[`メッセージ(${suffix})`] || content["メッセージ(jp)"], 
           extraInfo: content[`詳細(${suffix})`] || content["詳細(jp)"],
           imageUrl: content.Imag_Url, 
-          url: safeUrl, // ★ 修正
+          url: safeUrl,
           releaseDateIso: content["解禁時間"], expireDateIso: content["有効時間"], icon: content.アイコン || 'download',
           groupId: content["重複"], buttonLabel: content[`ボタン(${suffix})`] || content["ボタン(jp)"], price: content["価格"] || 0, isOwned: isOwned
         };
@@ -846,7 +757,6 @@ const maskActionUrl = (rawUrl) => {
         const c = codeRec.contents; 
         if(!c) return null;
 
-        // ▼ 追加: 現在時刻と解禁時間・有効時間を比較
         const now = Date.now();
         const releaseTime = c["解禁時間"] ? new Date(c["解禁時間"]).getTime() : null;
         const expireTime = c["有効時間"] ? new Date(c["有効時間"]).getTime() : null;
@@ -854,13 +764,12 @@ const maskActionUrl = (rawUrl) => {
         const isLocked = releaseTime && releaseTime > now;
         const isExpired = expireTime && expireTime <= now;
         
-        // ★ 未解禁・または期限切れの場合はURLを完全に隠蔽
         const safeUrl = (isLocked || isExpired) ? null : maskActionUrl(c.Action_url);
 
         return {
           code: codeRec["アクティベーションコード"], date: h.created_at, title: c[`タイトル(${suffix})`] || c["タイトル(jp)"],
           message: c[`メッセージ(${suffix})`] || c["メッセージ(jp)"], 
-          url: safeUrl, // ★ 修正: safeUrlを適用
+          url: safeUrl,
           imageUrl: c.Imag_Url,
           icon: c.アイコン || 'download', releaseDateIso: c["解禁時間"], expireDateIso: c["有効時間"], extraInfo: c[`詳細(${suffix})`] || c["詳細(jp)"],
           groupId: c["重複"], buttonLabel: c[`ボタン(${suffix})`] || c["ボタン(jp)"], price: c["価格"] || 0
@@ -876,8 +785,6 @@ const maskActionUrl = (rawUrl) => {
       const { data: contentMaster } = await supabase.from('contents').select('*').eq('id', contentId).maybeSingle();
       if (!contentMaster) return res.status(200).json({ success: false, message: "Item not found" });
       
-      // ★ エンタープライズ版APIのため、制限ブロックをバイパス
-
       const { data: user } = await supabase.from('users').select('points').eq('id', authUserId).maybeSingle();
       const { data: existingHist } = await supabase.from('histories').select('codes(content_id)').eq('user_id', authUserId);
       
@@ -915,9 +822,6 @@ const maskActionUrl = (rawUrl) => {
       if (error || !master || !master.contents) return res.status(200).json({ success: false, message: "Invalid code" });
 
       const content = master.contents;
-      
-      // ★ エンタープライズ版APIのため、制限ブロックをバイパス
-
       const isActive = master["有効/無効"] === true || String(master["有効/無効"]).trim().toUpperCase() === 'TRUE';
       if (!isActive) return res.status(200).json({ success: false, message: "Invalid code" });
 
@@ -946,7 +850,7 @@ const maskActionUrl = (rawUrl) => {
         return res.status(200).json({
           success: true, bundleLabel: txt.bundle, message: txt.message, detailedTitle: txt.title, detailedDesc: txt.desc,
           buttonLabel: txt.btnLabel, imageUrl: content.Imag_Url, icon: content.アイコン || 'download', groupId: content["重複"],
-          isRare: content.is_rare || false // ★ rare機能を復活
+          isRare: content.is_rare || false
         });
       }
 
@@ -954,7 +858,6 @@ const maskActionUrl = (rawUrl) => {
         if (!targetId) return res.status(200).json({ success: false, message: "Login required" });
         const { data: user } = await supabase.from('users').select('points').eq('id', targetId).maybeSingle();
         if (user) {
-           // URLエラーを避けるため、シンプルな更新処理に戻します
            await supabase.from('codes').update({ "USED?": true }).eq('id', master.id);
            await supabase.from('users').update({ points: user.points + (master["Point PPP"] || 0) }).eq('id', targetId);
         }
@@ -975,22 +878,17 @@ const maskActionUrl = (rawUrl) => {
         if (isOwned) return res.status(200).json({ success: false, isAlreadyOwned: true, message: "Already owned" });
 
         const isRelease = !content["解禁時間"] || (checkNow >= new Date(content["解禁時間"]));
-        // ★ 修正: 解禁日を迎えていない場合はURLを隠蔽する
         const retUrl = isRelease ? maskActionUrl(content.Action_url) : null;
 
-        // URLエラーを避けるため、シンプルな更新処理に戻します
         if (isOnce) {
            await supabase.from('codes').update({ "USED?": true }).eq('id', master.id);
         }
 
         if (targetId) {
-           // ★ 二重登録を少しでも防ぐため、すでにこのコードが誰かの履歴に存在しないか直前で確認します
            const { count } = await supabase.from('histories').select('id', { count: 'exact', head: true }).eq('code_id', master.id);
-           
            if (count === 0) {
                await supabase.from('histories').insert([{ user_id: targetId, code_id: master.id }]);
            } else if (isOnce) {
-               // すでに誰かの履歴に入っているONCEコードならエラーを返す
                return res.status(200).json({ success: false, message: "This code has already been used." });
            }
         }
@@ -1000,7 +898,7 @@ const maskActionUrl = (rawUrl) => {
           detailedTitle: txt.title, detailedDesc: txt.desc, buttonLabel: txt.btnLabel,
           imageUrl: content.Imag_Url, isReleaseDateReached: isRelease, releaseDateIso: content["解禁時間"],
           expireDateIso: content["有効時間"], btnIcon: content.アイコン || 'download', groupId: content["重複"],
-          isRare: content.is_rare || false // ★ rare機能を復活
+          isRare: content.is_rare || false
         });
       }
     }
