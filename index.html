@@ -1337,12 +1337,12 @@ button, input, textarea { font-family: var(--font-stack); }
 .ban-btn-row {
     width: 100%;
     display: flex;
-    justify-content: center;
+    gap: 12px; /* ボタン間の隙間 */
+    justify-content: space-between;
 }
 
 .ban-close-btn {
-    width: 100%;
-    max-width: 320px;
+    flex: 7; /* 7の比率 */
     background: rgba(255, 59, 48, 0.15) !important;
     color: #FF3B30 !important;
     border: 1px solid rgba(255, 59, 48, 0.4) !important;
@@ -1350,16 +1350,41 @@ button, input, textarea { font-family: var(--font-stack); }
     border-radius: 50px !important;
     font-size: 16px;
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+    padding: 0 !important; /* Flex幅に合わせるためpaddingリセット */
 }
 
 .ban-close-btn:hover {
-    background: rgba(255, 59, 48, 1) !important;
+    background: rgba(255, 59, 48, 0.3) !important;
     color: #FFFFFF !important;
-    box-shadow: 0 10px 30px rgba(255, 59, 48, 0.5) !important;
+    box-shadow: 0 10px 30px rgba(255, 59, 48, 0.3) !important;
     transform: translateY(-2px);
 }
 
 .ban-close-btn:active {
+    transform: translateY(1px);
+}
+
+/* --- 退出ボタン (割合: 3) --- */
+.ban-logout-btn {
+    flex: 3; /* 3の比率 */
+    background: #FF3B30 !important; /* 強い意思表示の塗りつぶし */
+    color: #FFFFFF !important;
+    border: 1px solid #FF3B30 !important;
+    height: 56px !important;
+    border-radius: 50px !important;
+    font-size: 15px; /* 幅が狭いので少し文字を小さく */
+    font-weight: bold;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+    padding: 0 !important;
+}
+
+.ban-logout-btn:hover {
+    background: #ff5247 !important;
+    box-shadow: 0 10px 30px rgba(255, 59, 48, 0.6) !important;
+    transform: translateY(-2px);
+}
+
+.ban-logout-btn:active {
     transform: translateY(1px);
 }
 
@@ -1745,8 +1770,13 @@ button, input, textarea { font-family: var(--font-stack); }
         </div>
         <h2 class="ban-title" data-translate="ban_title">アクセス制限</h2>
         <p class="ban-message" data-translate="ban_message">すべてアクセスが禁止されています。</p>
+        
+        <!-- ボタンエリア (7:3に分割) -->
         <div class="ban-btn-row">
             <button class="btn-solid ban-close-btn" onclick="document.getElementById('banModal').classList.remove('active')" data-translate="btn_close">閉じる</button>
+            
+            <!-- 退出ボタン (※onclickの中身は実際のログアウト処理名に変更してください) -->
+            <button class="btn-solid ban-logout-btn" onclick="logout()" data-translate="btn_logout">退出</button>
         </div>
     </div>
 </div>
