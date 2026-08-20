@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Access Control | kiryu11 X</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  /* --- FONT FACE DEFINITIONS --- */
+  @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+  @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Medium.woff') format('woff'); font-weight: 500; font-style: normal; }
+  @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+
+  /* --- THEME VARIABLES --- */
+  :root { 
+    --primary: #007DFF; 
+    --bg-color: #0f0f11; 
+    --text-main: #FFFFFF; 
+    --text-sub: #A0A0A0; 
+    --danger: #FF3B30;
+    --success: #04CF22;
+    --card-bg: #1c1c1c; /* Lampスタイル特有のダークな背景 */
+    --input-bg: rgba(255, 255, 255, 0.05);
+    --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
+  }
+
+  [data-theme="light"] {
+    --bg-color: #e0e0e0;
+    --text-main: #000000;
+    --text-sub: #666666;
+    --card-bg: #f9f9f9;
+    --input-bg: rgba(0, 0, 0, 0.05);
+  }
+
+  body { 
+    font-family: var(--font-stack); 
+    background-color: var(--bg-color); 
+    color: var(--text-main); 
+    margin: 0; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    min-height: 100vh; 
+    overflow: hidden;
+    transition: background-color 0.3s ease;
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  /* --- 上部コントロール --- */
+  .top-controls {
+    position: absolute; top: 24px; right: 24px; z-index: 100;
+    display: flex; gap: 12px; align-items: center;
+  }
+  .ctrl-btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px; 
+    background: var(--card-bg); border: 1px solid rgba(128,128,128,0.2);
+    height: 40px; border-radius: 50px; color: var(--text-main); font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: 0.2s; font-family: var(--font-stack);
+  }
+  .ctrl-btn:hover { background: rgba(128,128,128,0.2); }
+  .ctrl-btn.icon-only { width: 40px; padding: 0; }
+  .ctrl-btn.lang-trigger { padding: 0 16px; }
+  .lang-menu {
+    position: absolute; top: 100%; right: 0; margin-top: 8px; width: 140px; background: var(--card-bg);
+    border: 1px solid rgba(128,128,128,0.2); border-radius: 16px; 
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3); list-style: none; padding: 6px; display: none;
+  }
+  .lang-menu.open { display: block; }
+  .lang-option {
+    padding: 10px 12px; font-size: 13px; font-weight: 500; color: var(--text-main); border-radius: 10px; cursor: pointer; transition: 0.2s; font-family: var(--font-stack);
+  }
+  .lang-option:hover { background: rgba(128,128,128,0.15); }
+
+  /* =========================================
+     ★ Lamp Style (ネオングローボックス) ★
+     ========================================= */
+  .holder {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+
+  .box {
+    position: relative;
+    width: 380px;
+    height: 520px;
+    background: var(--card-bg);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  }
+
+  /* 回転する光のボーダーエフェクト */
+  .box::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 380px;
+    height: 520px;
+    background: linear-gradient(0deg, transparent, transparent, var(--primary), var(--primary), var(--primary));
+    z-index: 1;
+    transform-origin: bottom right;
+    animation: animate 6s linear infinite;
+  }
+  .box::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 380px;
+    height: 520px;
+    background: linear-gradient(0deg, transparent, transparent, var(--primary), var(--primary), var(--primary));
+    z-index: 1;
+    transform-origin: bottom right;
+    animation: animate 6s linear infinite;
+    animation-delay: -3s;
+  }
+
+  @keyframes animate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* 内側のフォーム背景 (光のボーダーを残すためのマスク) */
+  .box form {
+    position: absolute;
+    inset: 4px;
+    background: var(--card-bg);
+    padding: 50px 40px;
+    border-radius: 8px;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .box form h2 {
+    color: var(--primary);
+    font-weight: 800;
+    text-align: center;
+    letter-spacing: 0.1em;
+    margin: 0 0 10px 0;
+    font-size: 24px;
+  }
+  
+  .desc {
+    color: var(--text-sub);
+    font-size: 11px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  /* =========================================
+     ★ Floating Input Box ★
+     ========================================= */
+  .inputBox {
+    position: relative;
+    width: 100%;
+    margin-top: 35px;
+  }
+  .inputBox input {
+    position: relative;
+    width: 100%;
+    padding: 20px 10px 10px;
+    background: transparent;
+    outline: none;
+    border: none;
+    box-shadow: none;
+    color: var(--text-main);
+    font-size: 1em;
+    letter-spacing: 0.05em;
+    transition: 0.5s;
+    z-index: 10;
+    font-family: var(--font-stack);
+  }
+  .inputBox span {
+    position: absolute;
+    left: 0;
+    padding: 20px 0px 10px;
+    pointer-events: none;
+    color: var(--text-sub);
+    font-size: 1em;
+    letter-spacing: 0.05em;
+    transition: 0.5s;
+    font-weight: 500;
+  }
+  /* required属性を利用して入力時・フォーカス時の挙動を制御 */
+  .inputBox input:valid ~ span,
+  .inputBox input:focus ~ span {
+    color: var(--primary);
+    font-size: 0.75em;
+    transform: translateY(-34px);
+  }
+  .inputBox i {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--primary);
+    border-radius: 4px;
+    overflow: hidden;
+    transition: 0.5s;
+    pointer-events: none;
+    opacity: 0.5;
+  }
+  .inputBox input:valid ~ i,
+  .inputBox input:focus ~ i {
+    height: 44px; /* 入力欄全体の背景色として広がるアニメーション */
+    opacity: 0.1;
+  }
+
+  /* リンク類 */
+  .links {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    margin-bottom: 30px;
+  }
+  .links a {
+    font-size: 12px;
+    color: var(--text-sub);
+    text-decoration: none;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 700;
+  }
+  .links a:hover {
+    color: var(--primary);
+  }
+
+  /* メッセージ (エラー等) */
+  .msg { 
+    font-size: 12px; font-weight: 700; min-height: 18px; text-align: center; color: var(--danger); font-family: var(--font-stack); margin-top: 5px;
+  }
+
+  /* =========================================
+     ★ スライドして進む コンポーネント ★
+     ========================================= */
+  .slide-container {
+    position: relative;
+    width: 100%;
+    height: 50px;
+    background: var(--input-bg);
+    border: 1px solid rgba(128,128,128,0.2);
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    box-sizing: border-box;
+    margin-top: auto;
+  }
+  .slide-text {
+    position: relative;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--text-sub);
+    letter-spacing: 2px;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    z-index: 1;
+    font-family: var(--font-stack);
+    white-space: nowrap;
+  }
+  :root:lang(en) .slide-text, :root:lang(ru) .slide-text { letter-spacing: normal; }
+
+  .slide-thumb {
+    position: absolute;
+    left: 4px;
+    top: 4px;
+    bottom: 4px;
+    width: 42px;
+    border-radius: 50px;
+    background: var(--primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    z-index: 2;
+    box-shadow: 0 4px 12px rgba(0,125,255,0.4);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .slide-thumb:active { cursor: grabbing; }
+  .slide-container.is-dragging .slide-thumb { transition: none; }
+  
+  .slide-container.is-loading { border-color: var(--primary); }
+  .slide-container.is-loading .slide-thumb {
+    width: calc(100% - 8px);
+    transform: translateX(0) !important;
+    background: var(--primary);
+    cursor: default;
+  }
+  .slide-container.is-loading .slide-thumb * { display: none !important; }
+  
+  .slide-container.is-loading .slide-text {
+    color: #ffffff;
+    z-index: 3;
+    opacity: 1 !important;
+  }
+  
+  .lucide-spin { animation: spin 1s linear infinite; }
+  @keyframes spin { 100% { transform: rotate(360deg); } }
+
+</style>
+</head>
+<body>
+
+  <!-- トップコントロール -->
+  <div class="top-controls">
+    <button class="ctrl-btn icon-only" id="themeToggle" aria-label="Toggle Theme">
+      <i data-lucide="moon" id="themeIcon"></i>
+    </button>
+    <div style="position: relative;">
+      <button class="ctrl-btn lang-trigger" id="langTrigger">
+        <i data-lucide="globe" style="width: 16px; height: 16px;"></i>
+        <span id="currentLangLabel">日本語</span>
+        <i data-lucide="chevron-down" style="width: 14px; height: 14px; opacity: 0.5;"></i>
+      </button>
+      <ul class="lang-menu" id="langMenu">
+        <li class="lang-option" data-value="ja">日本語</li>
+        <li class="lang-option" data-value="en">English</li>
+        <li class="lang-option" data-value="zh">简体中文</li>
+        <li class="lang-option" data-value="zh-TW">繁體中文</li>
+        <li class="lang-option" data-value="ko">한국어</li>
+        <li class="lang-option" data-value="ru">Русский</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="holder">
+    <!-- ログインビュー -->
+    <div class="box" id="loginView">
+      <form autocomplete="off" onsubmit="event.preventDefault();">
+        <h2 data-i18n="title_login">ログイン</h2>
+        <div id="authStatus" class="msg"></div>
+        
+        <!-- フローティングラベル用のinputBox -->
+        <div class="inputBox">
+          <input type="email" id="inputEmail" required="required">
+          <span data-i18n="ph_user">個人識別子</span>
+          <i></i>
+        </div>
+        <div class="inputBox">
+          <input type="password" id="inputPass" required="required">
+          <span data-i18n="ph_pass">PASS</span>
+          <i></i>
+        </div>
+        
+        <!-- リンク類 -->
+        <div class="links">
+          <a href="support.html" data-i18n="link_support">ログインできない場合</a>
+          <a href="terms-of-service.html" target="_blank">
+            <span data-i18n="link_terms">利用規約</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-external-link"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>
+          </a>
+        </div>
+        
+        <!-- スライダー -->
+        <div class="slide-container" id="loginSlider">
+          <div class="slide-text" data-i18n="slide_login">スライドして進む</div>
+          <div class="slide-thumb"><i data-lucide="arrow-right"></i></div>
+        </div>
+      </form>
+    </div>
+
+    <!-- パスワード変更ビュー -->
+    <div class="box" id="forcePasswordChangeView" style="display:none;">
+      <form autocomplete="off" onsubmit="event.preventDefault();">
+        <h2 style="font-size: 20px;" data-i18n="title_force">パスワードの変更が必要です</h2>
+        <p class="desc" data-i18n="desc_force">セキュリティのため、初期パスワードからの変更をお願いします。</p>
+        
+        <div id="newPassError" class="msg"></div>
+
+        <div class="inputBox">
+          <input type="password" id="newPassInput" required="required">
+          <span data-i18n="ph_new_pass">新しいパスワード</span>
+          <i></i>
+        </div>
+        <div class="inputBox">
+          <input type="password" id="newPassConfirm" required="required">
+          <span data-i18n="ph_conf_pass">新しいパスワード(確認用)</span>
+          <i></i>
+        </div>
+        
+        <div style="flex-grow: 1;"></div> <!-- 余白調整 -->
+
+        <div class="slide-container" id="forceSlider">
+          <div class="slide-text" data-i18n="slide_force">スライドして変更</div>
+          <div class="slide-thumb"><i data-lucide="arrow-right"></i></div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+<script>
+  lucide.createIcons();
+  
+  const urlParams = new URLSearchParams(window.location.search);
+  const isLogout = urlParams.get('logout') === 'true';
+
+  if (isLogout) {
+      localStorage.removeItem('user_session_token');
+      localStorage.removeItem('user_session_identity');
+      document.cookie = "user_session_token=; path=/; max-age=0;";
+      window.history.replaceState(null, '', window.location.pathname);
+  } else if (localStorage.getItem('user_session_token') && localStorage.getItem('user_session_identity')) {
+      const savedToken = localStorage.getItem('user_session_token');
+      const isHttps = location.protocol === 'https:';
+      const secureAttr = isHttps ? '; secure' : '';
+      document.cookie = `user_session_token=${savedToken}; path=/; max-age=86400${secureAttr}; samesite=lax`;
+      
+      const params = new URLSearchParams(window.location.search);
+      const redirectTo = params.get('redirect') || ('/' + (params.get('code') ? `?code=${params.get('code')}` : ''));
+      window.location.replace(redirectTo);
+  } else {
+      localStorage.removeItem('user_session_token');
+      localStorage.removeItem('user_session_identity');
+  }
+
+  // ===== テーマ設定 =====
+  const htmlEl = document.documentElement;
+  function applyTheme(theme) {
+    htmlEl.setAttribute('data-theme', theme);
+    const themeToggleBtn = document.getElementById('themeToggle');
+    if (themeToggleBtn) {
+      const iconName = theme === 'light' ? 'sun' : 'moon';
+      themeToggleBtn.innerHTML = `<i data-lucide="${iconName}" id="themeIcon"></i>`;
+    }
+    lucide.createIcons();
+  }
+  const savedTheme = localStorage.getItem('user_theme');
+  const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(savedTheme || (systemPrefersDark ? 'dark' : 'light'));
+
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    const next = htmlEl.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    localStorage.setItem('user_theme', next);
+    applyTheme(next);
+  });
+
+  // ===== 翻訳データ =====
+  const TRANSLATIONS = {
+    ja: {
+      title_login: "セキュア入域管理", ph_user: "個人識別子", ph_pass: "パスワード", link_support: "許可されない場合", link_terms: "利用規約",
+      title_force: "パスワードの変更", desc_force: "セキュリティのため、初期パスワードからの変更をお願いします。",
+      ph_new_pass: "新しいパスワード", ph_conf_pass: "確認用パスワード", 
+      slide_login: "スライドして進む", slide_force: "スライドして変更", slide_loading: "照合中",
+      err_empty: "個人識別識別子とパスワードを入力してください。", err_invalid: "無効な個人識別識別子またはパスワードです。",
+      err_net: "通信エラーが発生しました。", err_input_all: "入力してください", err_len: "パスワードは6文字以上にしてください",
+      err_match: "パスワードが一致しません", msg_success: "入域許可! 移動中...", msg_auth_required: "利用するには入域管理で通行証を認証する必要があります。", lang_label: "日本語"
+    },
+    en: {
+      title_login: "Access Control", ph_user: "Personal Identifier", ph_pass: "Password", link_support: "If not permitted", link_terms: "Terms of Service",
+      title_force: "Change Password", desc_force: "For security reasons, please change your initial password.",
+      ph_new_pass: "New Password", ph_conf_pass: "Confirm Password", 
+      slide_login: "Slide to enter", slide_force: "Slide to update", slide_loading: "Verifying",
+      err_empty: "Please enter your personal Identifier and password.", err_invalid: "Invalid personal Identifier or password.",
+      err_net: "Network error occurred.", err_input_all: "Please fill in all fields.", err_len: "Password must be at least 6 characters.",
+      err_match: "Passwords do not match.", msg_success: "Access Granted! Loading...", msg_auth_required: "To use this service, you must authenticate your pass at Access Control.", lang_label: "English"
+    },
+    /* ... zh, zh-TW, ko, ru 等は省略せずそのまま使用可能 ... */
+  };
+
+  let CURRENT_LANG = localStorage.getItem('user_lang') || 'ja';
+  
+  function applyLanguage(lang) {
+    CURRENT_LANG = lang;
+    localStorage.setItem('user_lang', lang);
+    const t = TRANSLATIONS[lang] || TRANSLATIONS.ja;
+    
+    // placeholderを使わず、spanのinnerHTMLを書き換える
+    document.querySelectorAll('[data-i18n]').forEach(el => { 
+        if (el.closest('.is-loading')) return;
+        el.innerHTML = t[el.getAttribute('data-i18n')]; 
+    });
+    
+    document.getElementById('currentLangLabel').textContent = t.lang_label || 'Language';
+    document.documentElement.lang = lang;
+  }
+
+  const langTrigger = document.getElementById('langTrigger');
+  const langMenu = document.getElementById('langMenu');
+  langTrigger.addEventListener('click', (e) => { e.stopPropagation(); langMenu.classList.toggle('open'); });
+  document.querySelectorAll('.lang-option').forEach(opt => {
+    opt.addEventListener('click', () => { applyLanguage(opt.getAttribute('data-value')); langMenu.classList.remove('open'); });
+  });
+  document.addEventListener('click', (e) => { if (!langTrigger.contains(e.target)) langMenu.classList.remove('open'); });
+
+  applyLanguage(CURRENT_LANG);
+
+  if (urlParams.get('auth') === 'required') {
+    const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja;
+    const statusEl = document.getElementById('authStatus');
+    statusEl.textContent = t.msg_auth_required;
+    statusEl.style.color = "var(--primary)";
+    
+    urlParams.delete('auth');
+    const newSearch = urlParams.toString();
+    window.history.replaceState(null, '', window.location.pathname + (newSearch ? '?' + newSearch : ''));
+  }
+
+  function initSlider(containerId, onComplete) {
+      const container = document.getElementById(containerId);
+      const thumb = container.querySelector('.slide-thumb');
+      const text = container.querySelector('.slide-text');
+      
+      let isDragging = false;
+      let startX = 0;
+      let currentX = 0;
+      let isUnlocked = false;
+
+      const setTransform = (val) => { thumb.style.transform = `translateX(${val}px)`; };
+
+      const onDragStart = (e) => {
+          if (isUnlocked) return;
+          isDragging = true;
+          container.classList.add('is-dragging');
+          startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+      };
+
+      const onDrag = (e) => {
+          if (!isDragging || isUnlocked) return;
+          if (e.cancelable && e.type === 'touchmove') e.preventDefault();
+          const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+          const delta = clientX - startX;
+          const max = container.offsetWidth - thumb.offsetWidth - 8;
+          currentX = Math.max(0, Math.min(delta, max));
+          setTransform(currentX);
+          text.style.opacity = 1 - (currentX / (max * 0.8));
+      };
+
+      const startLoading = () => {
+          isUnlocked = true;
+          container.classList.add('is-loading');
+          const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja;
+          text.innerHTML = `<i data-lucide="loader-2" class="lucide-spin" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 8px;"></i><span>${t.slide_loading}</span><span class="loading-dots" style="display:inline-block; width:1.5em; text-align:left;"></span>`;
+          lucide.createIcons();
+
+          let dotsCount = 0;
+          container.dotsInterval = setInterval(() => {
+              dotsCount = (dotsCount + 1) % 4;
+              const dotsEl = text.querySelector('.loading-dots');
+              if(dotsEl) dotsEl.textContent = '.'.repeat(dotsCount);
+          }, 400);
+
+          setTimeout(() => { onComplete(); }, 400); 
+      };
+
+      const onDragEnd = () => {
+          if (!isDragging || isUnlocked) return;
+          isDragging = false;
+          container.classList.remove('is-dragging');
+          const max = container.offsetWidth - thumb.offsetWidth - 8;
+          if (currentX >= max * 0.85) {
+              startLoading();
+          } else {
+              currentX = 0;
+              setTransform(0);
+              text.style.opacity = 1;
+          }
+      };
+
+      thumb.addEventListener('mousedown', onDragStart);
+      thumb.addEventListener('touchstart', onDragStart, {passive: true});
+      document.addEventListener('mousemove', onDrag);
+      document.addEventListener('touchmove', onDrag, {passive: false});
+      document.addEventListener('mouseup', onDragEnd);
+      document.addEventListener('touchend', onDragEnd);
+
+      container.setLoading = () => { if(!isUnlocked) startLoading(); };
+
+      container.reset = () => {
+          isUnlocked = false;
+          currentX = 0;
+          setTransform(0);
+          container.classList.remove('is-loading');
+          if(container.dotsInterval) clearInterval(container.dotsInterval);
+          const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja;
+          text.innerHTML = t[text.getAttribute('data-i18n')] || text.getAttribute('data-i18n');
+          text.style.opacity = 1;
+      };
+      
+      return container;
+  }
+
+  const API_URL = "api/proxy";
+  let tempChangeData = null;
+  
+  const loginSliderObj = initSlider('loginSlider', async () => {
+      const email = document.getElementById('inputEmail').value.trim();
+      const pass = document.getElementById('inputPass').value.trim();
+      const statusEl = document.getElementById('authStatus');
+      const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja;
+      
+      statusEl.style.color = "var(--danger)";
+      
+      if (!email || !pass) { 
+          statusEl.textContent = t.err_empty; 
+          loginSliderObj.reset();
+          return; 
+      }
+      
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'user_login', email: email, password: pass })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          if (data.requirePasswordChange) {
+              tempChangeData = { userId: data.userId, oldPassword: pass };
+              document.getElementById('loginView').style.display = 'none';
+              document.getElementById('forcePasswordChangeView').style.display = 'flex';
+              loginSliderObj.reset();
+              return; 
+          }
+          localStorage.setItem('user_session_identity', JSON.stringify({ userId: data.userId, email: email }));
+          localStorage.setItem('user_session_token', data.token);
+          const isHttps = location.protocol === 'https:';
+          const secureAttr = isHttps ? '; secure' : '';
+          document.cookie = `user_session_token=${data.token}; path=/; max-age=86400${secureAttr}; samesite=lax`;
+          const params = new URLSearchParams(window.location.search);
+          const redirectTo = params.get('redirect') || ('/' + (params.get('code') ? `?code=${params.get('code')}` : ''));
+          window.location.href = redirectTo;
+        } else {
+          statusEl.textContent = t.err_invalid;
+          loginSliderObj.reset();
+        }
+      } catch (e) { 
+        statusEl.textContent = t.err_net; 
+        loginSliderObj.reset();
+      }
+  });
+
+  const forceSliderObj = initSlider('forceSlider', async () => {
+    const newPass = document.getElementById('newPassInput').value.trim();
+    const confirmPass = document.getElementById('newPassConfirm').value.trim();
+    const errObj = document.getElementById('newPassError');
+    const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja;
+    
+    if(!newPass || !confirmPass) { errObj.textContent = t.err_input_all; forceSliderObj.reset(); return; }
+    if(newPass.length < 6) { errObj.textContent = t.err_len; forceSliderObj.reset(); return; }
+    if(newPass !== confirmPass) { errObj.textContent = t.err_match; forceSliderObj.reset(); return; }
+    
+    try {
+        const res = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: 'change_password', 
+                userId: tempChangeData.userId,       
+                oldPassword: tempChangeData.oldPassword, 
+                newPassword: newPass
+            })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+            errObj.style.color = "var(--success)";
+            errObj.textContent = t.msg_success;
+            setTimeout(() => {
+                document.getElementById('inputPass').value = newPass;
+                document.getElementById('forcePasswordChangeView').style.display = 'none';
+                document.getElementById('loginView').style.display = 'block'; // formのdisplayに合わせる
+                loginSliderObj.setLoading();
+            }, 1000);
+        } else {
+            errObj.style.color = "var(--danger)";
+            errObj.textContent = data.message || "Invalid";
+            forceSliderObj.reset();
+        }
+    } catch(e) {
+        errObj.style.color = "var(--danger)";
+        errObj.textContent = t.err_net;
+        forceSliderObj.reset();
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter') {
+          if(document.getElementById('loginView').style.display !== 'none') {
+              const email = document.getElementById('inputEmail').value.trim();
+              const pass = document.getElementById('inputPass').value.trim();
+              if (email && pass) loginSliderObj.setLoading();
+          } else if(document.getElementById('forcePasswordChangeView').style.display !== 'none') {
+              const p1 = document.getElementById('newPassInput').value.trim();
+              const p2 = document.getElementById('newPassConfirm').value.trim();
+              if (p1 && p2) forceSliderObj.setLoading();
+          }
+      }
+  });
+</script>
+</body>
+</html>
