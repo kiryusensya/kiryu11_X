@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="./kiryu11.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Noto+Sans+KR:wght@400;500;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -30,7 +30,7 @@
   --sidebar-item-hover: rgba(0,0,0,0.05);
   --spring-ease: cubic-bezier(0.33, 1, 0.68, 1);
   --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
-  --danger: #E6002F;
+  --danger: #FF0033;
 }
 
 :root:lang(ja) { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
@@ -151,7 +151,6 @@ button, input, textarea, a { font-family: var(--font-stack); }
   padding: 10px 24px;
 }
 
-/* Sidebar Bottom Controls */
 .rgl-bottom-controls {
   margin-top: auto;
   padding: 20px 24px 30px 24px;
@@ -185,7 +184,6 @@ button, input, textarea, a { font-family: var(--font-stack); }
 .lang-list li:hover { background: rgba(128,128,128,0.1); }
 [data-theme="dark"] .lang-list li { color: #fff; }
 
-/* MAIN CONTENT AREA */
 .rgl-main {
   flex: 1;
   position: relative;
@@ -213,11 +211,8 @@ button, input, textarea, a { font-family: var(--font-stack); }
   color: var(--modal-text-main);
 }
 .theme-pill:hover { transform: scale(1.1); }
-[data-theme="dark"] .theme-pill { 
-  color: #fff; 
-}
+[data-theme="dark"] .theme-pill { color: #fff; }
 
-/* SUPPORT CONTENT */
 .support-content {
     padding: 40px 60px 80px 60px;
     flex: 1;
@@ -285,186 +280,162 @@ button, input, textarea, a { font-family: var(--font-stack); }
 .link-card-img-wrap img {
     width: 100%;
     height: 100%;
-    object-fit: contain; /* 変更：引き伸ばさず、全体を表示する */
+    object-fit: contain;
     padding: 20px;
     transition: transform 0.5s var(--spring-ease);
 }
-.link-card:hover .link-card-img-wrap img {
-    transform: scale(1.05);
-}
-.link-card-fallback-icon {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--modal-text-sub);
-}
+.link-card:hover .link-card-img-wrap img { transform: scale(1.05); }
+.link-card-fallback-icon { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--modal-text-sub); }
 
-.link-card-info {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-}
-.link-card-title {
-    font-size: 18px;
-    font-weight: 800;
-    margin: 0 0 6px 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.link-card-desc {
-    font-size: 13px;
-    opacity: 0.6;
-    font-weight: 500;
-    margin: 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    line-height: 1.4;
-}
-.link-card-status {
-    margin-top: auto;
-    padding-top: 14px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 11px;
-    opacity: 0.5;
-    font-weight: 700;
-}
+.link-card-info { padding: 20px; display: flex; flex-direction: column; flex: 1; }
+.link-card-title { font-size: 18px; font-weight: 800; margin: 0 0 6px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.link-card-desc { font-size: 13px; opacity: 0.6; font-weight: 500; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; }
+.link-card-status { margin-top: auto; padding-top: 14px; display: flex; align-items: center; gap: 6px; font-size: 11px; opacity: 0.5; font-weight: 700; }
 
-/* INSTAGRAM BLACKLIST AUTH MODAL */
-.auth-modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(10px);
-    z-index: 20000;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-}
-.auth-modal-content {
-    background: var(--card-bg);
-    border: 1px solid rgba(128,128,128,0.2);
-    border-radius: 24px;
-    padding: 36px;
-    width: 100%;
-    max-width: 420px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-    animation: popIn 0.3s var(--spring-ease);
-    text-align: center;
-    position: relative;
-}
+/* INSTAGRAM AUTH MODAL */
+.auth-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px); z-index: 20000; align-items: center; justify-content: center; padding: 20px; }
+.auth-modal-content { background: var(--card-bg); border: 1px solid rgba(128,128,128,0.2); border-radius: 24px; padding: 36px; width: 100%; max-width: 420px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); animation: popIn 0.3s var(--spring-ease); text-align: center; position: relative; }
 .auth-modal-title { font-size: 20px; font-weight: 800; margin: 0 0 10px 0; }
 .auth-modal-desc { font-size: 13px; opacity: 0.6; margin: 0 0 24px 0; line-height: 1.5; font-weight: 500; }
-.auth-modal-input {
-    width: 100%; padding: 14px 20px;
-    background: rgba(128, 128, 128, 0.08);
-    border: 1px solid rgba(128, 128, 128, 0.2);
-    border-radius: 50px;
-    color: var(--modal-text-main);
-    font-size: 15px;
-    font-family: var(--font-stack);
-    outline: none; margin-bottom: 20px;
-    transition: border-color 0.2s;
-    text-align: center;
-}
+.auth-modal-input { width: 100%; padding: 14px 20px; background: rgba(128, 128, 128, 0.08); border: 1px solid rgba(128, 128, 128, 0.2); border-radius: 50px; color: var(--modal-text-main); font-size: 15px; font-family: var(--font-stack); outline: none; margin-bottom: 20px; transition: border-color 0.2s; text-align: center; }
 .auth-modal-input:focus { border-color: var(--primary); }
-
-/* LOADING SPINNER EMBEDDED BUTTON */
-.auth-modal-btn-submit { 
-    width: 100%; height: 48px; background: var(--primary); color: #fff; 
-    border: none; border-radius: 50px; font-size: 15px; font-weight: 800; 
-    cursor: pointer; transition: opacity 0.2s; 
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-}
+.auth-modal-btn-submit { width: 100%; height: 48px; background: var(--primary); color: #fff; border: none; border-radius: 50px; font-size: 15px; font-weight: 800; cursor: pointer; transition: opacity 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
 .auth-modal-btn-submit:hover { opacity: 0.9; }
 .auth-modal-btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 .auth-modal-btn-cancel { background: transparent; border: none; color: var(--modal-text-sub); cursor: pointer; font-size: 13px; font-weight: 500; text-decoration: underline; margin-top: 16px; }
 
-/* LOADING SPINNER STYLE */
-.spinner {
-    display: none;
-    width: 20px; height: 20px;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top-color: #fff;
-    animation: spin 0.8s linear infinite;
-}
+.spinner { display: none; width: 20px; height: 20px; border: 3px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: #fff; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* DARING BANNED BLOCK OVERLAY (Rockstar/Xbox Danger-style System Block) */
+/* 🌟 DARING BANNED BLOCK OVERLAY (恐怖感を高めたセキュリティブロックモーダル) */
 .banned-modal-overlay {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.95);
-    backdrop-filter: blur(15px);
+    background: rgba(0, 0, 0, 0.96);
+    backdrop-filter: blur(25px);
     z-index: 30000;
     align-items: center;
     justify-content: center;
     padding: 20px;
-    animation: fadeIn 0.4s ease;
+    animation: fadeIn 0.3s ease;
 }
 .banned-modal-content {
-    background: #000000;
+    background: radial-gradient(circle at top, #2b0008 0%, #050002 100%);
     border: 2px solid var(--danger);
     border-radius: 28px;
-    padding: 48px 32px;
+    padding: 40px 32px;
     width: 100%;
-    max-width: 550px;
-    box-shadow: 0 0 50px rgba(230, 0, 47, 0.3);
+    max-width: 540px;
+    box-shadow: 0 0 60px rgba(255, 0, 51, 0.45), inset 0 0 30px rgba(255, 0, 51, 0.15);
     text-align: center;
-    animation: popIn 0.3s cubic-bezier(0.32, 1.25, 0.375, 1.15);
+    position: relative;
+    overflow: hidden;
+    animation: horrorGlitch 0.4s cubic-bezier(0.32, 1.25, 0.375, 1.15);
 }
+
+/* 警告ヘッダーハザードバー */
+.banned-hazard-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 6px;
+    background: repeating-linear-gradient(45deg, #FF0033, #FF0033 15px, #000 15px, #000 30px);
+    animation: hazardMove 2s linear infinite;
+}
+@keyframes hazardMove { 0% { background-position: 0 0; } 100% { background-position: 42px 0; } }
+
 .banned-icon-area {
     color: var(--danger);
-    margin-bottom: 24px;
+    margin: 10px 0 20px 0;
     display: flex;
     justify-content: center;
-    animation: pulseDanger 2s infinite;
+    filter: drop-shadow(0 0 20px rgba(255, 0, 51, 0.8));
+    animation: pulseDanger 1.2s infinite alternate;
 }
+
 .banned-modal-title {
     color: #FFFFFF;
     font-size: 26px;
     font-weight: 900;
-    margin: 0 0 16px 0;
-    letter-spacing: 1px;
+    margin: 0 0 4px 0;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-shadow: 0 0 15px rgba(255, 0, 51, 0.7);
 }
-.banned-modal-desc {
-    color: #E0E0E0;
+.banned-modal-subtitle {
+    color: var(--danger);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    margin: 0 0 24px 0;
+    font-family: 'Share Tech Mono', monospace;
+    text-transform: uppercase;
+}
+
+/* 遮断理由ボックス (Reason Container) */
+.banned-reason-box {
+    background: rgba(20, 0, 5, 0.85);
+    border: 1px dashed rgba(255, 0, 51, 0.5);
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin: 0 0 24px 0;
+    text-align: left;
+    box-shadow: inset 0 0 15px rgba(255, 0, 51, 0.1);
+}
+.banned-reason-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--danger);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    font-family: 'Share Tech Mono', monospace;
+}
+.banned-reason-text {
+    color: #FFF0F2;
     font-size: 14px;
+    font-weight: 700;
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+.banned-modal-desc {
+    color: #B0B0B0;
+    font-size: 13px;
     line-height: 1.6;
-    margin: 0 0 32px 0;
+    margin: 0 0 28px 0;
     font-weight: 500;
 }
+
 .banned-modal-btn-close {
-    padding: 14px 40px;
+    padding: 14px 44px;
     background: var(--danger);
     color: #FFFFFF;
     border: none;
     border-radius: 50px;
-    font-size: 15px;
-    font-weight: 800;
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 1px;
     cursor: pointer;
-    transition: transform 0.2s, background-color 0.2s;
-    box-shadow: 0 4px 15px rgba(230, 0, 47, 0.4);
+    transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 0 25px rgba(255, 0, 51, 0.6);
 }
 .banned-modal-btn-close:hover {
-    background: #ff1a4a;
+    background: #FF2652;
     transform: scale(1.05);
+    box-shadow: 0 0 35px rgba(255, 0, 51, 0.9);
 }
 
 @keyframes pulseDanger {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.1); opacity: 0.8; }
-    100% { transform: scale(1); opacity: 1; }
+    0% { transform: scale(1); opacity: 0.9; }
+    100% { transform: scale(1.12); opacity: 1; filter: drop-shadow(0 0 30px rgba(255, 0, 51, 1)); }
+}
+@keyframes horrorGlitch {
+    0% { transform: scale(0.9) opacity(0); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1) opacity(1); }
 }
 
 /* RESPONSIVE DESIGN */
@@ -637,20 +608,31 @@ button, input, textarea, a { font-family: var(--font-stack); }
     </div>
 </div>
 
-<!-- DARING BANNED BLOCK OVERLAY (自作禁止モーダル) -->
+<!-- 🌟 DARING BANNED BLOCK OVERLAY (恐怖感を演出した遮断モーダル) -->
 <div class="banned-modal-overlay" id="bannedModal">
     <div class="banned-modal-content">
+        <div class="banned-hazard-bar"></div>
         <div class="banned-icon-area">
-            <i data-lucide="shield-alert" style="width: 72px; height: 72px;"></i>
+            <i data-lucide="shield-alert" style="width: 80px; height: 80px;"></i>
         </div>
         <h2 class="banned-modal-title" data-translate="err_banned_title">ACCESS DENIED</h2>
+        <div class="banned-modal-subtitle" data-translate="err_banned_subtitle">CRITICAL SECURITY LOCKDOWN</div>
+        
+        <!-- 遮断理由ボックス -->
+        <div class="banned-reason-box" id="bannedReasonBox">
+            <div class="banned-reason-header">
+                <i data-lucide="alert-triangle" style="width: 14px; height: 14px;"></i>
+                <span data-translate="reason_label">BLOCK REASON</span>
+            </div>
+            <div class="banned-reason-text" id="bannedReasonText">--</div>
+        </div>
+
         <p class="banned-modal-desc" data-translate="err_banned_desc">セキュリティ・システムにより、このアカウントからのアクセスは完全に制限されています。管理者に問い合わせてください。</p>
         <button class="banned-modal-btn-close" id="btnBannedClose" data-translate="btn_close">CLOSE</button>
     </div>
 </div>
 
 <script>
-    // Spotlight Effect Setup
     const setupHoverEffects = () => {
         const targets = document.querySelectorAll('.spotlight-hover');
         targets.forEach(el => {
@@ -662,6 +644,7 @@ button, input, textarea, a { font-family: var(--font-stack); }
         });
     };
 
+    // 🌟 多言語対応辞書 (6言語 + Reasonマッピング)
     const TRANSLATIONS = {
         ja: { 
             brand_name: "kiryu11 X", tab_home: "ホーム", tab_support: "サポート",
@@ -669,8 +652,18 @@ button, input, textarea, a { font-family: var(--font-stack); }
             loading: "読み込み中...",
             ig_modal_title: "Instagram認証", ig_modal_desc: "お問い合わせを続けるには、ご自身のInstagramユーザー名（@なし）を入力してください。",
             ig_modal_btn: "認証して進む", btn_cancel: "キャンセル", btn_close: "閉じる",
-            err_banned_title: "アクセス制限", err_banned_desc: "セキュリティ・システムにより、このアカウントからのアクセスは完全に制限されています。",
-            err_no_name: "ユーザー名を入力してください", err_comm: "通信エラーが発生しました"
+            err_banned_title: "アクセス制限完全発動", err_banned_subtitle: "SYSTEM LOCKDOWN / WARNING",
+            err_banned_desc: "厳重なセキュリティプロトコルにより、このアカウントからの全アクセスは永久遮断されました。接続識別子はログに正常記録されました。",
+            reason_label: "検出・遮断理由",
+            default_reason: "不審なアクティビティおよび利用規約違反が検出されました。",
+            err_no_name: "ユーザー名を入力してください", err_comm: "通信エラーが発生しました",
+            reasons: {
+                spam: "迷惑行為・スパムメッセージの連続送信",
+                impersonation: "他者へのなりすまし・アカウント偽装行為",
+                tos_violation: "サービス利用規約に対する重大な違反",
+                unauthorized: "不正アクセスおよび認証システムのバイパス試行",
+                abuse: "システムに対する過度なリクエストおよび悪意のある操作"
+            }
         },
         en: { 
             brand_name: "kiryu11 X", tab_home: "Home", tab_support: "Support",
@@ -678,8 +671,18 @@ button, input, textarea, a { font-family: var(--font-stack); }
             loading: "Loading...",
             ig_modal_title: "Instagram Authentication", ig_modal_desc: "Please enter your Instagram username (without @) to continue.",
             ig_modal_btn: "Verify & Continue", btn_cancel: "Cancel", btn_close: "Close",
-            err_banned_title: "ACCESS DENIED", err_banned_desc: "Access from this account is strictly restricted by the security system.",
-            err_no_name: "Please enter a username", err_comm: "Communication error occurred"
+            err_banned_title: "ACCESS PERMANENTLY DENIED", err_banned_subtitle: "CRITICAL SECURITY LOCKDOWN",
+            err_banned_desc: "All network connections from this account have been strictly locked down by security protocol. Your IP address and identifiers have been recorded.",
+            reason_label: "BLOCK REASON",
+            default_reason: "Suspicious activity and Terms of Service violation detected.",
+            err_no_name: "Please enter a username", err_comm: "Communication error occurred",
+            reasons: {
+                spam: "Spamming / Unsolicited messaging behavior",
+                impersonation: "Account impersonation and identity falsification",
+                tos_violation: "Severe violation of Terms of Service",
+                unauthorized: "Unauthorized access and authentication bypass attempt",
+                abuse: "System abuse and malicious automated operations"
+            }
         },
         zh: { 
             brand_name: "kiryu11 X", tab_home: "首页", tab_support: "支持",
@@ -687,8 +690,18 @@ button, input, textarea, a { font-family: var(--font-stack); }
             loading: "加载中...",
             ig_modal_title: "Instagram 认证", ig_modal_desc: "请输入您的 Instagram 用户名（不带 @）以继续。",
             ig_modal_btn: "验证并继续", btn_cancel: "取消", btn_close: "关闭",
-            err_banned_title: "拒绝访问", err_banned_desc: "由于安全系统的限制，完全禁止从此账号访问。",
-            err_no_name: "请输入用户名", err_comm: "发生通信错误"
+            err_banned_title: "拒绝访问 / 完全封锁", err_banned_subtitle: "系统安全锁定 (SYSTEM LOCKDOWN)",
+            err_banned_desc: "根据严格的安全协议，从此账号发起的任何连接已被永久禁止。您的 IP 地址及网络标识已存入日志。",
+            reason_label: "封禁理由",
+            default_reason: "检测到可疑活动及严重违反服务条款的行为。",
+            err_no_name: "请输入用户名", err_comm: "发生通信错误",
+            reasons: {
+                spam: "发送垃圾信息及滥用信息行为",
+                impersonation: "冒充他人及虚假账号行为",
+                tos_violation: "严重违反服务条款",
+                unauthorized: "未经授权的访问及尝试绕过安全认证",
+                abuse: "系统滥用及恶意自动化操作"
+            }
         },
         "zh-TW": { 
             brand_name: "kiryu11 X", tab_home: "首頁", tab_support: "支援",
@@ -696,8 +709,18 @@ button, input, textarea, a { font-family: var(--font-stack); }
             loading: "載入中...",
             ig_modal_title: "Instagram 認證", ig_modal_desc: "請輸入您的 Instagram 使用者名稱（不帶 @）以繼續。",
             ig_modal_btn: "驗證並繼續", btn_cancel: "取消", btn_close: "關閉",
-            err_banned_title: "拒絕存取", err_banned_desc: "由於安全系統的限制，完全禁止從此帳號存取。",
-            err_no_name: "請輸入使用者名稱", err_comm: "發生通訊錯誤"
+            err_banned_title: "拒絕存取 / 完全封鎖", err_banned_subtitle: "系統安全鎖定 (SYSTEM LOCKDOWN)",
+            err_banned_desc: "根據嚴格的安全協定，由此帳號發起的任何連線已被永久禁止。您的 IP 位址及網路標識已存入日誌。",
+            reason_label: "封鎖理由",
+            default_reason: "檢測到可疑活動及嚴重違反服務條款的行為。",
+            err_no_name: "請輸入使用者名稱", err_comm: "發生通訊錯誤",
+            reasons: {
+                spam: "發送垃圾訊息及濫用訊息行為",
+                impersonation: "冒充他人及虛假帳號行為",
+                tos_violation: "嚴重違反服務條款",
+                unauthorized: "未經授權的存取及嘗試繞過安全認證",
+                abuse: "系統濫用及惡意自動化操作"
+            }
         },
         ko: { 
             brand_name: "kiryu11 X", tab_home: "홈", tab_support: "지원",
@@ -705,8 +728,18 @@ button, input, textarea, a { font-family: var(--font-stack); }
             loading: "로딩 중...",
             ig_modal_title: "Instagram 인증", ig_modal_desc: "계속하려면 Instagram 사용자 이름(@ 제외)을 입력하세요.",
             ig_modal_btn: "인증 및 계속", btn_cancel: "취소", btn_close: "닫기",
-            err_banned_title: "접근 거부", err_banned_desc: "보안 시스템에 의해 이 계정에서의 접근이 완전히 제한되었습니다.",
-            err_no_name: "사용자 이름을 입력하세요", err_comm: "통신 오류가 발생했습니다"
+            err_banned_title: "접근 영구 차단됨", err_banned_subtitle: "시스템 보안 락다운 (SYSTEM LOCKDOWN)",
+            err_banned_desc: "엄격한 보안 프로토콜에 의해 이 계정으로부터의 모든 접속이 완전히 차단되었습니다. IP 주소 및 접속 기록이 로깅되었습니다.",
+            reason_label: "차단 사유",
+            default_reason: "의심스러운 활동 및 이용약관 위반이 감지되었습니다.",
+            err_no_name: "사용자 이름을 입력하세요", err_comm: "통신 오류가 발생했습니다",
+            reasons: {
+                spam: "스팸 및 스팸성 메시지 반복 전송",
+                impersonation: "타인 사칭 및 계정 도용 행위",
+                tos_violation: "서비스 이용약관의 심각한 위반",
+                unauthorized: "무단 접근 및 보안 인증 우회 시도",
+                abuse: "시스템 남용 및 악의적인 자동화 동작"
+            }
         },
         ru: { 
             brand_name: "kiryu11 X", tab_home: "Главная", tab_support: "Поддержка",
@@ -714,12 +747,40 @@ button, input, textarea, a { font-family: var(--font-stack); }
             loading: "Загрузка...",
             ig_modal_title: "Аутентификация Instagram", ig_modal_desc: "Введите имя пользователя Instagram (без @) для продолжения.",
             ig_modal_btn: "Подтвердить", btn_cancel: "Отмена", btn_close: "Закрыть",
-            err_banned_title: "ДОСТУП ОГРАНИЧЕН", err_banned_desc: "Доступ с этого аккаунта полностью заблокирован системой безопасности. ",
-            err_no_name: "Введите имя пользователя", err_comm: "Ошибка связи"
+            err_banned_title: "ДОСТУП НАВСЕГДА ЗАБЛОКИРОВАН", err_banned_subtitle: "SYSTEM LOCKDOWN / SECURITY BREACH",
+            err_banned_desc: "Все сетевые соединения с этого аккаунта были полностью заблокированы протоколами безопасности. Ваш IP-адрес записан.",
+            reason_label: "ПРИЧИНА БЛОКИРОВКИ",
+            default_reason: "Обнаружена подозрительная активность и нарушение Условий обслуживания.",
+            err_no_name: "Введите имя пользователя", err_comm: "Ошибка связи",
+            reasons: {
+                spam: "Спам и рассылка нежелательных сообщений",
+                impersonation: "Выдача себя за другое лицо / подделка аккаунта",
+                tos_violation: "Грубое нарушение Условий обслуживания",
+                unauthorized: "Несанкционированный доступ и попытка обхода аутентификации",
+                abuse: "Злоупотребление системой и вредоносные действия"
+            }
         }
     };
 
     let currentLang = localStorage.getItem('user_lang') || 'ja';
+    let currentRawBlockedReason = null; // 遮断理由保持変数
+
+    // 🌟 DBから受け取った reason 文字列を各言語の恐ろしい警告テキストに自動変換
+    function translateReason(rawReason, lang) {
+        const t = TRANSLATIONS[lang] || TRANSLATIONS.ja;
+        if (!rawReason) return t.default_reason;
+
+        const lower = String(rawReason).toLowerCase();
+        
+        if (lower.includes('spam') || lower.includes('スパム')) return t.reasons.spam;
+        if (lower.includes('impersonat') || lower.includes('なりすまし') || lower.includes('冒充')) return t.reasons.impersonation;
+        if (lower.includes('tos') || lower.includes('violation') || lower.includes('規約') || lower.includes('违反')) return t.reasons.tos_violation;
+        if (lower.includes('unauthor') || lower.includes('不正') || lower.includes('未授权')) return t.reasons.unauthorized;
+        if (lower.includes('abuse') || lower.includes('荒らし') || lower.includes('滥用')) return t.reasons.abuse;
+
+        // DBに記述されたそのままの文字列がある場合はテキストを表示
+        return rawReason;
+    }
 
     function setLanguage(lang) {
         currentLang = lang;
@@ -737,7 +798,31 @@ button, input, textarea, a { font-family: var(--font-stack); }
         if(lbl) lbl.textContent = langMap[lang] || 'Language';
         if(mlbl) mlbl.textContent = langMap[lang] || 'Language';
         
+        // モーダル表示中の場合は動的に理由テキストも選択言語に切り替える
+        if (currentRawBlockedReason !== null) {
+            const reasonElem = document.getElementById('bannedReasonText');
+            if (reasonElem) {
+                reasonElem.textContent = translateReason(currentRawBlockedReason, lang);
+            }
+        }
+
         return t;
+    }
+
+    // 🌟 遮断モーダル（Banned Modal）表示処理
+    function showBannedModal(rawReason) {
+        currentRawBlockedReason = rawReason;
+        const bannedModal = document.getElementById('bannedModal');
+        const reasonElem = document.getElementById('bannedReasonText');
+        
+        if (reasonElem) {
+            reasonElem.textContent = translateReason(rawReason, currentLang);
+        }
+        
+        if (bannedModal) {
+            bannedModal.style.display = 'flex';
+            try { if(typeof lucide !== 'undefined') lucide.createIcons({ root: bannedModal }); } catch(e){}
+        }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -790,7 +875,7 @@ button, input, textarea, a { font-family: var(--font-stack); }
             if (mobileLangTrigger && mobileLangMenu && !mobileLangTrigger.contains(e.target)) mobileLangMenu.classList.remove('open');
         });
 
-        // Background Animation Setup
+        // Background Animation
         const htmlEl = document.documentElement;
         const themeToggle = document.getElementById('themeToggle');
         const canvas = document.getElementById('particleCanvas');
@@ -854,7 +939,7 @@ button, input, textarea, a { font-family: var(--font-stack); }
             });
         }
 
-        // Dynamic Link List Fetch & Instagram Blacklist Logic
+        // Dynamic Link List Fetch
         const API_URL = '/api/proxy';
         let currentTargetUrl = "";
         const container = document.getElementById('linksContainer');
@@ -955,7 +1040,6 @@ button, input, textarea, a { font-family: var(--font-stack); }
                     return;
                 }
 
-                // 改修：確認中...をCSSローディングスピナーに変更
                 btnSpinner.style.display = 'block';
                 btnText.style.display = 'none';
                 igSubmitBtn.disabled = true;
@@ -971,19 +1055,20 @@ button, input, textarea, a { font-family: var(--font-stack); }
                         })
                     });
                     
-                    // 改修：403(拒否)の時は自作禁止モーダル（bannedModal）を大胆に表示
-                    if (res.status === 403) {
+                    const data = await res.json().catch(() => ({}));
+
+                    // 403 (ブラックリスト検出時)
+                    if (res.status === 403 || !data.success) {
                         igAuthModal.style.display = 'none';
-                        bannedModal.style.display = 'flex';
+                        showBannedModal(data.reason || null);
                         return;
                     }
 
-                    const data = await res.json();
-                    if (data.success) {
+                    if (data.success && data.redirectUrl) {
                         window.location.href = data.redirectUrl;
                     } else {
                         igAuthModal.style.display = 'none';
-                        bannedModal.style.display = 'flex';
+                        showBannedModal(data.reason || null);
                     }
                 } catch (err) {
                     alert(t.err_comm);
