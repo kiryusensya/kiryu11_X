@@ -1282,10 +1282,115 @@ button, input, textarea { font-family: var(--font-stack); }
 }
 .btn-download-small:active { transform: scale(0.95); }
 
-#banModal .modal-sheet {
-  max-width: 470px !important;   /* 標準modal-sheetと同じ */
-  padding: 40px !important;      /* 標準modal-sheetと同じ */
-  border-radius: 32px !important;/* 標準modal-sheetと同じ */
+/* ====================================================
+   ★ BAN MODAL (Cool & Responsive Design)
+   ==================================================== */
+#banModal.modal-overlay {
+    background: rgba(15, 0, 0, 0.75);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+}
+
+.ban-modal-sheet {
+    background: rgba(20, 20, 20, 0.95) !important;
+    border: 1px solid rgba(255, 59, 48, 0.4) !important;
+    box-shadow: 0 40px 100px rgba(255, 59, 48, 0.15), 0 15px 40px rgba(0, 0, 0, 0.8) !important;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px !important;
+    border-radius: 32px !important;
+    max-width: 90% !important;
+    width: 100%;
+}
+
+.ban-icon-wrapper {
+    color: #FF3B30;
+    margin-bottom: 24px;
+    animation: pulseWarning 2s infinite ease-in-out;
+}
+
+.ban-icon-wrapper svg {
+    width: 72px;
+    height: 72px;
+    filter: drop-shadow(0 0 15px rgba(255, 59, 48, 0.5));
+}
+
+.ban-title {
+    font-size: 26px;
+    font-weight: 800;
+    margin: 0 0 16px 0;
+    color: #FF3B30;
+    letter-spacing: 1px;
+}
+
+.ban-message {
+    font-size: 15px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0 0 32px 0;
+    line-height: 1.6;
+}
+
+.ban-btn-row {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.ban-close-btn {
+    width: 100%;
+    max-width: 320px;
+    background: rgba(255, 59, 48, 0.15) !important;
+    color: #FF3B30 !important;
+    border: 1px solid rgba(255, 59, 48, 0.4) !important;
+    height: 56px !important;
+    border-radius: 50px !important;
+    font-size: 16px;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+
+.ban-close-btn:hover {
+    background: rgba(255, 59, 48, 1) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 10px 30px rgba(255, 59, 48, 0.5) !important;
+    transform: translateY(-2px);
+}
+
+.ban-close-btn:active {
+    transform: translateY(1px);
+}
+
+@keyframes pulseWarning {
+    0% { transform: scale(1); opacity: 0.9; }
+    50% { transform: scale(1.08); opacity: 1; filter: drop-shadow(0 0 25px rgba(255, 59, 48, 0.8)); }
+    100% { transform: scale(1); opacity: 0.9; }
+}
+
+/* --- BANモーダル PC用最適化（サイズ拡張） --- */
+@media (min-width: 769px) {
+    .ban-modal-sheet {
+        max-width: 600px !important; /* PCでは大幅に拡大 */
+        padding: 60px 40px !important;
+    }
+    .ban-icon-wrapper svg {
+        width: 90px;
+        height: 90px;
+    }
+    .ban-title {
+        font-size: 32px;
+        margin-bottom: 20px;
+    }
+    .ban-message {
+        font-size: 18px;
+        margin-bottom: 40px;
+    }
+    .ban-close-btn {
+        font-size: 18px;
+        height: 60px !important;
+    }
 }
 
 </style>
@@ -1630,14 +1735,19 @@ button, input, textarea { font-family: var(--font-stack); }
     </div>
 </div>
 <div id="banModal" class="modal-overlay" style="z-index: 10020;">
-    <div class="modal-sheet" style="max-width: 400px; width: 90%; text-align: center; padding: 40px; background: rgba(30,30,30,0.95) !important; border: 1px solid rgba(255,59,48,0.3) !important; box-shadow: 0 30px 80px rgba(0,0,0,0.8);">
-        <div style="color: #FF3B30; margin-bottom: 20px;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+    <div class="modal-sheet ban-modal-sheet">
+        <div class="ban-icon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
         </div>
-        <h2 style="font-size:24px; font-weight:800; margin: 0 0 16px 0; color: #FF3B30;" data-translate="ban_title">アクセス制限</h2>
-        <p style="font-size:14px; font-weight:700; color:var(--modal-text-main); margin-bottom: 24px; color: #fff;" data-translate="ban_message">すべてアクセスが禁止されています。</p>
-       <button class="btn-primary" onclick="document.getElementById('banModal').classList.remove('active')" data-translate="btn_close" style="background: rgba(128,128,128,0.2); color: #fff; border:none; height: 50px; border-radius: 25px;">閉じる</button>
-
+        <h2 class="ban-title" data-translate="ban_title">アクセス制限</h2>
+        <p class="ban-message" data-translate="ban_message">すべてアクセスが禁止されています。</p>
+        <div class="ban-btn-row">
+            <button class="btn-solid ban-close-btn" onclick="document.getElementById('banModal').classList.remove('active')" data-translate="btn_close">閉じる</button>
+        </div>
     </div>
 </div>
 <script>
