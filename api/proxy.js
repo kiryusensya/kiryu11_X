@@ -127,10 +127,7 @@ export default async function handler(req, res) {
       if (!authUserId) {
         return res.status(200).json({ success: false, isBanned: false, message: "Unauthorized" });
       }
-      const { data: banStatusUser } = await supabase.from('users').select('banned_until').eq('id', authUserId).maybeSingle();
-      const bannedUntil = banStatusUser?.banned_until || null;
-      const isPermanent = Boolean(isBanned && bannedUntil && new Date(bannedUntil).getUTCFullYear() >= 2099);
-      return res.status(200).json({ success: true, isBanned, bannedUntil, isPermanent });
+      return res.status(200).json({ success: true, isBanned });
     }
 
     const restrictedActions = ['purchase', 'check', 'redeem', 'change_password', 'get_video_url', 'get_available', 'get_history'];
@@ -350,27 +347,16 @@ export default async function handler(req, res) {
         return res.status(200).json({ success: true });
     }
 
-    // Account details: localized history, live points, and suspension period.
     if (type === 'get_account_details') {
-      if (!authUserId) return res.status(401).json({ success: false, message: "Unauthorized" });
-      const { data: accountUser, error: accountUserError } = await supabase
-        .from('users').select('id, email, points, app_tier, banned_until').eq('id', authUserId).maybeSingle();
-      if (accountUserError) return res.status(500).json({ success: false, message: "Account fetch failed" });
-      if (!accountUser) return res.status(404).json({ success: false, message: "User not found" });
-      const { data: rows, error: historyError } = await supabase
-        .from('histories').select('created_at, codes(アクティベーションコード, contents(*))')
-        .eq('user_id', authUserId).order('created_at', { ascending: false }).limit(50);
-      if (historyError) return res.status(500).json({ success: false, message: "History fetch failed" });
-      const languageMap = { ja:'jp', en:'en', zh:'zh', 'zh-TW':'zh-TW', ko:'ko', ru:'ru' };
-      const suffix = languageMap[lang] || 'jp';
-      const history = (rows || []).map(row => {
-        const code = row.codes || {}, content = code.contents || {};
-        return { title: content[`タイトル(${suffix})`] || content['タイトル(jp)'] || '', code: code['アクティベーションコード'] || '', icon: content['アイコン'] || 'package-check', date: row.created_at };
-      });
-      const bannedUntil = accountUser.banned_until || null;
-      const isBannedNow = Boolean(bannedUntil && new Date(bannedUntil).getTime() > Date.now());
-      const isPermanent = Boolean(isBannedNow && new Date(bannedUntil).getUTCFullYear() >= 2099);
-      return res.status(200).json({ success:true, userId:accountUser.id, email:accountUser.email, points:accountUser.points || 0, tier:accountUser.app_tier || 'standard', isBanned:isBannedNow, bannedUntil, isPermanent, history });
+      if (!authUserId) return res.status(401).json({ success:false, message:'Unauthorized' });
+      const { data:user, error:userError } = await supabase.from('users').select('id,email,points,app_tier,banned_until').eq('id',authUserId).maybeSingle();
+      if (userError || !user) return res.status(404).json({ success:false, message:'User not found' });
+      const { data:rows, error:historyError } = await supabase.from('histories').select('created_at,codes(アクティベーションコード,contents(*))').eq('user_id',authUserId).order('created_at',{ascending:false}).limit(50);
+      if (historyError) return res.status(500).json({ success:false, message:'History fetch failed' });
+      const map={ja:'jp',en:'en',zh:'zh','zh-TW':'zh-TW',ko:'ko',ru:'ru'}, suffix=map[lang]||'jp';
+      const history=(rows||[]).map(row=>{const code=row.codes||{},c=code.contents||{};return {title:c[`タイトル(${suffix})`]||c['タイトル(jp)']||'',code:code['アクティベーションコード']||'',icon:c['アイコン']||'package-check',date:row.created_at};});
+      const bannedUntil=user.banned_until||null, isBanned=Boolean(bannedUntil&&new Date(bannedUntil)>new Date()), isPermanent=Boolean(isBanned&&new Date(bannedUntil).getUTCFullYear()>=2099);
+      return res.status(200).json({success:true,userId:user.id,email:user.email,points:user.points||0,tier:user.app_tier||'standard',isBanned,bannedUntil,isPermanent,history});
     }
 
     // 管理者用機能
