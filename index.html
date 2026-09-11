@@ -1434,102 +1434,16 @@ button, input, textarea { font-family: var(--font-stack); }
 @media(max-width:768px){.rgl-brand-area{padding-right:14px}.brand-header-actions{gap:6px}.brand-header-actions .theme-pill{width:36px!important;height:36px!important}.account-page-view{padding:28px 16px 34px}.account-head{align-items:flex-start}.account-grid,.account-content{grid-template-columns:1fr}.account-history{grid-column:auto}.account-card{padding:19px;border-radius:22px}.account-row{grid-template-columns:1fr;gap:5px}.account-history-item{grid-template-columns:42px 1fr}.account-history-date{grid-column:2;white-space:normal}.account-actions{display:grid}.account-btn{width:100%;justify-content:center}}
 
 /* BAN warning displayed in the regular hero/image area */
-.account-ban-warning {
-  display: none;
-  position: relative;
-  z-index: 4;
-  width: min(760px, 100%);
-  margin: auto;
-  padding: 42px;
-  overflow: hidden;
-  text-align: center;
-  color: #fff;
-  background:
-    radial-gradient(circle at 50% -25%, rgba(255, 59, 48, .38), transparent 58%),
-    linear-gradient(145deg, rgba(27, 0, 0, .97), rgba(7, 0, 0, .98));
-  border: 1px solid rgba(255, 59, 48, .72);
-  border-radius: 30px;
-  box-shadow: 0 0 0 1px rgba(255, 59, 48, .12), 0 25px 90px rgba(170, 0, 0, .48), inset 0 0 70px rgba(255, 0, 0, .08);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-}
-.account-ban-warning::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: .22;
-  background: repeating-linear-gradient(135deg, transparent 0 18px, rgba(255, 59, 48, .18) 18px 36px);
-}
-.account-ban-warning > * { position: relative; z-index: 1; }
-.account-ban-icon {
-  width: 88px;
-  height: 88px;
-  margin: 0 auto 22px;
-  display: grid;
-  place-items: center;
-  color: #ff453a;
-  border: 1px solid rgba(255, 69, 58, .72);
-  border-radius: 50%;
-  background: rgba(255, 59, 48, .12);
-  box-shadow: 0 0 42px rgba(255, 59, 48, .45);
-  animation: accountBanPulse 1.8s ease-in-out infinite;
-}
-.account-ban-icon svg { width: 48px; height: 48px; }
-.account-ban-title {
-  margin: 0 0 18px;
-  color: #ff5148;
-  font-family: var(--font-stack);
-  font-size: clamp(28px, 4vw, 46px);
-  font-weight: 800;
-  line-height: 1.25;
-  letter-spacing: -.02em;
-  text-shadow: 0 0 28px rgba(255, 59, 48, .38);
-}
-.account-ban-period {
-  margin: 0 auto 28px;
-  padding: 14px 18px;
-  width: fit-content;
-  max-width: 100%;
-  color: rgba(255,255,255,.94);
-  font-size: 17px;
-  font-weight: 700;
-  line-height: 1.55;
-  word-break: break-word;
-  background: rgba(255,255,255,.055);
-  border: 1px solid rgba(255,255,255,.12);
-  border-radius: 15px;
-}
-.account-ban-logout {
-  min-width: 210px;
-  min-height: 54px;
-  padding: 0 28px;
-  border: 1px solid rgba(255, 91, 81, .9);
-  border-radius: 999px;
-  color: #fff;
-  background: linear-gradient(180deg, #ff453a, #c81710);
-  box-shadow: 0 13px 34px rgba(255, 59, 48, .34);
-  font-family: var(--font-stack);
-  font-size: 16px;
-  font-weight: 800;
-  cursor: pointer;
-  transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
-}
-.account-ban-logout:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 17px 42px rgba(255,59,48,.48); }
-.account-ban-logout:active { transform: translateY(1px) scale(.98); }
-body.account-is-banned:not(.account-page-active) .rgl-hero-content { display: none !important; }
-body.account-is-banned:not(.account-page-active) .account-ban-warning { display: block; }
-body.account-is-banned:not(.account-page-active) .rgl-bg-image { filter: brightness(.2) saturate(.25) contrast(1.15); }
-@keyframes accountBanPulse { 0%,100% { transform: scale(1); box-shadow: 0 0 30px rgba(255,59,48,.32); } 50% { transform: scale(1.06); box-shadow: 0 0 58px rgba(255,59,48,.68); } }
-@media (max-width: 768px) {
-  body.account-is-banned .rgl-hero { display: flex !important; min-height: calc(100dvh - 69px); padding: 22px 16px; }
-  body.account-is-banned .mobile-store-view { display: none !important; }
-  .account-ban-warning { padding: 30px 18px; border-radius: 24px; }
-  .account-ban-icon { width: 72px; height: 72px; }
-  .account-ban-icon svg { width: 40px; height: 40px; }
-  .account-ban-period { font-size: 14px; }
-  .account-ban-logout { width: 100%; min-width: 0; }
-}
+.account-ban-warning{display:none;position:relative;z-index:4;width:min(760px,100%);margin:auto;padding:42px;overflow:hidden;text-align:center;color:#fff;background:radial-gradient(circle at 50% -25%,rgba(255,59,48,.38),transparent 58%),linear-gradient(145deg,rgba(27,0,0,.97),rgba(7,0,0,.98));border:1px solid rgba(255,59,48,.72);border-radius:30px;box-shadow:0 0 0 1px rgba(255,59,48,.12),0 25px 90px rgba(170,0,0,.48),inset 0 0 70px rgba(255,0,0,.08);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
+[data-theme="light"] .account-ban-warning{color:#2b0000;background:radial-gradient(circle at 50% -25%,rgba(255,59,48,.28),transparent 58%),linear-gradient(145deg,rgba(255,226,224,.98),rgba(255,255,255,.99));border-color:rgba(205,25,18,.72);box-shadow:0 0 0 1px rgba(255,59,48,.1),0 25px 80px rgba(170,0,0,.22),inset 0 0 70px rgba(255,0,0,.06)}
+.account-ban-warning::before{content:'';position:absolute;inset:0;pointer-events:none;opacity:.22;background:repeating-linear-gradient(135deg,transparent 0 18px,rgba(255,59,48,.18) 18px 36px)}
+.account-ban-warning>*{position:relative;z-index:1}.account-ban-icon{width:88px;height:88px;margin:0 auto 22px;display:grid;place-items:center;color:#ff453a;border:1px solid rgba(255,69,58,.72);border-radius:50%;background:rgba(255,59,48,.12);box-shadow:0 0 42px rgba(255,59,48,.45);animation:accountBanPulse 1.8s ease-in-out infinite}.account-ban-icon svg{width:48px;height:48px}.account-ban-title{margin:0 0 18px;color:#ff5148;font-family:var(--font-stack);font-size:clamp(28px,4vw,46px);font-weight:800;line-height:1.25;letter-spacing:-.02em;text-shadow:0 0 28px rgba(255,59,48,.38)}
+[data-theme="light"] .account-ban-title{color:#bd1710;text-shadow:0 0 24px rgba(255,59,48,.22)}
+.account-ban-period{margin:0 auto 28px;padding:14px 18px;width:fit-content;max-width:100%;color:rgba(255,255,255,.94);font-size:17px;font-weight:700;line-height:1.55;word-break:break-word;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.12);border-radius:15px}
+[data-theme="light"] .account-ban-period{color:#3b0805;background:rgba(189,23,16,.06);border-color:rgba(189,23,16,.18)}
+.account-ban-logout{min-width:210px;min-height:54px;padding:0 28px;border:1px solid rgba(255,91,81,.9);border-radius:999px;color:#fff;background:linear-gradient(180deg,#ff453a,#c81710);box-shadow:0 13px 34px rgba(255,59,48,.34);font-family:var(--font-stack);font-size:16px;font-weight:800;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease,filter .2s ease}.account-ban-logout:hover{transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 17px 42px rgba(255,59,48,.48)}.account-ban-logout:active{transform:translateY(1px) scale(.98)}body.account-is-banned:not(.account-page-active) .rgl-hero-content{display:none!important}body.account-is-banned:not(.account-page-active) .account-ban-warning{display:block}body.account-is-banned:not(.account-page-active) .rgl-bg-image{filter:brightness(.2) saturate(.25) contrast(1.15)}
+[data-theme="light"] body.account-is-banned:not(.account-page-active) .rgl-bg-image{filter:brightness(.72) saturate(.35) contrast(.92)}
+@keyframes accountBanPulse{0%,100%{transform:scale(1);box-shadow:0 0 30px rgba(255,59,48,.32)}50%{transform:scale(1.06);box-shadow:0 0 58px rgba(255,59,48,.68)}}@media(max-width:768px){body.account-page-active .mobile-store-view{display:none!important}body.account-is-banned .rgl-hero{display:flex!important;min-height:calc(100dvh - 69px);padding:22px 16px}body.account-is-banned .mobile-store-view{display:none!important}.account-ban-warning{padding:30px 18px;border-radius:24px}.account-ban-icon{width:72px;height:72px}.account-ban-icon svg{width:40px;height:40px}.account-ban-period{font-size:14px}.account-ban-logout{width:100%;min-width:0}}
 
 </style>
 </head>
@@ -1667,10 +1581,10 @@ body.account-is-banned:not(.account-page-active) .rgl-bg-image { filter: brightn
 </nav>
 <section class="account-page-view" id="accountPageView"><div class="account-shell"><header class="account-head"><div><div class="account-kicker" data-ai="kicker">ACCOUNT CENTER</div><h1 class="account-title" data-ai="title">アカウント詳細</h1><p class="account-sub" data-ai="subtitle">登録情報、権限、ポイント、利用履歴を確認できます。</p></div><button class="account-btn" id="accountBackBtn"><i data-lucide="arrow-left"></i><span data-ai="back">ホームへ戻る</span></button></header><div class="account-error" id="accountError"></div><div class="account-grid"><article class="account-card account-identity"><div class="account-avatar" id="accountAvatar">U</div><div><h2 class="account-email" id="accountEmail">-</h2><div class="account-muted" id="accountUserId">-</div><div class="account-badges"><span class="account-badge" id="accountTier">-</span><span class="account-badge ok" id="accountStatus">-</span></div></div></article><article class="account-card"><span class="account-muted" data-ai="points">保有ポイント</span><div class="account-points"><span id="accountPoints">0</span> <small>pt</small></div></article></div><div class="account-content"><article class="account-card"><div class="account-section-head"><h2 data-ai="basic">基本情報</h2><i data-lucide="id-card"></i></div><div class="account-row"><span class="account-muted" data-ai="identifier">個人識別子</span><b id="infoEmail">-</b></div><div class="account-row"><span class="account-muted" data-ai="userId">ユーザーID</span><b id="infoId">-</b></div><div class="account-row"><span class="account-muted" data-ai="tier">アカウント種別</span><b id="infoTier">-</b></div><div class="account-row"><span class="account-muted" data-ai="access">アクセス状態</span><b id="infoStatus">-</b></div></article><article class="account-card"><div class="account-section-head"><h2 data-ai="security">セキュリティ</h2><i data-lucide="shield-check"></i></div><p class="account-sub" data-ai="securityDesc">パスワードと現在のセッションを管理します。</p><div class="account-actions"><button class="account-btn primary" id="accountPassword"><i data-lucide="key-round"></i><span data-ai="password">パスワード変更</span></button><button class="account-btn danger" id="accountLogout"><i data-lucide="log-out"></i><span data-ai="logout">ログアウト</span></button></div></article><article class="account-card account-history"><div class="account-section-head"><h2 data-ai="history">最近の利用履歴</h2><span class="account-muted" id="historyCount">0</span></div><div class="account-history-list" id="accountHistory"></div></article></div></div></section><div class="rgl-hero">
 <div class="account-ban-warning" id="accountBanWarning" role="alert" aria-live="assertive">
-  <div class="account-ban-icon"><i data-lucide="triangle-alert"></i></div>
-  <h1 class="account-ban-title" id="accountBanTitle">あなたのアカウントは停止されています。</h1>
-  <div class="account-ban-period" id="accountBanPeriod">期間: -</div>
-  <button type="button" class="account-ban-logout" id="accountBanLogout"><span id="accountBanLogoutText">ログアウト</span></button>
+<div class="account-ban-icon"><i data-lucide="triangle-alert"></i></div>
+<h1 class="account-ban-title" id="accountBanTitle">あなたのアカウントは停止されています。</h1>
+<div class="account-ban-period" id="accountBanPeriod">期間: -</div>
+<button type="button" class="account-ban-logout" id="accountBanLogout"><span id="accountBanLogoutText">ログアウト</span></button>
 </div>
 <div class="rgl-hero-content">
 <h1 class="rgl-logo-text" data-translate="hero_title" id="heroTitle">個人認証センター</h1>
