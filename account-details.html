@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>アカウント詳細 | kiryu11 X</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+:root{--primary:#007DFF;--bg:#f1f3f5;--card:rgba(255,255,255,.82);--border:rgba(0,0,0,.1);--text:#111;--sub:#68707a;--danger:#ff3b30;--success:#04b91b;--shadow:0 18px 60px rgba(0,0,0,.08)}
+[data-theme="dark"]{--bg:#111214;--card:rgba(31,32,36,.86);--border:rgba(255,255,255,.1);--text:#fff;--sub:#a2a6ad;--shadow:0 18px 60px rgba(0,0,0,.35)}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;transition:.25s} button,a{font:inherit}.shell{display:grid;grid-template-columns:270px 1fr;min-height:100vh}.sidebar{padding:28px 20px;border-right:1px solid var(--border);background:rgba(0,0,0,.025);position:sticky;top:0;height:100vh}.brand{font-weight:800;font-size:20px;margin:0 12px 34px}.nav{display:grid;gap:8px}.nav a{display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:14px;text-decoration:none;color:var(--text);font-weight:700}.nav a.active,.nav a:hover{background:var(--card)}.main{padding:34px 5vw 64px;max-width:1300px;width:100%;margin:auto}.topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;margin-bottom:30px}.eyebrow{color:var(--primary);font-size:12px;font-weight:800;letter-spacing:.12em}.title{font-size:34px;line-height:1.2;margin:7px 0 6px}.subtitle{color:var(--sub);margin:0}.icon-btn{width:44px;height:44px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--text);display:grid;place-items:center;cursor:pointer}.profile{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(260px,.6fr);gap:20px;margin-bottom:20px}.card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:24px;box-shadow:var(--shadow);backdrop-filter:blur(24px)}.identity{display:flex;gap:18px;align-items:center}.avatar{width:68px;height:68px;border-radius:22px;background:linear-gradient(145deg,#007dff,#6c5cff);color:white;display:grid;place-items:center;font-size:25px;font-weight:800}.identity h2{margin:0 0 6px;font-size:22px;word-break:break-all}.muted{color:var(--sub);font-size:13px}.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.badge{padding:7px 10px;border-radius:999px;background:rgba(0,125,255,.12);color:var(--primary);font-size:12px;font-weight:800}.badge.ok{background:rgba(4,185,27,.12);color:var(--success)}.badge.danger{background:rgba(255,59,48,.12);color:var(--danger)}.points{display:flex;flex-direction:column;justify-content:center}.points strong{font-size:38px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.section-title h3{margin:0;font-size:18px}.info-list{display:grid;gap:2px}.info-row{display:grid;grid-template-columns:150px 1fr;gap:18px;padding:15px 0;border-bottom:1px solid var(--border)}.info-row:last-child{border:0}.label{color:var(--sub);font-size:13px;font-weight:700}.value{font-weight:700;word-break:break-all}.history{grid-column:1/-1}.history-list{display:grid;gap:10px}.history-item{display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:14px;padding:12px;border:1px solid var(--border);border-radius:16px}.history-icon{width:48px;height:48px;border-radius:13px;background:rgba(0,125,255,.1);display:grid;place-items:center;color:var(--primary)}.history-title{font-weight:800}.history-meta{font-size:12px;color:var(--sub);margin-top:3px}.actions{display:flex;flex-wrap:wrap;gap:10px}.btn{border:0;border-radius:999px;padding:12px 18px;background:var(--primary);color:white;font-weight:800;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px}.btn.secondary{background:transparent;color:var(--text);border:1px solid var(--border)}.btn.danger{background:rgba(255,59,48,.12);color:var(--danger)}.skeleton{height:16px;border-radius:8px;background:linear-gradient(90deg,rgba(128,128,128,.12),rgba(128,128,128,.25),rgba(128,128,128,.12));background-size:200% 100%;animation:shimmer 1.2s infinite}@keyframes shimmer{to{background-position:-200% 0}}.notice{padding:12px 14px;border-radius:14px;background:rgba(255,59,48,.1);color:var(--danger);font-size:13px;font-weight:700;display:none;margin-bottom:20px}
+@media(max-width:850px){.shell{display:block}.sidebar{height:auto;position:static;border-right:0;border-bottom:1px solid var(--border);padding:16px}.brand{margin:0 0 14px}.nav{display:flex;overflow:auto}.nav a{white-space:nowrap}.main{padding:26px 18px 50px}.profile,.grid{grid-template-columns:1fr}.history{grid-column:auto}.title{font-size:28px}.info-row{grid-template-columns:1fr;gap:5px}.history-item{grid-template-columns:42px 1fr}.history-item .history-date{grid-column:2}.topbar{align-items:center}}
+</style>
+</head>
+<body>
+<div class="shell">
+<aside class="sidebar">
+  <div class="brand">kiryu11 X</div>
+  <nav class="nav">
+    <a href="index.html"><i data-lucide="home"></i>ホーム</a>
+    <a href="account-details.html" class="active"><i data-lucide="user-round"></i>アカウント</a>
+    <a href="support.html"><i data-lucide="circle-help"></i>サポート</a>
+  </nav>
+</aside>
+<main class="main">
+  <header class="topbar">
+    <div><div class="eyebrow">ACCOUNT CENTER</div><h1 class="title">アカウント詳細</h1><p class="subtitle">登録情報、権限、ポイント、利用履歴を確認できます。</p></div>
+    <button class="icon-btn" id="themeToggle" aria-label="テーマ切替"><i data-lucide="moon"></i></button>
+  </header>
+  <div class="notice" id="notice"></div>
+  <section class="profile">
+    <div class="card identity"><div class="avatar" id="avatar">U</div><div><h2 id="email"><span class="skeleton" style="display:block;width:230px"></span></h2><div class="muted" id="userId">読み込み中...</div><div class="badges"><span class="badge" id="tier">確認中</span><span class="badge ok" id="status">確認中</span></div></div></div>
+    <div class="card points"><span class="muted">保有ポイント</span><strong><span id="points">0</span> <small style="font-size:15px">pt</small></strong></div>
+  </section>
+  <section class="grid">
+    <div class="card"><div class="section-title"><h3>基本情報</h3><i data-lucide="id-card"></i></div><div class="info-list">
+      <div class="info-row"><span class="label">個人識別子</span><span class="value" id="infoEmail">-</span></div>
+      <div class="info-row"><span class="label">ユーザーID</span><span class="value" id="infoId">-</span></div>
+      <div class="info-row"><span class="label">アカウント種別</span><span class="value" id="infoTier">-</span></div>
+      <div class="info-row"><span class="label">アクセス状態</span><span class="value" id="infoStatus">-</span></div>
+    </div></div>
+    <div class="card"><div class="section-title"><h3>セキュリティ</h3><i data-lucide="shield-check"></i></div><p class="muted">パスワードやセッションを管理します。</p><div class="actions"><a class="btn" href="index.html#account"><i data-lucide="key-round"></i>パスワード変更</a><button class="btn danger" id="logout"><i data-lucide="log-out"></i>ログアウト</button></div></div>
+    <div class="card history"><div class="section-title"><h3>最近の利用履歴</h3><span class="muted" id="historyCount">0件</span></div><div class="history-list" id="historyList"><div class="skeleton"></div><div class="skeleton"></div></div></div>
+  </section>
+</main>
+</div>
+<script>
+const API_URL='api/proxy';
+const $=id=>document.getElementById(id);
+function applyTheme(t){document.documentElement.dataset.theme=t;$('themeToggle').innerHTML=`<i data-lucide="${t==='dark'?'moon':'sun'}"></i>`;lucide.createIcons()}
+applyTheme(localStorage.getItem('user_theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
+$('themeToggle').onclick=()=>{const t=document.documentElement.dataset.theme==='dark'?'light':'dark';localStorage.setItem('user_theme',t);applyTheme(t)};
+function escapeHTML(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+async function api(body){const token=localStorage.getItem('user_session_token');const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify(body)});return r.json()}
+function fail(msg){$('notice').textContent=msg;$('notice').style.display='block'}
+async function load(){
+ const identityRaw=localStorage.getItem('user_session_identity'); const token=localStorage.getItem('user_session_token');
+ if(!identityRaw||!token){location.replace('Access.html?auth=required&redirect=account-details.html');return}
+ let identity; try{identity=JSON.parse(identityRaw)}catch{location.replace('Access.html?auth=required&redirect=account-details.html');return}
+ try{
+  const d=await api({type:'get_account_details',lang:localStorage.getItem('user_lang')||'ja'});
+  if(!d.success){if(d.message==='Unauthorized') return location.replace('Access.html?auth=required&redirect=account-details.html');throw new Error(d.message||'取得に失敗しました')}
+  const email=d.email||identity.email||'-', id=d.userId||identity.userId||'-', tier=d.tier||'standard', banned=!!d.isBanned;
+  $('email').textContent=email;$('userId').textContent=`ID: ${id}`;$('avatar').textContent=(email[0]||'U').toUpperCase();$('points').textContent=Number(d.points||0).toLocaleString('ja-JP');
+  $('tier').textContent=tier.toUpperCase();$('status').textContent=banned?'アクセス制限中':'正常';$('status').className=`badge ${banned?'danger':'ok'}`;
+  $('infoEmail').textContent=email;$('infoId').textContent=id;$('infoTier').textContent=tier;$('infoStatus').textContent=banned?(d.bannedUntil?`制限中 (${new Date(d.bannedUntil).toLocaleString('ja-JP')})`:'制限中'):'正常';
+  const h=Array.isArray(d.history)?d.history:[];$('historyCount').textContent=`${h.length}件`;$('historyList').innerHTML=h.length?h.slice(0,10).map(x=>`<div class="history-item"><div class="history-icon"><i data-lucide="${escapeHTML(x.icon||'package-check')}"></i></div><div><div class="history-title">${escapeHTML(x.title||'コンテンツ')}</div><div class="history-meta">${escapeHTML(x.code||'')}</div></div><div class="history-date muted">${x.date?new Date(x.date).toLocaleString('ja-JP'):'-'}</div></div>`).join(''):'<div class="muted">利用履歴はありません。</div>';lucide.createIcons();
+ }catch(e){fail(`アカウント情報を読み込めませんでした: ${e.message}`);$('historyList').innerHTML='<div class="muted">データを取得できませんでした。</div>'}
+}
+$('logout').onclick=()=>{localStorage.removeItem('user_session_identity');localStorage.removeItem('user_session_token');document.cookie='user_session_token=; path=/; max-age=0';location.replace('Access.html?logout=true')};
+lucide.createIcons();load();
+</script>
+</body></html>
