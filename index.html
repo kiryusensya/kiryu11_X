@@ -1443,9 +1443,9 @@ button, input, textarea { font-family: var(--font-stack); }
 [data-theme="light"] .account-ban-period{color:#3b0805;background:rgba(189,23,16,.06);border-color:rgba(189,23,16,.18)}
 .account-ban-logout{min-width:210px;min-height:54px;padding:0 28px;border:1px solid rgba(255,91,81,.9);border-radius:999px;color:#fff;background:linear-gradient(180deg,#ff453a,#c81710);box-shadow:0 13px 34px rgba(255,59,48,.34);font-family:var(--font-stack);font-size:16px;font-weight:800;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease,filter .2s ease}.account-ban-logout:hover{transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 17px 42px rgba(255,59,48,.48)}.account-ban-logout:active{transform:translateY(1px) scale(.98)}body.account-is-banned:not(.account-page-active) .rgl-hero-content{display:none!important}body.account-is-banned:not(.account-page-active) .account-ban-warning{display:block}body.account-is-banned:not(.account-page-active) .rgl-bg-image{filter:brightness(.2) saturate(.25) contrast(1.15)}
 [data-theme="light"] body.account-is-banned:not(.account-page-active) .rgl-bg-image{filter:brightness(.72) saturate(.35) contrast(.92)}
-@keyframes accountBanPulse{0%,100%{transform:scale(1);box-shadow:0 0 30px rgba(255,59,48,.32)}50%{transform:scale(1.06);box-shadow:0 0 58px rgba(255,59,48,.68)}}@media(max-width:768px){
+@keyframes accountBanPulse{0%,100%{transform:scale(1);box-shadow:0 0 30px rgba(255,59,48,.32)}50%{transform:scale(1.06);box-shadow:0 0 58px rgba(255,59,48,.68)}}body.account-page-active .account-back-btn{display:none!important}
+@media(max-width:768px){
 body.account-page-active .mobile-store-view{display:none!important}
-body.account-page-active .account-back-btn{display:none!important}
 body.account-page-active .account-head{display:flex;align-items:center;justify-content:flex-start;margin-bottom:26px}
 body.account-page-active .account-head>div{display:flex;align-items:center;min-width:0;white-space:nowrap}
 body.account-page-active .account-kicker{display:none}
