@@ -347,6 +347,69 @@ export default async function handler(req, res) {
         return res.status(200).json({ success: true });
     }
 
+    // アカウント詳細取得
+    // 認証済みJWTのユーザーIDだけを使用し、クライアントから渡されたuserIdは使用しない
+    if (type === 'get_account_details') {
+      if (!authUserId) {
+        return res.status(401).json({ success: false, message: "Unauthorized" });
+      }
+
+      const { data: accountUser, error: accountUserError } = await supabase
+        .from('users')
+        .select('id, email, points, app_tier, banned_until')
+        .eq('id', authUserId)
+        .maybeSingle();
+
+      if (accountUserError) {
+        console.error("Account details user fetch error:", accountUserError);
+        return res.status(500).json({ success: false, message: "Account fetch failed" });
+      }
+
+      if (!accountUser) {
+        return res.status(404).json({ success: false, message: "User not found" });
+      }
+
+      const { data: accountHistories, error: accountHistoryError } = await supabase
+        .from('histories')
+        .select('created_at, codes(アクティベーションコード, contents("タイトル(jp)", アイコン))')
+        .eq('user_id', authUserId)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (accountHistoryError) {
+        console.error("Account details history fetch error:", accountHistoryError);
+        return res.status(500).json({ success: false, message: "History fetch failed" });
+      }
+
+      const accountHistory = (accountHistories || []).map(row => {
+        const codeData = row.codes || {};
+        const contentData = codeData.contents || {};
+
+        return {
+          title: contentData['タイトル(jp)'] || '不明なコンテンツ',
+          code: codeData['アクティベーションコード'] || '',
+          icon: contentData['アイコン'] || 'package-check',
+          date: row.created_at
+        };
+      });
+
+      const bannedUntil = accountUser.banned_until || null;
+      const accountIsBanned = Boolean(
+        bannedUntil && new Date(bannedUntil).getTime() > Date.now()
+      );
+
+      return res.status(200).json({
+        success: true,
+        userId: accountUser.id,
+        email: accountUser.email,
+        points: accountUser.points || 0,
+        tier: accountUser.app_tier || 'standard',
+        isBanned: accountIsBanned,
+        bannedUntil,
+        history: accountHistory
+      });
+    }
+
     // 管理者用機能
     if (type.startsWith('admin_')) {
         if (!isAdmin) return res.status(401).json({ success: false, message: "管理者権限がありません" });
