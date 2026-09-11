@@ -1,15 +1,14 @@
 <!DOCTYPE html>
-<html lang="ja" data-theme="dark"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<html data-theme="dark" lang="ja"><head><meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
 <title>kiryu11 X</title>
-<link rel="icon" type="image/svg+xml" href="./kiryu11.svg">
-<link rel="preconnect" href="https://fonts.googleapis.com/">
-<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./_.k__yu.10__Developers_files/all.min.css">
+<link href="./kiryu11.svg" rel="icon" type="image/svg+xml"/>
+<link href="https://fonts.googleapis.com/" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Sans+KR:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="./_.k__yu.10__Developers_files/all.min.css" rel="stylesheet"/>
 <script src="https://unpkg.com/lucide@latest"></script>
-
 <style>
 /* --- FONT FACE DEFINITIONS --- */
 @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
@@ -1436,371 +1435,306 @@ button, input, textarea { font-family: var(--font-stack); }
 </style>
 </head>
 <body>
-
-<canvas id="particleCanvas" width="1125" height="605"></canvas>
-
-<div id="langSelectionOverlay" class="modal-overlay active" style="opacity: 1; background: var(--bg-color); z-index: 10000; display: none;">
-  <div class="theme-pill intro-theme-btn" id="introThemeToggle"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="moon" aria-hidden="true" id="introThemeIcon" class="lucide lucide-moon lucide-sun"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path></svg></div>
-  <div class="intro-container">
-    <div class="intro-header"><span class="intro-brand">kiryu10 Developers</span><h2 class="intro-title">Select Language</h2></div>
-    <div class="lang-grid">
-      <div class="lang-card font-jp" onclick="setInitialLanguage('ja')"><div class="lang-name">日本語</div></div>
-      <div class="lang-card font-en" onclick="setInitialLanguage('en')"><div class="lang-name">English</div></div>
-      <div class="lang-card font-cn-s" onclick="setInitialLanguage('zh')"><div class="lang-name">简体中文</div></div>
-      <div class="lang-card font-cn-t" onclick="setInitialLanguage('zh-TW')"><div class="lang-name">繁體中文</div></div>
-      <div class="lang-card font-kr" onclick="setInitialLanguage('ko')"><div class="lang-name">한국어</div></div>
-      <div class="lang-card font-ru" onclick="setInitialLanguage('ru')"><div class="lang-name">Русский</div></div>
-    </div>
-  </div>
+<canvas height="605" id="particleCanvas" width="1125"></canvas>
+<div class="modal-overlay active" id="langSelectionOverlay" style="opacity: 1; background: var(--bg-color); z-index: 10000; display: none;">
+<div class="theme-pill intro-theme-btn" id="introThemeToggle"><svg aria-hidden="true" class="lucide lucide-moon lucide-sun" data-lucide="moon" fill="none" height="24" id="introThemeIcon" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path></svg></div>
+<div class="intro-container">
+<div class="intro-header"><span class="intro-brand">kiryu10 Developers</span><h2 class="intro-title">Select Language</h2></div>
+<div class="lang-grid">
+<div class="lang-card font-jp" onclick="setInitialLanguage('ja')"><div class="lang-name">日本語</div></div>
+<div class="lang-card font-en" onclick="setInitialLanguage('en')"><div class="lang-name">English</div></div>
+<div class="lang-card font-cn-s" onclick="setInitialLanguage('zh')"><div class="lang-name">简体中文</div></div>
+<div class="lang-card font-cn-t" onclick="setInitialLanguage('zh-TW')"><div class="lang-name">繁體中文</div></div>
+<div class="lang-card font-kr" onclick="setInitialLanguage('ko')"><div class="lang-name">한국어</div></div>
+<div class="lang-card font-ru" onclick="setInitialLanguage('ru')"><div class="lang-name">Русский</div></div>
 </div>
-
+</div>
+</div>
 <div class="mobile-nav-overlay" id="mobileNav">
-    <button class="mobile-menu-close" id="mobileMenuCloseBtn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
-    <div class="mobile-nav-content">
-        <a href="index.html" class="mobile-nav-item" data-translate="card1_title">Home</a>
-        <a href="support.html" class="mobile-nav-item" data-translate="card3_title">Support</a>
-    </div>
-    <div class="mobile-menu-footer">
-      <div style="margin-bottom: 24px; display: flex; justify-content: center;">
-             <a href="terms-of-service.html" target="_blank" style="display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 700; color: var(--modal-text-main); opacity: 0.5; text-decoration: none; transition: opacity 0.2s;">
-                 <span data-translate="footer_terms">利用規約</span>
-                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="external-link" aria-hidden="true" class="lucide lucide-external-link"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>
-             </a>
-         </div>
-         <div class="lang-trigger-sidebar" id="mobileLangTrigger">
-             <span style="display:flex;align-items:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="globe" aria-hidden="true" size="16" class="lucide lucide-globe"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg> <span id="mobileCurrentLangLabel">日本語</span></span>
-             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-up" aria-hidden="true" size="14" style="opacity:0.5;" class="lucide lucide-chevron-up"><path d="m18 15-6-6-6 6"></path></svg>
-         </div>
-         <ul class="lang-list" id="mobileLangMenu">
-            <li class="lang-option" data-value="ja">日本語</li>
-            <li class="lang-option" data-value="en">English</li>
-            <li class="lang-option" data-value="zh">简体中文</li>
-            <li class="lang-option" data-value="zh-TW">繁體中文</li>
-            <li class="lang-option" data-value="ko">한국어</li>
-            <li class="lang-option" data-value="ru">Русский</li>
-         </ul>
-    </div>
+<button class="mobile-menu-close" id="mobileMenuCloseBtn"><svg aria-hidden="true" class="lucide lucide-x" data-lucide="x" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
+<div class="mobile-nav-content">
+<a class="mobile-nav-item" data-translate="card1_title" href="index.html">Home</a>
+<a class="mobile-nav-item" data-translate="card3_title" href="support.html">Support</a>
 </div>
-
+<div class="mobile-menu-footer">
+<div style="margin-bottom: 24px; display: flex; justify-content: center;">
+<a href="terms-of-service.html" style="display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 700; color: var(--modal-text-main); opacity: 0.5; text-decoration: none; transition: opacity 0.2s;" target="_blank">
+<span data-translate="footer_terms">利用規約</span>
+<svg aria-hidden="true" class="lucide lucide-external-link" data-lucide="external-link" fill="none" height="14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="14" xmlns="http://www.w3.org/2000/svg"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>
+</a>
+</div>
+<div class="lang-trigger-sidebar" id="mobileLangTrigger">
+<span style="display:flex;align-items:center;gap:8px;"><svg aria-hidden="true" class="lucide lucide-globe" data-lucide="globe" fill="none" height="24" size="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg> <span id="mobileCurrentLangLabel">日本語</span></span>
+<svg aria-hidden="true" class="lucide lucide-chevron-up" data-lucide="chevron-up" fill="none" height="24" size="14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" style="opacity:0.5;" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="m18 15-6-6-6 6"></path></svg>
+</div>
+<ul class="lang-list" id="mobileLangMenu">
+<li class="lang-option" data-value="ja">日本語</li>
+<li class="lang-option" data-value="en">English</li>
+<li class="lang-option" data-value="zh">简体中文</li>
+<li class="lang-option" data-value="zh-TW">繁體中文</li>
+<li class="lang-option" data-value="ko">한국어</li>
+<li class="lang-option" data-value="ru">Русский</li>
+</ul>
+</div>
+</div>
 <div class="rgl-wrapper" id="mainContainer" style="opacity: 1;">
-    
-   <aside class="rgl-sidebar">
-        <div class="rgl-brand-area">
-            <button class="mobile-menu-trigger" id="mobileMenuBtn">
-                <i data-lucide="menu"></i>
-            </button>
-            <div class="rgl-brand">
-                <span data-translate="brand_name">kiryu11 X</span><div class="brand-header-actions" id="brandHeaderActions"></div>
-            </div>
-        </div>
-        
-        <div class="sidebar-main-nav capsule-menu">
-    <a href="index.html" class="rgl-tab active spotlight-hover" data-translate="card1_title">Home</a>
-    <a href="support.html" class="rgl-tab spotlight-hover" data-translate="card3_title">Support</a>
+<aside class="rgl-sidebar">
+<div class="rgl-brand-area">
+<button class="mobile-menu-trigger" id="mobileMenuBtn">
+<i data-lucide="menu"></i>
+</button>
+<div class="rgl-brand">
+<span data-translate="brand_name">kiryu11 X</span><div class="brand-header-actions" id="brandHeaderActions"></div>
 </div>
-
-        <div class="rgl-scroll-content" style="padding-top: 10px;">
-            <div class="rgl-menu-section" id="secAvailable" style="display: block;">
-                <div class="rgl-menu-title" data-translate="label_available">利用可能</div>
-                <div id="sidebarAvailableList" class="rgl-sidebar-list"><div style="padding:10px; opacity:0.5; font-size:12px;">-</div></div>
-            </div>
-            
-            <div class="rgl-menu-section" id="secLibrary" style="display:none;">
-                <div class="rgl-menu-title" data-translate="label_library">ライブラリ</div>
-                <div id="sidebarLibraryList" class="rgl-sidebar-list"><div style="padding:10px; opacity:0.5; font-size:12px;">Loading...</div></div>
-            </div>
-        </div>
-
-        <div class="rgl-bottom-controls">
-            <div style="margin-bottom: 16px; display: flex; justify-content: center;">
-                <a href="terms-of-service.html" target="_blank" style="display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: var(--sidebar-text); opacity: 0.5; text-decoration: none; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.5'">
-                    <span data-translate="footer_terms">利用規約</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="external-link" aria-hidden="true" class="lucide lucide-external-link"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>
-                </a>
-            </div>
-            <div style="position:relative;">
-                 <button class="lang-trigger-sidebar" id="langTrigger">
-                     <span style="display:flex;align-items:center;gap:8px;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="globe" aria-hidden="true" size="16" class="lucide lucide-globe"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg> <span id="currentLangLabel">日本語</span></span>
-                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-up" aria-hidden="true" size="14" style="opacity:0.5;" class="lucide lucide-chevron-up"><path d="m18 15-6-6-6 6"></path></svg>
-                 </button>
-                 <ul class="lang-list" id="langMenu">
-                    <li class="lang-option" data-value="ja">日本語</li>
-                    <li class="lang-option" data-value="en">English</li>
-                    <li class="lang-option" data-value="zh">简体中文</li>
-                    <li class="lang-option" data-value="zh-TW">繁體中文</li>
-                    <li class="lang-option" data-value="ko">한국어</li>
-                    <li class="lang-option" data-value="ru">Русский</li>
-                 </ul>
-            </div>
-            
-            <div style="margin-top: 20px; font-size: 10px; opacity: 0.3; text-align: center;">
+</div>
+<div class="sidebar-main-nav capsule-menu">
+<a class="rgl-tab active spotlight-hover" data-translate="card1_title" href="index.html">Home</a>
+<a class="rgl-tab spotlight-hover" data-translate="card3_title" href="support.html">Support</a>
+</div>
+<div class="rgl-scroll-content" style="padding-top: 10px;">
+<div class="rgl-menu-section" id="secAvailable" style="display: block;">
+<div class="rgl-menu-title" data-translate="label_available">利用可能</div>
+<div class="rgl-sidebar-list" id="sidebarAvailableList"><div style="padding:10px; opacity:0.5; font-size:12px;">-</div></div>
+</div>
+<div class="rgl-menu-section" id="secLibrary" style="display:none;">
+<div class="rgl-menu-title" data-translate="label_library">ライブラリ</div>
+<div class="rgl-sidebar-list" id="sidebarLibraryList"><div style="padding:10px; opacity:0.5; font-size:12px;">Loading...</div></div>
+</div>
+</div>
+<div class="rgl-bottom-controls">
+<div style="margin-bottom: 16px; display: flex; justify-content: center;">
+<a href="terms-of-service.html" onmouseout="this.style.opacity='0.5'" onmouseover="this.style.opacity='1'" style="display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: var(--sidebar-text); opacity: 0.5; text-decoration: none; transition: opacity 0.2s;" target="_blank">
+<span data-translate="footer_terms">利用規約</span>
+<svg aria-hidden="true" class="lucide lucide-external-link" data-lucide="external-link" fill="none" height="12" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="12" xmlns="http://www.w3.org/2000/svg"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>
+</a>
+</div>
+<div style="position:relative;">
+<button class="lang-trigger-sidebar" id="langTrigger">
+<span style="display:flex;align-items:center;gap:8px;"><svg aria-hidden="true" class="lucide lucide-globe" data-lucide="globe" fill="none" height="24" size="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg> <span id="currentLangLabel">日本語</span></span>
+<svg aria-hidden="true" class="lucide lucide-chevron-up" data-lucide="chevron-up" fill="none" height="24" size="14" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" style="opacity:0.5;" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="m18 15-6-6-6 6"></path></svg>
+</button>
+<ul class="lang-list" id="langMenu">
+<li class="lang-option" data-value="ja">日本語</li>
+<li class="lang-option" data-value="en">English</li>
+<li class="lang-option" data-value="zh">简体中文</li>
+<li class="lang-option" data-value="zh-TW">繁體中文</li>
+<li class="lang-option" data-value="ko">한국어</li>
+<li class="lang-option" data-value="ru">Русский</li>
+</ul>
+</div>
+<div style="margin-top: 20px; font-size: 10px; opacity: 0.3; text-align: center;">
                 ©2026 kiryu-sensya V7.0
            </div>
-        </div>
-    </aside>
-
-    <main class="rgl-main">
-        <div class="rgl-bg-image" id="heroBgImage"></div>
-        
-        <nav class="rgl-header">
-            
-            <div class="theme-pill" id="themeToggle">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="moon" aria-hidden="true" id="themeIcon" class="lucide lucide-moon lucide-sun"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path></svg>
-            </div>
-
-            <div style="position:relative;">
-                <div class="theme-pill" id="btnOpenAccount" style="width:40px; height:40px; border:none;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="user-round" aria-hidden="true" size="20" class="lucide lucide-user-round"><circle cx="12" cy="8" r="5"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg> 
-                </div>
-
-                <div id="accountDropdown" class="account-dropdown">
-                    <div id="loggedInView" style="display: block;">
-                      <div class="account-mini-header">
-                        <span class="mini-user-id" id="displayUserEmail" style="font-size:16px; font-weight:800; word-break: break-all;">122</span>
-                        <span id="displayUserPoints">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-coins"><circle cx="8" cy="8" r="6"></circle><path d="M18.09 10.37A6 6 0 1 1 10.34 18"></path><path d="M7 6h1v4"></path><path d="m16.71 13.88.7.71-2.82 2.82"></path></svg>
-                            <span id="ptValue">0</span> pt
+</div>
+</aside>
+<main class="rgl-main">
+<div class="rgl-bg-image" id="heroBgImage"></div>
+<nav class="rgl-header">
+<div class="theme-pill" id="themeToggle">
+<svg aria-hidden="true" class="lucide lucide-moon lucide-sun" data-lucide="moon" fill="none" height="24" id="themeIcon" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path></svg>
+</div>
+<div style="position:relative;">
+<div class="theme-pill" id="btnOpenAccount" style="width:40px; height:40px; border:none;">
+<svg aria-hidden="true" class="lucide lucide-user-round" data-lucide="user-round" fill="none" height="24" size="20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="8" r="5"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg>
+</div>
+<div class="account-dropdown" id="accountDropdown">
+<div id="loggedInView" style="display: block;">
+<div class="account-mini-header">
+<span class="mini-user-id" id="displayUserEmail" style="font-size:16px; font-weight:800; word-break: break-all;">122</span>
+<span id="displayUserPoints">
+<svg class="lucide lucide-coins" fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="6"></circle><path d="M18.09 10.37A6 6 0 1 1 10.34 18"></path><path d="M7 6h1v4"></path><path d="m16.71 13.88.7.71-2.82 2.82"></path></svg>
+<span id="ptValue">0</span> pt
                         </span>
-                      </div>
-                      <div class="menu-list">
-                         <button class="menu-btn" id="btnMenuRedeem">
-                            <span data-translate="btn_redeem_code">コード引き換え</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="key-round" aria-hidden="true" size="18" class="lucide lucide-key-round"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"></path><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"></circle></svg>
-                         </button>
-
-                         <button class="menu-btn" id="btnMenuHistory">
-                          <span data-translate="btn_history">利用履歴</span>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-history" size="18"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
-                    </button>
-
-                    <button class="menu-btn" id="btnMenuPassword">
-                    <span data-translate="modal_acc_change_pass">パスワード変更</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock" size="18"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                 </button>
-                         <button class="menu-btn" id="btnLogout" style="color:#FF3B30;">
-                            <span data-translate="btn_logout">ログアウト</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="log-out" aria-hidden="true" size="18" class="lucide lucide-log-out"><path d="m16 17 5-5-5-5"></path><path d="M21 12H9"></path><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path></svg>
-                         </button>
-                      </div>
-                    </div>
-                </div>
-            </div>
-        </nav>
-
-        <section class="account-page-view" id="accountPageView"><div class="account-shell"><header class="account-head"><div><div class="account-kicker" data-ai="kicker">ACCOUNT CENTER</div><h1 class="account-title" data-ai="title">アカウント詳細</h1><p class="account-sub" data-ai="subtitle">登録情報、権限、ポイント、利用履歴を確認できます。</p></div><button class="account-btn" id="accountBackBtn"><i data-lucide="arrow-left"></i><span data-ai="back">ホームへ戻る</span></button></header><div class="account-error" id="accountError"></div><div class="account-grid"><article class="account-card account-identity"><div class="account-avatar" id="accountAvatar">U</div><div><h2 class="account-email" id="accountEmail">-</h2><div class="account-muted" id="accountUserId">-</div><div class="account-badges"><span class="account-badge" id="accountTier">-</span><span class="account-badge ok" id="accountStatus">-</span></div></div></article><article class="account-card"><span class="account-muted" data-ai="points">保有ポイント</span><div class="account-points"><span id="accountPoints">0</span> <small>pt</small></div></article></div><div class="account-content"><article class="account-card"><div class="account-section-head"><h2 data-ai="basic">基本情報</h2><i data-lucide="id-card"></i></div><div class="account-row"><span class="account-muted" data-ai="identifier">個人識別子</span><b id="infoEmail">-</b></div><div class="account-row"><span class="account-muted" data-ai="userId">ユーザーID</span><b id="infoId">-</b></div><div class="account-row"><span class="account-muted" data-ai="tier">アカウント種別</span><b id="infoTier">-</b></div><div class="account-row"><span class="account-muted" data-ai="access">アクセス状態</span><b id="infoStatus">-</b></div></article><article class="account-card"><div class="account-section-head"><h2 data-ai="security">セキュリティ</h2><i data-lucide="shield-check"></i></div><p class="account-sub" data-ai="securityDesc">パスワードと現在のセッションを管理します。</p><div class="account-actions"><button class="account-btn primary" id="accountPassword"><i data-lucide="key-round"></i><span data-ai="password">パスワード変更</span></button><button class="account-btn danger" id="accountLogout"><i data-lucide="log-out"></i><span data-ai="logout">ログアウト</span></button></div></article><article class="account-card account-history"><div class="account-section-head"><h2 data-ai="history">最近の利用履歴</h2><span class="account-muted" id="historyCount">0</span></div><div class="account-history-list" id="accountHistory"></div></article></div></div></section><div class="rgl-hero">
-            <div class="rgl-hero-content">
-                <h1 class="rgl-logo-text" id="heroTitle" data-translate="hero_title">個人認証センター</h1>
-                <p class="rgl-desc" id="heroDesc" data-translate="hero_sub" style="display:none !important;">アクセス権限とリソースの管理。プロダクトコードを入力してコンテンツを解除してください。</p>
-                <div class="rgl-action-bar">
-                    <button id="heroActionBtn" class="rgl-cta-btn">
-                        <span data-translate="btn_redeem_code">コード引き換え</span>
-                    </button>
-                    <button id="heroBuyBtn" class="rgl-buy-btn" style="display:none;">
-                        <span id="heroBuyBtnText">購入する</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div id="mobileStoreView" class="mobile-store-view">
-            <div class="mobile-store-header">
-                <h2 style="font-size: 24px; font-weight: 800; color: var(--modal-text-main); margin: 0;" data-translate="tab_store">ストア</h2>
-                <button class="mobile-store-redeem-btn" onclick="openAuthModal()" data-translate="btn_have_code">コードをお持ちですか</button>
-            </div>
-            <div id="mobileStoreGrid" class="mobile-store-grid"></div>
-        </div>
-
-    </main>
-
 </div>
-
-    <div style="position: absolute; bottom: 16px; left: 16px; text-align: left;">
-        <button class="lang-trigger-sidebar" id="loginLangTrigger" style="width: auto; height: 36px; padding: 0 12px !important; border: none; background: transparent; color: var(--modal-text-main);">
-            <span style="display:flex;align-items:center;gap:6px;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg> 
-                <span id="loginLangLabel">日本語</span>
-            </span>
-        </button>
-        <ul class="lang-list" id="loginLangMenu" style="bottom: 40px; left: 0; width: 140px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
-            <li class="lang-option" data-value="ja">日本語</li>
-            <li class="lang-option" data-value="en">English</li>
-            <li class="lang-option" data-value="zh">简体中文</li>
-            <li class="lang-option" data-value="zh-TW">繁體中文</li>
-            <li class="lang-option" data-value="ko">한국어</li>
-            <li class="lang-option" data-value="ru">Русский</li>
-        </ul>
-    </div>
-
- <div id="accountModal" class="modal-overlay" style="z-index: 10005;">
-  <div class="modal-sheet" style="max-width: 450px; width: 90%; text-align: center; padding: 40px;">
-    <div style="position:absolute; top:20px; right:20px; cursor:pointer; opacity:0.6; z-index:10;" id="closeAccountModalBtn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
-    </div>
-    
-    <h2 style="font-size:24px; font-weight:800; margin: 0 0 20px 0; color: var(--modal-text-main);" data-translate="modal_acc_title">パスワード変更</h2>
-    
-    <div style="text-align: left; margin-bottom: 24px; background: rgba(128,128,128,0.05); padding: 16px; border-radius: 12px; border: 1px solid rgba(128,128,128,0.1);">
-        <label style="font-size:12px; font-weight:700; opacity:0.7; color:var(--modal-text-main); display:block; margin-bottom:4px;" data-translate="modal_acc_userid">ユーザーID</label>
-        <div id="accountModalUserId" style="font-size:16px; font-weight:800; color:var(--modal-text-main); word-break:break-all;">-</div>
-    </div>
-
-    <div style="text-align:left;">
-        <label style="font-size:14px; font-weight:800; color:var(--modal-text-main); display:block; margin-bottom:12px;" data-translate="modal_acc_change_pass">パスワードの変更</label>
-        <div class="form-group" style="margin-bottom:12px;">
-            <input type="password" id="accCurrentPass" class="form-input" placeholder="現在のパスワード" style="height: 50px;">
-        </div>
-        <div class="form-group" style="margin-bottom:12px;">
-            <input type="password" id="accNewPass" class="form-input" placeholder="新しいパスワード" style="height: 50px;">
-        </div>
-        <div class="form-group" style="margin-bottom:20px;">
-            <input type="password" id="accNewPassConfirm" class="form-input" placeholder="新しいパスワード (確認用)" style="height: 50px;">
-        </div>
-        
-        <div id="accStatusMessage" style="font-size:13px; font-weight: 700; margin-bottom:12px; min-height:18px; text-align:center;"></div>
-        <button id="btnSubmitAccPassChange" class="btn-primary" style="height:50px; font-size: 16px; border-radius: 25px; margin-top: 0;" data-translate="modal_acc_btn_change">パスワードを変更</button>
-    </div>
-  </div>
- </div>
-  <div id="historyModal" class="modal-overlay" style="z-index: 10005;">
-  <div class="modal-sheet" style="max-width: 600px; width: 90%; text-align: left; padding: 40px; display: flex; flex-direction: column; max-height: 80vh;">
-    <div style="position:absolute; top:20px; right:20px; cursor:pointer; opacity:0.6; z-index:10;" id="closeHistoryModalBtn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
-    </div>
-    
-    <h2 style="font-size:24px; font-weight:800; margin: 0 0 20px 0; color: var(--modal-text-main);" data-translate="modal_history_title">利用履歴</h2>
-    
-    <div id="historyListContainer" style="overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; padding-right: 4px;">
-        </div>
-  </div>
+<div class="menu-list">
+<button class="menu-btn" id="btnMenuRedeem">
+<span data-translate="btn_redeem_code">コード引き換え</span> <svg aria-hidden="true" class="lucide lucide-key-round" data-lucide="key-round" fill="none" height="24" size="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"></path><circle cx="16.5" cy="7.5" fill="currentColor" r=".5"></circle></svg>
+</button>
+<button class="menu-btn" id="btnMenuHistory">
+<span data-translate="btn_history">利用履歴</span>
+<svg class="lucide lucide-history" fill="none" height="24" size="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path><path d="M12 7v5l4 2"></path></svg>
+</button>
+<button class="menu-btn" id="btnMenuPassword">
+<span data-translate="modal_acc_change_pass">パスワード変更</span>
+<svg class="lucide lucide-lock" fill="none" height="24" size="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><rect height="11" rx="2" ry="2" width="18" x="3" y="11"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+</button>
+<button class="menu-btn" id="btnLogout" style="color:#FF3B30;">
+<span data-translate="btn_logout">ログアウト</span> <svg aria-hidden="true" class="lucide lucide-log-out" data-lucide="log-out" fill="none" height="24" size="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="m16 17 5-5-5-5"></path><path d="M21 12H9"></path><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path></svg>
+</button>
 </div>
-
+</div>
+</div>
+</div>
+</nav>
+<section class="account-page-view" id="accountPageView"><div class="account-shell"><header class="account-head"><div><div class="account-kicker" data-ai="kicker">ACCOUNT CENTER</div><h1 class="account-title" data-ai="title">アカウント詳細</h1><p class="account-sub" data-ai="subtitle">登録情報、権限、ポイント、利用履歴を確認できます。</p></div><button class="account-btn" id="accountBackBtn"><i data-lucide="arrow-left"></i><span data-ai="back">ホームへ戻る</span></button></header><div class="account-error" id="accountError"></div><div class="account-grid"><article class="account-card account-identity"><div class="account-avatar" id="accountAvatar">U</div><div><h2 class="account-email" id="accountEmail">-</h2><div class="account-muted" id="accountUserId">-</div><div class="account-badges"><span class="account-badge" id="accountTier">-</span><span class="account-badge ok" id="accountStatus">-</span></div></div></article><article class="account-card"><span class="account-muted" data-ai="points">保有ポイント</span><div class="account-points"><span id="accountPoints">0</span> <small>pt</small></div></article></div><div class="account-content"><article class="account-card"><div class="account-section-head"><h2 data-ai="basic">基本情報</h2><i data-lucide="id-card"></i></div><div class="account-row"><span class="account-muted" data-ai="identifier">個人識別子</span><b id="infoEmail">-</b></div><div class="account-row"><span class="account-muted" data-ai="userId">ユーザーID</span><b id="infoId">-</b></div><div class="account-row"><span class="account-muted" data-ai="tier">アカウント種別</span><b id="infoTier">-</b></div><div class="account-row"><span class="account-muted" data-ai="access">アクセス状態</span><b id="infoStatus">-</b></div></article><article class="account-card"><div class="account-section-head"><h2 data-ai="security">セキュリティ</h2><i data-lucide="shield-check"></i></div><p class="account-sub" data-ai="securityDesc">パスワードと現在のセッションを管理します。</p><div class="account-actions"><button class="account-btn primary" id="accountPassword"><i data-lucide="key-round"></i><span data-ai="password">パスワード変更</span></button><button class="account-btn danger" id="accountLogout"><i data-lucide="log-out"></i><span data-ai="logout">ログアウト</span></button></div></article><article class="account-card account-history"><div class="account-section-head"><h2 data-ai="history">最近の利用履歴</h2><span class="account-muted" id="historyCount">0</span></div><div class="account-history-list" id="accountHistory"></div></article></div></div></section><div class="rgl-hero">
+<div class="rgl-hero-content">
+<h1 class="rgl-logo-text" data-translate="hero_title" id="heroTitle">個人認証センター</h1>
+<p class="rgl-desc" data-translate="hero_sub" id="heroDesc" style="display:none !important;">アクセス権限とリソースの管理。プロダクトコードを入力してコンテンツを解除してください。</p>
+<div class="rgl-action-bar">
+<button class="rgl-cta-btn" id="heroActionBtn">
+<span data-translate="btn_redeem_code">コード引き換え</span>
+</button>
+<button class="rgl-buy-btn" id="heroBuyBtn" style="display:none;">
+<span id="heroBuyBtnText">購入する</span>
+</button>
+</div>
+</div>
+</div>
+<div class="mobile-store-view" id="mobileStoreView">
+<div class="mobile-store-header">
+<h2 data-translate="tab_store" style="font-size: 24px; font-weight: 800; color: var(--modal-text-main); margin: 0;">ストア</h2>
+<button class="mobile-store-redeem-btn" data-translate="btn_have_code" onclick="openAuthModal()">コードをお持ちですか</button>
+</div>
+<div class="mobile-store-grid" id="mobileStoreGrid"></div>
+</div>
+</main>
+</div>
+<div style="position: absolute; bottom: 16px; left: 16px; text-align: left;">
+<button class="lang-trigger-sidebar" id="loginLangTrigger" style="width: auto; height: 36px; padding: 0 12px !important; border: none; background: transparent; color: var(--modal-text-main);">
+<span style="display:flex;align-items:center;gap:6px;">
+<svg fill="none" height="16" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="16" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg>
+<span id="loginLangLabel">日本語</span>
+</span>
+</button>
+<ul class="lang-list" id="loginLangMenu" style="bottom: 40px; left: 0; width: 140px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+<li class="lang-option" data-value="ja">日本語</li>
+<li class="lang-option" data-value="en">English</li>
+<li class="lang-option" data-value="zh">简体中文</li>
+<li class="lang-option" data-value="zh-TW">繁體中文</li>
+<li class="lang-option" data-value="ko">한국어</li>
+<li class="lang-option" data-value="ru">Русский</li>
+</ul>
+</div>
+<div class="modal-overlay" id="accountModal" style="z-index: 10005;">
+<div class="modal-sheet" style="max-width: 450px; width: 90%; text-align: center; padding: 40px;">
+<div id="closeAccountModalBtn" style="position:absolute; top:20px; right:20px; cursor:pointer; opacity:0.6; z-index:10;">
+<svg class="lucide lucide-x" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+</div>
+<h2 data-translate="modal_acc_title" style="font-size:24px; font-weight:800; margin: 0 0 20px 0; color: var(--modal-text-main);">パスワード変更</h2>
+<div style="text-align: left; margin-bottom: 24px; background: rgba(128,128,128,0.05); padding: 16px; border-radius: 12px; border: 1px solid rgba(128,128,128,0.1);">
+<label data-translate="modal_acc_userid" style="font-size:12px; font-weight:700; opacity:0.7; color:var(--modal-text-main); display:block; margin-bottom:4px;">ユーザーID</label>
+<div id="accountModalUserId" style="font-size:16px; font-weight:800; color:var(--modal-text-main); word-break:break-all;">-</div>
+</div>
+<div style="text-align:left;">
+<label data-translate="modal_acc_change_pass" style="font-size:14px; font-weight:800; color:var(--modal-text-main); display:block; margin-bottom:12px;">パスワードの変更</label>
+<div class="form-group" style="margin-bottom:12px;">
+<input class="form-input" id="accCurrentPass" placeholder="現在のパスワード" style="height: 50px;" type="password"/>
+</div>
+<div class="form-group" style="margin-bottom:12px;">
+<input class="form-input" id="accNewPass" placeholder="新しいパスワード" style="height: 50px;" type="password"/>
+</div>
+<div class="form-group" style="margin-bottom:20px;">
+<input class="form-input" id="accNewPassConfirm" placeholder="新しいパスワード (確認用)" style="height: 50px;" type="password"/>
+</div>
+<div id="accStatusMessage" style="font-size:13px; font-weight: 700; margin-bottom:12px; min-height:18px; text-align:center;"></div>
+<button class="btn-primary" data-translate="modal_acc_btn_change" id="btnSubmitAccPassChange" style="height:50px; font-size: 16px; border-radius: 25px; margin-top: 0;">パスワードを変更</button>
+</div>
+</div>
+</div>
+<div class="modal-overlay" id="historyModal" style="z-index: 10005;">
+<div class="modal-sheet" style="max-width: 600px; width: 90%; text-align: left; padding: 40px; display: flex; flex-direction: column; max-height: 80vh;">
+<div id="closeHistoryModalBtn" style="position:absolute; top:20px; right:20px; cursor:pointer; opacity:0.6; z-index:10;">
+<svg class="lucide lucide-x" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+</div>
+<h2 data-translate="modal_history_title" style="font-size:24px; font-weight:800; margin: 0 0 20px 0; color: var(--modal-text-main);">利用履歴</h2>
+<div id="historyListContainer" style="overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; padding-right: 4px;">
+</div>
+</div>
+</div>
 <div id="langSwitchingOverlay" style="position:fixed; inset:0; background:var(--bg-color); z-index:9999; display:none; align-items:center; justify-content:center;">
-  <div class="loading-spinner"></div>
+<div class="loading-spinner"></div>
+</div>
+<div class="modal-overlay" id="authModal">
+<div class="modal-sheet" id="modalContainer">
+<div id="modalCloseBtn" style="position:absolute; top:20px; right:20px; cursor:pointer; z-index:10;"><svg aria-hidden="true" class="lucide lucide-x" data-lucide="x" fill="none" height="24" size="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></div>
+<div id="phase-input" style="display: flex; opacity: 1;">
+<h2 class="modal-title phase-input-title" data-translate="modal_title">アクティベーションコード</h2>
+<p class="modal-sub phase-input-sub-mobile" data-translate="modal_sub" id="mobileInputDesc">アクティベーションコードを使用すると、コンテンツにアクセスできます。アクティベーションコードを利用するには、以下の入力欄に入力してください。</p>
+<div class="phase-input-body">
+<div class="phase-input-left">
+<img alt="Code Background" src="https://static.wixstatic.com/media/2f0694_38068f106089439b89c7902ef4fb3d2d~mv2.jpg"/>
+</div>
+<div class="phase-input-right">
+<div class="phase-input-controls">
+<input autocomplete="off" class="code-field" id="activationCode" placeholder="アクティベーションコード" type="text"/>
+<button class="btn-primary" data-translate="modal_btn_auth" id="btnConfirm">確認</button>
+</div>
+<div class="modal-grey-box phase-input-desc-pc">
+<p class="modal-box-text" data-translate="modal_sub" id="pcInputDesc">アクティベーションコードを使用すると、コンテンツにアクセスできます。<br/>アクティベーションコードを利用するには、以下の入力欄に入力してください。</p>
+</div>
+</div>
+</div>
+</div>
+<div class="new-modal-layout" id="phase-preview" style="display: none; opacity: 0;">
+<h2 class="modal-title-top" data-translate="preview_title">コンテンツ確認</h2>
+<div class="modal-body-flex">
+<div class="modal-left-col">
+<img alt="Thumbnail" id="previewImage" src=""/>
+<div class="modal-thumb-title" id="previewTitleUnderImg"></div>
+</div>
+<div class="modal-right-col">
+<h2 class="mobile-title" data-translate="preview_title">コンテンツ確認</h2>
+<p class="modal-label" data-translate="preview_desc">続行すると以下のコンテンツを受け取ります:</p>
+<h3 class="modal-main-title" id="previewTitle"></h3>
+<div class="modal-grey-box" id="previewWarningBox">
+<p class="modal-box-text is-warning" id="previewWarningText"></p>
+</div>
+<div class="modal-btn-row">
+<button class="btn-outline" data-translate="btn_close" id="btnPreviewClose" style="flex: 3;">閉じる</button>
+<button class="btn-solid" data-translate="btn_continue" id="btnPreviewRedeem" style="flex: 7;">認証する</button>
+</div>
+</div>
+</div>
+</div>
+<div class="new-modal-layout" id="phase-success" style="display: none; opacity: 0;">
+<h2 class="modal-title-top" data-translate="success_title_final">認証成功!!</h2>
+<div class="modal-body-flex">
+<div class="modal-left-col">
+<img alt="Thumbnail" id="successImage2" src=""/>
+<div class="modal-thumb-title" id="successTitleUnderImg"></div>
+</div>
+<div class="modal-right-col">
+<h2 class="mobile-title" data-translate="success_title_final">認証成功!!</h2>
+<p class="modal-label" data-translate="success_desc">このコードで以下のコンテンツが認証されました:</p>
+<h3 class="modal-main-title" id="successBundleName"></h3>
+<div class="modal-grey-box">
+<p class="modal-box-text" id="successMessageText"></p>
+<p class="modal-box-time" id="successTime"></p>
+</div>
+<div class="modal-btn-row" id="successBtnRow">
+<button class="btn-outline" data-translate="btn_close" id="btnSuccessClose" style="width: 100%; flex: none;">閉じる</button>
+<a class="btn-solid" id="btnSuccessDownload" style="flex: 7; display: none; align-items:center; justify-content:center; text-decoration:none;" target="_blank"></a>
+</div>
+</div>
+</div>
+</div>
+<div class="new-modal-layout error-layout" id="phase-error" style="display: none; opacity: 0;">
+<h2 class="modal-title-top error-title-color">⚠ <span data-translate="error_title_prefix">エラー</span> <span id="errorCodeText"></span></h2>
+<div class="modal-body-error">
+<h3 class="modal-error-main-msg" id="errorMessage"></h3>
+<div class="modal-grey-box" id="errorInfoBox" style="margin-bottom: 24px;">
+<p class="modal-box-text" id="errorSubMessage"></p>
+<p class="modal-box-time" id="errorTime"></p>
+</div>
+<div class="modal-btn-row" id="errorBtnRow">
+<button class="btn-outline" data-translate="btn_close" id="btnErrorClose" style="width: 100%; flex: none;">閉じる</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="modal-overlay" id="manageModal" style="z-index: 10006;">
+<div class="modal-sheet" style="max-width: 600px; width: 90%; text-align: left; padding: 40px; display: flex; flex-direction: column; max-height: 80vh;">
+<div id="closeManageModalBtn" style="position:absolute; top:20px; right:20px; cursor:pointer; opacity:0.6; z-index:10;">
+<svg class="lucide lucide-x" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+</div>
+<h2 data-translate="manage_title" style="font-size:24px; font-weight:800; margin: 0 0 20px 0; color: var(--modal-text-main);">ダウンロード管理</h2>
+<p data-translate="manage_desc" style="font-size:14px; font-weight:700; color:var(--modal-text-main); margin: 0 0 16px 0;">インストールするアイテムを選択してください:</p>
+<div id="manageContentList" style="overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; padding-right: 4px;">
+</div>
+</div>
 </div>
 
-<div id="authModal" class="modal-overlay">
-  <div class="modal-sheet" id="modalContainer">
-    <div style="position:absolute; top:20px; right:20px; cursor:pointer; z-index:10;" id="modalCloseBtn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" size="24" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></div>
-    
-    <div id="phase-input" style="display: flex; opacity: 1;">
-      <h2 class="modal-title phase-input-title" data-translate="modal_title">アクティベーションコード</h2>
-      <p class="modal-sub phase-input-sub-mobile" id="mobileInputDesc" data-translate="modal_sub">アクティベーションコードを使用すると、コンテンツにアクセスできます。アクティベーションコードを利用するには、以下の入力欄に入力してください。</p>
-      
-      <div class="phase-input-body">
-          <div class="phase-input-left">
-              <img src="https://static.wixstatic.com/media/2f0694_38068f106089439b89c7902ef4fb3d2d~mv2.jpg" alt="Code Background">
-          </div>
-          <div class="phase-input-right">
-              <div class="phase-input-controls">
-                  <input type="text" id="activationCode" class="code-field" placeholder="アクティベーションコード" autocomplete="off">
-                  <button id="btnConfirm" class="btn-primary" data-translate="modal_btn_auth">確認</button>
-              </div>
-              <div class="modal-grey-box phase-input-desc-pc">
-                  <p class="modal-box-text" id="pcInputDesc" data-translate="modal_sub">アクティベーションコードを使用すると、コンテンツにアクセスできます。<br>アクティベーションコードを利用するには、以下の入力欄に入力してください。</p>
-              </div>
-          </div>
-      </div>
-    </div>
-
-    <div id="phase-preview" style="display: none; opacity: 0;" class="new-modal-layout">
-        <h2 class="modal-title-top" data-translate="preview_title">コンテンツ確認</h2>
-        <div class="modal-body-flex">
-            <div class="modal-left-col">
-                <img id="previewImage" src="" alt="Thumbnail">
-                <div id="previewTitleUnderImg" class="modal-thumb-title"></div>
-            </div>
-            <div class="modal-right-col">
-                <h2 class="mobile-title" data-translate="preview_title">コンテンツ確認</h2>
-                <p class="modal-label" data-translate="preview_desc">続行すると以下のコンテンツを受け取ります:</p>
-                <h3 id="previewTitle" class="modal-main-title"></h3>
-                <div class="modal-grey-box" id="previewWarningBox">
-                    <p class="modal-box-text is-warning" id="previewWarningText"></p>
-                </div>
-                <div class="modal-btn-row">
-                    <button class="btn-outline" id="btnPreviewClose" style="flex: 3;" data-translate="btn_close">閉じる</button>
-                    <button class="btn-solid" id="btnPreviewRedeem" style="flex: 7;" data-translate="btn_continue">認証する</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="phase-success" style="display: none; opacity: 0;" class="new-modal-layout">
-        <h2 class="modal-title-top" data-translate="success_title_final">認証成功!!</h2>
-        <div class="modal-body-flex">
-            <div class="modal-left-col">
-                <img id="successImage2" src="" alt="Thumbnail">
-                <div id="successTitleUnderImg" class="modal-thumb-title"></div>
-            </div>
-            <div class="modal-right-col">
-                <h2 class="mobile-title" data-translate="success_title_final">認証成功!!</h2>
-                <p class="modal-label" data-translate="success_desc">このコードで以下のコンテンツが認証されました:</p>
-                <h3 id="successBundleName" class="modal-main-title"></h3>
-                <div class="modal-grey-box">
-                    <p class="modal-box-text" id="successMessageText"></p>
-                    <p class="modal-box-time" id="successTime"></p>
-                </div>
-                <div class="modal-btn-row" id="successBtnRow">
-                    <button class="btn-outline" style="width: 100%; flex: none;" id="btnSuccessClose" data-translate="btn_close">閉じる</button>
-                    <a class="btn-solid" style="flex: 7; display: none; align-items:center; justify-content:center; text-decoration:none;" id="btnSuccessDownload" target="_blank"></a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="phase-error" style="display: none; opacity: 0;" class="new-modal-layout error-layout">
-        <h2 class="modal-title-top error-title-color">⚠ <span data-translate="error_title_prefix">エラー</span> <span id="errorCodeText"></span></h2>
-        <div class="modal-body-error">
-            <h3 id="errorMessage" class="modal-error-main-msg"></h3>
-            <div class="modal-grey-box" id="errorInfoBox" style="margin-bottom: 24px;">
-                <p class="modal-box-text" id="errorSubMessage"></p>
-                <p class="modal-box-time" id="errorTime"></p>
-            </div>
-            <div class="modal-btn-row" id="errorBtnRow">
-                <button class="btn-outline" style="width: 100%; flex: none;" id="btnErrorClose" data-translate="btn_close">閉じる</button>
-            </div>
-        </div>
-    </div>
-  </div>
-</div>
-
-<div id="manageModal" class="modal-overlay" style="z-index: 10006;">
-    <div class="modal-sheet" style="max-width: 600px; width: 90%; text-align: left; padding: 40px; display: flex; flex-direction: column; max-height: 80vh;">
-        <div style="position:absolute; top:20px; right:20px; cursor:pointer; opacity:0.6; z-index:10;" id="closeManageModalBtn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
-        </div>
-        
-        <h2 style="font-size:24px; font-weight:800; margin: 0 0 20px 0; color: var(--modal-text-main);" data-translate="manage_title">ダウンロード管理</h2>
-        <p style="font-size:14px; font-weight:700; color:var(--modal-text-main); margin: 0 0 16px 0;" data-translate="manage_desc">インストールするアイテムを選択してください:</p>
-        
-        <div id="manageContentList" style="overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; padding-right: 4px;">
-        </div>
-    </div>
-</div>
-<div id="banModal" class="modal-overlay" style="z-index: 10020;">
-    <div class="modal-sheet ban-modal-sheet">
-        <div class="ban-icon-wrapper">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
-                <line x1="12" y1="9" x2="12" y2="13"></line>
-                <line x1="12" y1="17" x2="12.01" y2="17"></line>
-            </svg>
-        </div>
-        <h2 class="ban-title" data-translate="ban_title">アクセス制限</h2>
-        <p class="ban-message" data-translate="ban_message">すべてアクセスが禁止されています。</p>
-        
-        <!-- ボタンエリア (7:3に分割) -->
-        <div class="ban-btn-row">
-            <button class="btn-solid ban-close-btn" onclick="document.getElementById('banModal').classList.remove('active')" data-translate="btn_close">閉じる</button>
-            
-            <!-- 退出ボタン -->
-            <button class="btn-solid ban-logout-btn" onclick="logout()">
-                <span data-translate="btn_logout">退出</span>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top: 1px;">
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                    <polyline points="12 5 19 12 12 19"></polyline>
-                </svg>
-            </button>
-        </div>
-    </div>
-</div>
 <script>
 const GAS_API_URL="api/proxy";
 
@@ -2373,16 +2307,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupEventListeners();
 });
 
-function showBanModal() {
-    toggleDropdown(false);
-    closeAuthModal();
-    if (els.manageModal) els.manageModal.classList.remove('active');
-    if (els.historyModal) els.historyModal.classList.remove('active');
-    const accModal = document.getElementById('accountModal');
-    if (accModal) accModal.classList.remove('active');
-    
-    document.getElementById('banModal').classList.add('active');
-}
+function showBanModal() { return; }
 
 const checkBan = () => {
     if (currentUser && currentUser.isBanned) {
@@ -4626,14 +4551,14 @@ function stopBanPolling() {
 }
 </script>
 <script>(()=>{const $=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));let cache=null,busy=false;
-const I={ja:{kicker:'ACCOUNT CENTER',title:'アカウント詳細',subtitle:'登録情報、権限、ポイント、利用履歴を確認できます。',back:'ホームへ戻る',points:'保有ポイント',basic:'基本情報',identifier:'個人識別子',userId:'ユーザーID',tier:'アカウント種別',access:'アクセス状態',security:'セキュリティ',securityDesc:'パスワードと現在のセッションを管理します。',password:'パスワード変更',logout:'ログアウト',history:'最近の利用履歴',normal:'正常',restricted:'アクセス制限中',empty:'利用履歴はありません。',content:'コンテンツ',count:n=>`${n}件`,error:'アカウント情報を読み込めませんでした',page:'アカウント詳細 | kiryu11 X'},en:{kicker:'ACCOUNT CENTER',title:'Account details',subtitle:'Review your profile, access, points, and recent activity.',back:'Back to Home',points:'Points balance',basic:'Basic information',identifier:'Account identifier',userId:'User ID',tier:'Account type',access:'Access status',security:'Security',securityDesc:'Manage your password and current session.',password:'Change password',logout:'Log out',history:'Recent activity',normal:'Active',restricted:'Access restricted',empty:'No activity yet.',content:'Content',count:n=>`${n} items`,error:'Unable to load account details',page:'Account details | kiryu11 X'},zh:{kicker:'账户中心',title:'账户详情',subtitle:'查看注册信息、访问权限、积分和最近的使用记录。',back:'返回首页',points:'持有积分',basic:'基本信息',identifier:'个人标识符',userId:'用户ID',tier:'账户类型',access:'访问状态',security:'安全设置',securityDesc:'管理密码和当前会话。',password:'修改密码',logout:'退出登录',history:'最近使用记录',normal:'正常',restricted:'访问受限',empty:'暂无使用记录。',content:'内容',count:n=>`${n}条`,error:'无法加载账户信息',page:'账户详情 | kiryu11 X'},'zh-TW':{kicker:'帳戶中心',title:'帳戶詳細資料',subtitle:'查看註冊資料、存取權限、積分和最近的使用記錄。',back:'返回首頁',points:'持有積分',basic:'基本資料',identifier:'個人識別碼',userId:'使用者ID',tier:'帳戶類型',access:'存取狀態',security:'安全性',securityDesc:'管理密碼和目前工作階段。',password:'變更密碼',logout:'登出',history:'最近使用記錄',normal:'正常',restricted:'存取受限',empty:'尚無使用記錄。',content:'內容',count:n=>`${n}筆`,error:'無法載入帳戶資料',page:'帳戶詳細資料 | kiryu11 X'},ko:{kicker:'계정 센터',title:'계정 상세',subtitle:'등록 정보, 접근 권한, 포인트 및 최근 이용 내역을 확인할 수 있습니다.',back:'홈으로 돌아가기',points:'보유 포인트',basic:'기본 정보',identifier:'개인 식별자',userId:'사용자 ID',tier:'계정 유형',access:'접근 상태',security:'보안',securityDesc:'비밀번호와 현재 세션을 관리합니다.',password:'비밀번호 변경',logout:'로그아웃',history:'최근 이용 내역',normal:'정상',restricted:'접근 제한',empty:'이용 내역이 없습니다.',content:'콘텐츠',count:n=>`${n}건`,error:'계정 정보를 불러올 수 없습니다',page:'계정 상세 | kiryu11 X'},ru:{kicker:'ЦЕНТР АККАУНТА',title:'Данные аккаунта',subtitle:'Просматривайте профиль, доступ, баллы и недавнюю активность.',back:'На главную',points:'Баланс баллов',basic:'Основная информация',identifier:'Идентификатор аккаунта',userId:'ID пользователя',tier:'Тип аккаунта',access:'Статус доступа',security:'Безопасность',securityDesc:'Управляйте паролем и текущим сеансом.',password:'Изменить пароль',logout:'Выйти',history:'Недавняя активность',normal:'Активен',restricted:'Доступ ограничен',empty:'История отсутствует.',content:'Контент',count:n=>`${n} записей`,error:'Не удалось загрузить данные аккаунта',page:'Данные аккаунта | kiryu11 X'}};
+const I={ja:{kicker:'ACCOUNT CENTER',title:'アカウント詳細',subtitle:'登録情報、権限、ポイント、利用履歴を確認できます。',back:'ホームへ戻る',points:'保有ポイント',basic:'基本情報',identifier:'個人識別子',userId:'ユーザーID',tier:'アカウント種別',access:'アクセス状態',security:'セキュリティ',securityDesc:'パスワードと現在のセッションを管理します。',password:'パスワード変更',logout:'ログアウト',history:'最近の利用履歴',normal:'正常',restricted:'停止中',until:v=>`停止中（${v}まで）`,permanent:'停止中（永久）',empty:'利用履歴はありません。',content:'コンテンツ',count:n=>`${n}件`,error:'アカウント情報を読み込めませんでした',page:'アカウント詳細 | kiryu11 X'},en:{kicker:'ACCOUNT CENTER',title:'Account details',subtitle:'Review your profile, access, points, and recent activity.',back:'Back to Home',points:'Points balance',basic:'Basic information',identifier:'Account identifier',userId:'User ID',tier:'Account type',access:'Access status',security:'Security',securityDesc:'Manage your password and current session.',password:'Change password',logout:'Log out',history:'Recent activity',normal:'Active',restricted:'Suspended',until:v=>`Suspended until ${v}`,permanent:'Suspended permanently',empty:'No activity yet.',content:'Content',count:n=>`${n} items`,error:'Unable to load account details',page:'Account details | kiryu11 X'},zh:{kicker:'账户中心',title:'账户详情',subtitle:'查看注册信息、访问权限、积分和最近的使用记录。',back:'返回首页',points:'持有积分',basic:'基本信息',identifier:'个人标识符',userId:'用户ID',tier:'账户类型',access:'访问状态',security:'安全设置',securityDesc:'管理密码和当前会话。',password:'修改密码',logout:'退出登录',history:'最近使用记录',normal:'正常',restricted:'已停用',until:v=>`已停用（至 ${v}）`,permanent:'已永久停用',empty:'暂无使用记录。',content:'内容',count:n=>`${n}条`,error:'无法加载账户信息',page:'账户详情 | kiryu11 X'},'zh-TW':{kicker:'帳戶中心',title:'帳戶詳細資料',subtitle:'查看註冊資料、存取權限、積分和最近的使用記錄。',back:'返回首頁',points:'持有積分',basic:'基本資料',identifier:'個人識別碼',userId:'使用者ID',tier:'帳戶類型',access:'存取狀態',security:'安全性',securityDesc:'管理密碼和目前工作階段。',password:'變更密碼',logout:'登出',history:'最近使用記錄',normal:'正常',restricted:'已停用',until:v=>`已停用（至 ${v}）`,permanent:'已永久停用',empty:'尚無使用記錄。',content:'內容',count:n=>`${n}筆`,error:'無法載入帳戶資料',page:'帳戶詳細資料 | kiryu11 X'},ko:{kicker:'계정 센터',title:'계정 상세',subtitle:'등록 정보, 접근 권한, 포인트 및 최근 이용 내역을 확인할 수 있습니다.',back:'홈으로 돌아가기',points:'보유 포인트',basic:'기본 정보',identifier:'개인 식별자',userId:'사용자 ID',tier:'계정 유형',access:'접근 상태',security:'보안',securityDesc:'비밀번호와 현재 세션을 관리합니다.',password:'비밀번호 변경',logout:'로그아웃',history:'최근 이용 내역',normal:'정상',restricted:'정지 중',until:v=>`정지 중 (${v}까지)`,permanent:'영구 정지',empty:'이용 내역이 없습니다.',content:'콘텐츠',count:n=>`${n}건`,error:'계정 정보를 불러올 수 없습니다',page:'계정 상세 | kiryu11 X'},ru:{kicker:'ЦЕНТР АККАУНТА',title:'Данные аккаунта',subtitle:'Просматривайте профиль, доступ, баллы и недавнюю активность.',back:'На главную',points:'Баланс баллов',basic:'Основная информация',identifier:'Идентификатор аккаунта',userId:'ID пользователя',tier:'Тип аккаунта',access:'Статус доступа',security:'Безопасность',securityDesc:'Управляйте паролем и текущим сеансом.',password:'Изменить пароль',logout:'Выйти',history:'Недавняя активность',normal:'Активен',restricted:'Приостановлен',until:v=>`Приостановлен до ${v}`,permanent:'Приостановлен навсегда',empty:'История отсутствует.',content:'Контент',count:n=>`${n} записей`,error:'Не удалось загрузить данные аккаунта',page:'Данные аккаунта | kiryu11 X'}};
 const lang=()=>localStorage.getItem('user_lang')||document.documentElement.lang||'ja',T=()=>I[lang()]||I.ja;
 function zone(){const z=Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC';if(['Asia/Shanghai','Asia/Chongqing','Asia/Harbin','Asia/Urumqi','Asia/Hong_Kong','Asia/Macau','Asia/Taipei','Asia/Singapore'].includes(z))return{z,off:'+08:00'};if(z==='Asia/Tokyo')return{z,off:'+09:00'};const d=new Date(),m=-d.getTimezoneOffset(),sg=m>=0?'+':'-',a=Math.abs(m);return{z,off:`${sg}${String(Math.floor(a/60)).padStart(2,'0')}:${String(a%60).padStart(2,'0')}`}}
 function date(v){const d=new Date(v),q=zone(),parts=new Intl.DateTimeFormat('en-CA',{timeZone:q.z,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(d).reduce((o,p)=>(o[p.type]=p.value,o),{}),L=lang();if(L==='ja')return`${parts.year}年${parts.month}月${parts.day}日 ${parts.hour}:${parts.minute}:${parts.second} GMT${q.off}`;if(L==='zh')return`${parts.year}年${parts.month}月${parts.day}日 ${parts.hour}:${parts.minute}:${parts.second} GMT${q.off}`;if(L==='zh-TW')return`${parts.year}年${parts.month}月${parts.day}日 ${parts.hour}:${parts.minute}:${parts.second} GMT${q.off}`;if(L==='ko')return`${parts.year}년 ${parts.month}월 ${parts.day}일 ${parts.hour}:${parts.minute}:${parts.second} GMT${q.off}`;if(L==='ru')return`${parts.day}.${parts.month}.${parts.year} ${parts.hour}:${parts.minute}:${parts.second} GMT${q.off}`;return`${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}:${parts.second} GMT${q.off}`}
-window.updateAccountDetailLanguage=()=>{const t=T();document.querySelectorAll('[data-ai]').forEach(e=>e.textContent=t[e.dataset.ai]||e.textContent);if(document.body.classList.contains('account-page-active'))document.title=t.page;if(cache)render(cache)};
-function render(d){cache=d;const t=T(),e=d.email||'-',id=d.userId||'-',b=!!d.isBanned,h=Array.isArray(d.history)?d.history:[];$('accountEmail').textContent=e;$('accountUserId').textContent=`ID: ${id}`;$('accountAvatar').textContent=(e[0]||'U').toUpperCase();$('accountPoints').textContent=Number(d.points||0).toLocaleString();$('accountTier').textContent=(d.tier||'standard').toUpperCase();$('accountStatus').textContent=b?t.restricted:t.normal;$('accountStatus').className=`account-badge ${b?'danger':'ok'}`;$('infoEmail').textContent=e;$('infoId').textContent=id;$('infoTier').textContent=d.tier||'standard';$('infoStatus').textContent=b?t.restricted:t.normal;$('historyCount').textContent=t.count(h.length);$('accountHistory').innerHTML=h.length?h.map(x=>`<div class="account-history-item"><div class="account-history-icon"><i data-lucide="${esc(x.icon||'history')}"></i></div><div><div class="account-history-title">${esc(x.title||t.content)}</div><div class="account-muted">${esc(x.code||'')}</div></div><div class="account-history-date">${date(x.date)}</div></div>`).join(''):`<div class="account-muted">${t.empty}</div>`;lucide.createIcons()}
-async function load(){if(busy)return;const tok=localStorage.getItem('user_session_token');if(!tok)return location.href='Access.html?auth=required&redirect='+encodeURIComponent('index.html#account');busy=true;try{const r=await fetch('api/proxy',{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${tok}`},body:JSON.stringify({type:'get_account_details',lang:lang()})}),d=await r.json();if(!d.success)throw Error(d.message||'Request failed');render(d)}catch(e){$('accountError').textContent=`${T().error}: ${e.message}`;$('accountError').style.display='block'}finally{busy=false}}
+window.updateAccountDetailLanguage=()=>{const t=T();document.querySelectorAll('[data-ai]').forEach(e=>e.textContent=t[e.dataset.ai]||e.textContent);if(document.body.classList.contains('account-page-active'))document.title=t.page;if(cache)render(cache);if(document.body.classList.contains('account-page-active'))load(true)};
+function render(d){cache=d;const t=T(),e=d.email||'-',id=d.userId||'-',b=!!d.isBanned,h=Array.isArray(d.history)?d.history:[];const permanent=b&&(d.isPermanent||(!isNaN(new Date(d.bannedUntil))&&new Date(d.bannedUntil).getUTCFullYear()>=2099));const status=b?(permanent?t.permanent:(d.bannedUntil?t.until(date(d.bannedUntil)):t.restricted)):t.normal;$('accountEmail').textContent=e;$('accountUserId').textContent=`ID: ${id}`;$('accountAvatar').textContent=(e[0]||'U').toUpperCase();$('accountPoints').textContent=Number(d.points||0).toLocaleString();$('accountTier').textContent=(d.tier||'standard').toUpperCase();$('accountStatus').textContent=status;$('accountStatus').className=`account-badge ${b?'danger':'ok'}`;$('infoEmail').textContent=e;$('infoId').textContent=id;$('infoTier').textContent=d.tier||'standard';$('infoStatus').textContent=status;$('historyCount').textContent=t.count(h.length);$('accountHistory').innerHTML=h.length?h.map(x=>`<div class="account-history-item"><div class="account-history-icon"><i data-lucide="${esc(x.icon||'history')}"></i></div><div><div class="account-history-title">${esc(x.title||t.content)}</div><div class="account-muted">${esc(x.code||'')}</div></div><div class="account-history-date">${date(x.date)}</div></div>`).join(''):`<div class="account-muted">${t.empty}</div>`;lucide.createIcons()}
+async function load(realtime=false){if(busy)return;const tok=localStorage.getItem('user_session_token');if(!tok)return location.href='Access.html?auth=required&redirect='+encodeURIComponent('index.html#account');busy=true;try{const r=await fetch('api/proxy',{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${tok}`},body:JSON.stringify({type:'get_account_details',lang:lang()})}),d=await r.json();if(!d.success)throw Error(d.message||'Request failed');render(d);if(window.currentUser)window.currentUser.points=d.points||0;const pv=$('ptValue');if(pv)pv.textContent=Number(d.points||0).toLocaleString();}catch(e){if(realtime)return;$('accountError').textContent=`${T().error}: ${e.message}`;$('accountError').style.display='block'}finally{busy=false}}
 function show(on){document.body.classList.toggle('account-page-active',on);document.querySelector('.sidebar-main-nav a[href="index.html"]')?.classList.toggle('active',!on);history.pushState({},'',on?'#account':location.pathname);document.title=on?T().page:'kiryu11 X';if(on)load()}
-document.addEventListener('DOMContentLoaded',()=>{const host=$('brandHeaderActions'),theme=$('themeToggle'),icon=$('btnOpenAccount'),wrap=icon?.parentElement;if(host&&theme)host.appendChild(theme);if(host&&wrap)host.appendChild(wrap);document.body.classList.add('controls-in-sidebar');updateAccountDetailLanguage();icon?.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();show(!document.body.classList.contains('account-page-active'))},true);$('accountBackBtn')?.addEventListener('click',()=>show(false));$('accountPassword')?.addEventListener('click',()=>$('btnMenuPassword')?.click());$('accountLogout')?.addEventListener('click',()=>$('btnLogout')?.click());window.addEventListener('popstate',()=>{const on=location.hash==='#account';document.body.classList.toggle('account-page-active',on);if(on)load()});if(location.hash==='#account'){document.body.classList.add('account-page-active');load()}lucide.createIcons()})})();
+document.addEventListener('DOMContentLoaded',()=>{const host=$('brandHeaderActions'),theme=$('themeToggle'),icon=$('btnOpenAccount'),wrap=icon?.parentElement;if(host&&theme)host.appendChild(theme);if(host&&wrap)host.appendChild(wrap);document.body.classList.add('controls-in-sidebar');updateAccountDetailLanguage();icon?.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();show(!document.body.classList.contains('account-page-active'))},true);$('accountBackBtn')?.addEventListener('click',()=>show(false));$('accountPassword')?.addEventListener('click',()=>$('btnMenuPassword')?.click());$('accountLogout')?.addEventListener('click',()=>$('btnLogout')?.click());window.addEventListener('popstate',()=>{const on=location.hash==='#account';document.body.classList.toggle('account-page-active',on);if(on)load()});if(location.hash==='#account'){document.body.classList.add('account-page-active');load()}setInterval(()=>{if(localStorage.getItem('user_session_token'))load(true)},3000);lucide.createIcons()})})();
 </script></body>
 </html>
