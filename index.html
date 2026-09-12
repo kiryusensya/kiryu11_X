@@ -1551,7 +1551,7 @@ body.account-is-banned:not(.account-page-active) .rgl-hero{display:flex!importan
 <div class="rgl-menu-section" id="secAvailable" style="display: block;">
 <div class="rgl-menu-title" data-translate="label_available">利用可能</div>
 <button class="pc-sidebar-code-auth" id="pcSidebarCodeAuth" type="button" onclick="if (checkBan()) return; openAuthModal();"><i data-lucide="tickets" aria-hidden="true"></i><span data-translate="btn_redeem_code">コード認証</span></button>
-<div class="rgl-sidebar-list" id="sidebarAvailableList"></div>
+<div class="rgl-sidebar-list" id="sidebarAvailableList"><div style="padding:10px; opacity:0.5; font-size:12px;">-</div></div>
 </div>
 <div class="rgl-menu-section" id="secLibrary" style="display:none;">
 <div class="rgl-menu-title" data-translate="label_library">ライブラリ</div>
@@ -2358,12 +2358,18 @@ document.addEventListener('DOMContentLoaded', () => {
 function showBanModal() { return; }
 
 function updatePcCodeAuthVisibility() {
-    const isBanned = !!(currentUser && currentUser.isBanned);
     const button = document.getElementById('pcSidebarCodeAuth');
     const list = document.getElementById('sidebarAvailableList');
-    if (button) button.style.display = isBanned ? 'none' : '';
-    if (list && isBanned) list.innerHTML = `<div class="pc-ban-empty-message" style="padding:10px; opacity:0.5; font-size:12px;">${TRANSLATIONS[CURRENT_LANG].msg_empty_lib || "No content"}</div>`;
-    if (list && !isBanned && list.querySelector('.pc-ban-empty-message')) list.innerHTML = '';
+    const banned = !!(currentUser && currentUser.isBanned);
+    if (button) button.style.display = banned ? 'none' : '';
+    if (list) {
+        if (banned) {
+            const t = (typeof TRANSLATIONS !== 'undefined' && TRANSLATIONS[CURRENT_LANG]) || {};
+            list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">${t.msg_empty_lib || "配信されていません。"}</div>`;
+        } else {
+            list.innerHTML = '';
+        }
+    }
 }
 
 const checkBan = () => {
@@ -4162,9 +4168,7 @@ async function fetchAvailableContent() {
         }
 
         if (!hasItems) {
-             list.innerHTML = currentUser && currentUser.isBanned
-                 ? `<div class="pc-ban-empty-message" style="padding:10px; opacity:0.5; font-size:12px;">${t.msg_empty_lib || "No content"}</div>`
-                 : '';
+             list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">${t.msg_empty_lib || "No content"}</div>`;
         }
         
         if (!hasMobileItems && mobileList) {
@@ -4284,7 +4288,9 @@ async function fetchAvailableContent() {
         }
 
         if (!hasItems) {
-             list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">${t.msg_empty_lib || "No content"}</div>`;
+             if (currentUser && currentUser.isBanned) {
+                 list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">${t.msg_empty_lib || "No content"}</div>`;
+             }
         }
         
         if (!hasMobileItems && mobileList) {
