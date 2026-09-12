@@ -16,6 +16,18 @@ if (!supabaseUrl || !supabaseKey || !JWT_SECRET) {
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+// Account type policy:
+// S = standard, X = enterprise, Enforcement Administrator = is_admin users only.
+const normalizeAccountTier = (value) => {
+  const v = String(value || '').trim().toLowerCase();
+  if (v === 'x' || v === 'enterprise') return 'enterprise';
+  return 'standard';
+};
+const getAccountTypeLabel = (tier, isAdmin = false) => {
+  if (isAdmin) return 'Enforcement Administrator';
+  return normalizeAccountTier(tier) === 'enterprise' ? 'X' : 'S';
+};
+
 const ALLOWED_ORIGINS = [
   'https://kiryu11.vercel.app',
   'https://kiryu11-x.vercel.app',
@@ -349,14 +361,14 @@ export default async function handler(req, res) {
 
     if (type === 'get_account_details') {
       if (!authUserId) return res.status(401).json({ success:false, message:'Unauthorized' });
-      const { data:user, error:userError } = await supabase.from('users').select('id,email,points,app_tier,banned_until').eq('id',authUserId).maybeSingle();
+      const { data:user, error:userError } = await supabase.from('users').select('id,email,points,app_tier,is_admin,banned_until').eq('id',authUserId).maybeSingle();
       if (userError || !user) return res.status(404).json({ success:false, message:'User not found' });
       const { data:rows, error:historyError } = await supabase.from('histories').select('created_at,codes(アクティベーションコード,contents(*))').eq('user_id',authUserId).order('created_at',{ascending:false}).limit(50);
       if (historyError) return res.status(500).json({ success:false, message:'History fetch failed' });
       const map={ja:'jp',en:'en',zh:'zh','zh-TW':'zh-TW',ko:'ko',ru:'ru'}, suffix=map[lang]||'jp';
       const history=(rows||[]).map(row=>{const code=row.codes||{},c=code.contents||{};return {title:c[`タイトル(${suffix})`]||c['タイトル(jp)']||'',code:code['アクティベーションコード']||'',icon:c['アイコン']||'package-check',date:row.created_at};});
       const bannedUntil=user.banned_until||null, isBanned=Boolean(bannedUntil&&new Date(bannedUntil)>new Date()), isPermanent=Boolean(isBanned&&new Date(bannedUntil).getUTCFullYear()>=2099);
-      return res.status(200).json({success:true,userId:user.id,email:user.email,points:user.points||0,tier:user.app_tier||'standard',isBanned,bannedUntil,isPermanent,history});
+      return res.status(200).json({success:true,userId:user.id,email:user.email,points:user.points||0,tier:getAccountTypeLabel(user.app_tier, user.is_admin === true),isAdmin:user.is_admin === true,isBanned,bannedUntil,isPermanent,history});
     }
 
     // 管理者用機能
@@ -387,7 +399,11 @@ export default async function handler(req, res) {
         }
         
         if (type === 'admin_create_user') {
-            const { email, password, target_tier } = params; 
+            const { email, password, target_tier } = params;
+            const requestedTier = String(target_tier || 'S').trim().toLowerCase();
+            if (requestedTier === 'enforcement administrator' || requestedTier === 'administrator' || requestedTier === 'admin') {
+                return res.status(403).json({ success: false, message: "Enforcement Administrator は管理者のみ指定できます" });
+            } 
             const tierToAssign = target_tier || 'standard';
             if (!email || !password) return res.status(200).json({ success: false, message: "Missing credentials" });
             const { data: existing } = await supabase.from('users').select('id').eq('email', email).maybeSingle();
@@ -430,7 +446,7 @@ export default async function handler(req, res) {
 
         if (type === 'admin_search') {
             const { targetEmail } = params;
-            const { data: user, error } = await supabase.from('users').select('id, email, points, app_tier, banned_until').eq('email', targetEmail).maybeSingle();
+            const { data: user, error } = await supabase.from('users').select('id, email, points, app_tier, is_admin, banned_until').eq('email', targetEmail).maybeSingle();
             if (error || !user) return res.status(200).json({ success: false, message: "ユーザーが見つかりません" });
 
             const { data: histories } = await supabase.from('histories')
@@ -452,7 +468,8 @@ export default async function handler(req, res) {
                 success: true, 
                 userId: user.email, 
                 points: user.points, 
-                tier: user.app_tier, 
+                tier: getAccountTypeLabel(user.app_tier, user.is_admin === true),
+                isAdmin: user.is_admin === true, 
                 bannedUntil: user.banned_until,
                 history: historyList 
             });
@@ -471,11 +488,19 @@ export default async function handler(req, res) {
             if (!targetEmail || !targetTier) {
                 return res.status(200).json({ success: false, message: "必要なパラメータが不足しています" });
             }
-            const safeTier = targetTier === 'enterprise' ? 'enterprise' : 'standard';
+            const requestedTier = String(targetTier).trim().toLowerCase();
+            if (requestedTier === 'enforcement administrator' || requestedTier === 'administrator' || requestedTier === 'admin') {
+                return res.status(403).json({ success: false, message: "Enforcement Administrator は管理者フラグ専用です" });
+            }
+            const safeTier = normalizeAccountTier(targetTier);
+            const { data: targetUser } = await supabase.from('users').select('is_admin').eq('email', targetEmail).maybeSingle();
+            if (targetUser?.is_admin) {
+                return res.status(403).json({ success: false, message: "管理者のアカウント種別は変更できません" });
+            }
             const { error } = await supabase.from('users').update({ app_tier: safeTier }).eq('email', targetEmail);
             if (error) return res.status(200).json({ success: false, message: error.message });
             await logAudit('SET_TIER', targetEmail, { newTier: safeTier });
-            return res.status(200).json({ success: true, message: `権限を ${safeTier} に変更しました` });
+            return res.status(200).json({ success: true, message: `アカウント種別を ${getAccountTypeLabel(safeTier, false)} に変更しました` });
         }
 
         if (type === 'admin_delete_user') {
