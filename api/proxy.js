@@ -330,13 +330,12 @@ export default async function handler(req, res) {
               return res.status(200).json({ success: true, requirePasswordChange: true, userId: user.id });
           }
           const tokenStr = jwt.sign({ userId: user.id, isAdmin: isUserAdmin }, JWT_SECRET, { expiresIn: '24h' });
-          const cookiesToSet = [sessionCookie(SESSION_COOKIE, tokenStr, 86400)];
-          if (isUserAdmin) {
-              cookiesToSet.push(
+          const cookiesToSet = isUserAdmin
+            ? [
                 sessionCookie(ADMIN_SESSION_COOKIE, tokenStr, 86400),
                 `admin_logged_in=true; ${isProduction ? 'Secure; ' : ''}SameSite=Lax; Path=/; Max-Age=86400`
-              );
-          }
+              ]
+            : [sessionCookie(SESSION_COOKIE, tokenStr, 86400)];
           res.setHeader('Set-Cookie', cookiesToSet);
           return res.status(200).json({ success: true, isAdmin: isUserAdmin, userId: user.id });
       }
