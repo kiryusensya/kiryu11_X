@@ -33,6 +33,31 @@ const ALLOWED_ORIGINS = [
   'https://kiryu11-x.vercel.app',
   'http://localhost:3000'
 ];
+// Session tokens are transport-only credentials. They are never exposed to JavaScript.
+const SESSION_COOKIE = 'user_session_token';
+const ADMIN_SESSION_COOKIE = 'admin_token';
+const isProduction = process.env.NODE_ENV === 'production';
+const sessionCookie = (name, value, maxAge) =>
+  `${name}=${value}; HttpOnly; ${isProduction ? 'Secure; ' : ''}SameSite=Lax; Path=/; Max-Age=${maxAge}`;
+
+const parseCookies = (header = '') => Object.fromEntries(
+  header.split(';').map(part => {
+    const separator = part.indexOf('=');
+    return separator === -1
+      ? [part.trim(), '']
+      : [part.slice(0, separator).trim(), decodeURIComponent(part.slice(separator + 1).trim())];
+  }).filter(([name]) => name)
+);
+
+const isSafeDownloadUrl = (value) => {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && url.hostname !== 'localhost' &&
+      url.hostname !== '127.0.0.1' && url.hostname !== '[::1]';
+  } catch {
+    return false;
+  }
+};
 
 export default async function handler(req, res) {
   const origin = req.headers.origin || '';
@@ -92,20 +117,15 @@ export default async function handler(req, res) {
     let isAdmin = false;
     let token = null;
 
-    const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-        token = authHeader.split(' ')[1];
-    }
-    if (!token && params.token) token = params.token;
-    
-    const cookieHeader = req.headers.cookie;
-    if (cookieHeader) {
-        const cookies = {};
-        cookieHeader.split(';').forEach(c => {
-            const parts = c.split('=');
-            if (parts.length >= 2) cookies[parts[0].trim()] = parts[1].trim();
-        });
-      if (!token && cookies.admin_token) token = cookies.admin_token;
+    const cookies = parseCookies(req.headers.cookie);
+    // Browser sessions use HttpOnly cookies. Authorization is retained only for
+    // non-browser API clients; query-string tokens are intentionally unsupported.
+    token = cookies[SESSION_COOKIE] || cookies[ADMIN_SESSION_COOKIE] || null;
+    if (!token) {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.slice('Bearer '.length);
+      }
     }
 
     if (token) {
@@ -198,25 +218,31 @@ export default async function handler(req, res) {
 
         let downloadTargetUrl = content.Action_url;
         if (target) {
-            let rawTarget = decodeURIComponent(target);
-            if (rawTarget.startsWith('__MASKED_URL__:')) {
-                const idx = parseInt(rawTarget.split(':')[1], 10) || 0;
-                const strUrl = String(content.Action_url).trim();
-                
-                if (strUrl.startsWith('[')) {
-                    try {
-                        const arr = JSON.parse(strUrl);
-                        if (arr[idx] && arr[idx].url) {
-                            downloadTargetUrl = arr[idx].url;
-                        }
-                    } catch(e) {}
-                }
-            } else {
-                downloadTargetUrl = rawTarget;
+            let rawTarget;
+            try {
+              rawTarget = decodeURIComponent(target);
+            } catch {
+              return res.status(400).send("Bad Request: invalid download target.");
+            }
+            if (!rawTarget.startsWith('__MASKED_URL__:')) {
+              return res.status(400).send("Bad Request: untrusted download target.");
+            }
+            const idx = Number.parseInt(rawTarget.split(':')[1], 10);
+            const strUrl = String(content.Action_url).trim();
+            if (!Number.isInteger(idx) || idx < 0 || !strUrl.startsWith('[')) {
+              return res.status(400).send("Bad Request: invalid download target.");
+            }
+            try {
+              const arr = JSON.parse(strUrl);
+              if (arr[idx] && typeof arr[idx].url === 'string') {
+                downloadTargetUrl = arr[idx].url;
+              }
+            } catch {
+              return res.status(400).send("Bad Request: invalid download target.");
             }
         }
         
-        if (!downloadTargetUrl || downloadTargetUrl.startsWith('__MASKED_URL__')) {
+        if (!isSafeDownloadUrl(downloadTargetUrl)) {
             return res.status(404).send("Not Found: ダウンロードURLが設定されていません。");
         }
 
@@ -304,21 +330,24 @@ export default async function handler(req, res) {
               return res.status(200).json({ success: true, requirePasswordChange: true, userId: user.id });
           }
           const tokenStr = jwt.sign({ userId: user.id, isAdmin: isUserAdmin }, JWT_SECRET, { expiresIn: '24h' });
+          const cookiesToSet = [sessionCookie(SESSION_COOKIE, tokenStr, 86400)];
           if (isUserAdmin) {
-              const isProd = process.env.NODE_ENV === 'production';
-              const secure = isProd ? 'Secure;' : '';
-              res.setHeader('Set-Cookie', [
-                  `admin_token=${tokenStr}; HttpOnly; ${secure} SameSite=Strict; Path=/; Max-Age=86400`,
-                  `admin_logged_in=true; ${secure} SameSite=Strict; Path=/; Max-Age=86400`
-              ]);
+              cookiesToSet.push(
+                sessionCookie(ADMIN_SESSION_COOKIE, tokenStr, 86400),
+                `admin_logged_in=true; ${isProduction ? 'Secure; ' : ''}SameSite=Lax; Path=/; Max-Age=86400`
+              );
           }
-          return res.status(200).json({ success: true, isAdmin: isUserAdmin, token: tokenStr, userId: user.id });
+          res.setHeader('Set-Cookie', cookiesToSet);
+          return res.status(200).json({ success: true, isAdmin: isUserAdmin, userId: user.id });
       }
       return res.status(200).json({ success: false, message: "Invalid" });
     }
 
     if (type === 'change_password') {
       const { userId, oldPassword, newPassword } = params;
+      if (!authUserId || String(authUserId) !== String(userId)) {
+        return res.status(403).json({ success: false, message: "Forbidden" });
+      }
       if (!userId || !oldPassword || !newPassword) return res.status(200).json({ success: false, message: "Missing fields" });
 
       const { data: user } = await supabase.from('users').select('*').eq('id', userId).maybeSingle();
@@ -332,6 +361,21 @@ export default async function handler(req, res) {
       if (error) return res.status(200).json({ success: false, message: "Database update failed" });
 
       return res.status(200).json({ success: true, message: "Password updated successfully" });
+    }
+
+    if (type === 'user_logout') {
+        if (token) {
+          try {
+            const decoded = jwt.decode(token);
+            if (decoded?.exp) {
+              await supabase.from('revoked_tokens').insert([
+                { token, expires_at: new Date(decoded.exp * 1000).toISOString() }
+              ]);
+            }
+          } catch {}
+        }
+        res.setHeader('Set-Cookie', sessionCookie(SESSION_COOKIE, '', 0));
+        return res.status(200).json({ success: true });
     }
 
     if (type === 'admin_logout') {
