@@ -628,7 +628,7 @@
 
   const forceSliderObj = initSlider('forceSlider', async () => {
     const newPass = document.getElementById('newPassInput').value;
-    const confirmPass = document.getElementById('newPassConfirm').value.trim();
+    const confirmPass = document.getElementById('newPassConfirm').value;
     const errObj = document.getElementById('newPassError');
     const t = TRANSLATIONS[CURRENT_LANG];
     
@@ -680,7 +680,7 @@
               }
           } else if(document.getElementById('forcePasswordChangeView').style.display !== 'none') {
               const p1 = document.getElementById('newPassInput').value.trim();
-              const p2 = document.getElementById('newPassConfirm').value.trim();
+              const p2 = document.getElementById('newPassConfirm').value;
               if (p1 && p2) {
                   forceSliderObj.setLoading();
               }
