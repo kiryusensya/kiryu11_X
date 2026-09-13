@@ -76,6 +76,30 @@ async function safeFetch(bodyObj) {
   }
 }
 
+// API由来の外部URLは、開く前にHTTPSと許可ホストを検証する。
+function parseSafeHttpsUrl(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' ? url : null;
+  } catch {
+    return null;
+  }
+}
+
+function isYouTubeUrl(value) {
+  const url = parseSafeHttpsUrl(value);
+  if (!url) return false;
+  const host = url.hostname.toLowerCase();
+  return host === 'youtube.com' || host.endsWith('.youtube.com') || host === 'youtu.be';
+}
+
+function openSafeExternalUrl(value) {
+  const url = parseSafeHttpsUrl(value);
+  if (!url) return false;
+  window.open(url.href, '_blank', 'noopener,noreferrer');
+  return true;
+}
+
 const formatDisplayCode = (code) => {
   if (!code) return "";
   const clean = code.toUpperCase().replace(/[^A-Z0-9]/g, '');
@@ -769,7 +793,7 @@ function setupEventListeners() {
         if (isMulti) {
             openManageModal(selectedHeroItem); // 複数なら独立モーダルを開く
         } else if (targetUrl) {
-            const isYouTube = targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be');
+            const isYouTube = isYouTubeUrl(targetUrl);
             if (isYouTube) {
                window.open(`videos.html?code=${selectedHeroItem.code}&target=${encodeURIComponent(targetUrl)}`, '_blank');
             } else {
@@ -1357,10 +1381,10 @@ function openManageModal(item) {
             // 時間の縛りが一切ない（最初からずっとダウンロード可能）場合
             actionBtn.innerHTML = btnLabel;
             actionBtn.onclick = () => {
-                const isYouTube = sub.url && (sub.url.includes('youtube.com') || sub.url.includes('youtu.be'));
+                const isYouTube = sub.url && (isYouTubeUrl(sub.url));
                 if (isYouTube) {
                     // YouTube等の動画リンクはプロキシを通さず直接開く（または自前のプレイヤー画面を開く）
-                    window.open(sub.url, '_blank');
+                    openSafeExternalUrl(sub.url);
                 } else {
                     // 通常のファイルはAPIプロキシを経由して安全にダウンロード
                     const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(sub.url)}`;
@@ -1401,7 +1425,7 @@ function openManageModal(item) {
                     tData.btn.style.cursor = 'pointer';
                     tData.btn.innerHTML = tData.label; 
                     tData.btn.onclick = () => {
-                    const isYouTube = tData.url && (tData.url.includes('youtube.com') || tData.url.includes('youtu.be'));
+                    const isYouTube = tData.url && (isYouTubeUrl(tData.url));
                     if (isYouTube) {
                         window.open(`videos.html?code=${item.code}&target=${encodeURIComponent(tData.url)}`, '_blank');
                     } else {
@@ -1446,7 +1470,7 @@ function openManageModal(item) {
                 tData.btn.style.cursor = 'pointer';
                 tData.btn.innerHTML = tData.label; 
                 tData.btn.onclick = () => {
-                        const isYouTube = tData.url && (tData.url.includes('youtube.com') || tData.url.includes('youtu.be'));
+                        const isYouTube = tData.url && (isYouTubeUrl(tData.url));
                         if (isYouTube) {
                             window.open(`videos.html?code=${item.code}&target=${encodeURIComponent(tData.url)}`, '_blank');
                         } else {
@@ -1562,7 +1586,7 @@ function showMobileItemDetail(item, isNewRedeem = false) {
                     openManageModal(item);
                 };
             } else {
-                const isYouTube = targetUrl && (targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be'));
+                const isYouTube = targetUrl && (isYouTubeUrl(targetUrl));
                 
                 if (isYouTube) {
                     // YouTubeの場合はそのままリンクを設定する（ボタン名を「視聴する」等に変えてもOK）
@@ -2261,7 +2285,7 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                         if (isMulti) { 
                             openManageModal(item); 
                         } else if (targetUrl) { 
-                            const isYouTube = targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be');
+                            const isYouTube = isYouTubeUrl(targetUrl);
                             if (isYouTube) {
                                 window.open(`videos.html?code=${item.code}&target=${encodeURIComponent(targetUrl)}`, '_blank');
                             } else {
