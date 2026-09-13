@@ -366,8 +366,6 @@
             const urlParams = new URLSearchParams(window.location.search);
             const code = urlParams.get('code');
             const target = urlParams.get('target') || "";
-            const token = localStorage.getItem('user_session_token');
-
             // --- 1. 未ログインチェック ---
             if (!token) {
                 showError("5001", t.err_login_required, t.err_login_sub, "Access.html?auth=required", t.btn_login);
@@ -383,8 +381,7 @@
             // --- 3. API通信 ---
             try {
                 const response = await fetch('api/proxy', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ type: 'get_video_url', code: code, target: target })
                 });
 
@@ -399,8 +396,6 @@
                 } else {
                     // --- APIエラー時 ---
                     if (data.message && data.message.includes("Unauthorized")) {
-                        localStorage.removeItem('user_session_token');
-                        localStorage.removeItem('user_session_identity');
                         showError("5003", t.err_session_expired, t.err_session_sub, "Access.html?auth=required", t.btn_login);
                     } else {
                         // ★ 2. ここを修正: APIからのメッセージを検知して、多言語辞書のテキストに差し替える
