@@ -47,17 +47,12 @@ const escapeHTML = (str) => {
 
 // トークン付きで安全に fetch するためのラッパー関数
 async function safeFetch(bodyObj) {
-  const token = localStorage.getItem('user_session_token') || "";
-  const headers = { 'Content-Type': 'application/json' };
-  if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-  }
-  
   try {
       const startTime = Date.now(); // 通信開始時刻
       const response = await fetch(GAS_API_URL, {
           method: 'POST',
-          headers: headers,
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(bodyObj)
       });
       const data = await response.json();
@@ -551,21 +546,10 @@ document.addEventListener('DOMContentLoaded', () => {
   
   setInitialLanguage(sLang, true);
 
-  const sUser = localStorage.getItem('user_session_identity');
-  if (sUser) {
-      resumeSession();
-      startBanPolling(5000);
-  } else {
-    localStorage.removeItem('user_session_token');
-    localStorage.removeItem('user_session_identity');
-    
-    // パラメーター（?code=XXXX など）があれば引き継いでログイン画面へ
-    let redirectUrl = 'Access.html';
-    if (window.location.search) {
-        redirectUrl += window.location.search;
-    }
-    window.location.replace(redirectUrl);
-}
+  // Authentication is determined by the HttpOnly session cookie on the server.
+  // A missing or expired session simply keeps the visitor signed out.
+  resumeSession();
+  startBanPolling(30000);
   initThemeAndParticles();
   initCustomDropdown();
   setupEventListeners();
@@ -692,9 +676,9 @@ function setupEventListeners() {
 
   if (btnSubmitAccPassChange) {
       btnSubmitAccPassChange.addEventListener('click', async () => {
-          const oldP = document.getElementById('accCurrentPass').value.trim();
-          const newP = document.getElementById('accNewPass').value.trim();
-          const confP = document.getElementById('accNewPassConfirm').value.trim();
+          const oldP = document.getElementById('accCurrentPass').value;
+          const newP = document.getElementById('accNewPass').value;
+          const confP = document.getElementById('accNewPassConfirm').value;
           const status = document.getElementById('accStatusMessage');
           const t = TRANSLATIONS[CURRENT_LANG] || TRANSLATIONS.ja;
 
@@ -789,8 +773,7 @@ function setupEventListeners() {
             if (isYouTube) {
                window.open(`videos.html?code=${selectedHeroItem.code}&target=${encodeURIComponent(targetUrl)}`, '_blank');
             } else {
-                const token = localStorage.getItem('user_session_token') || "";
-                window.open(`/api/proxy?type=download&code=${selectedHeroItem.code}&token=${token}`, '_blank');
+                window.open(`/api/proxy?type=download&code=${selectedHeroItem.code}`, '_blank');
             }
         }
      } else {
@@ -1211,18 +1194,19 @@ function initCustomDropdown() {
     });
 }
 
-function logout() {
+async function logout() {
   stopBanPolling();
-  localStorage.removeItem('user_session_identity');
-  localStorage.removeItem('user_session_token'); 
-  // Cookieからも確実に削除
-  document.cookie = "user_session_token=; path=/; max-age=0;"; 
+  try {
+    await fetch(GAS_API_URL, {
+      method: 'POST',
+      credentials: 'same-origin',
+      keepalive: true,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'user_logout' })
+    });
+  } catch {}
   currentUser = null;
-  
-  // 削除が確実に反映されるように少しだけ遅延させて遷移（パラメータ付き）
-  setTimeout(() => {
-      window.location.replace('Access.html?logout=true');
-  }, 50);
+  window.location.replace('Access.html?logout=true');
 }
 
 function updateLanguage(lang){
@@ -1379,8 +1363,7 @@ function openManageModal(item) {
                     window.open(sub.url, '_blank');
                 } else {
                     // 通常のファイルはAPIプロキシを経由して安全にダウンロード
-                    const token = localStorage.getItem('user_session_token') || "";
-                    const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(sub.url)}&token=${token}`;
+                    const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(sub.url)}`;
                     window.open(dlUrl, '_blank');
                 }
             };
@@ -1422,8 +1405,7 @@ function openManageModal(item) {
                     if (isYouTube) {
                         window.open(`videos.html?code=${item.code}&target=${encodeURIComponent(tData.url)}`, '_blank');
                     } else {
-                        const token = localStorage.getItem('user_session_token') || "";
-                        const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(tData.url)}&token=${token}`;
+                        const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(tData.url)}`;
                         window.open(dlUrl, '_blank');
                     }
                 };
@@ -1468,8 +1450,7 @@ function openManageModal(item) {
                         if (isYouTube) {
                             window.open(`videos.html?code=${item.code}&target=${encodeURIComponent(tData.url)}`, '_blank');
                         } else {
-                            const token = localStorage.getItem('user_session_token') || "";
-                            const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(tData.url)}&token=${token}`;
+                            const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(tData.url)}`;
                             window.open(dlUrl, '_blank');
                         }
                     };
@@ -1590,8 +1571,7 @@ function showMobileItemDetail(item, isNewRedeem = false) {
                     els.btnSuccessDownload.target = "_blank";
                 } else {
                     // 単一ファイルの場合、APIを経由させる
-                    const token = localStorage.getItem('user_session_token') || "";
-                    els.btnSuccessDownload.href = `/api/proxy?type=download&code=${item.code}&token=${token}`;
+                    els.btnSuccessDownload.href = `/api/proxy?type=download&code=${item.code}`;
                     els.btnSuccessDownload.onclick = null; 
                     els.btnSuccessDownload.target = "_blank";
                 }
@@ -2285,8 +2265,7 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                             if (isYouTube) {
                                 window.open(`videos.html?code=${item.code}&target=${encodeURIComponent(targetUrl)}`, '_blank');
                             } else {
-                                const token = localStorage.getItem('user_session_token') || "";
-                                window.open(`/api/proxy?type=download&code=${item.code}&token=${token}`, '_blank');
+                                window.open(`/api/proxy?type=download&code=${item.code}`, '_blank');
                             }
                         }
                     };
@@ -2477,25 +2456,21 @@ function initThemeAndParticles() {
   window.addEventListener('resize', () => { canvas.width=innerWidth; canvas.height=innerHeight; }); animate();
 }
 
-async function resumeSession() {
-  const sUser = localStorage.getItem('user_session_identity');
-  if (!sUser) {
-      return; 
-  }
+async async function resumeSession() {
+  const data = await safeFetch({ type: 'get_account_details', lang: CURRENT_LANG });
+  if (!data?.success) return;
 
-  try {
-      const identity = JSON.parse(sUser);
-      currentUser = { userId: identity.userId, email: identity.email, history: [], points: 0 };
-      
-      document.body.classList.add('is-logged-in');
-      if (els.loginOverlay) els.loginOverlay.classList.remove('active'); 
-      updateAccountUI();
-
-      await fetchUserHistory(); 
-  } catch (e) {
-      console.error("Session Resume Error:", e);
-      logout();
-  }
+  currentUser = {
+    userId: data.userId,
+    email: data.email,
+    history: Array.isArray(data.history) ? data.history : [],
+    points: data.points || 0,
+    isBanned: Boolean(data.isBanned)
+  };
+  document.body.classList.add('is-logged-in');
+  if (els.loginOverlay) els.loginOverlay.classList.remove('active');
+  updateAccountUI();
+  await fetchUserHistory();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -2566,7 +2541,7 @@ setInterval(async () => {
         }
     } catch (e) {
     }
-}, 5000);
+}, 30000);
 
 function renderHistoryModal() {
     const container = els.historyListContainer;
