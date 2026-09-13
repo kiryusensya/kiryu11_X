@@ -321,28 +321,34 @@
   
   const urlParams = new URLSearchParams(window.location.search);
   const isLogout = urlParams.get('logout') === 'true';
+  const getRedirectTarget = () => urlParams.get('redirect') || ('/' + (urlParams.get('code') ? `?code=${urlParams.get('code')}` : ''));
 
-  if (isLogout) {
-      // ログアウトからの遷移の場合は確実に消去し、自動遷移をブロック
-      localStorage.removeItem('user_session_token');
-      localStorage.removeItem('user_session_identity');
-      document.cookie = "user_session_token=; path=/; max-age=0;";
+  // Session state is verified by the server; the HttpOnly cookie cannot be read here.
+  (async () => {
+    if (isLogout) {
+      try {
+        await fetch('api/proxy', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'user_logout' })
+        });
+      } catch {}
       window.history.replaceState(null, '', window.location.pathname);
-  } else if (localStorage.getItem('user_session_token') && localStorage.getItem('user_session_identity')) {
-    // ★ localStorageにトークンがあればCookieも再セットしてから遷移
-    const savedToken = localStorage.getItem('user_session_token');
-    const isHttps = location.protocol === 'https:';
-    const secureAttr = isHttps ? '; secure' : '';
-    document.cookie = `user_session_token=${savedToken}; path=/; max-age=86400${secureAttr}; samesite=lax`;
-    
-    const params = new URLSearchParams(window.location.search);
-    const redirectTo = params.get('redirect') || ('/' + (params.get('code') ? `?code=${params.get('code')}` : ''));
-    window.location.replace(redirectTo);
-} else {
-      // どちらか片方しかない不完全な状態なら、確実に消去
-      localStorage.removeItem('user_session_token');
-      localStorage.removeItem('user_session_identity');
-  }
+      return;
+    }
+    try {
+      const response = await fetch('api/proxy', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'get_account_details', lang: 'ja' })
+      });
+      const session = await response.json();
+      if (session.success) window.location.replace(getRedirectTarget());
+    } catch {}
+  })();
+
   // ===== テーマ設定 (端末設定に追従) =====
   const htmlEl = document.documentElement;
 
@@ -578,7 +584,7 @@
   
   const loginSliderObj = initSlider('loginSlider', async () => {
       const email = document.getElementById('inputEmail').value.trim();
-      const pass = document.getElementById('inputPass').value.trim();
+      const pass = document.getElementById('inputPass').value;
       const statusEl = document.getElementById('authStatus');
       const t = TRANSLATIONS[CURRENT_LANG];
       
@@ -593,6 +599,7 @@
       try {
         const res = await fetch(API_URL, {
           method: 'POST',
+          credentials: 'same-origin',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ type: 'user_login', email: email, password: pass })
         });
@@ -606,11 +613,6 @@
               loginSliderObj.reset();
               return; 
           }
-          localStorage.setItem('user_session_identity', JSON.stringify({ userId: data.userId, email: email }));
-          localStorage.setItem('user_session_token', data.token);
-          const isHttps = location.protocol === 'https:';
-          const secureAttr = isHttps ? '; secure' : '';
-          document.cookie = `user_session_token=${data.token}; path=/; max-age=86400${secureAttr}; samesite=lax`;
           const params = new URLSearchParams(window.location.search);
           const redirectTo = params.get('redirect') || ('/' + (params.get('code') ? `?code=${params.get('code')}` : ''));
           window.location.href = redirectTo;
@@ -625,7 +627,7 @@
   });
 
   const forceSliderObj = initSlider('forceSlider', async () => {
-    const newPass = document.getElementById('newPassInput').value.trim();
+    const newPass = document.getElementById('newPassInput').value;
     const confirmPass = document.getElementById('newPassConfirm').value.trim();
     const errObj = document.getElementById('newPassError');
     const t = TRANSLATIONS[CURRENT_LANG];
@@ -672,7 +674,7 @@
       if(e.key === 'Enter') {
           if(document.getElementById('loginView').style.display !== 'none') {
               const email = document.getElementById('inputEmail').value.trim();
-              const pass = document.getElementById('inputPass').value.trim();
+              const pass = document.getElementById('inputPass').value;
               if (email && pass) {
                   loginSliderObj.setLoading();
               }
