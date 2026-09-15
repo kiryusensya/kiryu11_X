@@ -212,6 +212,12 @@
 <div id="langSwitchingOverlay" style="position:fixed; inset:0; background:var(--bg-color); z-index:9999; display:none; align-items:center; justify-content:center;">
 <div class="loading-spinner"></div>
 </div>
+<div id="authLoadingOverlay" class="auth-loading-overlay">
+    <div class="auth-spinner-container">
+        <div class="auth-tech-spinner"></div>
+        <div class="auth-spinner-text" data-translate="msg_verifying">確認中</div>
+    </div>
+</div>
 <div class="modal-overlay" id="authModal">
 <div class="modal-sheet" id="modalContainer">
 <div id="modalCloseBtn" style="position:absolute; top:20px; right:20px; cursor:pointer; z-index:10;"><svg aria-hidden="true" class="lucide lucide-x" data-lucide="x" fill="none" height="24" size="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></div>
