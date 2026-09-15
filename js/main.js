@@ -548,7 +548,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Authentication state comes from the server-side HttpOnly Cookie.
   resumeSession();
-  startBanPolling(5000);
+  startBanPolling(30000);
   initThemeAndParticles();
   initCustomDropdown();
   setupEventListeners();
@@ -1230,7 +1230,16 @@ function updateLanguage(lang){
   updateAccountUI();
 }
 
-function openAuthModal(){ 
+async function openAuthModal(){ 
+  if (currentUser) {
+    const banStatus = await safeFetch({ type: 'check_ban_status' });
+    if (!banStatus.success || banStatus.isBanned) {
+      currentUser.isBanned = true;
+      updatePcCodeAuthVisibility();
+      showBanModal();
+      return;
+    }
+  }
   els.authModal.classList.add('active'); 
   els.modalCon.classList.add('is-input-wide'); 
   resetAuthModal(); 
@@ -2626,7 +2635,7 @@ function renderHistoryModal() {
 let banPollTimer = null;
 let banPollInFlight = false;
 
-function startBanPolling(intervalMs = 5000) {
+function startBanPolling(intervalMs = 30000) {
   if (banPollTimer) return;
 
   const tick = async () => {
