@@ -187,44 +187,10 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, code: errData.code, errorMessage: msg });
     }
 
-    // Access logging: keep failures visible in Vercel logs instead of silently discarding them.
-    const recordAccessLog = async ({ actionType = type || 'unknown', targetCode = null, userId = authUserId } = {}) => {
-      try {
-        const clientIp = String(ip || 'unknown').split(',')[0].trim();
-        const { error: accessLogError } = await supabase.from('access_logs').insert([{
-          ip_address: clientIp,
-          action_type: String(actionType),
-          user_id: userId || null,
-          user_agent: String(req.headers['user-agent'] || 'unknown'),
-          target_code: targetCode ? String(targetCode) : null,
-          app_tier: appTier
-        }]);
-        if (accessLogError) {
-          console.error('access_logs insert failed', {
-            code: accessLogError.code,
-            message: accessLogError.message,
-            details: accessLogError.details,
-            hint: accessLogError.hint
-          });
-        }
-      } catch (accessLogError) {
-        console.error('access_logs insert threw', {
-          message: accessLogError instanceof Error ? accessLogError.message : String(accessLogError)
-        });
-      }
-    };
-
-    // Avoid logging high-frequency reads and log-view requests.
-    const ignoredAccessLogActions = new Set([
-      'get_history', 'get_available', 'error_search', 'check_ban_status',
-      'admin_get_access_logs', 'admin_search', 'admin_set_points', 'get_video_url'
-    ]);
-
     // ダウンロード処理
     if (type === 'download') {
         const { code, target } = params;
         if (!authUserId) return res.status(401).send("Unauthorized: ログインが必要です。");
-        await recordAccessLog({ actionType: 'download', targetCode: code });
 
         const { data: userHistories } = await supabase
             .from('histories')
@@ -304,11 +270,26 @@ export default async function handler(req, res) {
         }
     }
 
-    if (!ignoredAccessLogActions.has(type)) {
-      const targetCode = (type === 'check' || type === 'redeem') ? (params.code || params.key || null) : null;
-      await recordAccessLog({ targetCode });
+    // アクセスログ記録
+    const userAgent = req.headers['user-agent'] || 'unknown';
+    const safeType = type || 'unknown';
+    const ignoredActions = ['get_history', 'get_available', 'error_search', 'admin_get_access_logs', 'admin_search', 'admin_set_points', 'get_video_url'];
+    
+    let targetCode = null;
+    if (safeType === 'check' || safeType === 'redeem') {
+        targetCode = params.code || params.key || null; 
     }
-
+    
+    if (!ignoredActions.includes(safeType)) {
+        try {
+            await supabase.from('access_logs').insert([{
+                ip_address: ip, action_type: safeType, user_id: authUserId || null,
+                user_agent: userAgent, target_code: targetCode,
+                app_tier: appTier
+            }]);
+        } catch (logError) {}
+    }
+    
     const logAudit = async (actionType, targetUser, details) => {
         try {
             if (isAdmin && authUserId) {
@@ -345,10 +326,8 @@ export default async function handler(req, res) {
           }
 
           const isUserAdmin = user.is_admin === true;
-          const bannedUntil = user.banned_until ? new Date(user.banned_until) : null;
-          const isUserBanned = !isUserAdmin && bannedUntil && bannedUntil > new Date();
-          if (isUserBanned) {
-              return res.status(200).json({ success: false, isBanned: true, message: "Invalid" });
+          if (user.needs_password_change && !isUserAdmin) {
+              return res.status(200).json({ success: true, requirePasswordChange: true, userId: user.id });
           }
           const tokenStr = jwt.sign({ userId: user.id, isAdmin: isUserAdmin }, JWT_SECRET, { expiresIn: '24h' });
           const cookiesToSet = isUserAdmin
@@ -357,13 +336,7 @@ export default async function handler(req, res) {
                 `admin_logged_in=true; ${isProduction ? 'Secure; ' : ''}SameSite=Lax; Path=/; Max-Age=86400`
               ]
             : [sessionCookie(SESSION_COOKIE, tokenStr, 86400)];
-          // Issue the authenticated Cookie before forcing a first password change.
-          // The change_password endpoint then verifies this same session and user ID.
           res.setHeader('Set-Cookie', cookiesToSet);
-          await recordAccessLog({ actionType: 'user_login_success', userId: user.id });
-          if (user.needs_password_change && !isUserAdmin) {
-              return res.status(200).json({ success: true, requirePasswordChange: true, userId: user.id });
-          }
           return res.status(200).json({ success: true, isAdmin: isUserAdmin, userId: user.id });
       }
       return res.status(200).json({ success: false, message: "Invalid" });
