@@ -1487,4 +1487,85 @@ body.account-is-banned:not(.account-page-active) .rgl-main{min-height:100dvh;bac
 body.account-is-banned:not(.account-page-active) .rgl-bg-image{display:none!important}
 body.account-is-banned:not(.account-page-active) .rgl-hero{position:relative!important;inset:auto!important;width:100%!important;height:auto!important;min-height:calc(100dvh - 69px)!important;margin:0!important;overflow:visible!important;background:#000!important}
 body.account-is-banned:not(.account-page-active) .rgl-hero{display:flex!important;min-height:calc(100dvh - 69px);padding:0!important}body.account-is-banned .mobile-store-view{display:none!important}.account-ban-warning{padding:48px 22px}.account-ban-icon{width:100px;height:100px}.account-ban-icon svg{width:54px;height:54px}.account-ban-period{font-size:14px}.account-ban-logout{width:100%;min-width:0}}
+/* ====================================================
+   ★ Auth Loading Spinner (コード認証前待機用)
+   ==================================================== */
+.auth-loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 10004; /* authModal(10005)の直下 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+.auth-loading-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+.auth-spinner-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+/* 外側の回転リング */
+.auth-tech-spinner {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    border-top-color: var(--primary);
+    border-bottom-color: var(--primary);
+    animation: authSpin 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+    position: relative;
+    box-shadow: 0 0 20px rgba(0, 125, 255, 0.2);
+}
+/* 内側の逆回転リング */
+.auth-tech-spinner::before {
+    content: '';
+    position: absolute;
+    top: 6px; left: 6px; right: 6px; bottom: 6px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    border-left-color: var(--bright-green);
+    border-right-color: var(--bright-green);
+    animation: authSpin 1s linear infinite reverse;
+}
+/* 中心のパルス発光 */
+.auth-tech-spinner::after {
+    content: '';
+    position: absolute;
+    top: 16px; left: 16px; right: 16px; bottom: 16px;
+    border-radius: 50%;
+    background: var(--primary);
+    opacity: 0.8;
+    animation: authPulse 1.5s ease-in-out infinite;
+}
+.auth-spinner-text {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    animation: authTextPulse 1.5s infinite;
+}
 
+@keyframes authSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+@keyframes authPulse {
+    0%, 100% { transform: scale(0.8); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 15px var(--primary); }
+}
+@keyframes authTextPulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
