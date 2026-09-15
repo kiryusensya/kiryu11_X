@@ -1231,8 +1231,17 @@ function updateLanguage(lang){
 }
 
 async function openAuthModal(){ 
+  const loadingOverlay = document.getElementById('authLoadingOverlay');
+
   if (currentUser) {
+    // 通信発生時のみローディングスピナーを表示
+    if (loadingOverlay) loadingOverlay.classList.add('active');
+
     const banStatus = await safeFetch({ type: 'check_ban_status' });
+
+    // 通信完了後スピナーを消す
+    if (loadingOverlay) loadingOverlay.classList.remove('active');
+
     if (!banStatus.success || banStatus.isBanned) {
       currentUser.isBanned = true;
       updatePcCodeAuthVisibility();
@@ -1240,6 +1249,8 @@ async function openAuthModal(){
       return;
     }
   }
+
+  // BANされていなければ本来のモーダルを開く
   els.authModal.classList.add('active'); 
   els.modalCon.classList.add('is-input-wide'); 
   resetAuthModal(); 
