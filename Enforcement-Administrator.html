@@ -458,6 +458,24 @@ button:disabled{opacity:.45!important;box-shadow:none!important}
 .user-row{--glow-color:var(--card-border);text-shadow:none}
 .theme-switch-row,.theme-switch-track,.theme-switch-knob{box-shadow:none!important;text-shadow:none!important}
 
+
+/* Rounded dashboard surfaces and red unused-reset action */
+#btnResetCodeStatus{--glow-color:#ff2d2d!important}
+.sidebar-nav .nav-item{
+  border-radius:16px!important;
+}
+.card,.metric-card,.section-head,.user-pane,.detail-pane,.user-browser,
+.management-layout>.card,.dashboard-overview>.metric-card{
+  border-radius:18px!important;
+}
+.user-row,.account-info-box,.code-check-result{
+  border-radius:14px!important;
+}
+@media(max-width:768px){
+  .sidebar-nav .nav-item{border-radius:16px!important}
+  .card,.metric-card,.section-head,.user-pane,.detail-pane,.user-browser{border-radius:16px!important}
+}
+
 </style>
 </head>
 <body>
