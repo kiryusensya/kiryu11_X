@@ -130,41 +130,154 @@
     .grid-form { grid-template-columns: 1fr; gap: 0; }
   }
 </style>
+
+<style id="console-redesign-v2">
+:root {
+  color-scheme: dark;
+  --primary: #6ea8fe;
+  --primary-strong: #3b82f6;
+  --primary-soft: rgba(59,130,246,.14);
+  --bg-color: #090d14;
+  --surface: #111824;
+  --surface-2: #161f2e;
+  --card-bg: rgba(17,24,36,.92);
+  --card-border: rgba(148,163,184,.16);
+  --text-main: #f8fafc;
+  --text-sub: #9aa8bc;
+  --danger: #fb7185;
+  --warning: #fbbf24;
+  --success: #34d399;
+  --shadow: 0 16px 48px rgba(0,0,0,.24);
+  --radius: 14px;
+}
+html { scroll-behavior: smooth; }
+body {
+  background:
+    radial-gradient(circle at 72% -15%, rgba(59,130,246,.13), transparent 34rem),
+    var(--bg-color);
+  line-height: 1.55;
+}
+body::before {
+  content:""; position:fixed; inset:0; pointer-events:none; opacity:.16;
+  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size:32px 32px;
+}
+.skip-link { position:fixed; left:16px; top:-60px; z-index:10001; padding:10px 14px; border-radius:10px; background:#fff; color:#111; font-weight:800; }
+.skip-link:focus { top:16px; }
+.sidebar {
+  width:264px; min-height:100vh; position:sticky; top:0; height:100vh;
+  padding:22px 16px; background:rgba(7,11,18,.95); backdrop-filter:blur(18px);
+  border-right:1px solid var(--card-border);
+}
+.sidebar-header { margin-bottom:24px; padding:4px 8px 18px; border-bottom:1px solid var(--card-border); }
+.brand { font-size:16px; letter-spacing:-.01em; }
+.brand::after { content:"ADMIN"; margin-left:auto; padding:3px 7px; border-radius:999px; color:#93c5fd; background:var(--primary-soft); font-size:9px; letter-spacing:.12em; }
+.sidebar-nav { gap:3px; }
+.nav-item {
+  position:relative; min-height:44px; margin:0; padding:11px 12px; border:1px solid transparent;
+  border-radius:10px; font-size:13px; font-weight:700; color:#98a6ba;
+}
+.nav-item svg { width:18px; height:18px; stroke-width:1.8; }
+.nav-item:hover { transform:translateX(2px); background:rgba(255,255,255,.045); }
+.nav-item.active { background:linear-gradient(90deg,rgba(59,130,246,.17),rgba(59,130,246,.07)); color:#bfdbfe; border-color:rgba(96,165,250,.25); }
+.nav-item.active::before { content:""; position:absolute; left:-17px; width:3px; height:22px; border-radius:0 4px 4px 0; background:#60a5fa; box-shadow:0 0 14px #3b82f6; }
+.main-content { position:relative; padding:30px clamp(24px,4vw,64px) 64px; }
+.header { max-width:1180px; margin:0 auto 26px; padding-bottom:20px; border-bottom:1px solid var(--card-border); }
+.header h1 { font-size:clamp(24px,3vw,32px); letter-spacing:-.035em; }
+.header h1::after { content:"管理操作を安全かつ効率的に実行できます"; display:block; margin-top:5px; color:var(--text-sub); font-size:12px; font-weight:500; letter-spacing:0; }
+.header > div { display:flex; align-items:center; gap:7px; border:1px solid var(--card-border); }
+.header > div::before { content:""; width:7px; height:7px; border-radius:50%; background:var(--success); box-shadow:0 0 10px rgba(52,211,153,.8); }
+.panel { max-width:1180px; margin:0 auto; }
+.panel.active { animation:panelIn .24s ease-out; }
+@keyframes panelIn { from { opacity:0; transform:translateY(5px); } }
+.card, .card.wide {
+  width:100%; max-width:100%; padding:clamp(20px,3vw,32px); border-radius:var(--radius);
+  background:linear-gradient(145deg,rgba(21,29,43,.96),rgba(13,19,29,.96));
+  border:1px solid var(--card-border); box-shadow:var(--shadow); backdrop-filter:blur(16px);
+}
+.card h2 { padding-bottom:16px; margin-bottom:24px; font-size:17px; letter-spacing:-.01em; }
+.card h3 { font-size:14px; }
+.form-group { margin-bottom:18px; }
+label { margin-bottom:7px; color:#b6c2d2; font-size:12px; letter-spacing:.01em; }
+input, select, textarea {
+  height:46px; border-radius:9px; background:#0a1019; border:1px solid rgba(148,163,184,.22);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.02); font-size:14px;
+}
+input:hover, select:hover, textarea:hover { border-color:rgba(148,163,184,.38); }
+input:focus, select:focus, textarea:focus { border-color:#60a5fa; outline:3px solid rgba(59,130,246,.16); background:#0c1420; }
+::placeholder { color:#64748b; opacity:1; }
+button { min-height:44px; height:44px; border-radius:9px; font-size:13px; letter-spacing:.01em; }
+.btn-primary { background:linear-gradient(180deg,#4f93f7,#2878e6); box-shadow:0 7px 18px rgba(37,99,235,.22); }
+.btn-primary:hover:not(:disabled) { opacity:1; filter:brightness(1.08); transform:translateY(-1px); }
+.btn-primary:active:not(:disabled) { transform:translateY(0); }
+.btn-danger { border-radius:9px; }
+button:focus-visible, .nav-item:focus-visible { outline:3px solid rgba(96,165,250,.45); outline-offset:2px; }
+.msg { border-radius:9px; }
+.msg:not(:empty) { padding:11px 14px; background:rgba(255,255,255,.035); border:1px solid var(--card-border); }
+.history-list { max-height:520px; }
+.history-list li { background:#0b111b; border-radius:10px; }
+table { min-width:760px; }
+th { position:sticky; top:0; z-index:1; color:#aebacd; font-size:11px; text-transform:none; background:#141d2b; }
+tbody tr:hover { background:rgba(96,165,250,.045); }
+.modal-overlay { background:rgba(2,6,12,.76); }
+.modal-box { background:#121a27; border-radius:16px; box-shadow:0 24px 80px rgba(0,0,0,.55); }
+@media (min-width: 900px) {
+  #panel-create .card, #panel-reset .card, #panel-codes .card, #panel-code-support .card { max-width:760px; }
+}
+@media (max-width:768px) {
+  body { display:block; }
+  .sidebar { width:100%; min-height:auto; height:auto; position:sticky; z-index:100; padding:12px 16px; border-right:0; }
+  .sidebar-header { margin:0; padding:0; border:0; }
+  .brand::after { display:none; }
+  .sidebar-nav.open { max-height:calc(100vh - 72px); overflow:auto; padding:12px 0 6px; }
+  .nav-item.active::before { left:-16px; }
+  .main-content { padding:22px 16px 48px; }
+  .header { align-items:stretch; }
+  .header > div { align-self:flex-start; }
+  .card { padding:19px; border-radius:12px; }
+  .grid-form { grid-template-columns:1fr; }
+  .form-group[style*="grid-column"] { grid-column:auto !important; }
+  #panel-search .card > div[style*="display: flex"], #panel-code-support .form-group > div, #panel-codes .form-group > div { flex-direction:column; align-items:stretch !important; }
+  #panel-search button, #panel-code-support button, #panel-codes .form-group button, #panel-codes .form-group select { width:100% !important; }
+}
+@media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; scroll-behavior:auto !important; } }
+</style>
 </head>
 <body>
+<a class="skip-link" href="#mainContent">メインコンテンツへ移動</a>
 
 <div class="sidebar">
   <div class="sidebar-header">
-      <div class="brand"><i data-lucide="server"></i> kiryu11 X|S 管理控制</div>
+      <div class="brand"><i data-lucide="server"></i> kiryu11 X|S Console</div>
       <button class="mobile-menu-toggle" id="mobileMenuBtn"><i data-lucide="menu"></i></button>
   </div>
   <div class="sidebar-nav" id="sidebarNav">
-      <div class="nav-item active" onclick="switchTab('create')"><i data-lucide="user-plus"></i> 個人識別子発行</div>
-      <div class="nav-item" onclick="switchTab('reset')"><i data-lucide="key-round"></i> パスワードリセット</div>
-      <div class="nav-item" onclick="switchTab('search')"><i data-lucide="users"></i> 個人識別子管理</div>
+      <button type="button" class="nav-item active" data-tab="create" onclick="switchTab('create', this)"><i data-lucide="user-plus"></i> ユーザー作成</button>
+      <button type="button" class="nav-item" data-tab="reset" onclick="switchTab('reset', this)"><i data-lucide="key-round"></i> パスワードリセット</button>
+      <button type="button" class="nav-item" data-tab="search" onclick="switchTab('search', this)"><i data-lucide="users"></i> ユーザー管理</button>
       
-      <div class="nav-item" onclick="switchTab('contents')"><i data-lucide="package"></i> コンテンツ登録</div>
-      <div class="nav-item" onclick="switchTab('codes')"><i data-lucide="ticket"></i> コード発行</div>
+      <button type="button" class="nav-item" data-tab="contents" onclick="switchTab('contents', this)"><i data-lucide="package"></i> コンテンツ登録</button>
+      <button type="button" class="nav-item" data-tab="codes" onclick="switchTab('codes', this)"><i data-lucide="ticket"></i> コード発行</button>
       
-      <div class="nav-item" onclick="switchTab('code-support')"><i data-lucide="life-buoy"></i> コード確認・復旧</div>
+      <button type="button" class="nav-item" data-tab="code-support" onclick="switchTab('code-support', this)"><i data-lucide="life-buoy"></i> コードサポート</button>
       
-      <div class="nav-item" onclick="switchTab('access-log')"><i data-lucide="list"></i> アクセスログ</div>
+      <button type="button" class="nav-item" data-tab="access-log" onclick="switchTab('access-log', this)"><i data-lucide="list"></i> アクセスログ</button>
       <div style="margin-top: auto; padding-top: 20px;">
           <button id="btnLogout" class="btn-danger" style="width:100%; border:none; text-align:center; justify-content:center; background: rgba(255,59,48,0.1);"><i data-lucide="log-out"></i> 退出</button>
       </div>
   </div>
 </div>
 
-<div class="main-content">
+<main class="main-content" id="mainContent" tabindex="-1">
   <div class="header">
-      <h1 id="pageTitle">個人識別子発行</h1>
+      <h1 id="pageTitle">ユーザー作成</h1>
       <div style="font-size:12px; color:var(--text-sub); background:rgba(255,255,255,0.05); padding:8px 16px; border-radius:20px;">権限: Enforcement Administrator</div>
   </div>
 
   <div id="panel-create" class="panel active">
       <div class="card">
-          <h2>新規アカウントの作成</h2>
-          <div class="form-group"><label>新しい個人識別子</label><input type="text" id="newUserId" placeholder="個人識別子"></div>
+          <h2>新しいユーザーを作成</h2>
+          <div class="form-group"><label>ユーザーID</label><input type="text" id="newUserId" placeholder="個人識別子"></div>
           <div class="form-group"><label>初期パスワード</label><input type="text" id="newUserPass" placeholder="初期パスワード"></div>
           <div class="form-group">
               <label>アカウント権限 (Tier)</label>
@@ -173,7 +286,7 @@
                   <option value="enterprise">Professional</option>
               </select>
           </div>
-          <button id="btnCreate" class="btn-primary">アカウントを発行</button>
+          <button id="btnCreate" class="btn-primary">ユーザーを作成</button>
           <div id="createResult" class="msg"></div>
       </div>
   </div>
@@ -191,7 +304,7 @@
 
   <div id="panel-search" class="panel">
       <div class="card" style="max-width: 100%;">
-          <h2>個人識別子検索・サポート</h2>
+          <h2>ユーザーを検索・管理</h2>
           <div style="display: flex; gap: 16px; align-items: flex-end;">
             <div class="form-group" style="flex:1; margin-bottom:0;"><label>個人識別子</label><input type="text" id="searchUserId" placeholder="個人識別子"></div>
             <button id="btnSearch" class="btn-primary" style="width: 100px;">検索</button>
@@ -202,7 +315,7 @@
 
   <div id="panel-contents" class="panel">
       <div class="card wide">
-          <h2>コンテンツの登録・更新（マスターデータ）</h2>
+          <h2>コンテンツを登録・更新</h2>
           <p style="font-size:12px; color:var(--text-sub); margin-bottom:20px;">
             新規登録の場合は「コンテンツID」を空欄にしてください。既存のコンテンツを上書きする場合はIDを入力します。
           </p>
@@ -238,7 +351,7 @@
 
   <div id="panel-codes" class="panel">
       <div class="card">
-          <h2>引き換えコードの発行</h2>
+          <h2>引き換えコードを発行</h2>
           <p style="font-size:12px; color:var(--text-sub); margin-bottom:20px;">
             登録済みの「コンテンツID」に対して、ユーザーが入力するコードを発行します。
           </p>
@@ -276,7 +389,7 @@
   </div>
   <div id="panel-code-support" class="panel">
       <div class="card">
-          <h2>コードステータス確認</h2>
+          <h2>コードの状態を確認</h2>
           
           <div class="form-group">
               <label>引き換えコード</label>
@@ -323,7 +436,7 @@
           <div id="logResultMsg" class="msg"></div>
       </div>
   </div>
-</div>
+</main>
 
 <!-- 独自モーダル HTML構造 -->
 <div id="customModalOverlay" class="modal-overlay">
@@ -482,12 +595,13 @@
       document.getElementById('sidebarNav').classList.toggle('open');
   });
 
-  function switchTab(tabId) {
+  function switchTab(tabId, triggerEl) {
       document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       document.getElementById('panel-' + tabId).classList.add('active');
-      event.currentTarget.classList.add('active');
-      const titles = { 'create': '個人識別子発行', 'reset': 'パスワードリセット', 'search': '個人識別子管理', 'contents': 'コンテンツ登録', 'codes': 'コード発行', 'code-support': 'コード確認・復旧', 'access-log': 'アクセスログ' };
+      if (triggerEl) { triggerEl.classList.add('active'); triggerEl.setAttribute('aria-current', 'page'); }
+      document.querySelectorAll('.nav-item').forEach(n => { if (n !== triggerEl) n.removeAttribute('aria-current'); });
+      const titles = { 'create': 'ユーザー作成', 'reset': 'パスワードリセット', 'search': 'ユーザー管理', 'contents': 'コンテンツ登録', 'codes': 'コード発行', 'code-support': 'コードサポート', 'access-log': 'アクセスログ' };
       document.getElementById('pageTitle').textContent = titles[tabId] || '';
       if(window.innerWidth <= 768) document.getElementById('sidebarNav').classList.remove('open');
   }
@@ -952,6 +1066,27 @@
   if (logFilterSelect) {
       logFilterSelect.addEventListener('change', renderLogs);
   }
+</script>
+
+<script id="console-ux-v2">
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.nav-item').forEach(item => item.setAttribute('aria-label', item.textContent.trim()));
+  const active = document.querySelector('.nav-item.active');
+  if (active) active.setAttribute('aria-current','page');
+  document.querySelectorAll('input, select, textarea').forEach(el => {
+    const group = el.closest('.form-group');
+    const label = group?.querySelector('label');
+    if (label && !el.getAttribute('aria-label')) el.setAttribute('aria-label', label.textContent.trim());
+    el.setAttribute('autocomplete', el.type === 'password' ? 'current-password' : 'off');
+  });
+  const menuBtn = document.getElementById('mobileMenuBtn');
+  if (menuBtn) {
+    menuBtn.setAttribute('aria-label','メニューを開閉');
+    menuBtn.setAttribute('aria-controls','sidebarNav');
+    menuBtn.setAttribute('aria-expanded','false');
+    menuBtn.addEventListener('click', () => menuBtn.setAttribute('aria-expanded', String(document.getElementById('sidebarNav').classList.contains('open'))));
+  }
+});
 </script>
 </body>
 </html>
