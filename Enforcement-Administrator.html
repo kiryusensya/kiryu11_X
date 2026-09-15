@@ -240,6 +240,47 @@ button:not(.nav-item):not(.theme-toggle):not(.mobile-menu-toggle):not(.icon-btn)
 }
 @media (max-width:440px) { .dashboard-overview { grid-template-columns:1fr; } .metric-card { min-height:108px; } }
 
+
+/* Requested layout correction */
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;width:100%;max-width:100%;overflow-x:hidden}
+:root{
+  --bg-color:#000;--card-bg:#fff;--text-main:#000;--text-sub:#000;
+  --sidebar:#fff;--surface:#fff;--surface-2:#f3f3f3;--card-border:#d9d9d9;
+}
+html[data-theme="light"]{
+  --bg-color:#fff;--card-bg:#fff;--text-main:#000;--text-sub:#000;
+  --sidebar:#fff;--surface:#fff;--surface-2:#f3f3f3;--card-border:#d9d9d9;
+}
+body{background:var(--bg-color);color:#000}
+.sidebar{position:fixed;inset:0 auto 0 0;width:264px;height:100vh;padding:0;background:#fff;color:#000;border-right:1px solid #d9d9d9;z-index:1000}
+.sidebar-header{height:82px;padding:0 18px 0 22px;margin:0;border-bottom:1px solid #d9d9d9;gap:10px}
+.brand{min-width:0;color:#000;white-space:nowrap}
+.sidebar-tools{display:flex;align-items:center;gap:6px;margin-left:auto}
+.sidebar-nav{padding:22px 14px;color:#000}
+.nav-item,.nav-item:hover{color:#000}
+.main-content{display:block;margin-left:264px;width:calc(100% - 264px);max-width:calc(100% - 264px);min-height:100vh;padding:0 28px 40px;background:var(--bg-color);color:#000;overflow-x:hidden}
+.header{margin:0 -28px 24px;padding:0 28px;background:#fff;color:#000;border-color:#d9d9d9}
+.card,.metric-card,.section-head,.modal-box{background:#fff;color:#000}
+.metric-top,.metric-card small,.section-head p,.role-chip,.user-meta,.user-count,.empty-state{color:#000}
+input,select,textarea{background:#fff;color:#000;border-color:#cfcfcf}
+.theme-toggle{display:grid;place-items:center;color:#000;background:#f3f3f3;border:1px solid #d9d9d9}
+.mobile-menu-toggle{color:#000}
+@media(max-width:768px){
+  body{padding-top:64px}
+  body.menu-open{overflow:hidden}
+  .sidebar{position:fixed;inset:0 0 auto 0;width:100%;height:64px;border-right:0;border-bottom:1px solid #d9d9d9;overflow:visible}
+  .sidebar-header{position:relative;height:64px;padding:0 14px;margin:0;background:#fff;border:0;z-index:1002}
+  .brand{font-size:12px}
+  .sidebar-tools{flex-direction:row-reverse}
+  .mobile-menu-toggle{display:grid;place-items:center;width:40px;height:40px;padding:0}
+  .sidebar-nav{display:flex;position:fixed;inset:64px 0 0 0;width:100%;height:calc(100dvh - 64px);margin:0;padding:22px 18px;background:#fff;transform:translateX(-100%);opacity:0;visibility:hidden;transition:transform .28s ease,opacity .2s ease;z-index:1001;overflow-y:auto}
+  .sidebar-nav.open{display:flex;transform:translateX(0);opacity:1;visibility:visible;animation:none}
+  .main-content{margin-left:0;width:100%;max-width:100%;min-height:calc(100vh - 64px);padding:0 14px 28px}
+  .header{min-height:60px;margin:0 -14px 16px;padding:0 14px;background:#fff}
+  .header-actions{display:none}
+}
+
 </style>
 </head>
 <body>
@@ -247,7 +288,7 @@ button:not(.nav-item):not(.theme-toggle):not(.mobile-menu-toggle):not(.icon-btn)
 <div class="sidebar">
   <div class="sidebar-header">
       <div class="brand"><i data-lucide="server"></i> kiryu11 X|S 管理コンソール</div>
-      <button class="mobile-menu-toggle" id="mobileMenuBtn"><i data-lucide="menu"></i></button>
+      <div class="sidebar-tools"><button id="themeToggle" class="theme-toggle" type="button" aria-label="ライトモードに切り替え" title="ライトモードに切り替え"><i data-lucide="sun"></i></button><button class="mobile-menu-toggle" id="mobileMenuBtn" aria-label="メニューを開く"><i data-lucide="menu"></i></button></div>
   </div>
   <div class="sidebar-nav" id="sidebarNav">
       <div class="nav-item active" onclick="switchTab('create')"><i data-lucide="user-plus"></i> 個人識別子発行</div>
@@ -267,7 +308,7 @@ button:not(.nav-item):not(.theme-toggle):not(.mobile-menu-toggle):not(.icon-btn)
 <div class="main-content">
   <div class="header">
       <h1 id="pageTitle">個人識別子発行</h1>
-      <div class="header-actions"><span class="role-chip">権限: Enforcement Administrator</span><button id="themeToggle" class="theme-toggle" type="button" aria-label="ライトモードに切り替え" title="ライトモードに切り替え"><i data-lucide="sun"></i></button></div>
+      <div class="header-actions"><span class="role-chip">権限: Enforcement Administrator</span></div>
   </div>
 
   <section class="dashboard-overview" aria-label="管理状況サマリー">
@@ -557,7 +598,12 @@ button:not(.nav-item):not(.theme-toggle):not(.mobile-menu-toggle):not(.icon-btn)
   }
 
   document.getElementById('mobileMenuBtn').addEventListener('click', () => {
-      document.getElementById('sidebarNav').classList.toggle('open');
+      const nav = document.getElementById('sidebarNav');
+      const opened = nav.classList.toggle('open');
+      document.body.classList.toggle('menu-open', opened);
+      document.getElementById('mobileMenuBtn').innerHTML = `<i data-lucide="${opened ? 'x' : 'menu'}"></i>`;
+      document.getElementById('mobileMenuBtn').setAttribute('aria-label', opened ? 'メニューを閉じる' : 'メニューを開く');
+      lucide.createIcons();
   });
 
   function switchTab(tabId) {
@@ -567,7 +613,13 @@ button:not(.nav-item):not(.theme-toggle):not(.mobile-menu-toggle):not(.icon-btn)
       event.currentTarget.classList.add('active');
       const titles = { 'create': '個人識別子発行', 'reset': 'パスワードリセット', 'search': '個人識別子管理', 'contents': 'コンテンツ登録', 'codes': 'コード発行', 'code-support': 'コード確認・復旧', 'access-log': 'アクセスログ' };
       document.getElementById('pageTitle').textContent = titles[tabId] || '';
-      if(window.innerWidth <= 768) document.getElementById('sidebarNav').classList.remove('open');
+      if(window.innerWidth <= 768) {
+          document.getElementById('sidebarNav').classList.remove('open');
+          document.body.classList.remove('menu-open');
+          document.getElementById('mobileMenuBtn').innerHTML = '<i data-lucide="menu"></i>';
+          document.getElementById('mobileMenuBtn').setAttribute('aria-label', 'メニューを開く');
+          lucide.createIcons();
+      }
   }
 
   document.getElementById('btnLogout').addEventListener('click', async () => {
