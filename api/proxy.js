@@ -343,20 +343,26 @@ export default async function handler(req, res) {
     }
 
     if (type === 'change_password') {
-      const { userId, oldPassword, newPassword } = params;
-      if (!authUserId || String(authUserId) !== String(userId)) {
-        return res.status(403).json({ success: false, message: "Forbidden" });
-      }
-      if (!userId || !oldPassword || !newPassword) return res.status(200).json({ success: false, message: "Missing fields" });
+      const { oldPassword, newPassword } = params;
+      
+      // クライアントからの userId を信用せず、安全な認証済みID (authUserId) を強制利用する
+      const targetUserId = authUserId;
 
-      const { data: user } = await supabase.from('users').select('*').eq('id', userId).maybeSingle();
+      if (!targetUserId) {
+        return res.status(403).json({ success: false, message: "Forbidden: 認証されていません" });
+      }
+      if (!oldPassword || !newPassword) {
+        return res.status(200).json({ success: false, message: "Missing fields" });
+      }
+
+      const { data: user } = await supabase.from('users').select('*').eq('id', targetUserId).maybeSingle();
       if (!user) return res.status(200).json({ success: false, message: "User not found" });
 
       const isMatch = await bcrypt.compare(oldPassword, user.password);
       if (!isMatch) return res.status(200).json({ success: false, message: "Invalid current password" });
 
       const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-      const { error } = await supabase.from('users').update({ password: hashedNewPassword, needs_password_change: false }).eq('id', userId);
+      const { error } = await supabase.from('users').update({ password: hashedNewPassword, needs_password_change: false }).eq('id', targetUserId);
       if (error) return res.status(200).json({ success: false, message: "Database update failed" });
 
       return res.status(200).json({ success: true, message: "Password updated successfully" });
