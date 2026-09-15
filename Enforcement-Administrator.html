@@ -370,6 +370,23 @@ html[data-theme="light"]{--contrast-border:#000!important}
   }
 }
 
+
+/* Account information borders and semantic status colors */
+:root{--account-info-border:#fff}
+html[data-theme="light"]{--account-info-border:#000}
+.account-info-box{
+  background:transparent!important;
+  border:1px solid var(--account-info-border)!important;
+}
+.destructive-button,#btnLogout,#customModalBtnOk{
+  background:#d70015!important;
+  border-color:#d70015!important;
+  color:#fff!important;
+}
+.destructive-button *,#btnLogout *,#customModalBtnOk *{color:#fff!important}
+.status-stopped,.status-stopped *{color:#ff2d2d!important;font-weight:700!important}
+.status-normal,.status-normal *,.status-online,.status-online *{color:#18a558!important;font-weight:700!important}
+
 </style>
 </head>
 <body>
@@ -767,13 +784,13 @@ html[data-theme="light"]{--contrast-border:#000!important}
         resEl.innerHTML = '';
         if (d.success) {
             const tierLabel = d.tier === 'enterprise' ? '<span style="color:#FF9500;">X</span>' : '<span style="color:var(--primary);">S</span>';
-            let banStatusHtml = '<span style="color:var(--success); font-weight:bold;">正常</span>';
+            let banStatusHtml = '<span class="status-normal">正常</span>';
             if (d.bannedUntil) {
                 const bDate = new Date(d.bannedUntil);
                 if (bDate.getFullYear() > 2090) {
-                    banStatusHtml = '<span style="color:var(--danger); font-weight:bold;">永久停止中</span>';
+                    banStatusHtml = '<span class="status-stopped">永久停止中</span>';
                 } else if (bDate > new Date()) {
-                    banStatusHtml = `<span style="color:var(--danger); font-weight:bold;">停止中 (期限: ${bDate.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })})</span>`;
+                    banStatusHtml = `<span class="status-stopped">停止中 (期限: ${bDate.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })})</span>`;
                 }
             }
 
@@ -791,7 +808,7 @@ html[data-theme="light"]{--contrast-border:#000!important}
                 <div style="display:flex; flex-direction:column; gap:15px; margin-bottom: 20px;">
                     
                     <!-- 権限 (Tier) 変更エリア: PCは右端、スマホは下に折り返し -->
-                    <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px; background:rgba(0,0,0,0.2); padding:10px 15px; border-radius:8px;">
+                    <div class="account-info-box account-tier-box" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px; padding:10px 15px; border-radius:8px;">
                         <div style="font-size:14px; color:var(--text-sub);">アカウント権限: <strong>${tierLabel}</strong></div>
                         <div style="display:flex; gap:10px; flex-wrap:wrap;">
                             <select id="setTierVal" style="width:auto; height:36px; font-size:13px; padding:0 30px 0 15px; border-radius:18px;">
@@ -803,7 +820,7 @@ html[data-theme="light"]{--contrast-border:#000!important}
                     </div>
 
                     <!-- ポイント変更エリア -->
-                    <div style="background:rgba(0,0,0,0.2); padding:10px 15px; border-radius:8px;">
+                    <div class="account-info-box account-points-box" style="padding:10px 15px; border-radius:8px;">
                         <div style="font-size:14px; color:var(--text-sub); margin-bottom:8px;">現在の所持ポイント: <strong style="color:#fff; font-size:20px; margin-left:8px;">${escapeHTML(String(d.points))}</strong> pt</div>
                         <div style="display:flex; gap:10px; flex-wrap:wrap;">
                             <input type="number" id="setPtVal" placeholder="ポイント数を入力" style="flex:1; min-width:150px; max-width:250px; height:44px; margin-bottom:0;">
@@ -827,7 +844,7 @@ html[data-theme="light"]{--contrast-border:#000!important}
                     </div>
                     </div>
                 <div style="border-top: 1px solid rgba(255,59,48,0.3); padding-top:16px;">
-                    <button class="btn-danger" id="btnDeleteUser" style="width:100%; color:var(--danger); border-color:var(--danger); background: rgba(255,59,48,0.1);">
+                    <button class="btn-danger destructive-button" id="btnDeleteUser" style="width:100%; color:var(--danger); border-color:var(--danger); background: rgba(255,59,48,0.1);">
                         <i data-lucide="alert-triangle" style="margin-right:4px;"></i> アカウント完全削除
                     </button>
                 </div>
