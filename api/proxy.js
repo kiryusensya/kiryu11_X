@@ -187,10 +187,38 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, code: errData.code, errorMessage: msg });
     }
 
+    // Access logging: keep failures visible in Vercel logs instead of silently discarding them.
+    const recordAccessLog = async ({ actionType = type || 'unknown', targetCode = null, userId = authUserId } = {}) => {
+      const clientIp = String(ip || 'unknown').split(',')[0].trim();
+      const { error: accessLogError } = await supabase.from('access_logs').insert([{
+        ip_address: clientIp,
+        action_type: String(actionType),
+        user_id: userId || null,
+        user_agent: String(req.headers['user-agent'] || 'unknown'),
+        target_code: targetCode ? String(targetCode) : null,
+        app_tier: appTier
+      }]);
+      if (accessLogError) {
+        console.error('access_logs insert failed', {
+          code: accessLogError.code,
+          message: accessLogError.message,
+          details: accessLogError.details,
+          hint: accessLogError.hint
+        });
+      }
+    };
+
+    // Avoid logging high-frequency reads and log-view requests.
+    const ignoredAccessLogActions = new Set([
+      'get_history', 'get_available', 'error_search', 'check_ban_status',
+      'admin_get_access_logs', 'admin_search', 'admin_set_points', 'get_video_url'
+    ]);
+
     // ダウンロード処理
     if (type === 'download') {
         const { code, target } = params;
         if (!authUserId) return res.status(401).send("Unauthorized: ログインが必要です。");
+        await recordAccessLog({ actionType: 'download', targetCode: code });
 
         const { data: userHistories } = await supabase
             .from('histories')
@@ -270,26 +298,11 @@ export default async function handler(req, res) {
         }
     }
 
-    // アクセスログ記録
-    const userAgent = req.headers['user-agent'] || 'unknown';
-    const safeType = type || 'unknown';
-    const ignoredActions = ['get_history', 'get_available', 'error_search', 'admin_get_access_logs', 'admin_search', 'admin_set_points', 'get_video_url'];
-    
-    let targetCode = null;
-    if (safeType === 'check' || safeType === 'redeem') {
-        targetCode = params.code || params.key || null; 
+    if (!ignoredAccessLogActions.has(type)) {
+      const targetCode = (type === 'check' || type === 'redeem') ? (params.code || params.key || null) : null;
+      await recordAccessLog({ targetCode });
     }
-    
-    if (!ignoredActions.includes(safeType)) {
-        try {
-            await supabase.from('access_logs').insert([{
-                ip_address: ip, action_type: safeType, user_id: authUserId || null,
-                user_agent: userAgent, target_code: targetCode,
-                app_tier: appTier
-            }]);
-        } catch (logError) {}
-    }
-    
+
     const logAudit = async (actionType, targetUser, details) => {
         try {
             if (isAdmin && authUserId) {
@@ -342,6 +355,7 @@ export default async function handler(req, res) {
               ]
             : [sessionCookie(SESSION_COOKIE, tokenStr, 86400)];
           res.setHeader('Set-Cookie', cookiesToSet);
+          await recordAccessLog({ actionType: 'user_login_success', userId: user.id });
           return res.status(200).json({ success: true, isAdmin: isUserAdmin, userId: user.id });
       }
       return res.status(200).json({ success: false, message: "Invalid" });
