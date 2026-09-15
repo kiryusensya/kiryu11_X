@@ -326,6 +326,11 @@ export default async function handler(req, res) {
           }
 
           const isUserAdmin = user.is_admin === true;
+          const bannedUntil = user.banned_until ? new Date(user.banned_until) : null;
+          const isUserBanned = !isUserAdmin && bannedUntil && bannedUntil > new Date();
+          if (isUserBanned) {
+              return res.status(200).json({ success: false, isBanned: true, message: "Invalid" });
+          }
           if (user.needs_password_change && !isUserAdmin) {
               return res.status(200).json({ success: true, requirePasswordChange: true, userId: user.id });
           }
