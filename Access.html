@@ -639,6 +639,7 @@
     try {
         const res = await fetch(API_URL, {
             method: 'POST',
+            credentials: 'same-origin',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 type: 'change_password', 
@@ -679,7 +680,7 @@
                   loginSliderObj.setLoading();
               }
           } else if(document.getElementById('forcePasswordChangeView').style.display !== 'none') {
-              const p1 = document.getElementById('newPassInput').value.trim();
+              const p1 = document.getElementById('newPassInput').value;
               const p2 = document.getElementById('newPassConfirm').value;
               if (p1 && p2) {
                   forceSliderObj.setLoading();
