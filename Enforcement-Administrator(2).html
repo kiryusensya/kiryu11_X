@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Console | kiryu11 X|S</title>
+
+<script>
+  function checkCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      return parts.length === 2;
+  }
+  if (!checkCookie('admin_logged_in')) window.location.replace('signin.html');
+  setInterval(() => {
+      if (!checkCookie('admin_logged_in')) window.location.replace('signin.html');
+  }, 3000);
+
+  let inactivityTimer;
+  const INACTIVITY_LIMIT = 20 * 60 * 1000;
+  
+  // 自動ログアウト時のアラートもカスタムモーダル対応のため async/await 化
+  async function performAutoLogout() {
+      document.cookie = "admin_logged_in=; path=/; max-age=0;";
+      await customAlert("20分間操作がなかったため、セキュリティ保護のため自動的にログアウトしました。");
+      window.location.replace('signin.html');
+  }
+  function resetInactivityTimer() {
+      clearTimeout(inactivityTimer);
+      inactivityTimer = setTimeout(performAutoLogout, INACTIVITY_LIMIT);
+  }
+  window.addEventListener('mousemove', resetInactivityTimer);
+  window.addEventListener('mousedown', resetInactivityTimer);
+  window.addEventListener('keypress', resetInactivityTimer);
+  window.addEventListener('touchstart', resetInactivityTimer);
+  window.addEventListener('scroll', resetInactivityTimer);
+  resetInactivityTimer();
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Medium.woff') format('woff'); font-weight: 500; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+  :root {
+    color-scheme: dark;
+    --primary: #007DFF; --bg-color: #121212; --card-bg: rgba(40, 40, 40, 0.6);
+    --card-border: rgba(255, 255, 255, 0.1); --text-main: #FFFFFF; --text-sub: #A0A0A0;
+    --danger: #FF3B30; --success: #04CF22;
+    --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
+  }
+  :root:lang(ja) { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
+  body { font-family: var(--font-stack); background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 0; min-height: 100vh; display: flex; overflow-x: hidden; }
+  * { box-sizing: border-box; }
+
+  .sidebar { width: 280px; background: #000; border-right: 1px solid var(--card-border); display: flex; flex-direction: column; padding: 24px; flex-shrink: 0; transition: all 0.3s ease; }
+  .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+  .brand { font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+  .mobile-menu-toggle { display: none; background: transparent; border: none; color: var(--text-main); cursor: pointer; padding: 8px; }
+
+  .sidebar-nav { display: flex; flex-direction: column; flex: 1; }
+  .nav-item { display: flex; align-items: center; gap: 12px; padding: 16px; border-radius: 12px; color: var(--text-sub); font-weight: 700; cursor: pointer; transition: 0.2s; margin-bottom: 8px; }
+  .nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text-main); }
+  .nav-item.active { background: rgba(0, 125, 255, 0.15); color: var(--primary); border: 1px solid rgba(0, 125, 255, 0.3); }
+
+  .main-content { flex: 1; padding: 40px; overflow-y: auto; background: var(--bg-color); }
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+  .header h1 { margin: 0; font-size: 28px; font-weight: 800; }
+
+  .panel { display: none; animation: fadeIn 0.4s; }
+  .panel.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 30px; max-width: 600px; margin-bottom: 20px; backdrop-filter: blur(10px); }
+  .card.wide { max-width: 900px; }
+  .card h2 { margin: 0 0 20px 0; font-size: 18px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px;}
+
+  .form-group { margin-bottom: 20px; text-align: left; }
+  label { display: block; font-size: 13px; font-weight: 700; color: var(--text-sub); margin-bottom: 8px; }
+  input, select, textarea { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: var(--text-main); padding: 0 16px; font-size: 14px; font-family: inherit; outline: none; transition: 0.2s; }
+  input, select { height: 50px; }
+  option { background-color: var(--bg-color); color: var(--text-main); }
+  option:checked { background-color: var(--primary); color: #fff; }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type="number"] { -moz-appearance: textfield; }
+  select { appearance: none; cursor: pointer; }
+  input:focus, select:focus, textarea:focus { border-color: var(--primary); background: rgba(0, 125, 255, 0.05); }
+  
+  .grid-form { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  button { height: 50px; border-radius: 25px; font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.2s; border: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit; }
+  .btn-primary { background: var(--primary); color: #fff; width: 100%; }
+  .btn-primary:hover:not(:disabled) { opacity: 0.8; }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); width: auto; padding: 0 20px; height: 40px; border-radius: 20px; font-size: 14px;}
+  .btn-danger:hover { background: rgba(255, 59, 48, 0.1); }
+  .msg { margin-top: 15px; font-size: 14px; font-weight: 700; min-height: 20px; text-align: center; }
+  .history-list { list-style: none; padding: 0; margin: 0; max-height: 400px; overflow-y: auto; }
+  .history-list li { background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); padding: 16px; margin-bottom: 10px; border-radius: 12px; }
+  .history-title { font-weight: 800; font-size: 16px; margin-bottom: 6px; display: block; }
+  .history-meta { color: var(--text-sub); font-size: 12px; line-height: 1.5; }
+
+  /* 独自モーダル用 CSS */
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); z-index: 9999; justify-content: center; align-items: center; backdrop-filter: blur(5px); animation: fadeIn 0.2s; }
+  .modal-box { background: var(--bg-color); border: 1px solid var(--card-border); padding: 30px; border-radius: 20px; width: 90%; max-width: 420px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+  .modal-box h3 { margin: 0 0 15px 0; font-size: 20px; color: var(--text-main); }
+  .modal-box p { color: var(--text-sub); font-size: 14px; margin-bottom: 25px; line-height: 1.6; word-break: break-all; }
+  #customModalInput { margin-bottom: 20px; text-align: center; display: none; }
+  .modal-actions { display: flex; gap: 12px; justify-content: center; }
+  .modal-actions button { flex: 1; height: 44px; font-size: 15px; }
+
+  @media (max-width: 768px) {
+    body { flex-direction: column; overflow-y: auto; }
+    .sidebar { width: 100%; padding: 16px 20px; border-right: none; border-bottom: 1px solid var(--card-border); height: auto; }
+    .sidebar-header { margin-bottom: 0; }
+    .mobile-menu-toggle { display: block; }
+    .sidebar-nav { display: none; margin-top: 20px; }
+    .sidebar-nav.open { display: flex; animation: fadeIn 0.3s ease; }
+    .nav-item { padding: 14px 16px; font-size: 14px; justify-content: flex-start; }
+    .main-content { padding: 20px; overflow-y: visible; }
+    .header { flex-direction: column; align-items: flex-start; gap: 10px; margin-bottom: 24px; }
+    .header h1 { font-size: 22px; }
+    .card { padding: 20px; }
+    .grid-form { grid-template-columns: 1fr; gap: 0; }
+  }
+
+/* 2026 UI refresh */
+:root { --surface:#181b22; --surface-2:#20242d; --sidebar:#0d0f14; --shadow:0 18px 50px rgba(0,0,0,.22); --ring:rgba(0,125,255,.24); }
+html[data-theme="light"] { color-scheme:light; --bg-color:#f4f7fb; --card-bg:rgba(255,255,255,.92); --card-border:#dfe5ee; --text-main:#172033; --text-sub:#657086; --surface:#fff; --surface-2:#f7f9fc; --sidebar:#fff; --shadow:0 18px 50px rgba(34,55,90,.10); }
+body { background:radial-gradient(circle at 80% 0%, rgba(0,125,255,.10), transparent 34%),var(--bg-color); }
+.sidebar { background:var(--sidebar); box-shadow:var(--shadow); }
+.main-content { background:transparent; }
+.nav-item { border:1px solid transparent; }
+.card { box-shadow:var(--shadow); background:var(--card-bg); }
+.header-actions,.section-head,.user-list-head { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.header-actions { flex-wrap:wrap; justify-content:flex-end; }
+.role-chip { font-size:12px; color:var(--text-sub); background:var(--surface-2); border:1px solid var(--card-border); padding:8px 14px; border-radius:999px; }
+.theme-toggle,.icon-btn { width:auto; height:40px; border-radius:12px; padding:0 14px; background:var(--surface-2); color:var(--text-main); border:1px solid var(--card-border); font-size:13px; }
+.icon-btn { width:42px; padding:0; }
+.section-head { margin-bottom:18px; }
+.section-head h2 { margin:0 0 5px; font-size:22px; }
+.section-head p { margin:0; color:var(--text-sub); font-size:13px; }
+.management-layout { display:grid; grid-template-columns:minmax(260px,340px) minmax(0,1fr); gap:20px; align-items:start; }
+.user-pane,.detail-pane { max-width:none; margin:0; }
+.user-pane { position:sticky; top:0; max-height:calc(100vh - 155px); display:flex; flex-direction:column; }
+.detail-pane { min-height:420px; }
+.user-list-head { padding-bottom:14px; border-bottom:1px solid var(--card-border); margin-bottom:14px; }
+.user-count { font-size:12px; color:var(--text-sub); }
+.user-stack,.user-grid { overflow:auto; display:grid; gap:10px; }
+.user-stack { padding-right:4px; }
+.user-grid { grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); max-height:560px; padding:3px; }
+.user-row { width:100%; height:auto; min-height:72px; border-radius:14px; padding:13px 14px; background:var(--surface-2); color:var(--text-main); border:1px solid var(--card-border); justify-content:flex-start; text-align:left; }
+.user-row:hover,.user-row.selected { border-color:var(--primary); box-shadow:0 0 0 3px var(--ring); }
+.user-avatar { width:38px; height:38px; flex:0 0 38px; display:grid; place-items:center; border-radius:12px; color:var(--primary); background:rgba(0,125,255,.12); }
+.user-copy { min-width:0; flex:1; display:grid; gap:4px; }
+.user-id { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; }
+.user-meta { color:var(--text-sub); font-size:11px; font-weight:500; }
+.tier-pill { padding:3px 8px; border-radius:999px; background:rgba(0,125,255,.12); color:var(--primary); font-size:11px; }
+.tier-pill.x { color:#ff9500; background:rgba(255,149,0,.12); }
+.empty-state { min-height:220px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; color:var(--text-sub); padding:28px; }
+.empty-state svg { width:36px; height:36px; }
+.user-browser { max-width:none; }
+html[data-theme="light"] input,html[data-theme="light"] select,html[data-theme="light"] textarea { background:#fff; color:var(--text-main); border-color:var(--card-border); }
+html[data-theme="light"] option { background:#fff; color:#172033; }
+@media(max-width:900px){ .management-layout{grid-template-columns:1fr}.user-pane{position:static;max-height:none}.user-stack{grid-template-columns:repeat(2,minmax(0,1fr));max-height:360px}.detail-pane{min-height:300px} }
+@media(max-width:768px){ .header{align-items:stretch}.header-actions{justify-content:space-between}.role-chip{max-width:65%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.section-head{align-items:flex-start}.card{border-radius:18px;padding:18px}.user-grid,.user-stack{grid-template-columns:1fr}.user-row{min-height:68px}.management-layout{gap:14px}.modal-box{padding:22px}.modal-actions{flex-direction:column-reverse}.modal-actions button{width:100%} button{min-height:44px} }
+
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+      <div class="brand"><i data-lucide="server"></i> kiryu11 X|S 管理コンソール</div>
+      <button class="mobile-menu-toggle" id="mobileMenuBtn"><i data-lucide="menu"></i></button>
+  </div>
+  <div class="sidebar-nav" id="sidebarNav">
+      <div class="nav-item active" onclick="switchTab('create')"><i data-lucide="user-plus"></i> 個人識別子発行</div>
+      <div class="nav-item" onclick="switchTab('reset')"><i data-lucide="key-round"></i> パスワードリセット</div>
+      <div class="nav-item" onclick="switchTab('search')"><i data-lucide="users"></i> 個人識別子管理</div>
+      
+      <div class="nav-item" onclick="switchTab('contents')"><i data-lucide="package"></i> コンテンツ登録</div>
+      <div class="nav-item" onclick="switchTab('codes')"><i data-lucide="ticket"></i> コード発行</div>
+      
+      <div class="nav-item" onclick="switchTab('code-support')"><i data-lucide="life-buoy"></i> コード確認・復旧</div>
+      <div style="margin-top: auto; padding-top: 20px;">
+          <button id="btnLogout" class="btn-danger" style="width:100%; border:none; text-align:center; justify-content:center; background: rgba(255,59,48,0.1);"><i data-lucide="log-out"></i> 退出</button>
+      </div>
+  </div>
+</div>
+
+<div class="main-content">
+  <div class="header">
+      <h1 id="pageTitle">個人識別子発行</h1>
+      <div class="header-actions"><span class="role-chip">権限: Enforcement Administrator</span><button id="themeToggle" class="theme-toggle" type="button" aria-label="表示テーマを切り替え"><i data-lucide="sun"></i><span>ライト</span></button></div>
+  </div>
+
+  <div id="panel-create" class="panel active">
+      <div class="card">
+          <h2>新規アカウントの作成</h2>
+          <div class="form-group"><label>新しい個人識別子</label><input type="text" id="newUserId" placeholder="個人識別子"></div>
+          <div class="form-group"><label>初期パスワード</label><input type="text" id="newUserPass" placeholder="初期パスワード"></div>
+          <div class="form-group">
+              <label>アカウント権限 (Tier)</label>
+              <select id="newUserTier">
+                  <option value="standard">S</option>
+                  <option value="enterprise">X</option>
+              </select>
+          </div>
+          <button id="btnCreate" class="btn-primary">アカウントを発行</button>
+          <div id="createResult" class="msg"></div>
+      </div>
+  </div>
+
+  <div id="panel-reset" class="panel">
+    <div class="section-head"><div><h2>パスワードリセット</h2><p>ユーザーを選択して、安全な確認手順で仮パスワードを設定します。</p></div><button class="icon-btn" data-reload-users title="ユーザー一覧を更新"><i data-lucide="refresh-cw"></i></button></div>
+    <div class="user-browser card wide">
+      <div class="user-list-head"><strong>ユーザー一覧</strong><span class="user-count" id="resetUserCount">読み込み前</span></div>
+      <div id="resetUserList" class="user-grid"><div class="empty-state">ユーザー一覧を読み込んでいます…</div></div>
+      <div id="resetResult" class="msg"></div>
+    </div>
+    <input type="hidden" id="resetUserId"><input type="hidden" id="resetUserPass"><button id="btnReset" type="button" hidden></button>
+  </div>
+  <div id="panel-search" class="panel">
+    <div class="section-head"><div><h2>個人識別子管理</h2><p>一覧から管理するユーザーを選択してください。</p></div><button class="icon-btn" data-reload-users title="ユーザー一覧を更新"><i data-lucide="refresh-cw"></i></button></div>
+    <div class="management-layout">
+      <aside class="card user-pane">
+        <div class="user-list-head"><strong>ユーザー一覧</strong><span class="user-count" id="manageUserCount">読み込み前</span></div>
+        <div id="manageUserList" class="user-stack"><div class="empty-state">ユーザー一覧を読み込んでいます…</div></div>
+      </aside>
+      <section class="card detail-pane"><div id="searchResult"><div class="empty-state"><i data-lucide="user-round-cog"></i><strong>ユーザーを選択</strong><span>ポイント、権限、アクセス制限、削除、購入・引き換え履歴を管理できます。</span></div></div></section>
+    </div>
+    <input type="hidden" id="searchUserId"><button id="btnSearch" type="button" hidden></button>
+  </div>
+  <div id="panel-contents" class="panel">
+      <div class="card wide">
+          <h2>コンテンツの登録・更新（マスターデータ）</h2>
+          <p style="font-size:12px; color:var(--text-sub); margin-bottom:20px;">
+            新規登録の場合は「コンテンツID」を空欄にしてください。既存のコンテンツを上書きする場合はIDを入力します。
+          </p>
+          
+          <div style="max-height: 600px; overflow-y: auto; padding-right: 15px;">
+              <h3 style="border-bottom: 1px solid var(--card-border); padding-bottom: 8px; margin-top:0;">基本設定</h3>
+              <div class="grid-form">
+                  <div class="form-group" style="grid-column: 1 / -1;"><label>コンテンツID (※上書き更新する場合のみ入力)</label><input type="number" class="content-input" data-col="id" placeholder="空欄で新規作成"></div>
+                  
+                  <div class="form-group" style="grid-column: 1 / -1;">
+                      <label>対象階層 (Tier)</label>
+                      <select class="content-input" data-col="target_tier">
+                          <option value="all">All supported</option>
+                          <option value="enterprise">X</option>
+                      </select>
+                  </div>
+
+                  <div class="form-group"><label>表示設定</label><select class="content-input" data-col="show/ hide"><option value="show">show</option><option value="hide">hide</option></select></div>
+                  <div class="form-group"><label>価格 (ポイント)</label><input type="number" class="content-input" data-col="価格" placeholder="0"></div>
+                  <div class="form-group"><label>解禁時間</label><input type="datetime-local" class="content-input" data-col="解禁時間"></div>
+                  <div class="form-group"><label>有効時間</label><input type="datetime-local" class="content-input" data-col="有効時間"></div>
+                  <div class="form-group"><label>アイコン</label><input type="text" class="content-input" data-col="アイコン" placeholder="例: download"></div>
+                  <div class="form-group"><label>重複 (グループID)</label><input type="text" class="content-input" data-col="重複" placeholder="例: APP_KIRYU"></div>
+                  <div class="form-group" style="grid-column: 1 / -1;"><label>Action_url (ダウンロード先等)</label><input type="text" class="content-input" data-col="Action_url" placeholder="https://..."></div>
+                  <div class="form-group" style="grid-column: 1 / -1;"><label>Imag_Url (サムネイル画像)</label><input type="text" class="content-input" data-col="Imag_Url" placeholder="https://..."></div>
+              </div>
+              <div id="langFormsContainer"></div>
+          </div>
+          <button id="btnSaveContent" class="btn-primary" style="background:#04CF22; margin-top:20px;">コンテンツを保存する</button>
+          <div id="contentManageResult" class="msg"></div>
+      </div>
+  </div>
+
+  <div id="panel-codes" class="panel">
+      <div class="card">
+          <h2>引き換えコードの発行</h2>
+          <p style="font-size:12px; color:var(--text-sub); margin-bottom:20px;">
+            登録済みの「コンテンツID」に対して、ユーザーが入力するコードを発行します。
+          </p>
+          <div class="form-group">
+              <label>紐づけるコンテンツID (必須)</label>
+              <input type="number" id="genCodeContentId" placeholder="例: 1">
+          </div>
+          <div class="form-group">
+              <label>アクティベーションコード (必須)</label>
+              <div style="display: flex; gap: 10px;">
+                  <input type="text" id="genCodeStr" placeholder="例: AAAAA-BBBBB-CCCCC-DDDDD-EEEEE" style="text-transform: uppercase; flex: 1;">
+                  <select id="codeFormatSelect" style="width: auto; padding: 0 10px; flex-shrink: 0;">
+                      <option value="4x4">4桁 × 4ブロック</option>
+                      <option value="4x3">4桁 × 3ブロック</option>
+                      <option value="5x5">5桁 × 5ブロック</option>
+                  </select>
+                  <button type="button" class="btn-primary" style="width: 100px; flex-shrink: 0; background: rgba(255,255,255,0.1); border: 1px solid var(--card-border);" onclick="generateProSerialCode()">自動生成</button>
+              </div>
+          </div>
+          <div class="grid-form">
+              <div class="form-group" style="grid-column: 1 / -1;">
+                  <label>対象階層 (Tier)</label>
+                  <select id="genCodeTier">
+                      <option value="all">All supported</option>
+                      <option value="enterprise">X</option>
+                  </select>
+              </div>
+              <div class="form-group"><label>コードタイプ</label><select id="genCodeType"><option value="ONCE">ONCE (1回使い切り)</option><option value="MULTIPLE">MULTI (複数回)</option><option value="POINT">POINT (ポイント付与)</option></select></div>
+              <div class="form-group"><label>付与ポイント(POINT時のみ)</label><input type="number" id="genPointPpp" placeholder="0"></div>
+              <div class="form-group" style="grid-column: 1 / -1;"><label>初期ステータス</label><select id="genIsActive"><option value="true">有効 (利用可能)</option><option value="false">無効</option></select></div>
+          </div>
+          <button id="btnCreateCode" class="btn-primary" style="background:#007DFF; margin-top:10px;">コードを発行する</button>
+          <div id="codeManageResult" class="msg"></div>
+      </div>
+  </div>
+  <div id="panel-code-support" class="panel">
+      <div class="card">
+          <h2>コードステータス確認</h2>
+          
+          <div class="form-group">
+              <label>引き換えコード</label>
+              <div style="display: flex; gap: 10px;">
+                  <input type="text" id="targetSupportCode" placeholder="AAAAA-BBBBB-CCCCC-DDDDD-EEEEE" style="flex:1;">
+                  <button id="btnCheckCode" class="btn-primary" style="width:100px;">確認</button>
+              </div>
+          </div>
+          <div id="codeSupportResult" style="margin-top: 20px;"></div>
+      </div>
+  </div>
+</div>
+<!-- 独自モーダル HTML構造 -->
+<div id="customModalOverlay" class="modal-overlay">
+  <div id="customModal" class="modal-box" role="dialog" aria-modal="true">
+      <h3 id="customModalTitle">通知</h3>
+      <p id="customModalMessage"></p>
+      <input type="text" id="customModalInput" placeholder="">
+      <div class="modal-actions">
+          <button id="customModalBtnCancel" class="btn-danger">キャンセル</button>
+          <button id="customModalBtnOk" class="btn-primary">OK</button>
+      </div>
+  </div>
+</div>
+
+<script>
+  const escapeHTML = (str) => {
+    if (!str) return "";
+    return String(str).replace(/[&<>"']/g, (match) => {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[match];
+    });
+  };
+
+  lucide.createIcons();
+
+  window.addEventListener('DOMContentLoaded', async () => {
+      if (checkCookie('admin_logged_in')) {
+          try {
+              await safeFetch({ type: 'admin_verify' });
+          } catch(e) {
+              // safeFetch内の認証エラーハンドリングで自動的にsignin.htmlにリダイレクトされます
+          }
+      }
+  });
+
+  /* ======== 独自モーダル管理ロジック (非同期 Promise) ======== */
+  function showModal({ type, message, title = "通知", placeholder = "", inputType = "text" }) {
+      return new Promise((resolve) => {
+          const overlay = document.getElementById('customModalOverlay');
+          const titleEl = document.getElementById('customModalTitle');
+          const msgEl = document.getElementById('customModalMessage');
+          const inputEl = document.getElementById('customModalInput');
+          const btnOk = document.getElementById('customModalBtnOk');
+          const btnCancel = document.getElementById('customModalBtnCancel');
+
+          titleEl.textContent = title;
+          msgEl.innerHTML = message;
+          inputEl.value = '';
+          inputEl.type = inputType;
+          inputEl.placeholder = placeholder;
+          
+          if (type === 'prompt') {
+              inputEl.style.display = 'block';
+              btnCancel.style.display = 'block';
+          } else if (type === 'confirm') {
+              inputEl.style.display = 'none';
+              btnCancel.style.display = 'block';
+          } else { // alert
+              inputEl.style.display = 'none';
+              btnCancel.style.display = 'none';
+          }
+
+          overlay.style.display = 'flex';
+          if (type === 'prompt') inputEl.focus();
+          else btnOk.focus();
+
+          const cleanup = () => {
+              overlay.style.display = 'none';
+              btnOk.onclick = null;
+              btnCancel.onclick = null;
+              inputEl.onkeydown = null;
+              document.removeEventListener('keydown', handleEsc);
+          };
+
+          const handleEsc = (e) => {
+              if (e.key === 'Escape') {
+                  cleanup();
+                  resolve(type === 'prompt' ? null : false);
+              }
+          };
+          document.addEventListener('keydown', handleEsc);
+
+          btnOk.onclick = () => {
+              cleanup();
+              resolve(type === 'prompt' ? inputEl.value : true);
+          };
+
+          btnCancel.onclick = () => {
+              cleanup();
+              resolve(type === 'prompt' ? null : false);
+          };
+
+          if (type === 'prompt') {
+              inputEl.onkeydown = (e) => {
+                  if (e.key === 'Enter') btnOk.click();
+              }
+          }
+      });
+  }
+
+  const customAlert = (msg, title="通知") => showModal({ type: 'alert', message: msg, title });
+  const customConfirm = (msg, title="確認") => showModal({ type: 'confirm', message: msg, title });
+  const customPrompt = (msg, placeholder="", inputType="text") => showModal({ type: 'prompt', message: msg, title: "入力", placeholder, inputType });
+
+  /* ======== エンターキー連動ロジック ======== */
+  function bindEnterKey(inputId, btnId) {
+      const input = document.getElementById(inputId);
+      if (input) {
+          input.addEventListener('keydown', (e) => {
+              if (e.key === 'Enter') document.getElementById(btnId).click();
+          });
+      }
+  }
+
+  // 各フォームにエンターキー操作を紐付け
+  bindEnterKey('newUserId', 'btnCreate');
+  bindEnterKey('newUserPass', 'btnCreate');
+  bindEnterKey('resetUserId', 'btnReset');
+  bindEnterKey('resetUserPass', 'btnReset');
+  bindEnterKey('searchUserId', 'btnSearch');
+  bindEnterKey('targetSupportCode', 'btnCheckCode');
+
+
+  const GAS_API_URL = "api/proxy"; 
+  const langs = ['jp', 'en', 'zh', 'zh-TW', 'ko', 'ru'];
+  const txtFields = ['ボタン', 'バンドル', 'メッセージ', 'タイトル', '詳細'];
+  const langContainer = document.getElementById('langFormsContainer');
+  let langHtml = '';
+  langs.forEach(l => {
+      langHtml += `<h3 style="border-bottom: 1px solid var(--card-border); padding-bottom: 8px; margin-top: 30px; color:var(--primary);">言語: ${l}</h3><div class="grid-form">`;
+      txtFields.forEach(f => {
+          langHtml += `<div class="form-group"><label>${f}(${l})</label><input type="text" class="content-input" data-col="${f}(${l})"></div>`;
+      });
+      langHtml += `</div>`;
+  });
+  langContainer.innerHTML = langHtml;
+
+  async function safeFetch(bodyObj) {
+      const headers = { 'Content-Type': 'application/json' };
+      const response = await fetch(GAS_API_URL, { 
+          method: 'POST', 
+          headers: headers, 
+          credentials: 'include', 
+          body: JSON.stringify(bodyObj) 
+      });
+      
+      const data = await response.json();
+      if (data.error === "invalid_token" || data.error === "unauthorized" || data.error === "expired" || data.message === "管理者権限がありません") {
+          document.cookie = "admin_logged_in=; path=/; max-age=0;"; 
+          window.location.replace('signin.html'); 
+          throw new Error("認証切れ");
+      }
+      return data;
+  }
+
+  document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+      document.getElementById('sidebarNav').classList.toggle('open');
+  });
+
+  function switchTab(tabId) {
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById('panel-' + tabId).classList.add('active');
+      event.currentTarget.classList.add('active');
+      const titles = { 'create': '個人識別子発行', 'reset': 'パスワードリセット', 'search': '個人識別子管理', 'contents': 'コンテンツ登録', 'codes': 'コード発行', 'code-support': 'コード確認・復旧', 'access-log': 'アクセスログ' };
+      document.getElementById('pageTitle').textContent = titles[tabId] || '';
+      if(window.innerWidth <= 768) document.getElementById('sidebarNav').classList.remove('open');
+  }
+
+  document.getElementById('btnLogout').addEventListener('click', async () => {
+      try {
+          await fetch(GAS_API_URL, { 
+              method: 'POST', 
+              headers: { 'Content-Type': 'application/json' }, 
+              credentials: 'include', 
+              body: JSON.stringify({ type: 'admin_logout' }) 
+          });
+      } catch (e) { console.error("Logout Error:", e); }
+      document.cookie = "admin_logged_in=; path=/; max-age=0;"; 
+      window.location.href = 'signin.html';
+  });
+
+  document.getElementById('btnCreate').addEventListener('click', async () => {
+      const u = document.getElementById('newUserId').value.trim();
+      const p = document.getElementById('newUserPass').value.trim();
+      const tier = document.getElementById('newUserTier').value; 
+      
+      const resEl = document.getElementById('createResult');
+      if(!u || !p) { resEl.textContent = "すべて入力してください"; resEl.style.color = "var(--danger)"; return; }
+      resEl.textContent = "処理中..."; resEl.style.color = "var(--text-sub)";
+      try {
+          const d = await safeFetch({ type: 'admin_create_user', email: u, password: p, target_tier: tier }); 
+          if(d.success) { resEl.textContent = `✅ 発行成功！ ID: ${escapeHTML(u)} / PW: ${escapeHTML(p)}`; resEl.style.color = "var(--success)"; document.getElementById('newUserId').value = ""; document.getElementById('newUserPass').value = ""; } 
+          else { resEl.textContent = `⚠エラー: ${escapeHTML(d.message)}`; resEl.style.color = "var(--danger)"; }
+      } catch(e) { resEl.textContent = "⚠通信エラー"; resEl.style.color = "var(--danger)"; }
+  });
+
+  document.getElementById('btnReset').addEventListener('click', async () => {
+      const u = document.getElementById('resetUserId').value.trim(), p = document.getElementById('resetUserPass').value.trim();
+      const resEl = document.getElementById('resetResult');
+      if(!u || !p) { resEl.textContent = "すべて入力してください"; resEl.style.color = "var(--danger)"; return; }
+      
+      // カスタム確認モーダルへ変更
+      if(!(await customConfirm(`「${escapeHTML(u)}」のパスワードを強制リセットしますか？`, "警告"))) return;
+      
+      resEl.textContent = "処理中..."; resEl.style.color = "var(--text-sub)";
+      try {
+          const d = await safeFetch({ type: 'admin_reset_password', targetEmail: u, newPassword: p });
+          if(d.success) { resEl.textContent = `✅ リセット完了`; resEl.style.color = "var(--success)"; document.getElementById('resetUserId').value = ""; document.getElementById('resetUserPass').value = ""; } 
+          else { resEl.textContent = `⚠エラー: ${escapeHTML(d.message)}`; resEl.style.color = "var(--danger)"; }
+      } catch(e) { resEl.textContent = "⚠通信エラー"; resEl.style.color = "var(--danger)"; }
+  });
+
+  document.getElementById('btnSearch').addEventListener('click', async () => {
+    const u = document.getElementById('searchUserId').value.trim();
+    const resEl = document.getElementById('searchResult');
+    if (!u) return;
+    resEl.innerHTML = "<div style='text-align:center; color:var(--text-sub);'>検索中...</div>";
+    
+    try {
+        const d = await safeFetch({ type: 'admin_search', targetEmail: u });
+        resEl.innerHTML = '';
+        if (d.success) {
+            const tierLabel = d.tier === 'enterprise' ? '<span style="color:#FF9500;">X</span>' : '<span style="color:var(--primary);">S</span>';
+            let banStatusHtml = '<span style="color:var(--success); font-weight:bold;">正常</span>';
+            if (d.bannedUntil) {
+                const bDate = new Date(d.bannedUntil);
+                if (bDate.getFullYear() > 2090) {
+                    banStatusHtml = '<span style="color:var(--danger); font-weight:bold;">永久停止中</span>';
+                } else if (bDate > new Date()) {
+                    banStatusHtml = `<span style="color:var(--danger); font-weight:bold;">停止中 (期限: ${bDate.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })})</span>`;
+                }
+            }
+
+            const actionsDiv = document.createElement('div');
+            actionsDiv.style.cssText = 'background:rgba(255,255,255,0.05); padding:20px; border-radius:12px; margin-bottom:20px; border: 1px solid var(--card-border);';
+            actionsDiv.innerHTML = `
+                <h3 style="margin:0 0 16px 0; font-size:16px; display:flex; justify-content:space-between; align-items:center;">
+                    <span>
+                        <i data-lucide="user" style="width:16px; height:16px; margin-right:4px;"></i> ${escapeHTML(d.userId || u)}
+                    </span>
+                    <span style="font-size:13px; background:rgba(0,0,0,0.5); padding:4px 10px; border-radius:12px; border:1px solid var(--card-border);">
+                        ステータス: ${banStatusHtml}
+                    </span>
+                </h3>
+                <div style="display:flex; flex-direction:column; gap:15px; margin-bottom: 20px;">
+                    
+                    <!-- 権限 (Tier) 変更エリア: PCは右端、スマホは下に折り返し -->
+                    <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px; background:rgba(0,0,0,0.2); padding:10px 15px; border-radius:8px;">
+                        <div style="font-size:14px; color:var(--text-sub);">アカウント権限: <strong>${tierLabel}</strong></div>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <select id="setTierVal" style="width:auto; height:36px; font-size:13px; padding:0 30px 0 15px; border-radius:18px;">
+                                <option value="standard" ${d.tier !== 'enterprise' ? 'selected' : ''}>S</option>
+                                <option value="enterprise" ${d.tier === 'enterprise' ? 'selected' : ''}>X</option>
+                            </select>
+                            <button class="btn-primary" id="btnSetTier" style="width:auto; height:36px; padding:0 15px; font-size:13px;">変更</button>
+                        </div>
+                    </div>
+
+                    <!-- ポイント変更エリア -->
+                    <div style="background:rgba(0,0,0,0.2); padding:10px 15px; border-radius:8px;">
+                        <div style="font-size:14px; color:var(--text-sub); margin-bottom:8px;">現在の所持ポイント: <strong style="color:#fff; font-size:20px; margin-left:8px;">${escapeHTML(String(d.points))}</strong> pt</div>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <input type="number" id="setPtVal" placeholder="ポイント数を入力" style="flex:1; min-width:150px; max-width:250px; height:44px; margin-bottom:0;">
+                            <button class="btn-primary" id="btnSetPt" style="width:auto; height:44px; padding:0 20px; background:#04CF22;">ポイントを設定</button>
+                        </div>
+                    </div>
+                    
+                    <div style="background:rgba(255,59,48,0.1); border:1px solid rgba(255,59,48,0.3); padding:15px; border-radius:8px;">
+                        <div style="font-size:14px; color:var(--danger); font-weight:bold; margin-bottom:10px;">
+                            <i data-lucide="shield-alert" style="width:16px; height:16px; vertical-align:middle;"></i> アクセス制限 (アカウント停止)
+                        </div>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                            <select id="banTypeVal" style="width:auto; height:40px; font-size:13px; border-radius:8px; border-color:rgba(255,59,48,0.5); background:rgba(0,0,0,0.5); color:#fff;">
+                                <option value="temporary">期限付き停止</option>
+                                <option value="permanent">永久停止</option>
+                                <option value="none">制限を解除 (正常に戻す)</option>
+                            </select>
+                            <input type="datetime-local" id="banUntilVal" style="width:auto; height:40px; border-radius:8px; border-color:rgba(255,59,48,0.5); background:rgba(0,0,0,0.5); color:#fff;">
+                            <button class="btn-danger" id="btnSetBan" style="height:40px; background:var(--danger); color:#fff; border:none; padding:0 20px;">適用</button>
+                        </div>
+                    </div>
+                    </div>
+                <div style="border-top: 1px solid rgba(255,59,48,0.3); padding-top:16px;">
+                    <button class="btn-danger" id="btnDeleteUser" style="width:100%; color:var(--danger); border-color:var(--danger); background: rgba(255,59,48,0.1);">
+                        <i data-lucide="alert-triangle" style="margin-right:4px;"></i> アカウント完全削除
+                    </button>
+                </div>
+            `;
+            resEl.appendChild(actionsDiv);
+
+            // ★ 修正: Tier変更イベント
+            actionsDiv.querySelector('#btnSetTier').addEventListener('click', async (e) => {
+                const btn = e.currentTarget; // ★ 必ず await（待機）の前にボタン要素を取得して保持する
+                const newTier = actionsDiv.querySelector('#setTierVal').value;
+                const newTierName = newTier === 'enterprise' ? 'X' : 'S';
+                
+                if (!(await customConfirm(`権限を「${newTierName}」に変更しますか？`, "権限の変更"))) return;
+                
+                btn.textContent = "処理中..."; btn.disabled = true;
+                try {
+                    const tierRes = await safeFetch({ type: 'admin_set_tier', targetEmail: d.userId || u, targetTier: newTier });
+                    if(tierRes.success) {
+                        await customAlert(`成功: 権限を「${newTierName}」に変更しました。`, "完了");
+                        document.getElementById('btnSearch').click(); // 完了後に再検索して表示を更新
+                    } else {
+                        await customAlert(`⚠エラー: ${tierRes.message}`, "エラー");
+                    }
+                } catch(err) { await customAlert('⚠通信エラー', "エラー"); }
+                btn.textContent = "変更"; btn.disabled = false;
+            });
+            // ポイント設定のエンターキー対応
+            actionsDiv.querySelector('#setPtVal').addEventListener('keydown', (e) => {
+                if(e.key === 'Enter') actionsDiv.querySelector('#btnSetPt').click();
+            });
+
+            actionsDiv.querySelector('#btnSetPt').addEventListener('click', async (e) => {
+                const ptVal = actionsDiv.querySelector('#setPtVal').value;
+                if(ptVal === '') return;
+                const btn = e.currentTarget;
+                btn.textContent = "処理中..."; btn.disabled = true;
+                try {
+                    const ptRes = await safeFetch({ type: 'admin_set_points', targetEmail: d.userId || u, amount: parseInt(ptVal) });
+                    if(ptRes.success) {
+                        await customAlert(`成功: ポイントを ${ptVal} pt に設定しました。`, "完了");
+                        document.getElementById('btnSearch').click();
+                    } else await customAlert(`⚠エラー: ${ptRes.message}`, "エラー");
+                } catch(err) { await customAlert('⚠通信エラー', "エラー"); }
+                btn.textContent = "ポイントを設定"; btn.disabled = false;
+            });
+
+           // ▼▼▼ 追加: BAN実行イベントリスナー (独立させる) ▼▼▼
+            const banTypeSelect = actionsDiv.querySelector('#banTypeVal');
+            const banUntilInput = actionsDiv.querySelector('#banUntilVal');
+            banTypeSelect.addEventListener('change', (e) => {
+                banUntilInput.style.display = e.target.value === 'temporary' ? 'block' : 'none';
+            });
+
+          actionsDiv.querySelector('#btnSetBan').addEventListener('click', async (e) => {
+           const btn = e.currentTarget; // ← 先頭で取得！（btnSetTier と同じパターン）
+           const type = banTypeSelect.value;
+           const until = banUntilInput.value;
+    
+         if (type === 'temporary' && !until) {
+           return await customAlert("停止期限の日時を指定してください。", "エラー");
+        }
+
+        let confirmMsg = type === 'none' ? "アカウントのアクセス制限を解除しますか？" : "このアカウントを停止します。よろしいですか？";
+        if (!(await customConfirm(confirmMsg, "確認"))) return;
+        btn.textContent = "処理中..."; btn.disabled = true; // ← 正常に動作
+                try {
+                    const res = await safeFetch({ type: 'admin_ban_user', targetEmail: d.userId || u, banType: type, banUntil: until });
+                    if(res.success) {
+                        await customAlert("アクセス制限の設定を適用しました。", "完了");
+                        document.getElementById('btnSearch').click(); // 再読み込み
+                    } else {
+                        await customAlert(`⚠エラー: ${res.message}`, "エラー");
+                    }
+                } catch(err) { await customAlert('⚠通信エラー', "エラー"); }
+                btn.textContent = "適用"; btn.disabled = false;
+            });
+
+            // ▼▼▼ 既存: アカウント完全削除イベントリスナー ▼▼▼
+            actionsDiv.querySelector('#btnDeleteUser').addEventListener('click', async (e) => {
+                // 1. 対象IDの確認
+                const confCode = await customPrompt(`【危険】本当に削除する場合は対象のID「${d.userId || u}」を入力してください。`, "IDを入力");
+                if (confCode === null) return;
+                if (confCode !== (d.userId || u)) return await customAlert("IDが一致しません。", "エラー");
+                
+                // 2. ★追加：管理者の再認証
+                const adminPass = await customPrompt("本人確認のため、あなたの管理者パスワードを入力してください。", "管理者パスワード", "password");
+                if (adminPass === null) return; // キャンセル時
+                if (!adminPass) return await customAlert("パスワードが未入力です。", "エラー");
+                
+                try {
+                    // ★ adminPassword をペイロードに追加
+                    const delRes = await safeFetch({ type: 'admin_delete_user', targetEmail: d.userId || u, adminPassword: adminPass });
+                    if(delRes.success) { await customAlert("完全に削除しました。"); resEl.innerHTML = ''; } 
+                    else await customAlert(`⚠エラー: ${delRes.message}`, "エラー");
+                } catch(err) {
+                    await customAlert('⚠通信エラー', "エラー");
+                }
+            });
+
+           if (!d.history || d.history.length === 0) {
+                resEl.insertAdjacentHTML('beforeend', '<div style="text-align:center; color:var(--text-sub); padding:20px;">履歴なし</div>');
+            } else {
+                const ul = document.createElement('ul'); ul.className = 'history-list';
+                d.history.forEach(h => {
+                    const li = document.createElement('li');
+                    li.style.display = 'flex'; li.style.justifyContent = 'space-between'; li.style.alignItems = 'center';
+                    li.innerHTML = `<div><span class="history-title">${escapeHTML(h.title)}</span><span class="history-meta">コード: ${escapeHTML(h.code)}<br>日時: ${escapeHTML(h.date)}</span></div>`;
+                    const rBtn = document.createElement('button'); rBtn.className = 'btn-danger'; rBtn.style.cssText = 'height:32px; padding:0 16px; font-size:12px;'; rBtn.innerHTML = '無効化';
+                    rBtn.addEventListener('click', async () => {
+                        if (!(await customConfirm(`「${escapeHTML(h.title)}」を削除しますか？`))) return;
+                        rBtn.disabled = true;
+                        try {
+                            const r = await safeFetch({ type: 'admin_revoke_content', targetEmail: d.userId || u, code: h.code });
+                            if (r.success) li.remove(); else { await customAlert(r.message, "エラー"); rBtn.disabled=false; }
+                        } catch(e) { await customAlert('⚠エラー', "エラー"); rBtn.disabled=false; }
+                    });
+                    li.appendChild(rBtn); ul.appendChild(li);
+                });
+                resEl.appendChild(ul);
+            }
+            lucide.createIcons();
+        } else { resEl.innerHTML = `<span style='color:var(--danger);'>⚠エラー: ${escapeHTML(d.message)}</span>`; }
+    } catch (e) { resEl.innerHTML = "<span style='color:var(--danger);'>⚠通信エラー</span>"; }
+  });
+  
+  document.getElementById('btnSaveContent').addEventListener('click', async () => {
+      const resEl = document.getElementById('contentManageResult');
+      const payload = {};
+      
+      document.querySelectorAll('.content-input').forEach(el => {
+          const val = el.value.trim();
+          let col = el.getAttribute('data-col');
+          if (val !== '') {
+              if (el.type === 'number') payload[col] = parseInt(val) || 0;
+              else payload[col] = val;
+          }
+      });
+
+      resEl.textContent = "保存中..."; resEl.style.color = "var(--text-sub)";
+      try {
+          const d = await safeFetch({ type: 'admin_save_content', payload: payload });
+          if(d.success) {
+              resEl.textContent = `✅ 登録成功！ (コンテンツID: ${d.contentId})`; resEl.style.color = "var(--success)";
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+          } else {
+              resEl.textContent = `⚠エラー: ${escapeHTML(d.message)}`; resEl.style.color = "var(--danger)";
+          }
+      } catch(e) {
+          resEl.textContent = "⚠通信エラー"; resEl.style.color = "var(--danger)";
+      }
+  });
+
+  document.getElementById('btnCreateCode').addEventListener('click', async () => {
+      const resEl = document.getElementById('codeManageResult');
+      const contentId = document.getElementById('genCodeContentId').value.trim();
+      const codeStr = document.getElementById('genCodeStr').value.trim();
+      const codeType = document.getElementById('genCodeType').value;
+      const pointPpp = document.getElementById('genPointPpp').value.trim();
+      const isActive = document.getElementById('genIsActive').value === 'true';
+      const targetTier = document.getElementById('genCodeTier').value; 
+
+      if (!contentId || !codeStr) {
+          resEl.textContent = "⚠ コンテンツIDとアクティベーションコードは必須です"; 
+          resEl.style.color = "var(--danger)"; return;
+      }
+
+      resEl.textContent = "発行中..."; resEl.style.color = "var(--text-sub)";
+      try {
+          const d = await safeFetch({ 
+              type: 'admin_create_code', 
+              contentId: parseInt(contentId), 
+              code: codeStr, 
+              codeType: codeType, 
+              pointPpp: parseInt(pointPpp) || 0, 
+              isActive: isActive,
+              targetTier: targetTier 
+          });
+          if(d.success) {
+              resEl.textContent = `✅ コード発行成功！ (${escapeHTML(codeStr)})`; resEl.style.color = "var(--success)";
+              document.getElementById('genCodeStr').value = ''; 
+          } else {
+              resEl.textContent = `⚠エラー: ${escapeHTML(d.message)}`; resEl.style.color = "var(--danger)";
+          }
+      } catch(e) {
+          resEl.textContent = "⚠通信エラー"; resEl.style.color = "var(--danger)";
+      }
+  });
+
+  document.getElementById('btnCheckCode').addEventListener('click', async () => {
+      const code = document.getElementById('targetSupportCode').value.trim();
+      const resEl = document.getElementById('codeSupportResult');
+      if(!code) return;
+      resEl.innerHTML = "<div style='color:var(--text-sub);'>確認中...</div>";
+      try {
+          const d = await safeFetch({ type: 'admin_check_code', code: code });
+          if(d.success) {
+              const statusText = d.isUsed ? "<span style='color:var(--danger); font-weight:800;'>使用済み (USED)</span>" : "<span style='color:var(--success); font-weight:800;'>未使用 (AVAILABLE)</span>";
+              const tierText = d.targetTier === 'enterprise' ? '<span style="color:#FF9500; font-weight:bold;">X</span>' : 'All supported';
+              let timeText = "記録なし";
+              if (d.usedTime) {
+                  timeText = new Date(d.usedTime).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+              }
+              let html = `<div style="background:rgba(0,0,0,0.3); padding:16px; border-radius:12px; border:1px solid var(--card-border);">
+                      <div style="margin-bottom:8px;"><strong>コード:</strong> ${escapeHTML(d.code)}</div>
+                      <div style="margin-bottom:8px;"><strong>タイトル:</strong> ${escapeHTML(d.title) || '-'}</div>
+                      <div style="margin-bottom:8px;"><strong>対象階層:</strong> ${tierText}</div>
+                      <div style="margin-bottom:16px;"><strong>ステータス:</strong> ${statusText}</div>`;
+              if (d.isUsed) {
+                  html += `<div style="margin-bottom:8px; font-size:13px; color:var(--text-sub);">使用日時: ${escapeHTML(timeText)}<br>使用者: ${escapeHTML(d.usedBy || '不明')}</div>
+                      <button id="btnResetCodeStatus" class="btn-primary" style="height:40px; margin-top:10px; background:#FF9500; color:#000;">ステータスを「未使用」に戻す</button>`;
+              }
+              html += `</div>`;
+              resEl.innerHTML = html;
+              
+              const btnReset = document.getElementById('btnResetCodeStatus');
+              if (btnReset) {
+                  btnReset.addEventListener('click', async () => {
+                      if(!(await customConfirm("「未使用」状態に戻しますか？", "確認"))) return;
+                      btnReset.textContent = "処理中..."; btnReset.disabled = true;
+                      try {
+                          const r = await safeFetch({ type: 'admin_reset_code', code: d.code });
+                          if(r.success) { await customAlert("リセットしました。", "完了"); document.getElementById('btnCheckCode').click(); } 
+                          else { await customAlert(`⚠エラー: ${r.message}`, "エラー"); btnReset.textContent = "ステータスを戻す"; btnReset.disabled = false; }
+                      } catch(err) { await customAlert("⚠通信エラー", "エラー"); btnReset.disabled = false; }
+                  });
+              }
+          } else { resEl.innerHTML = `<span style='color:var(--danger);'>⚠エラー: ${escapeHTML(d.message)}</span>`; }
+      } catch(e) { resEl.innerHTML = "<span style='color:var(--danger);'>⚠通信エラー</span>"; }
+  });
+
+  function generateProSerialCode() {
+      const format = document.getElementById('codeFormatSelect').value;
+      
+      let blocks = 4;
+      let charsPerBlock = 4;
+
+      if (format === '4x3') {
+          blocks = 3; charsPerBlock = 4;
+      } else if (format === '5x5') {
+          blocks = 5; charsPerBlock = 5;
+      } else { 
+          blocks = 4; charsPerBlock = 4;
+      }
+
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; 
+      let codeParts = [];
+      
+      for (let i = 0; i < blocks; i++) {
+          let part = '';
+          for (let j = 0; j < charsPerBlock; j++) {
+              part += chars.charAt(Math.floor(Math.random() * chars.length));
+          }
+          codeParts.push(part);
+      }
+      
+      document.getElementById('genCodeStr').value = codeParts.join('-');
+  }
+
+  const btnLoadLogs = document.getElementById('btnLoadLogs');
+  const logFilterSelect = document.getElementById('logFilterSelect');
+  let allLogsData = [];
+
+  function renderLogs() {
+      const tbody = document.getElementById('logTableBody');
+      const filterValue = logFilterSelect ? logFilterSelect.value : 'all';
+      
+      tbody.innerHTML = ''; 
+
+      const filteredLogs = allLogsData.filter(log => {
+          if (filterValue === 'all') return true;
+          if (filterValue === 'login') return log.type === 'user_login';
+          if (filterValue === 'check') return log.type === 'check';
+          if (filterValue === 'redeem') return log.type === 'redeem';
+          return true;
+      });
+
+      if (filteredLogs.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="padding: 20px; text-align: center; color: var(--text-sub);">該当するログはありません</td></tr>';
+          return;
+      }
+
+      filteredLogs.forEach(log => {
+          let typeStyle = "background: rgba(255,255,255,0.1); color: var(--text-sub);";
+          let typeLabel = log.type;
+
+          if (log.type === 'user_login') {
+              typeStyle = "background: rgba(0, 125, 255, 0.1); color: var(--primary); border: 1px solid rgba(0, 125, 255, 0.3);";
+              typeLabel = "ログイン";
+          } else if (log.type === 'check') {
+              typeStyle = "background: rgba(255, 149, 0, 0.1); color: #FF9500; border: 1px solid rgba(255, 149, 0, 0.3);";
+              typeLabel = "プレビュー (確認)";
+          } else if (log.type === 'redeem') {
+              typeStyle = "background: rgba(4, 207, 34, 0.1); color: var(--success); border: 1px solid rgba(4, 207, 34, 0.3);";
+              typeLabel = "引き換え (実行)";
+          }
+
+          const displayCode = log.code && log.code !== '-' ? log.code : '（入力なし）';
+          const tierLabel = log.appTier === 'enterprise' ? '<span style="color:#FF9500; font-weight:bold;">X</span>' : '<span style="color:var(--primary); font-weight:bold;">S</span>';
+
+          const tr = document.createElement('tr');
+          tr.style.borderBottom = "1px solid var(--card-border)";
+          tr.innerHTML = `
+              <td style="padding: 12px 16px;">${escapeHTML(log.date)}</td>
+              <td style="padding: 12px 16px;">${escapeHTML(log.ip)}</td>
+              <td style="padding: 12px 16px;">${tierLabel}</td>
+              <td style="padding: 12px 16px;"><span style="padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; ${typeStyle}">${escapeHTML(typeLabel)}</span></td>
+              <td style="padding: 12px 16px; font-family:  var(--font-stack); letter-spacing: 0.5px;">${escapeHTML(displayCode)}</td>
+              <td style="padding: 12px 16px;">${escapeHTML(log.email)}</td>
+          `;
+          tbody.appendChild(tr);
+      });
+      lucide.createIcons();
+  }
+
+  if (btnLoadLogs) {
+      btnLoadLogs.addEventListener('click', async () => {
+          const resEl = document.getElementById('logResultMsg');
+          btnLoadLogs.disabled = true;
+          resEl.textContent = "読み込み中..."; 
+          resEl.style.color = "var(--text-sub)";
+          
+          try {
+              const d = await safeFetch({ type: 'admin_get_access_logs', limit: 300 });
+              
+              if (d.success) {
+                  resEl.textContent = "";
+                  allLogsData = d.logs || [];
+                  renderLogs();
+              } else {
+                  resEl.textContent = `⚠エラー: ${escapeHTML(d.message)}`; 
+                  resEl.style.color = "var(--danger)";
+              }
+          } catch (e) {
+              resEl.textContent = "⚠通信エラー"; 
+              resEl.style.color = "var(--danger)";
+          } finally {
+              btnLoadLogs.disabled = false;
+          }
+      });
+  }
+
+  if (logFilterSelect) {
+      logFilterSelect.addEventListener('change', renderLogs);
+  }
+</script>
+
+<script>
+(function(){
+  const root=document.documentElement;
+  const themeButton=document.getElementById('themeToggle');
+  const saved=localStorage.getItem('admin-theme');
+  root.dataset.theme=saved || (matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');
+  function paintTheme(){
+    const light=root.dataset.theme==='light';
+    themeButton.innerHTML=`<i data-lucide="${light?'moon':'sun'}"></i><span>${light?'ダーク':'ライト'}</span>`;
+    lucide.createIcons();
+  }
+  themeButton.addEventListener('click',()=>{root.dataset.theme=root.dataset.theme==='dark'?'light':'dark';localStorage.setItem('admin-theme',root.dataset.theme);paintTheme();});
+  paintTheme();
+
+  let users=[];
+  const getId=u=>u.userId||u.email||u.id||u.identifier||'';
+  const getTier=u=>(u.tier||u.targetTier||'standard')==='enterprise'?'X':'S';
+  function normalize(data){
+    const list=data.users||data.data||data.items||data.result||[];
+    return Array.isArray(list)?list:[];
+  }
+  async function requestUsers(){
+    let last;
+    for(const type of ['admin_list_users','admin_get_users']){
+      try{const d=await safeFetch({type}); if(d.success!==false){const list=normalize(d);if(list.length||Array.isArray(d.users))return list;} last=d;}catch(e){last=e;}
+    }
+    throw last||new Error('ユーザー一覧を取得できません');
+  }
+  function row(u,mode){
+    const id=getId(u), tier=getTier(u);
+    const b=document.createElement('button'); b.type='button'; b.className='user-row'; b.dataset.user=id;
+    b.innerHTML=`<span class="user-avatar"><i data-lucide="user"></i></span><span class="user-copy"><strong class="user-id">${escapeHTML(id)}</strong><span class="user-meta">ポイント: ${escapeHTML(String(u.points??'-'))}</span></span><span class="tier-pill ${tier==='X'?'x':''}">${tier}</span>`;
+    b.addEventListener('click',()=> mode==='reset'?resetFlow(id,b):manageFlow(id,b)); return b;
+  }
+  function render(){
+    for(const [id,mode] of [['resetUserList','reset'],['manageUserList','manage']]){
+      const box=document.getElementById(id); box.innerHTML='';
+      if(!users.length) box.innerHTML='<div class="empty-state">表示できるユーザーがいません。</div>';
+      else users.forEach(u=>box.appendChild(row(u,mode)));
+    }
+    document.getElementById('resetUserCount').textContent=`${users.length}件`;
+    document.getElementById('manageUserCount').textContent=`${users.length}件`;
+    lucide.createIcons();
+  }
+  async function loadUsers(){
+    document.querySelectorAll('[data-reload-users]').forEach(b=>b.disabled=true);
+    try{users=await requestUsers();render();}
+    catch(e){
+      const msg='<div class="empty-state"><strong>一覧を取得できませんでした</strong><span>API に admin_list_users または admin_get_users を実装してください。</span></div>';
+      document.getElementById('resetUserList').innerHTML=msg;document.getElementById('manageUserList').innerHTML=msg;
+    }finally{document.querySelectorAll('[data-reload-users]').forEach(b=>b.disabled=false);lucide.createIcons();}
+  }
+  async function resetFlow(id,button){
+    document.querySelectorAll('#resetUserList .user-row').forEach(x=>x.classList.remove('selected'));button.classList.add('selected');
+    if(!(await customConfirm(`「${escapeHTML(id)}」のパスワードをリセットしますか？`,'パスワードリセット')))return;
+    const pass=await customPrompt('仮パスワードを入力してください。','仮パスワード','text');
+    if(pass===null)return; if(!pass.trim())return customAlert('仮パスワードを入力してください。','入力エラー');
+    const result=document.getElementById('resetResult'); result.textContent='処理中…'; result.style.color='var(--text-sub)';
+    try{const d=await safeFetch({type:'admin_reset_password',targetEmail:id,newPassword:pass.trim()});
+      if(d.success){result.textContent='リセットが完了しました。';result.style.color='var(--success)';await customAlert('仮パスワードを設定しました。','完了');}
+      else throw new Error(d.message||'処理に失敗しました');
+    }catch(e){result.textContent=`エラー: ${e.message||'通信エラー'}`;result.style.color='var(--danger)';}
+  }
+  function manageFlow(id,button){
+    document.querySelectorAll('#manageUserList .user-row').forEach(x=>x.classList.remove('selected'));button.classList.add('selected');
+    document.getElementById('searchUserId').value=id;document.getElementById('btnSearch').click();
+  }
+  document.querySelectorAll('[data-reload-users]').forEach(b=>b.addEventListener('click',loadUsers));
+  window.addEventListener('DOMContentLoaded',loadUsers);
+})();
+</script>
+
+</body>
+</html>
