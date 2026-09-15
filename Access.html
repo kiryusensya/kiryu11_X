@@ -613,6 +613,13 @@
               loginSliderObj.reset();
               return; 
           }
+          if (data.isAdmin) {
+              // 管理者アカウントは user_session_token を持たないため、
+              // "/" へ送ると middleware に弾かれてAccess.htmlへ戻ってしまう。
+              // 必ず管理画面へ遷移させる。
+              window.location.href = '/Enforcement-Administrator.html';
+              return;
+          }
           const params = new URLSearchParams(window.location.search);
           const redirectTo = params.get('redirect') || ('/' + (params.get('code') ? `?code=${params.get('code')}` : ''));
           window.location.href = redirectTo;
