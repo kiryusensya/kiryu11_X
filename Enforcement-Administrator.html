@@ -410,6 +410,54 @@ html[data-theme="light"]{--account-info-border:#000}
 #btnResetCodeStatus{background:#ff9500!important;border-color:#ff9500!important;color:#000!important}
 #btnResetCodeStatus *{color:#000!important}
 
+
+/* Transparent neon-outline button system */
+button,
+.btn-primary,
+.btn-danger,
+.logout-button,
+.modal-ok-button,
+#customModalBtnCancel,
+#btnCreate,
+#btnCheckCode,
+#btnSetTier,
+#btnCreateCode {
+  --glow-color:#1683ff;
+  background:transparent!important;
+  background-image:none!important;
+  color:var(--glow-color)!important;
+  border:2px solid var(--glow-color)!important;
+  box-shadow:0 0 7px color-mix(in srgb,var(--glow-color) 70%,transparent),
+             inset 0 0 5px color-mix(in srgb,var(--glow-color) 22%,transparent)!important;
+  text-shadow:0 0 7px color-mix(in srgb,var(--glow-color) 55%,transparent);
+  opacity:1!important;
+}
+button svg,button span,button strong,
+.btn-primary *,.btn-danger *{
+  color:var(--glow-color)!important;
+  stroke:currentColor;
+}
+button:hover:not(:disabled){
+  background:color-mix(in srgb,var(--glow-color) 10%,transparent)!important;
+  box-shadow:0 0 13px color-mix(in srgb,var(--glow-color) 90%,transparent),
+             inset 0 0 8px color-mix(in srgb,var(--glow-color) 28%,transparent)!important;
+  filter:none!important;
+  transform:translateY(-1px);
+}
+button:active:not(:disabled){transform:translateY(0)}
+button:disabled{opacity:.45!important;box-shadow:none!important}
+/* Account issuance receives the standard blue glow explicitly */
+#btnCreate{--glow-color:#1683ff}
+/* Preserve the meaning of pre-existing colored actions */
+#btnSaveContent,#btnSetPt{--glow-color:#04cf22}
+#btnSetBan,#btnDeleteUser,#btnLogout,#customModalBtnOk{--glow-color:#ff2d2d}
+#btnResetCodeStatus{--glow-color:#ff9500}
+#btnCreateCode{--glow-color:#1683ff}
+/* Small utility and navigation controls */
+.mobile-menu-toggle,.icon-btn{--glow-color:var(--text-main)}
+.user-row{--glow-color:var(--card-border);text-shadow:none}
+.theme-switch-row,.theme-switch-track,.theme-switch-knob{box-shadow:none!important;text-shadow:none!important}
+
 </style>
 </head>
 <body>
