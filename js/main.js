@@ -2515,25 +2515,27 @@ document.addEventListener('DOMContentLoaded', () => {
     setupHoverEffects();
 });
 
-// ログインしている場合のみ、5秒に1回、バックエンドに最新の履歴をコッソリ確認しにいく
+// 通常画面の履歴同期は30秒ごと。非表示タブでは停止する。
 setInterval(async () => {
-    if (!currentUser) return; 
+    if (document.hidden || !currentUser) return;
 
     try {
         const data = await safeFetch({
             type: 'get_history',
             lang: CURRENT_LANG,
             app_tier: 'enterprise',
-            _t: Date.now() 
+            _t: Date.now()
         });
 
         if (data.success && Array.isArray(data.history)) {
+            const nextPoints = Number(data.points || 0);
+            const currentPoints = Number(currentUser.points || 0);
             const historyChanged = data.history.length !== currentUser.history.length;
-            const pointsChanged = data.points !== currentUser.points;
+            const pointsChanged = nextPoints !== currentPoints;
 
             if (historyChanged || pointsChanged) {
                 currentUser.history = data.history;
-                currentUser.points = data.points || 0;
+                currentUser.points = nextPoints;
 
                 if (selectedHeroItem) {
                     const stillExists = currentUser.history.some(h => h.code === selectedHeroItem.code);
@@ -2543,7 +2545,7 @@ setInterval(async () => {
                 }
 
                 updateAccountUI();
-                
+
                 if (historyChanged) {
                     fetchAvailableContent();
                 }
@@ -2553,7 +2555,7 @@ setInterval(async () => {
         }
     } catch (e) {
     }
-}, 5000);
+}, 30000);
 
 function renderHistoryModal() {
     const container = els.historyListContainer;
