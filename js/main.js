@@ -48,7 +48,7 @@ const escapeHTML = (str) => {
 // トークン付きで安全に fetch するためのラッパー関数
 async function safeFetch(bodyObj) {
   try {
-      const startTime = Date.now(); // 通信開始時刻
+      const startTime = Date.now();
       const response = await fetch(GAS_API_URL, {
           method: 'POST',
           credentials: 'same-origin',
@@ -74,30 +74,6 @@ async function safeFetch(bodyObj) {
   } catch(e) {
       return { success: false, message: 'Network error' };
   }
-}
-
-// API由来の外部URLは、開く前にHTTPSと許可ホストを検証する。
-function parseSafeHttpsUrl(value) {
-  try {
-    const url = new URL(value);
-    return url.protocol === 'https:' ? url : null;
-  } catch {
-    return null;
-  }
-}
-
-function isYouTubeUrl(value) {
-  const url = parseSafeHttpsUrl(value);
-  if (!url) return false;
-  const host = url.hostname.toLowerCase();
-  return host === 'youtube.com' || host.endsWith('.youtube.com') || host === 'youtu.be';
-}
-
-function openSafeExternalUrl(value) {
-  const url = parseSafeHttpsUrl(value);
-  if (!url) return false;
-  window.open(url.href, '_blank', 'noopener,noreferrer');
-  return true;
 }
 
 const formatDisplayCode = (code) => {
@@ -570,10 +546,9 @@ document.addEventListener('DOMContentLoaded', () => {
   
   setInitialLanguage(sLang, true);
 
-  // Authentication is determined by the HttpOnly session cookie on the server.
-  // A missing or expired session simply keeps the visitor signed out.
+  // Authentication state comes from the server-side HttpOnly Cookie.
   resumeSession();
-  startBanPolling(30000);
+  startBanPolling(5000);
   initThemeAndParticles();
   initCustomDropdown();
   setupEventListeners();
@@ -793,10 +768,11 @@ function setupEventListeners() {
         if (isMulti) {
             openManageModal(selectedHeroItem); // 複数なら独立モーダルを開く
         } else if (targetUrl) {
-            const isYouTube = isYouTubeUrl(targetUrl);
+            const isYouTube = targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be');
             if (isYouTube) {
                window.open(`videos.html?code=${selectedHeroItem.code}&target=${encodeURIComponent(targetUrl)}`, '_blank');
             } else {
+                const token = "";
                 window.open(`/api/proxy?type=download&code=${selectedHeroItem.code}`, '_blank');
             }
         }
@@ -1381,12 +1357,13 @@ function openManageModal(item) {
             // 時間の縛りが一切ない（最初からずっとダウンロード可能）場合
             actionBtn.innerHTML = btnLabel;
             actionBtn.onclick = () => {
-                const isYouTube = sub.url && (isYouTubeUrl(sub.url));
+                const isYouTube = sub.url && (sub.url.includes('youtube.com') || sub.url.includes('youtu.be'));
                 if (isYouTube) {
                     // YouTube等の動画リンクはプロキシを通さず直接開く（または自前のプレイヤー画面を開く）
-                    openSafeExternalUrl(sub.url);
+                    window.open(sub.url, '_blank');
                 } else {
                     // 通常のファイルはAPIプロキシを経由して安全にダウンロード
+                    const token = "";
                     const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(sub.url)}`;
                     window.open(dlUrl, '_blank');
                 }
@@ -1425,10 +1402,11 @@ function openManageModal(item) {
                     tData.btn.style.cursor = 'pointer';
                     tData.btn.innerHTML = tData.label; 
                     tData.btn.onclick = () => {
-                    const isYouTube = tData.url && (isYouTubeUrl(tData.url));
+                    const isYouTube = tData.url && (tData.url.includes('youtube.com') || tData.url.includes('youtu.be'));
                     if (isYouTube) {
                         window.open(`videos.html?code=${item.code}&target=${encodeURIComponent(tData.url)}`, '_blank');
                     } else {
+                        const token = "";
                         const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(tData.url)}`;
                         window.open(dlUrl, '_blank');
                     }
@@ -1470,10 +1448,11 @@ function openManageModal(item) {
                 tData.btn.style.cursor = 'pointer';
                 tData.btn.innerHTML = tData.label; 
                 tData.btn.onclick = () => {
-                        const isYouTube = tData.url && (isYouTubeUrl(tData.url));
+                        const isYouTube = tData.url && (tData.url.includes('youtube.com') || tData.url.includes('youtu.be'));
                         if (isYouTube) {
                             window.open(`videos.html?code=${item.code}&target=${encodeURIComponent(tData.url)}`, '_blank');
                         } else {
+                            const token = "";
                             const dlUrl = `/api/proxy?type=download&code=${item.code}&target=${encodeURIComponent(tData.url)}`;
                             window.open(dlUrl, '_blank');
                         }
@@ -1586,7 +1565,7 @@ function showMobileItemDetail(item, isNewRedeem = false) {
                     openManageModal(item);
                 };
             } else {
-                const isYouTube = targetUrl && (isYouTubeUrl(targetUrl));
+                const isYouTube = targetUrl && (targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be'));
                 
                 if (isYouTube) {
                     // YouTubeの場合はそのままリンクを設定する（ボタン名を「視聴する」等に変えてもOK）
@@ -1595,6 +1574,7 @@ function showMobileItemDetail(item, isNewRedeem = false) {
                     els.btnSuccessDownload.target = "_blank";
                 } else {
                     // 単一ファイルの場合、APIを経由させる
+                    const token = "";
                     els.btnSuccessDownload.href = `/api/proxy?type=download&code=${item.code}`;
                     els.btnSuccessDownload.onclick = null; 
                     els.btnSuccessDownload.target = "_blank";
@@ -2285,10 +2265,11 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
                         if (isMulti) { 
                             openManageModal(item); 
                         } else if (targetUrl) { 
-                            const isYouTube = isYouTubeUrl(targetUrl);
+                            const isYouTube = targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be');
                             if (isYouTube) {
                                 window.open(`videos.html?code=${item.code}&target=${encodeURIComponent(targetUrl)}`, '_blank');
                             } else {
+                                const token = "";
                                 window.open(`/api/proxy?type=download&code=${item.code}`, '_blank');
                             }
                         }
@@ -2480,10 +2461,9 @@ function initThemeAndParticles() {
   window.addEventListener('resize', () => { canvas.width=innerWidth; canvas.height=innerHeight; }); animate();
 }
 
-async async function resumeSession() {
+async function resumeSession() {
   const data = await safeFetch({ type: 'get_account_details', lang: CURRENT_LANG });
-  if (!data?.success) return;
-
+  if (!data || !data.success) return;
   currentUser = {
     userId: data.userId,
     email: data.email,
@@ -2492,7 +2472,6 @@ async async function resumeSession() {
     isBanned: Boolean(data.isBanned)
   };
   document.body.classList.add('is-logged-in');
-  if (els.loginOverlay) els.loginOverlay.classList.remove('active');
   updateAccountUI();
   await fetchUserHistory();
 }
@@ -2565,7 +2544,7 @@ setInterval(async () => {
         }
     } catch (e) {
     }
-}, 30000);
+}, 5000);
 
 function renderHistoryModal() {
     const container = els.historyListContainer;
