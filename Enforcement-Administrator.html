@@ -281,6 +281,45 @@ input,select,textarea{background:#fff;color:#000;border-color:#cfcfcf}
   .header-actions{display:none}
 }
 
+
+/* Unified monochrome theme */
+:root{
+  --bg-color:#000;--card-bg:#000;--text-main:#fff;--text-sub:#fff;
+  --sidebar:#000;--surface:#000;--surface-2:#000;--card-border:#333;
+}
+html[data-theme="light"]{
+  --bg-color:#fff;--card-bg:#fff;--text-main:#000;--text-sub:#000;
+  --sidebar:#fff;--surface:#fff;--surface-2:#fff;--card-border:#d9d9d9;
+}
+body,.sidebar,.sidebar-header,.sidebar-nav,.main-content,.header,
+.card,.metric-card,.section-head,.modal-box,.user-pane,.detail-pane,
+.user-browser,.user-row,.user-avatar,input,select,textarea,option,
+.theme-toggle,.icon-btn,.role-chip{
+  background:var(--bg-color)!important;
+  color:var(--text-main)!important;
+}
+body,.main-content{background:var(--bg-color)!important}
+.brand,.brand svg,.nav-item,.nav-item svg,.nav-item:hover,.nav-item.active,
+.header h1,.card h2,.section-head h2,.section-head p,.metric-top,
+.metric-top svg,.metric-card strong,.metric-card small,.metric-card .status-online,
+.form-group label,.user-id,.user-meta,.user-count,.empty-state,.tier-pill,
+.tier-pill.x,.theme-toggle svg,.mobile-menu-toggle,.mobile-menu-toggle svg,
+.modal-title,.modal-message,label,strong,small,p,span{
+  color:var(--text-main)!important;
+}
+.sidebar,.sidebar-header,.header,.card,.metric-card,.section-head,.modal-box,
+.user-row,input,select,textarea,.theme-toggle,.icon-btn,.role-chip{
+  border-color:var(--card-border)!important;
+}
+.metric-card,.metric-primary,.btn-primary,.nav-item.active{
+  background-image:none!important;
+  box-shadow:none!important;
+}
+.user-avatar,.tier-pill,.tier-pill.x{background:var(--bg-color)!important}
+@media(max-width:768px){
+  .sidebar,.sidebar-header,.sidebar-nav,.header{background:var(--bg-color)!important;color:var(--text-main)!important}
+}
+
 </style>
 </head>
 <body>
