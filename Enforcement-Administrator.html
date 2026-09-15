@@ -320,6 +320,42 @@ body,.main-content{background:var(--bg-color)!important}
   .sidebar,.sidebar-header,.sidebar-nav,.header{background:var(--bg-color)!important;color:var(--text-main)!important}
 }
 
+
+/* Button visibility, high-contrast borders and slide theme switch */
+:root{--contrast-border:#fff;--button-fill:#000;--button-text:#fff}
+html[data-theme="light"]{--contrast-border:#000;--button-fill:#fff;--button-text:#000}
+.sidebar-footer{margin-top:auto;padding-top:20px;display:grid;gap:12px}
+.theme-switch-row{min-height:46px;padding:0 4px;display:flex;align-items:center;justify-content:space-between;gap:14px;color:var(--text-main)!important;font-size:13px;font-weight:700;cursor:pointer}
+.theme-switch-input{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}
+.theme-switch-track{position:relative;display:block!important;width:48px;min-width:48px;height:26px;border:2px solid var(--contrast-border);border-radius:999px;background:var(--bg-color)!important;transition:.2s}
+.theme-switch-knob{position:absolute;display:block!important;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--text-main)!important;transition:transform .2s}
+.theme-switch-input:checked + .theme-switch-track .theme-switch-knob{transform:translateX(22px)}
+.theme-switch-input:focus-visible + .theme-switch-track{outline:3px solid rgba(128,128,128,.55);outline-offset:3px}
+.logout-button,.modal-ok-button,#customModalBtnCancel,.btn-primary,.btn-danger,
+button:not(.mobile-menu-toggle):not(.user-row):not(.theme-toggle):not(.icon-btn){
+  opacity:1!important;visibility:visible!important;color:var(--button-text)!important;
+  background:var(--button-fill)!important;border:2px solid var(--contrast-border)!important;
+}
+.logout-button{width:100%!important;text-align:center;justify-content:center}
+.logout-button:hover,.modal-ok-button:hover,#customModalBtnCancel:hover,.btn-primary:hover,.btn-danger:hover{filter:invert(12%)}
+.modal-ok-button{width:auto;padding:0 20px;height:40px;border-radius:20px;font-size:14px}
+.card,.metric-card,.section-head,.modal-box,.user-row,.user-avatar,input,select,textarea,
+.sidebar,.sidebar-header,.header,.theme-switch-track,.icon-btn,.role-chip{
+  border-color:var(--contrast-border)!important;
+}
+input,select,textarea{border-width:1px!important}
+@media(max-width:768px){
+  .sidebar-footer{margin-top:auto}
+  .theme-switch-row{position:fixed;top:9px;right:14px;width:48px;height:46px;min-height:46px;padding:10px 0;z-index:1100}
+  .theme-switch-row>span:first-child{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .sidebar-header{padding-right:76px}
+}
+
+
+/* White border rollback */
+:root{--contrast-border:#333!important}
+html[data-theme="light"]{--contrast-border:#000!important}
+
 </style>
 </head>
 <body>
@@ -327,7 +363,7 @@ body,.main-content{background:var(--bg-color)!important}
 <div class="sidebar">
   <div class="sidebar-header">
       <div class="brand"><i data-lucide="server"></i> kiryu11 X|S 管理コンソール</div>
-      <div class="sidebar-tools"><button id="themeToggle" class="theme-toggle" type="button" aria-label="ライトモードに切り替え" title="ライトモードに切り替え"><i data-lucide="sun"></i></button><button class="mobile-menu-toggle" id="mobileMenuBtn" aria-label="メニューを開く"><i data-lucide="menu"></i></button></div>
+      <div class="sidebar-tools"><button class="mobile-menu-toggle" id="mobileMenuBtn" aria-label="メニューを開く"><i data-lucide="menu"></i></button></div>
   </div>
   <div class="sidebar-nav" id="sidebarNav">
       <div class="nav-item active" onclick="switchTab('create')"><i data-lucide="user-plus"></i> 個人識別子発行</div>
@@ -338,8 +374,9 @@ body,.main-content{background:var(--bg-color)!important}
       <div class="nav-item" onclick="switchTab('codes')"><i data-lucide="ticket"></i> コード発行</div>
       
       <div class="nav-item" onclick="switchTab('code-support')"><i data-lucide="life-buoy"></i> コード確認・復旧</div>
-      <div style="margin-top: auto; padding-top: 20px;">
-          <button id="btnLogout" class="btn-danger" style="width:100%; border:none; text-align:center; justify-content:center; background: rgba(255,59,48,0.1);"><i data-lucide="log-out"></i> 退出</button>
+      <div class="sidebar-footer">
+          <label class="theme-switch-row" for="themeToggle"><span>ダークモード</span><input id="themeToggle" class="theme-switch-input" type="checkbox" role="switch" aria-label="ダークモード切り替え"><span class="theme-switch-track" aria-hidden="true"><span class="theme-switch-knob"></span></span></label>
+          <button id="btnLogout" class="btn-danger logout-button"><i data-lucide="log-out"></i> 退出</button>
       </div>
   </div>
 </div>
@@ -491,7 +528,7 @@ body,.main-content{background:var(--bg-color)!important}
       <input type="text" id="customModalInput" placeholder="">
       <div class="modal-actions">
           <button id="customModalBtnCancel" class="btn-danger">キャンセル</button>
-          <button id="customModalBtnOk" class="btn-primary">OK</button>
+          <button id="customModalBtnOk" class="btn-danger modal-ok-button">OK</button>
       </div>
   </div>
 </div>
@@ -1130,11 +1167,11 @@ body,.main-content{background:var(--bg-color)!important}
   const saved=localStorage.getItem('admin-theme');
   root.dataset.theme=saved || (matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');
   function paintTheme(){
-    const light=root.dataset.theme==='light';
-    themeButton.innerHTML=`<i data-lucide="${light?'moon':'sun'}"></i>`; themeButton.setAttribute('aria-label', light?'ダークモードに切り替え':'ライトモードに切り替え'); themeButton.title=themeButton.getAttribute('aria-label');
-    lucide.createIcons();
+    const dark=root.dataset.theme==='dark';
+    themeButton.checked=dark;
+    themeButton.setAttribute('aria-checked', String(dark));
   }
-  themeButton.addEventListener('click',()=>{root.dataset.theme=root.dataset.theme==='dark'?'light':'dark';localStorage.setItem('admin-theme',root.dataset.theme);paintTheme();});
+  themeButton.addEventListener('change',()=>{root.dataset.theme=themeButton.checked?'dark':'light';localStorage.setItem('admin-theme',root.dataset.theme);paintTheme();});
   paintTheme();
 
   let users=[];
