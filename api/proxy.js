@@ -343,10 +343,10 @@ export default async function handler(req, res) {
     }
 
     if (type === 'change_password') {
-      const { oldPassword, newPassword } = params;
+      const { userId, oldPassword, newPassword } = params;
       
-      // クライアントからの userId を信用せず、安全な認証済みID (authUserId) を強制利用する
-      const targetUserId = authUserId;
+      // authUserId があればそれを優先、なければリクエスト内の userId（初回強制変更用）を使う
+      const targetUserId = authUserId || userId;
 
       if (!targetUserId) {
         return res.status(403).json({ success: false, message: "Forbidden: 認証されていません" });
