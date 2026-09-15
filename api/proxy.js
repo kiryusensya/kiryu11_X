@@ -441,6 +441,24 @@ export default async function handler(req, res) {
             return res.status(200).json({ success: true, logs: formattedLogs });
         }
         
+        if (type === 'admin_list_users' || type === 'admin_get_users') {
+            const { data: users, error } = await supabase.from('users')
+                .select('id, email, points, app_tier, is_admin, banned_until')
+                .order('email', { ascending: true });
+            if (error) return res.status(200).json({ success: false, message: "ユーザー一覧の取得に失敗しました", error: error.message });
+            const userList = (users || []).map(user => ({
+                id: user.id,
+                userId: user.email,
+                email: user.email,
+                points: user.points || 0,
+                tier: normalizeAccountTier(user.app_tier),
+                accountType: getAccountTypeLabel(user.app_tier, user.is_admin === true),
+                isAdmin: user.is_admin === true,
+                bannedUntil: user.banned_until || null
+            }));
+            return res.status(200).json({ success: true, users: userList });
+        }
+
         if (type === 'admin_create_user') {
             const { email, password, target_tier } = params;
             const requestedTier = String(target_tier || 'S').trim().toLowerCase();
