@@ -120,7 +120,7 @@ export default async function handler(req, res) {
     const cookies = parseCookies(req.headers.cookie);
     // Browser sessions use HttpOnly cookies. Authorization is retained only for
     // non-browser API clients; query-string tokens are intentionally unsupported.
-    token = cookies[SESSION_COOKIE] || cookies[ADMIN_SESSION_COOKIE] || null;
+    token = cookies[ADMIN_SESSION_COOKIE] || cookies[SESSION_COOKIE] || null;
     if (!token) {
       const authHeader = req.headers.authorization;
       if (authHeader && authHeader.startsWith('Bearer ')) {
