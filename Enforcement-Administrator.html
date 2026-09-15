@@ -387,6 +387,29 @@ html[data-theme="light"]{--account-info-border:#000}
 .status-stopped,.status-stopped *{color:#ff2d2d!important;font-weight:700!important}
 .status-normal,.status-normal *,.status-online,.status-online *{color:#18a558!important;font-weight:700!important}
 
+
+/* Remove account status gray background */
+.account-status-label {
+  background: transparent !important;
+}
+
+
+/* Code result transparency and button color correction */
+.code-check-result{background:transparent!important}
+/* Buttons that were monochrome are now blue */
+.btn-primary,.btn-danger,#customModalBtnCancel{
+  background:#007dff!important;
+  border-color:#007dff!important;
+  color:#fff!important;
+}
+.btn-primary *, .btn-danger *, #customModalBtnCancel *{color:#fff!important}
+/* Preserve the pre-existing colored action buttons */
+#btnSaveContent,#btnSetPt{background:#04cf22!important;border-color:#04cf22!important;color:#fff!important}
+#btnCreateCode{background:#007dff!important;border-color:#007dff!important;color:#fff!important}
+#btnSetBan,#btnDeleteUser,#btnLogout,#customModalBtnOk{background:#d70015!important;border-color:#d70015!important;color:#fff!important}
+#btnResetCodeStatus{background:#ff9500!important;border-color:#ff9500!important;color:#000!important}
+#btnResetCodeStatus *{color:#000!important}
+
 </style>
 </head>
 <body>
@@ -801,7 +824,7 @@ html[data-theme="light"]{--account-info-border:#000}
                     <span>
                         <i data-lucide="user" style="width:16px; height:16px; margin-right:4px;"></i> ${escapeHTML(d.userId || u)}
                     </span>
-                    <span style="font-size:13px; background:rgba(0,0,0,0.5); padding:4px 10px; border-radius:12px; border:1px solid var(--card-border);">
+                    <span class="account-status-label" style="font-size:13px; padding:4px 10px; border-radius:12px; border:1px solid var(--card-border);">
                         ステータス: ${banStatusHtml}
                     </span>
                 </h3>
@@ -1047,7 +1070,7 @@ html[data-theme="light"]{--account-info-border:#000}
               if (d.usedTime) {
                   timeText = new Date(d.usedTime).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
               }
-              let html = `<div style="background:rgba(0,0,0,0.3); padding:16px; border-radius:12px; border:1px solid var(--card-border);">
+              let html = `<div class="code-check-result" style="padding:16px; border-radius:12px; border:1px solid var(--card-border);">
                       <div style="margin-bottom:8px;"><strong>コード:</strong> ${escapeHTML(d.code)}</div>
                       <div style="margin-bottom:8px;"><strong>タイトル:</strong> ${escapeHTML(d.title) || '-'}</div>
                       <div style="margin-bottom:8px;"><strong>対象階層:</strong> ${tierText}</div>
