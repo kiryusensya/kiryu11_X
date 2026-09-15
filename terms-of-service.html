@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Terms of Service | kiryu11 X</title>
+<title>kiryu11 X | Terms of Service</title>
 <link rel="icon" type="image/svg+xml" href="./kiryu11.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
@@ -91,6 +91,12 @@ body {
 .rgl-brand { font-weight: 800; font-size: 20px; display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--sidebar-text); }
 .rgl-brand i { color: #FFA500; } 
 
+
+/* index.html と同様、テーマ切り替えをブランド行の右端へ配置 */
+.rgl-brand { width: 100%; justify-content: space-between; }
+.brand-header-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.brand-header-actions .theme-pill { width: 38px; height: 38px; flex-shrink: 0; }
+.rgl-header { display: none !important; }
 /* カプセルメニュー */
 .capsule-menu {
   display: flex; background: rgba(128, 128, 128, 0.1); border-radius: 50px; padding: 6px; margin: 0 24px 20px 24px; gap: 4px;
@@ -256,13 +262,12 @@ body {
             </button>
             <div class="rgl-brand">
                 <span data-translate="brand_name">kiryu11 X</span>
+                <div class="brand-header-actions">
+                    <button class="theme-pill" id="themeToggle" type="button" aria-label="テーマを切り替える">
+                        <i data-lucide="moon"></i>
+                    </button>
+                </div>
             </div>
-            
-            <!-- ▼ スマホ専用のテーマ切り替えボタン ▼ -->
-            <div class="theme-pill" id="mobileThemeToggle">
-                <i data-lucide="moon"></i>
-            </div>
-            <!-- ▲ スマホ専用のテーマ切り替えボタン ▲ -->
         </div>
             
         <!-- PC用カプセルメニュー -->
@@ -298,17 +303,11 @@ body {
 
     <!-- メインエリア -->
     <main class="rgl-main">
-        <!-- ヘッダー（PC用テーマ切り替え） -->
-        <nav class="rgl-header">
-            <div class="theme-pill" id="themeToggle">
-                <i data-lucide="moon" id="themeIcon"></i>
-            </div>
-        </nav>
 
         <div class="tos-page-wrapper">
             <div class="tos-glass-card">
                 <h1 class="tos-title" data-translate="tos_title">利用規約</h1>
-                <div class="tos-date" data-translate="tos_date">最終改定日：2026年07月22日</div>
+                <div class="tos-date" data-translate="tos_date">最終改定日：2026年5月12日</div>
 
                 <div class="tos-section">
                     <p data-translate="tos_intro">この利用規約は、当サイトが提供するシステムおよびデジタルコンテンツの利用条件を定めるものです。</p>
@@ -371,7 +370,7 @@ const TRANSLATIONS = {
     card1_title: "ホーム",
     card_terms_title: "利用規約",
     tos_title: "利用規約",
-    tos_date: "最終改定日：2026年07月22日",
+    tos_date: "最終改定日：2026年5月14日",
     tos_intro: "この利用規約（以下、「本規約」といいます。）は、kiryu11 X（以下、「当サイト」といいます。）が提供する個人認証センターおよび付随するすべてのサービス（以下、「本サービス」といいます。）の利用条件を定めるものです。ユーザーの皆様には、本規約に従って本サービスをご利用いただきます。",
     tos_s1_t: "第1条（適用）",
     tos_s1_1: "本規約は、ユーザーと当サイトとの間の本サービスの利用に関わる一切の関係に適用されるものとします。",
@@ -396,7 +395,7 @@ const TRANSLATIONS = {
     card1_title: "Home",
     card_terms_title: "Terms",
     tos_title: "Terms of Service",
-    tos_date: "Last Updated: July 22, 2026",
+    tos_date: "Last Updated: May 14, 2026",
     tos_intro: "These Terms of Service govern your use of the Personal Activation Center and all associated services provided by kiryu11 X.",
     tos_s1_t: "Article 1 (Application)",
     tos_s1_1: "These terms apply to all relationships between the user and this site regarding the use of the Service.",
@@ -421,7 +420,7 @@ const TRANSLATIONS = {
     card1_title: "首页",
     card_terms_title: "使用条款",
     tos_title: "使用条款",
-    tos_date: "最后更新：2026年07月22日",
+    tos_date: "最后更新：2026年5月14日",
     tos_intro: "本使用条款规定了您使用 kiryu11 X 提供的个人代码检查中心及所有相关服务的条件。",
     tos_s1_t: "第1条（适用）",
     tos_s1_1: "本条款适用于用户与本网站之间关于使用本服务的所有关系。",
@@ -446,7 +445,7 @@ const TRANSLATIONS = {
     card1_title: "首頁",
     card_terms_title: "服務條款",
     tos_title: "服務條款",
-    tos_date: "最後更新：2026年07月22日",
+    tos_date: "最後更新：2026年5月14日",
     tos_intro: "本服務條款規定了您使用 kiryu11 X 提供的個人代碼檢查中心及所有相關服務的條件。",
     tos_s1_t: "第1條（適用）",
     tos_s1_1: "本條款適用於用戶與本網站之間關於使用本服務的所有關係。",
@@ -471,7 +470,7 @@ const TRANSLATIONS = {
     card1_title: "홈",
     card_terms_title: "이용약관",
     tos_title: "이용약관",
-    tos_date: "최종 수정일: 2026년 07월 22일",
+    tos_date: "최종 수정일: 2026년 5월 14일",
     tos_intro: "이 약관은 kiryu11 X가 제공하는 개인 인증 센터 및 모든 관련 서비스의 이용 조건을 규정합니다.",
     tos_s1_t: "제1조 (적용)",
     tos_s1_1: "이 약관은 서비스 이용과 관련하여 사용자와 본 사이트 간의 모든 관계에 적용됩니다.",
@@ -496,7 +495,7 @@ const TRANSLATIONS = {
     card1_title: "Главная",
     card_terms_title: "Условия",
     tos_title: "Условия использования",
-    tos_date: "Последнее обновление: 22 Июль 2026 г.",
+    tos_date: "Последнее обновление: 14 мая 2026 г.",
     tos_intro: "Эти Условия использования регулируют ваше использование Центра личной активации и всех связанных услуг, предоставляемых kiryu11 X.",
     tos_s1_t: "Статья 1 (Применение)",
     tos_s1_1: "Эти условия применяются ко всем отношениям между пользователем и этим сайтом.",
@@ -573,7 +572,6 @@ function initMobileMenu() {
 function initThemeAndParticles() {
     const htmlEl = document.documentElement;
     const themeToggle = document.getElementById('themeToggle');
-    const mobileThemeToggle = document.getElementById('mobileThemeToggle');
     let particleHue = 210;
 
     function applyTheme(theme) {
@@ -582,7 +580,6 @@ function initThemeAndParticles() {
         
         const iconHTML = `<i data-lucide="${iconName}"></i>`;
         themeToggle.innerHTML = iconHTML;
-        if (mobileThemeToggle) mobileThemeToggle.innerHTML = iconHTML;
         
         particleHue = theme === 'light' ? 210 : 220;
         lucide.createIcons();
@@ -598,9 +595,6 @@ function initThemeAndParticles() {
     };
 
     themeToggle.addEventListener('click', handleThemeToggle);
-    if (mobileThemeToggle) {
-        mobileThemeToggle.addEventListener('click', handleThemeToggle);
-    }
 
     const canvas = document.getElementById('particleCanvas'); 
     const ctx = canvas.getContext('2d'); 
