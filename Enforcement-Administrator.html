@@ -19,7 +19,6 @@
   let inactivityTimer;
   const INACTIVITY_LIMIT = 20 * 60 * 1000;
   
-  // 自動ログアウト時のアラートもカスタムモーダル対応のため async/await 化
   async function performAutoLogout() {
       document.cookie = "admin_logged_in=; path=/; max-age=0;";
       await customAlert("20分間操作がなかったため、セキュリティ保護のため自動的にログアウトしました。");
@@ -29,11 +28,7 @@
       clearTimeout(inactivityTimer);
       inactivityTimer = setTimeout(performAutoLogout, INACTIVITY_LIMIT);
   }
-  window.addEventListener('mousemove', resetInactivityTimer);
-  window.addEventListener('mousedown', resetInactivityTimer);
-  window.addEventListener('keypress', resetInactivityTimer);
-  window.addEventListener('touchstart', resetInactivityTimer);
-  window.addEventListener('scroll', resetInactivityTimer);
+  ['mousemove', 'mousedown', 'keypress', 'touchstart', 'scroll'].forEach(e => window.addEventListener(e, resetInactivityTimer));
   resetInactivityTimer();
 </script>
 
@@ -43,72 +38,115 @@
 @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
 @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Medium.woff') format('woff'); font-weight: 500; font-style: normal; }
 @font-face { font-family: 'HarmonyOS Sans'; src: url('assets/fonts/HarmonyOS_Sans_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
-@font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
-@font-face { font-family: 'HarmonyOS Sans SC'; src: url('assets/fonts/HarmonyOS_SansSC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
-@font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Regular.woff') format('woff'); font-weight: 400; font-style: normal; }
-@font-face { font-family: 'HarmonyOS Sans TC'; src: url('assets/fonts/HarmonyOS_SansTC_Bold.woff') format('woff'); font-weight: 700; font-style: normal; }
+
   :root {
-    color-scheme: dark;
-    --primary: #007DFF; --bg-color: #121212; --card-bg: rgba(40, 40, 40, 0.6);
-    --card-border: rgba(255, 255, 255, 0.1); --text-main: #FFFFFF; --text-sub: #A0A0A0;
-    --danger: #FF3B30; --success: #04CF22;
     --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif;
   }
-  :root:lang(ja) { --font-stack: 'HarmonyOS Sans', 'Noto Sans JP', sans-serif; }
-  body { font-family: var(--font-stack); background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 0; min-height: 100vh; display: flex; overflow-x: hidden; }
+
+  /* テーマ変数 */
+  [data-theme="dark"] {
+    --bg-color: #0f172a;
+    --card-bg: #1e293b;
+    --card-border: #334155;
+    --text-main: #f8fafc;
+    --text-sub: #94a3b8;
+    --primary: #3b82f6;
+    --danger: #ef4444;
+    --success: #22c55e;
+    --sidebar-bg: #0f172a;
+    --hover-bg: #334155;
+    --input-bg: #0f172a;
+  }
+
+  [data-theme="light"] {
+    --bg-color: #f1f5f9;
+    --card-bg: #ffffff;
+    --card-border: #e2e8f0;
+    --text-main: #0f172a;
+    --text-sub: #64748b;
+    --primary: #2563eb;
+    --danger: #dc2626;
+    --success: #16a34a;
+    --sidebar-bg: #ffffff;
+    --hover-bg: #f1f5f9;
+    --input-bg: #ffffff;
+  }
+
+  body { font-family: var(--font-stack); background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 0; min-height: 100vh; display: flex; overflow-x: hidden; transition: background-color 0.3s, color 0.3s; }
   * { box-sizing: border-box; }
 
-  .sidebar { width: 280px; background: #000; border-right: 1px solid var(--card-border); display: flex; flex-direction: column; padding: 24px; flex-shrink: 0; transition: all 0.3s ease; }
+  /* サイドバー */
+  .sidebar { width: 280px; background: var(--sidebar-bg); border-right: 1px solid var(--card-border); display: flex; flex-direction: column; padding: 24px; flex-shrink: 0; transition: all 0.3s ease; }
   .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
   .brand { font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
   .mobile-menu-toggle { display: none; background: transparent; border: none; color: var(--text-main); cursor: pointer; padding: 8px; }
 
   .sidebar-nav { display: flex; flex-direction: column; flex: 1; }
   .nav-item { display: flex; align-items: center; gap: 12px; padding: 16px; border-radius: 12px; color: var(--text-sub); font-weight: 700; cursor: pointer; transition: 0.2s; margin-bottom: 8px; }
-  .nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text-main); }
-  .nav-item.active { background: rgba(0, 125, 255, 0.15); color: var(--primary); border: 1px solid rgba(0, 125, 255, 0.3); }
+  .nav-item:hover { background: var(--hover-bg); color: var(--text-main); }
+  .nav-item.active { background: rgba(59, 130, 246, 0.15); color: var(--primary); border: 1px solid rgba(59, 130, 246, 0.3); }
 
+  /* メインコンテンツ */
   .main-content { flex: 1; padding: 40px; overflow-y: auto; background: var(--bg-color); }
-  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
-  .header h1 { margin: 0; font-size: 28px; font-weight: 800; }
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; gap: 16px; flex-wrap: wrap; }
+  .header h1 { margin: 0; font-size: 28px; font-weight: 800; display: flex; align-items: center; gap: 12px; }
+  .header-actions { display: flex; align-items: center; gap: 12px; }
+  .theme-toggle { background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-main); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+  .theme-toggle:hover { background: var(--hover-bg); }
 
   .panel { display: none; animation: fadeIn 0.4s; }
   .panel.active { display: block; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-  .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 30px; max-width: 600px; margin-bottom: 20px; backdrop-filter: blur(10px); }
+  .card { background: var(--card-bg); border: 1px solid var(--card-border); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border-radius: 16px; padding: 30px; max-width: 600px; margin-bottom: 20px; transition: background-color 0.3s; }
   .card.wide { max-width: 900px; }
-  .card h2 { margin: 0 0 20px 0; font-size: 18px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px;}
+  .card h2 { margin: 0 0 20px 0; font-size: 18px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px; }
 
+  /* フォーム部品 */
   .form-group { margin-bottom: 20px; text-align: left; }
   label { display: block; font-size: 13px; font-weight: 700; color: var(--text-sub); margin-bottom: 8px; }
-  input, select, textarea { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: var(--text-main); padding: 0 16px; font-size: 14px; font-family: inherit; outline: none; transition: 0.2s; }
+  input, select, textarea { width: 100%; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; color: var(--text-main); padding: 0 16px; font-size: 14px; font-family: inherit; outline: none; transition: 0.2s; }
   input, select { height: 50px; }
-  option { background-color: var(--bg-color); color: var(--text-main); }
-  option:checked { background-color: var(--primary); color: #fff; }
-  input[type="number"]::-webkit-outer-spin-button,
-  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  option { background-color: var(--input-bg); color: var(--text-main); }
+  input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   input[type="number"] { -moz-appearance: textfield; }
-  select { appearance: none; cursor: pointer; }
-  input:focus, select:focus, textarea:focus { border-color: var(--primary); background: rgba(0, 125, 255, 0.05); }
+  input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
   
   .grid-form { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
-  button { height: 50px; border-radius: 25px; font-size: 16px; font-weight: 800; cursor: pointer; transition: 0.2s; border: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit; }
+  /* ボタン */
+  button { height: 50px; border-radius: 25px; font-size: 15px; font-weight: 800; cursor: pointer; transition: 0.2s; border: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit; }
   .btn-primary { background: var(--primary); color: #fff; width: 100%; }
-  .btn-primary:hover:not(:disabled) { opacity: 0.8; }
-  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-  .btn-danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); width: auto; padding: 0 20px; height: 40px; border-radius: 20px; font-size: 14px;}
-  .btn-danger:hover { background: rgba(255, 59, 48, 0.1); }
+  .btn-primary:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); width: auto; padding: 0 20px; height: 40px; border-radius: 20px; font-size: 14px; }
+  .btn-danger:hover { background: rgba(239, 68, 68, 0.2); }
   .msg { margin-top: 15px; font-size: 14px; font-weight: 700; min-height: 20px; text-align: center; }
-  .history-list { list-style: none; padding: 0; margin: 0; max-height: 400px; overflow-y: auto; }
-  .history-list li { background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); padding: 16px; margin-bottom: 10px; border-radius: 12px; }
-  .history-title { font-weight: 800; font-size: 16px; margin-bottom: 6px; display: block; }
-  .history-meta { color: var(--text-sub); font-size: 12px; line-height: 1.5; }
 
-  /* 独自モーダル用 CSS */
-  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); z-index: 9999; justify-content: center; align-items: center; backdrop-filter: blur(5px); animation: fadeIn 0.2s; }
-  .modal-box { background: var(--bg-color); border: 1px solid var(--card-border); padding: 30px; border-radius: 20px; width: 90%; max-width: 420px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+  /* バッジ */
+  .badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; }
+  .badge-x { background: rgba(255, 149, 0, 0.1); color: #FF9500; border: 1px solid rgba(255, 149, 0, 0.3); }
+  .badge-s { background: rgba(59, 130, 246, 0.1); color: var(--primary); border: 1px solid rgba(59, 130, 246, 0.3); }
+
+  /* ユーザーグリッド */
+  .users-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; margin-top: 20px; }
+  .user-card { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 12px; transition: 0.2s; }
+  .user-card:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+  .user-card-id { font-weight: 800; font-size: 16px; display: flex; align-items: center; gap: 8px; word-break: break-all; }
+  .user-card-meta { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--text-sub); }
+
+  /* アクションボックス（詳細画面） */
+  .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .action-box { background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; }
+  .action-box h4 { margin: 0 0 12px 0; font-size: 14px; color: var(--text-sub); }
+  .action-box .styled-input, .action-box .styled-select { height: 44px; margin-bottom: 0; }
+  
+  .history-list { list-style: none; padding: 0; margin: 0; max-height: 300px; overflow-y: auto; }
+  .history-list li { background: var(--input-bg); border: 1px solid var(--card-border); padding: 16px; margin-bottom: 10px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
+
+  /* モーダル */
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center; backdrop-filter: blur(5px); animation: fadeIn 0.2s; }
+  .modal-box { background: var(--card-bg); border: 1px solid var(--card-border); padding: 30px; border-radius: 20px; width: 90%; max-width: 420px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
   .modal-box h3 { margin: 0 0 15px 0; font-size: 20px; color: var(--text-main); }
   .modal-box p { color: var(--text-sub); font-size: 14px; margin-bottom: 25px; line-height: 1.6; word-break: break-all; }
   #customModalInput { margin-bottom: 20px; text-align: center; display: none; }
@@ -122,204 +160,95 @@
     .mobile-menu-toggle { display: block; }
     .sidebar-nav { display: none; margin-top: 20px; }
     .sidebar-nav.open { display: flex; animation: fadeIn 0.3s ease; }
-    .nav-item { padding: 14px 16px; font-size: 14px; justify-content: flex-start; }
     .main-content { padding: 20px; overflow-y: visible; }
-    .header { flex-direction: column; align-items: flex-start; gap: 10px; margin-bottom: 24px; }
-    .header h1 { font-size: 22px; }
+    .header { flex-direction: column; align-items: flex-start; gap: 16px; margin-bottom: 24px; }
     .card { padding: 20px; }
     .grid-form { grid-template-columns: 1fr; gap: 0; }
+    .action-grid { grid-template-columns: 1fr; }
   }
-</style>
-
-<style id="console-redesign-v2">
-:root {
-  color-scheme: dark;
-  --primary: #6ea8fe;
-  --primary-strong: #3b82f6;
-  --primary-soft: rgba(59,130,246,.14);
-  --bg-color: #090d14;
-  --surface: #111824;
-  --surface-2: #161f2e;
-  --card-bg: rgba(17,24,36,.92);
-  --card-border: rgba(148,163,184,.16);
-  --text-main: #f8fafc;
-  --text-sub: #9aa8bc;
-  --danger: #fb7185;
-  --warning: #fbbf24;
-  --success: #34d399;
-  --shadow: 0 16px 48px rgba(0,0,0,.24);
-  --radius: 14px;
-}
-html { scroll-behavior: smooth; }
-body {
-  background:
-    radial-gradient(circle at 72% -15%, rgba(59,130,246,.13), transparent 34rem),
-    var(--bg-color);
-  line-height: 1.55;
-}
-body::before {
-  content:""; position:fixed; inset:0; pointer-events:none; opacity:.16;
-  background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
-  background-size:32px 32px;
-}
-.skip-link { position:fixed; left:16px; top:-60px; z-index:10001; padding:10px 14px; border-radius:10px; background:#fff; color:#111; font-weight:800; }
-.skip-link:focus { top:16px; }
-.sidebar {
-  width:264px; min-height:100vh; position:sticky; top:0; height:100vh;
-  padding:22px 16px; background:rgba(7,11,18,.95); backdrop-filter:blur(18px);
-  border-right:1px solid var(--card-border);
-}
-.sidebar-header { margin-bottom:24px; padding:4px 8px 18px; border-bottom:1px solid var(--card-border); }
-.brand { font-size:16px; letter-spacing:-.01em; }
-.brand::after { content:"ADMIN"; margin-left:auto; padding:3px 7px; border-radius:999px; color:#93c5fd; background:var(--primary-soft); font-size:9px; letter-spacing:.12em; }
-.sidebar-nav { gap:3px; }
-.nav-item {
-  position:relative; min-height:44px; margin:0; padding:11px 12px; border:1px solid transparent;
-  border-radius:10px; font-size:13px; font-weight:700; color:#98a6ba;
-}
-.nav-item svg { width:18px; height:18px; stroke-width:1.8; }
-.nav-item:hover { transform:translateX(2px); background:rgba(255,255,255,.045); }
-.nav-item.active { background:linear-gradient(90deg,rgba(59,130,246,.17),rgba(59,130,246,.07)); color:#bfdbfe; border-color:rgba(96,165,250,.25); }
-.nav-item.active::before { content:""; position:absolute; left:-17px; width:3px; height:22px; border-radius:0 4px 4px 0; background:#60a5fa; box-shadow:0 0 14px #3b82f6; }
-.main-content { position:relative; padding:30px clamp(24px,4vw,64px) 64px; }
-.header { max-width:1180px; margin:0 auto 26px; padding-bottom:20px; border-bottom:1px solid var(--card-border); }
-.header h1 { font-size:clamp(24px,3vw,32px); letter-spacing:-.035em; }
-.header h1::after { content:"管理操作を安全かつ効率的に実行できます"; display:block; margin-top:5px; color:var(--text-sub); font-size:12px; font-weight:500; letter-spacing:0; }
-.header > div { display:flex; align-items:center; gap:7px; border:1px solid var(--card-border); }
-.header > div::before { content:""; width:7px; height:7px; border-radius:50%; background:var(--success); box-shadow:0 0 10px rgba(52,211,153,.8); }
-.panel { max-width:1180px; margin:0 auto; }
-.panel.active { animation:panelIn .24s ease-out; }
-@keyframes panelIn { from { opacity:0; transform:translateY(5px); } }
-.card, .card.wide {
-  width:100%; max-width:100%; padding:clamp(20px,3vw,32px); border-radius:var(--radius);
-  background:linear-gradient(145deg,rgba(21,29,43,.96),rgba(13,19,29,.96));
-  border:1px solid var(--card-border); box-shadow:var(--shadow); backdrop-filter:blur(16px);
-}
-.card h2 { padding-bottom:16px; margin-bottom:24px; font-size:17px; letter-spacing:-.01em; }
-.card h3 { font-size:14px; }
-.form-group { margin-bottom:18px; }
-label { margin-bottom:7px; color:#b6c2d2; font-size:12px; letter-spacing:.01em; }
-input, select, textarea {
-  height:46px; border-radius:9px; background:#0a1019; border:1px solid rgba(148,163,184,.22);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.02); font-size:14px;
-}
-input:hover, select:hover, textarea:hover { border-color:rgba(148,163,184,.38); }
-input:focus, select:focus, textarea:focus { border-color:#60a5fa; outline:3px solid rgba(59,130,246,.16); background:#0c1420; }
-::placeholder { color:#64748b; opacity:1; }
-button { min-height:44px; height:44px; border-radius:9px; font-size:13px; letter-spacing:.01em; }
-.btn-primary { background:linear-gradient(180deg,#4f93f7,#2878e6); box-shadow:0 7px 18px rgba(37,99,235,.22); }
-.btn-primary:hover:not(:disabled) { opacity:1; filter:brightness(1.08); transform:translateY(-1px); }
-.btn-primary:active:not(:disabled) { transform:translateY(0); }
-.btn-danger { border-radius:9px; }
-button:focus-visible, .nav-item:focus-visible { outline:3px solid rgba(96,165,250,.45); outline-offset:2px; }
-.msg { border-radius:9px; }
-.msg:not(:empty) { padding:11px 14px; background:rgba(255,255,255,.035); border:1px solid var(--card-border); }
-.history-list { max-height:520px; }
-.history-list li { background:#0b111b; border-radius:10px; }
-table { min-width:760px; }
-th { position:sticky; top:0; z-index:1; color:#aebacd; font-size:11px; text-transform:none; background:#141d2b; }
-tbody tr:hover { background:rgba(96,165,250,.045); }
-.modal-overlay { background:rgba(2,6,12,.76); }
-.modal-box { background:#121a27; border-radius:16px; box-shadow:0 24px 80px rgba(0,0,0,.55); }
-@media (min-width: 900px) {
-  #panel-create .card, #panel-reset .card, #panel-codes .card, #panel-code-support .card { max-width:760px; }
-}
-@media (max-width:768px) {
-  body { display:block; }
-  .sidebar { width:100%; min-height:auto; height:auto; position:sticky; z-index:100; padding:12px 16px; border-right:0; }
-  .sidebar-header { margin:0; padding:0; border:0; }
-  .brand::after { display:none; }
-  .sidebar-nav.open { max-height:calc(100vh - 72px); overflow:auto; padding:12px 0 6px; }
-  .nav-item.active::before { left:-16px; }
-  .main-content { padding:22px 16px 48px; }
-  .header { align-items:stretch; }
-  .header > div { align-self:flex-start; }
-  .card { padding:19px; border-radius:12px; }
-  .grid-form { grid-template-columns:1fr; }
-  .form-group[style*="grid-column"] { grid-column:auto !important; }
-  #panel-search .card > div[style*="display: flex"], #panel-code-support .form-group > div, #panel-codes .form-group > div { flex-direction:column; align-items:stretch !important; }
-  #panel-search button, #panel-code-support button, #panel-codes .form-group button, #panel-codes .form-group select { width:100% !important; }
-}
-@media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; scroll-behavior:auto !important; } }
 </style>
 </head>
 <body>
-<a class="skip-link" href="#mainContent">メインコンテンツへ移動</a>
 
 <div class="sidebar">
   <div class="sidebar-header">
-      <div class="brand"><i data-lucide="server"></i> kiryu11 X|S Console</div>
+      <div class="brand"><i data-lucide="server"></i> kiryu11 X|S</div>
       <button class="mobile-menu-toggle" id="mobileMenuBtn"><i data-lucide="menu"></i></button>
   </div>
   <div class="sidebar-nav" id="sidebarNav">
-      <button type="button" class="nav-item active" data-tab="create" onclick="switchTab('create', this)"><i data-lucide="user-plus"></i> ユーザー作成</button>
-      <button type="button" class="nav-item" data-tab="reset" onclick="switchTab('reset', this)"><i data-lucide="key-round"></i> パスワードリセット</button>
-      <button type="button" class="nav-item" data-tab="search" onclick="switchTab('search', this)"><i data-lucide="users"></i> ユーザー管理</button>
+      <div class="nav-item active" onclick="switchTab('users')"><i data-lucide="users"></i> ユーザー管理</div>
+      <div class="nav-item" onclick="switchTab('create')"><i data-lucide="user-plus"></i> 新規発行</div>
+      <div class="nav-item" onclick="switchTab('contents')"><i data-lucide="package"></i> コンテンツ登録</div>
+      <div class="nav-item" onclick="switchTab('codes')"><i data-lucide="ticket"></i> コード発行</div>
+      <div class="nav-item" onclick="switchTab('code-support')"><i data-lucide="life-buoy"></i> コード確認・復旧</div>
       
-      <button type="button" class="nav-item" data-tab="contents" onclick="switchTab('contents', this)"><i data-lucide="package"></i> コンテンツ登録</button>
-      <button type="button" class="nav-item" data-tab="codes" onclick="switchTab('codes', this)"><i data-lucide="ticket"></i> コード発行</button>
-      
-      <button type="button" class="nav-item" data-tab="code-support" onclick="switchTab('code-support', this)"><i data-lucide="life-buoy"></i> コードサポート</button>
-      
-      <button type="button" class="nav-item" data-tab="access-log" onclick="switchTab('access-log', this)"><i data-lucide="list"></i> アクセスログ</button>
       <div style="margin-top: auto; padding-top: 20px;">
-          <button id="btnLogout" class="btn-danger" style="width:100%; border:none; text-align:center; justify-content:center; background: rgba(255,59,48,0.1);"><i data-lucide="log-out"></i> 退出</button>
+          <button id="btnLogout" class="btn-danger" style="width:100%; height: 50px; border-radius: 12px; font-size: 15px; text-align:center; justify-content:center;"><i data-lucide="log-out"></i> 退出</button>
       </div>
   </div>
 </div>
 
-<main class="main-content" id="mainContent" tabindex="-1">
+<div class="main-content">
   <div class="header">
-      <h1 id="pageTitle">ユーザー作成</h1>
-      <div style="font-size:12px; color:var(--text-sub); background:rgba(255,255,255,0.05); padding:8px 16px; border-radius:20px;">権限: Enforcement Administrator</div>
+      <div>
+          <h1 id="pageTitle">ユーザー管理</h1>
+          <div style="font-size:12px; color:var(--text-sub); margin-top: 8px;">権限: Enforcement Administrator</div>
+      </div>
+      <div class="header-actions">
+          <button class="theme-toggle" id="themeToggleBtn" title="テーマ切り替え"><i data-lucide="moon"></i></button>
+      </div>
   </div>
 
-  <div id="panel-create" class="panel active">
+  <!-- ユーザー管理 (一覧) -->
+  <div id="panel-users" class="panel active">
+      <div class="card wide">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+              <h2 style="margin: 0; border: none; padding: 0;">個人識別子 一覧</h2>
+              <button id="btnReloadUsers" class="btn-primary" style="width: auto; padding: 0 20px; height: 40px; font-size: 14px;"><i data-lucide="refresh-cw"></i> 読み込み / 更新</button>
+          </div>
+          <p style="font-size: 13px; color: var(--text-sub);">ユーザーデータを選択して、パスワードリセットやアクセス制限などの管理を行います。</p>
+          <div id="usersListContainer" class="users-grid">
+              <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-sub); background: var(--input-bg); border-radius: 12px; border: 1px dashed var(--card-border);">
+                  「読み込み / 更新」ボタンを押してデータを取得してください。
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <!-- ユーザー管理 (詳細) -->
+  <div id="panel-user-detail" class="panel">
+      <div class="card wide">
+          <button class="btn-danger" style="margin-bottom: 20px; background: transparent; border: 1px solid var(--text-sub); color: var(--text-main);" onclick="switchTab('users')"><i data-lucide="arrow-left"></i> 一覧に戻る</button>
+          <h2 style="margin-bottom: 24px;">ユーザー詳細・管理</h2>
+          <div id="userDetailContainer"></div>
+      </div>
+  </div>
+
+  <!-- 新規アカウント発行 -->
+  <div id="panel-create" class="panel">
       <div class="card">
-          <h2>新しいユーザーを作成</h2>
-          <div class="form-group"><label>ユーザーID</label><input type="text" id="newUserId" placeholder="個人識別子"></div>
+          <h2>新規アカウントの作成</h2>
+          <div class="form-group"><label>新しい個人識別子</label><input type="text" id="newUserId" placeholder="個人識別子"></div>
           <div class="form-group"><label>初期パスワード</label><input type="text" id="newUserPass" placeholder="初期パスワード"></div>
           <div class="form-group">
               <label>アカウント権限 (Tier)</label>
               <select id="newUserTier">
-                  <option value="standard">Standard</option>
-                  <option value="enterprise">Professional</option>
+                  <option value="standard">S (Standard)</option>
+                  <option value="enterprise">X (Professional)</option>
               </select>
           </div>
-          <button id="btnCreate" class="btn-primary">ユーザーを作成</button>
+          <button id="btnCreate" class="btn-primary">アカウントを発行</button>
           <div id="createResult" class="msg"></div>
       </div>
   </div>
 
-  <div id="panel-reset" class="panel">
-      <div class="card">
-          <h2>パスワードのリセット</h2>
-          <p style="font-size:12px; color:var(--text-sub); margin-bottom:20px;">Standard・Professionalどちらのアカウントもリセット可能です。</p>
-          <div class="form-group"><label>個人識別子</label><input type="text" id="resetUserId" placeholder="個人識別子"></div>
-          <div class="form-group"><label>新しい仮パスワード</label><input type="text" id="resetUserPass" placeholder="新しい仮パスワード"></div>
-          <button id="btnReset" class="btn-primary" style="background:#FF9500; color:#000;">強制リセットを実行</button>
-          <div id="resetResult" class="msg"></div>
-      </div>
-  </div>
-
-  <div id="panel-search" class="panel">
-      <div class="card" style="max-width: 100%;">
-          <h2>ユーザーを検索・管理</h2>
-          <div style="display: flex; gap: 16px; align-items: flex-end;">
-            <div class="form-group" style="flex:1; margin-bottom:0;"><label>個人識別子</label><input type="text" id="searchUserId" placeholder="個人識別子"></div>
-            <button id="btnSearch" class="btn-primary" style="width: 100px;">検索</button>
-          </div>
-          <div id="searchResult" style="margin-top: 30px;"></div>
-      </div>
-  </div>
-
+  <!-- コンテンツ登録 -->
   <div id="panel-contents" class="panel">
       <div class="card wide">
-          <h2>コンテンツを登録・更新</h2>
+          <h2>コンテンツの登録・更新（マスターデータ）</h2>
           <p style="font-size:12px; color:var(--text-sub); margin-bottom:20px;">
             新規登録の場合は「コンテンツID」を空欄にしてください。既存のコンテンツを上書きする場合はIDを入力します。
           </p>
-          
           <div style="max-height: 600px; overflow-y: auto; padding-right: 15px;">
               <h3 style="border-bottom: 1px solid var(--card-border); padding-bottom: 8px; margin-top:0;">基本設定</h3>
               <div class="grid-form">
@@ -329,10 +258,9 @@ tbody tr:hover { background:rgba(96,165,250,.045); }
                       <label>対象階層 (Tier)</label>
                       <select class="content-input" data-col="target_tier">
                           <option value="all">All supported</option>
-                          <option value="enterprise">Professional</option>
+                          <option value="enterprise">X (Professional)</option>
                       </select>
                   </div>
-
                   <div class="form-group"><label>表示設定</label><select class="content-input" data-col="show/ hide"><option value="show">show</option><option value="hide">hide</option></select></div>
                   <div class="form-group"><label>価格 (ポイント)</label><input type="number" class="content-input" data-col="価格" placeholder="0"></div>
                   <div class="form-group"><label>解禁時間</label><input type="datetime-local" class="content-input" data-col="解禁時間"></div>
@@ -344,17 +272,15 @@ tbody tr:hover { background:rgba(96,165,250,.045); }
               </div>
               <div id="langFormsContainer"></div>
           </div>
-          <button id="btnSaveContent" class="btn-primary" style="background:#04CF22; margin-top:20px;">コンテンツを保存する</button>
+          <button id="btnSaveContent" class="btn-primary" style="margin-top:20px;">コンテンツを保存する</button>
           <div id="contentManageResult" class="msg"></div>
       </div>
   </div>
 
+  <!-- コード発行 -->
   <div id="panel-codes" class="panel">
       <div class="card">
-          <h2>引き換えコードを発行</h2>
-          <p style="font-size:12px; color:var(--text-sub); margin-bottom:20px;">
-            登録済みの「コンテンツID」に対して、ユーザーが入力するコードを発行します。
-          </p>
+          <h2>引き換えコードの発行</h2>
           <div class="form-group">
               <label>紐づけるコンテンツID (必須)</label>
               <input type="number" id="genCodeContentId" placeholder="例: 1">
@@ -362,13 +288,12 @@ tbody tr:hover { background:rgba(96,165,250,.045); }
           <div class="form-group">
               <label>アクティベーションコード (必須)</label>
               <div style="display: flex; gap: 10px;">
-                  <input type="text" id="genCodeStr" placeholder="例: AAAAA-BBBBB-CCCCC-DDDDD-EEEEE" style="text-transform: uppercase; flex: 1;">
+                  <input type="text" id="genCodeStr" placeholder="AAAAA-BBBBB-CCCCC-DDDDD" style="text-transform: uppercase; flex: 1;">
                   <select id="codeFormatSelect" style="width: auto; padding: 0 10px; flex-shrink: 0;">
                       <option value="4x4">4桁 × 4ブロック</option>
-                      <option value="4x3">4桁 × 3ブロック</option>
                       <option value="5x5">5桁 × 5ブロック</option>
                   </select>
-                  <button type="button" class="btn-primary" style="width: 100px; flex-shrink: 0; background: rgba(255,255,255,0.1); border: 1px solid var(--card-border);" onclick="generateProSerialCode()">自動生成</button>
+                  <button type="button" class="btn-primary" style="width: 100px; flex-shrink: 0; background: rgba(59,130,246,0.1); color: var(--primary); border: 1px solid var(--primary);" onclick="generateProSerialCode()">自動生成</button>
               </div>
           </div>
           <div class="grid-form">
@@ -376,74 +301,40 @@ tbody tr:hover { background:rgba(96,165,250,.045); }
                   <label>対象階層 (Tier)</label>
                   <select id="genCodeTier">
                       <option value="all">All supported</option>
-                      <option value="enterprise">Professional</option>
+                      <option value="enterprise">X (Professional)</option>
                   </select>
               </div>
               <div class="form-group"><label>コードタイプ</label><select id="genCodeType"><option value="ONCE">ONCE (1回使い切り)</option><option value="MULTIPLE">MULTI (複数回)</option><option value="POINT">POINT (ポイント付与)</option></select></div>
-              <div class="form-group"><label>付与ポイント(POINT時のみ)</label><input type="number" id="genPointPpp" placeholder="0"></div>
+              <div class="form-group"><label>付与ポイント</label><input type="number" id="genPointPpp" placeholder="0"></div>
               <div class="form-group" style="grid-column: 1 / -1;"><label>初期ステータス</label><select id="genIsActive"><option value="true">有効 (利用可能)</option><option value="false">無効</option></select></div>
           </div>
-          <button id="btnCreateCode" class="btn-primary" style="background:#007DFF; margin-top:10px;">コードを発行する</button>
+          <button id="btnCreateCode" class="btn-primary" style="margin-top:10px;">コードを発行する</button>
           <div id="codeManageResult" class="msg"></div>
       </div>
   </div>
+
+  <!-- コード確認・復旧 -->
   <div id="panel-code-support" class="panel">
       <div class="card">
-          <h2>コードの状態を確認</h2>
-          
+          <h2>コードステータス確認</h2>
           <div class="form-group">
               <label>引き換えコード</label>
               <div style="display: flex; gap: 10px;">
-                  <input type="text" id="targetSupportCode" placeholder="AAAAA-BBBBB-CCCCC-DDDDD-EEEEE" style="flex:1;">
+                  <input type="text" id="targetSupportCode" placeholder="AAAAA-BBBBB-CCCCC-DDDDD" style="flex:1;">
                   <button id="btnCheckCode" class="btn-primary" style="width:100px;">確認</button>
               </div>
           </div>
           <div id="codeSupportResult" style="margin-top: 20px;"></div>
       </div>
   </div>
-  <div id="panel-access-log" class="panel">
-      <div class="card wide">
-          <h2>アクセスログ</h2>
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
-              <p style="font-size:12px; color:var(--text-sub); margin:0;">最新のAPIリクエスト履歴を表示します。</p>
-              <div style="display: flex; gap: 10px;">
-                  <select id="logFilterSelect" style="width: auto; height: 40px; border-radius: 20px; font-size: 13px; padding: 0 16px;">
-                      <option value="all">すべて表示</option>
-                      <option value="login">ログインのみ (user_login)</option>
-                      <option value="check">プレビューのみ (check)</option>
-                      <option value="redeem">引き換え実行 (redeem)</option>
-                  </select>
-                  <button id="btnLoadLogs" class="btn-primary" style="width: auto; padding: 0 20px; height: 40px; font-size: 14px;"><i data-lucide="refresh-cw"></i> 更新</button>
-              </div>
-          </div>
-          <div style="overflow-x: auto; background: rgba(0,0,0,0.3); border-radius: 12px; border: 1px solid var(--card-border);">
-              <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
-                  <thead style="background: rgba(255,255,255,0.05);">
-                      <tr>
-                          <th style="padding: 12px 16px; border-bottom: 1px solid var(--card-border);">日時</th>
-                          <th style="padding: 12px 16px; border-bottom: 1px solid var(--card-border);">IPアドレス</th>
-                          <th style="padding: 12px 16px; border-bottom: 1px solid var(--card-border);">アクセス元</th>
-                          <th style="padding: 12px 16px; border-bottom: 1px solid var(--card-border);">アクション</th>
-                          <th style="padding: 12px 16px; border-bottom: 1px solid var(--card-border);">入力コード</th>
-                          <th style="padding: 12px 16px; border-bottom: 1px solid var(--card-border);">ユーザー</th>
-                      </tr>
-                  </thead>
-                  <tbody id="logTableBody">
-                      <tr><td colspan="6" style="padding: 20px; text-align: center; color: var(--text-sub);">「更新」ボタンを押して読み込んでください</td></tr>
-                  </tbody>
-              </table>
-          </div>
-          <div id="logResultMsg" class="msg"></div>
-      </div>
-  </div>
-</main>
+</div>
 
-<!-- 独自モーダル HTML構造 -->
+<!-- カスタムモーダル -->
 <div id="customModalOverlay" class="modal-overlay">
   <div id="customModal" class="modal-box" role="dialog" aria-modal="true">
       <h3 id="customModalTitle">通知</h3>
       <p id="customModalMessage"></p>
-      <input type="text" id="customModalInput" placeholder="">
+      <input type="text" id="customModalInput" class="styled-input">
       <div class="modal-actions">
           <button id="customModalBtnCancel" class="btn-danger">キャンセル</button>
           <button id="customModalBtnOk" class="btn-primary">OK</button>
@@ -452,6 +343,33 @@ tbody tr:hover { background:rgba(96,165,250,.045); }
 </div>
 
 <script>
+  // =====================
+  // テーマ切り替え機能
+  // =====================
+  const themeToggleBtn = document.getElementById('themeToggleBtn');
+  const htmlEl = document.documentElement;
+
+  function updateThemeIcon() {
+      const isDark = htmlEl.getAttribute('data-theme') === 'dark';
+      themeToggleBtn.innerHTML = isDark ? '<i data-lucide="sun"></i>' : '<i data-lucide="moon"></i>';
+      lucide.createIcons();
+  }
+
+  themeToggleBtn.addEventListener('click', () => {
+      const currentTheme = htmlEl.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      htmlEl.setAttribute('data-theme', newTheme);
+      localStorage.setItem('admin_theme', newTheme);
+      updateThemeIcon();
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+      const savedTheme = localStorage.getItem('admin_theme') || 'dark';
+      htmlEl.setAttribute('data-theme', savedTheme);
+      updateThemeIcon();
+  });
+
+
   const escapeHTML = (str) => {
     if (!str) return "";
     return String(str).replace(/[&<>"']/g, (match) => {
@@ -461,17 +379,18 @@ tbody tr:hover { background:rgba(96,165,250,.045); }
 
   lucide.createIcons();
 
+  // Tier変換ユーティリティ
+  const getTierBadge = (tierVal) => {
+      return tierVal === 'enterprise' ? '<span class="badge badge-x">X</span>' : '<span class="badge badge-s">S</span>';
+  };
+
   window.addEventListener('DOMContentLoaded', async () => {
       if (checkCookie('admin_logged_in')) {
-          try {
-              await safeFetch({ type: 'admin_verify' });
-          } catch(e) {
-              // safeFetch内の認証エラーハンドリングで自動的にsignin.htmlにリダイレクトされます
-          }
+          try { await safeFetch({ type: 'admin_verify' }); } catch(e) {}
       }
   });
 
-  /* ======== 独自モーダル管理ロジック (非同期 Promise) ======== */
+  /* ======== モーダル管理 ======== */
   function showModal({ type, message, title = "通知", placeholder = "", inputType = "text" }) {
       return new Promise((resolve) => {
           const overlay = document.getElementById('customModalOverlay');
@@ -493,7 +412,7 @@ tbody tr:hover { background:rgba(96,165,250,.045); }
           } else if (type === 'confirm') {
               inputEl.style.display = 'none';
               btnCancel.style.display = 'block';
-          } else { // alert
+          } else { 
               inputEl.style.display = 'none';
               btnCancel.style.display = 'none';
           }
@@ -510,29 +429,12 @@ tbody tr:hover { background:rgba(96,165,250,.045); }
               document.removeEventListener('keydown', handleEsc);
           };
 
-          const handleEsc = (e) => {
-              if (e.key === 'Escape') {
-                  cleanup();
-                  resolve(type === 'prompt' ? null : false);
-              }
-          };
+          const handleEsc = (e) => { if (e.key === 'Escape') { cleanup(); resolve(type === 'prompt' ? null : false); } };
           document.addEventListener('keydown', handleEsc);
 
-          btnOk.onclick = () => {
-              cleanup();
-              resolve(type === 'prompt' ? inputEl.value : true);
-          };
-
-          btnCancel.onclick = () => {
-              cleanup();
-              resolve(type === 'prompt' ? null : false);
-          };
-
-          if (type === 'prompt') {
-              inputEl.onkeydown = (e) => {
-                  if (e.key === 'Enter') btnOk.click();
-              }
-          }
+          btnOk.onclick = () => { cleanup(); resolve(type === 'prompt' ? inputEl.value : true); };
+          btnCancel.onclick = () => { cleanup(); resolve(type === 'prompt' ? null : false); };
+          if (type === 'prompt') { inputEl.onkeydown = (e) => { if (e.key === 'Enter') btnOk.click(); } }
       });
   }
 
@@ -540,24 +442,13 @@ tbody tr:hover { background:rgba(96,165,250,.045); }
   const customConfirm = (msg, title="確認") => showModal({ type: 'confirm', message: msg, title });
   const customPrompt = (msg, placeholder="", inputType="text") => showModal({ type: 'prompt', message: msg, title: "入力", placeholder, inputType });
 
-  /* ======== エンターキー連動ロジック ======== */
   function bindEnterKey(inputId, btnId) {
       const input = document.getElementById(inputId);
-      if (input) {
-          input.addEventListener('keydown', (e) => {
-              if (e.key === 'Enter') document.getElementById(btnId).click();
-          });
-      }
+      if (input) input.addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById(btnId).click(); });
   }
-
-  // 各フォームにエンターキー操作を紐付け
   bindEnterKey('newUserId', 'btnCreate');
   bindEnterKey('newUserPass', 'btnCreate');
-  bindEnterKey('resetUserId', 'btnReset');
-  bindEnterKey('resetUserPass', 'btnReset');
-  bindEnterKey('searchUserId', 'btnSearch');
   bindEnterKey('targetSupportCode', 'btnCheckCode');
-
 
   const GAS_API_URL = "api/proxy"; 
   const langs = ['jp', 'en', 'zh', 'zh-TW', 'ko', 'ru'];
@@ -574,56 +465,285 @@ tbody tr:hover { background:rgba(96,165,250,.045); }
   langContainer.innerHTML = langHtml;
 
   async function safeFetch(bodyObj) {
-      const headers = { 'Content-Type': 'application/json' };
       const response = await fetch(GAS_API_URL, { 
-          method: 'POST', 
-          headers: headers, 
-          credentials: 'include', 
-          body: JSON.stringify(bodyObj) 
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(bodyObj) 
       });
-      
       const data = await response.json();
       if (data.error === "invalid_token" || data.error === "unauthorized" || data.error === "expired" || data.message === "管理者権限がありません") {
-          document.cookie = "admin_logged_in=; path=/; max-age=0;"; 
-          window.location.replace('signin.html'); 
-          throw new Error("認証切れ");
+          document.cookie = "admin_logged_in=; path=/; max-age=0;"; window.location.replace('signin.html'); throw new Error("認証切れ");
       }
       return data;
   }
 
-  document.getElementById('mobileMenuBtn').addEventListener('click', () => {
-      document.getElementById('sidebarNav').classList.toggle('open');
-  });
+  document.getElementById('mobileMenuBtn').addEventListener('click', () => { document.getElementById('sidebarNav').classList.toggle('open'); });
 
-  function switchTab(tabId, triggerEl) {
+  function switchTab(tabId) {
       document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      document.getElementById('panel-' + tabId).classList.add('active');
-      if (triggerEl) { triggerEl.classList.add('active'); triggerEl.setAttribute('aria-current', 'page'); }
-      document.querySelectorAll('.nav-item').forEach(n => { if (n !== triggerEl) n.removeAttribute('aria-current'); });
-      const titles = { 'create': 'ユーザー作成', 'reset': 'パスワードリセット', 'search': 'ユーザー管理', 'contents': 'コンテンツ登録', 'codes': 'コード発行', 'code-support': 'コードサポート', 'access-log': 'アクセスログ' };
+      
+      const panel = document.getElementById('panel-' + tabId);
+      if(panel) panel.classList.add('active');
+      
+      const navItem = Array.from(document.querySelectorAll('.nav-item')).find(n => n.getAttribute('onclick').includes(`switchTab('${tabId}')`));
+      if(navItem) navItem.classList.add('active');
+      
+      const titles = { 'users': 'ユーザー管理', 'create': '新規発行', 'contents': 'コンテンツ登録', 'codes': 'コード発行', 'code-support': 'コード確認・復旧' };
       document.getElementById('pageTitle').textContent = titles[tabId] || '';
       if(window.innerWidth <= 768) document.getElementById('sidebarNav').classList.remove('open');
   }
 
   document.getElementById('btnLogout').addEventListener('click', async () => {
-      try {
-          await fetch(GAS_API_URL, { 
-              method: 'POST', 
-              headers: { 'Content-Type': 'application/json' }, 
-              credentials: 'include', 
-              body: JSON.stringify({ type: 'admin_logout' }) 
-          });
-      } catch (e) { console.error("Logout Error:", e); }
-      document.cookie = "admin_logged_in=; path=/; max-age=0;"; 
-      window.location.href = 'signin.html';
+      try { await safeFetch({ type: 'admin_logout' }); } catch (e) { }
+      document.cookie = "admin_logged_in=; path=/; max-age=0;"; window.location.href = 'signin.html';
   });
 
+  /* =====================
+     ユーザー管理関連フロー
+     ===================== */
+  
+  // 1. ユーザー一覧の取得
+  document.getElementById('btnReloadUsers').addEventListener('click', async () => {
+      const container = document.getElementById('usersListContainer');
+      container.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:40px; color:var(--text-sub);">読み込み中...</div>';
+      try {
+          // ※ バックエンドに全ユーザーを取得するAPI 'admin_get_users' が実装されている前提
+          const d = await safeFetch({ type: 'admin_get_users' });
+          if(d.success && d.users) {
+              if(d.users.length === 0) {
+                  container.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:40px; color:var(--text-sub);">ユーザーデータがありません。</div>';
+                  return;
+              }
+              container.innerHTML = '';
+              d.users.forEach(u => {
+                  const el = document.createElement('div');
+                  el.className = 'user-card';
+                  el.innerHTML = `
+                      <div class="user-card-id"><i data-lucide="user" style="width:18px; height:18px;"></i> ${escapeHTML(u.userId)}</div>
+                      <div class="user-card-meta">
+                          ${getTierBadge(u.tier)}
+                          <span style="font-weight: 800; font-size: 14px;">${u.points || 0} pt</span>
+                      </div>
+                      <button class="btn-primary" style="height: 40px; font-size: 14px; margin-top: auto;" onclick="loadUserDetail('${escapeHTML(u.userId)}')">管理・詳細</button>
+                  `;
+                  container.appendChild(el);
+              });
+              lucide.createIcons();
+          } else {
+              container.innerHTML = `<div style="grid-column: 1/-1; color:var(--danger); text-align:center;">エラー: ${escapeHTML(d.message)}</div>`;
+          }
+      } catch(e) {
+          container.innerHTML = '<div style="grid-column: 1/-1; color:var(--danger); text-align:center;">通信エラーが発生しました。<br>API(admin_get_users)の動作を確認してください。</div>';
+      }
+  });
+
+  // 2. ユーザー詳細の読み込みとUI生成
+  async function loadUserDetail(userId) {
+      switchTab('user-detail');
+      const container = document.getElementById('userDetailContainer');
+      container.innerHTML = '<div style="text-align:center; color:var(--text-sub); padding:40px;">データ取得中...</div>';
+      
+      try {
+          const d = await safeFetch({ type: 'admin_search', targetEmail: userId });
+          if (d.success) {
+              let banStatusHtml = '<span style="color:var(--success); font-weight:bold;">正常</span>';
+              if (d.bannedUntil) {
+                  const bDate = new Date(d.bannedUntil);
+                  if (bDate.getFullYear() > 2090) banStatusHtml = '<span style="color:var(--danger); font-weight:bold;">永久停止中</span>';
+                  else if (bDate > new Date()) banStatusHtml = `<span style="color:var(--danger); font-weight:bold;">停止中 (期限: ${bDate.toLocaleString('ja-JP')})</span>`;
+              }
+
+              let html = `
+                  <div style="display:flex; justify-content:space-between; align-items:center; background:var(--input-bg); padding:20px; border-radius:12px; border:1px solid var(--card-border); margin-bottom:24px;">
+                      <div style="font-size:20px; font-weight:800; display:flex; align-items:center; gap:8px;"><i data-lucide="user"></i> ${escapeHTML(d.userId || userId)}</div>
+                      <div style="font-size:14px; background:var(--bg-color); padding:6px 12px; border-radius:12px; border:1px solid var(--card-border);">ステータス: ${banStatusHtml}</div>
+                  </div>
+                  
+                  <div class="action-grid">
+                      <!-- パスワードリセット -->
+                      <div class="action-box">
+                          <h4><i data-lucide="key-round" style="width:16px; margin-right:4px;"></i> パスワードリセット</h4>
+                          <p style="font-size:12px; color:var(--text-sub); margin-bottom:12px;">対象ユーザーのパスワードを強制的に書き換えます。</p>
+                          <button class="btn-primary" style="background:#FF9500; color:#000;" id="btnExecReset">リセットを実行する</button>
+                      </div>
+
+                      <!-- 権限 (Tier) 変更 -->
+                      <div class="action-box">
+                          <h4><i data-lucide="shield" style="width:16px; margin-right:4px;"></i> アカウント権限</h4>
+                          <div style="margin-bottom: 12px; font-size:13px;">現在の権限: ${getTierBadge(d.tier)}</div>
+                          <div style="display:flex; gap:10px;">
+                              <select id="setTierVal" class="styled-select" style="flex:1;">
+                                  <option value="standard" ${d.tier !== 'enterprise' ? 'selected' : ''}>S (Standard)</option>
+                                  <option value="enterprise" ${d.tier === 'enterprise' ? 'selected' : ''}>X (Professional)</option>
+                              </select>
+                              <button class="btn-primary" id="btnSetTier" style="width:auto; padding:0 20px;">変更</button>
+                          </div>
+                      </div>
+
+                      <!-- ポイント設定 -->
+                      <div class="action-box">
+                          <h4><i data-lucide="coins" style="width:16px; margin-right:4px;"></i> ポイント設定</h4>
+                          <div style="margin-bottom: 12px; font-size:13px;">現在の所持ポイント: <strong style="font-size:18px;">${escapeHTML(String(d.points))}</strong> pt</div>
+                          <div style="display:flex; gap:10px;">
+                              <input type="number" id="setPtVal" placeholder="ポイント数を入力" class="styled-input" style="flex:1;">
+                              <button class="btn-primary" id="btnSetPt" style="background:var(--success); width:auto; padding:0 20px;">設定</button>
+                          </div>
+                      </div>
+
+                      <!-- アクセス制限 -->
+                      <div class="action-box" style="border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.05);">
+                          <h4 style="color: var(--danger);"><i data-lucide="shield-alert" style="width:16px; margin-right:4px;"></i> アクセス制限 (アカウント停止)</h4>
+                          <div style="display:flex; flex-direction:column; gap:10px;">
+                              <select id="banTypeVal" class="styled-select" style="border-color:rgba(239,68,68,0.5);">
+                                  <option value="temporary">期限付き停止</option>
+                                  <option value="permanent">永久停止</option>
+                                  <option value="none">制限を解除 (正常に戻す)</option>
+                              </select>
+                              <div style="display:flex; gap:10px;">
+                                  <input type="datetime-local" id="banUntilVal" class="styled-input" style="flex:1; border-color:rgba(239,68,68,0.5);">
+                                  <button class="btn-danger" id="btnSetBan" style="background:var(--danger); color:#fff; border:none; height:44px; margin:0;">適用</button>
+                              </div>
+                          </div>
+                      </div>
+                      
+                      <!-- アカウント完全削除 -->
+                      <div class="action-box" style="grid-column: 1 / -1; border: none; background: transparent; padding: 0;">
+                          <button class="btn-danger" id="btnDeleteUser" style="width:100%; height:50px; background: rgba(239,68,68,0.1); border: 1px solid var(--danger);">
+                              <i data-lucide="alert-triangle"></i> アカウント完全削除
+                          </button>
+                      </div>
+                  </div>
+
+                  <h3 style="margin-top: 40px; border-bottom: 1px solid var(--card-border); padding-bottom: 12px;">購入・引き換え履歴</h3>
+                  <div id="userHistoryList"></div>
+              `;
+              container.innerHTML = html;
+              lucide.createIcons();
+
+              // --- 各種イベントリスナー登録 ---
+              const uId = d.userId || userId;
+
+              // パスワードリセット処理
+              document.getElementById('btnExecReset').addEventListener('click', async () => {
+                  if(!(await customConfirm(`「${escapeHTML(uId)}」のパスワードをリセットしますか？`, "リセット確認"))) return;
+                  const newPass = await customPrompt("新しい仮パスワードを入力してください。", "仮パスワード", "text");
+                  if(!newPass) return;
+
+                  try {
+                      const res = await safeFetch({ type: 'admin_reset_password', targetEmail: uId, newPassword: newPass });
+                      if(res.success) {
+                          await customAlert(`✅ リセット完了しました。`);
+                      } else {
+                          await customAlert(`⚠エラー: ${escapeHTML(res.message)}`);
+                      }
+                  } catch(e) { await customAlert("⚠通信エラー"); }
+              });
+
+              // 権限変更
+              document.getElementById('btnSetTier').addEventListener('click', async (e) => {
+                  const newTier = document.getElementById('setTierVal').value;
+                  const newTierName = newTier === 'enterprise' ? 'X' : 'S';
+                  if (!(await customConfirm(`権限を「${newTierName}」に変更しますか？`))) return;
+                  
+                  e.currentTarget.disabled = true;
+                  try {
+                      const res = await safeFetch({ type: 'admin_set_tier', targetEmail: uId, targetTier: newTier });
+                      if(res.success) { await customAlert(`権限を変更しました。`); loadUserDetail(uId); } 
+                      else await customAlert(`⚠エラー: ${res.message}`);
+                  } catch(err) { await customAlert('⚠通信エラー'); }
+              });
+
+              // ポイント設定
+              document.getElementById('btnSetPt').addEventListener('click', async (e) => {
+                  const ptVal = document.getElementById('setPtVal').value;
+                  if(ptVal === '') return;
+                  e.currentTarget.disabled = true;
+                  try {
+                      const res = await safeFetch({ type: 'admin_set_points', targetEmail: uId, amount: parseInt(ptVal) });
+                      if(res.success) { await customAlert(`ポイントを設定しました。`); loadUserDetail(uId); } 
+                      else await customAlert(`⚠エラー: ${res.message}`);
+                  } catch(err) { await customAlert('⚠通信エラー'); }
+              });
+
+              // アクセス制限
+              const banTypeSelect = document.getElementById('banTypeVal');
+              const banUntilInput = document.getElementById('banUntilVal');
+              banTypeSelect.addEventListener('change', (e) => {
+                  banUntilInput.style.display = e.target.value === 'temporary' ? 'block' : 'none';
+              });
+              document.getElementById('btnSetBan').addEventListener('click', async (e) => {
+                  const type = banTypeSelect.value;
+                  const until = banUntilInput.value;
+                  if (type === 'temporary' && !until) return await customAlert("停止期限を指定してください。");
+                  let msg = type === 'none' ? "アクセス制限を解除しますか？" : "アカウントを停止します。よろしいですか？";
+                  if (!(await customConfirm(msg))) return;
+                  
+                  e.currentTarget.disabled = true;
+                  try {
+                      const res = await safeFetch({ type: 'admin_ban_user', targetEmail: uId, banType: type, banUntil: until });
+                      if(res.success) { await customAlert("適用しました。"); loadUserDetail(uId); } 
+                      else await customAlert(`⚠エラー: ${res.message}`);
+                  } catch(err) { await customAlert('⚠通信エラー'); }
+              });
+
+              // アカウント削除
+              document.getElementById('btnDeleteUser').addEventListener('click', async () => {
+                  const confCode = await customPrompt(`【危険】削除する場合は対象のID「${uId}」を入力してください。`);
+                  if (confCode !== uId) return await customAlert("IDが一致しません。");
+                  const adminPass = await customPrompt("本人確認のため、管理者パスワードを入力してください。", "管理者パスワード", "password");
+                  if (!adminPass) return;
+                  
+                  try {
+                      const res = await safeFetch({ type: 'admin_delete_user', targetEmail: uId, adminPassword: adminPass });
+                      if(res.success) { 
+                          await customAlert("アカウントを完全に削除しました。"); 
+                          switchTab('users'); document.getElementById('btnReloadUsers').click();
+                      } else { await customAlert(`⚠エラー: ${res.message}`); }
+                  } catch(err) { await customAlert('⚠通信エラー'); }
+              });
+
+              // 履歴の描画
+              const hContainer = document.getElementById('userHistoryList');
+              if (!d.history || d.history.length === 0) {
+                  hContainer.innerHTML = '<div style="text-align:center; color:var(--text-sub); padding:20px; background:var(--input-bg); border-radius:12px;">履歴はありません</div>';
+              } else {
+                  const ul = document.createElement('ul'); ul.className = 'history-list';
+                  d.history.forEach(h => {
+                      const li = document.createElement('li');
+                      li.innerHTML = `
+                          <div>
+                              <strong style="font-size:15px; display:block; margin-bottom:4px;">${escapeHTML(h.title)}</strong>
+                              <span style="font-size:12px; color:var(--text-sub);">コード: ${escapeHTML(h.code)} <br>日時: ${escapeHTML(h.date)}</span>
+                          </div>
+                      `;
+                      const rBtn = document.createElement('button'); 
+                      rBtn.className = 'btn-danger'; rBtn.style.cssText = 'height:36px; font-size:13px; padding: 0 12px;'; rBtn.innerHTML = '無効化';
+                      rBtn.addEventListener('click', async () => {
+                          if (!(await customConfirm(`「${escapeHTML(h.title)}」のコードを無効化・削除しますか？`))) return;
+                          rBtn.disabled = true;
+                          try {
+                              const r = await safeFetch({ type: 'admin_revoke_content', targetEmail: uId, code: h.code });
+                              if (r.success) li.remove(); else { await customAlert(r.message); rBtn.disabled=false; }
+                          } catch(e) { await customAlert('⚠エラー'); rBtn.disabled=false; }
+                      });
+                      li.appendChild(rBtn); ul.appendChild(li);
+                  });
+                  hContainer.appendChild(ul);
+              }
+
+          } else {
+              container.innerHTML = `<span style='color:var(--danger);'>⚠エラー: ${escapeHTML(d.message)}</span>`;
+          }
+      } catch (e) {
+          container.innerHTML = "<span style='color:var(--danger);'>⚠通信エラー</span>";
+      }
+  }
+
+
+  // --- アカウント発行処理 ---
   document.getElementById('btnCreate').addEventListener('click', async () => {
       const u = document.getElementById('newUserId').value.trim();
       const p = document.getElementById('newUserPass').value.trim();
       const tier = document.getElementById('newUserTier').value; 
-      
       const resEl = document.getElementById('createResult');
       if(!u || !p) { resEl.textContent = "すべて入力してください"; resEl.style.color = "var(--danger)"; return; }
       resEl.textContent = "処理中..."; resEl.style.color = "var(--text-sub)";
@@ -634,223 +754,10 @@ tbody tr:hover { background:rgba(96,165,250,.045); }
       } catch(e) { resEl.textContent = "⚠通信エラー"; resEl.style.color = "var(--danger)"; }
   });
 
-  document.getElementById('btnReset').addEventListener('click', async () => {
-      const u = document.getElementById('resetUserId').value.trim(), p = document.getElementById('resetUserPass').value.trim();
-      const resEl = document.getElementById('resetResult');
-      if(!u || !p) { resEl.textContent = "すべて入力してください"; resEl.style.color = "var(--danger)"; return; }
-      
-      // カスタム確認モーダルへ変更
-      if(!(await customConfirm(`「${escapeHTML(u)}」のパスワードを強制リセットしますか？`, "警告"))) return;
-      
-      resEl.textContent = "処理中..."; resEl.style.color = "var(--text-sub)";
-      try {
-          const d = await safeFetch({ type: 'admin_reset_password', targetEmail: u, newPassword: p });
-          if(d.success) { resEl.textContent = `✅ リセット完了`; resEl.style.color = "var(--success)"; document.getElementById('resetUserId').value = ""; document.getElementById('resetUserPass').value = ""; } 
-          else { resEl.textContent = `⚠エラー: ${escapeHTML(d.message)}`; resEl.style.color = "var(--danger)"; }
-      } catch(e) { resEl.textContent = "⚠通信エラー"; resEl.style.color = "var(--danger)"; }
-  });
-
-  document.getElementById('btnSearch').addEventListener('click', async () => {
-    const u = document.getElementById('searchUserId').value.trim();
-    const resEl = document.getElementById('searchResult');
-    if (!u) return;
-    resEl.innerHTML = "<div style='text-align:center; color:var(--text-sub);'>検索中...</div>";
-    
-    try {
-        const d = await safeFetch({ type: 'admin_search', targetEmail: u });
-        resEl.innerHTML = '';
-        if (d.success) {
-            const tierLabel = d.tier === 'enterprise' ? '<span style="color:#FF9500;">Professional</span>' : '<span style="color:var(--primary);">Standard</span>';
-            let banStatusHtml = '<span style="color:var(--success); font-weight:bold;">正常</span>';
-            if (d.bannedUntil) {
-                const bDate = new Date(d.bannedUntil);
-                if (bDate.getFullYear() > 2090) {
-                    banStatusHtml = '<span style="color:var(--danger); font-weight:bold;">永久停止中</span>';
-                } else if (bDate > new Date()) {
-                    banStatusHtml = `<span style="color:var(--danger); font-weight:bold;">停止中 (期限: ${bDate.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })})</span>`;
-                }
-            }
-
-            const actionsDiv = document.createElement('div');
-            actionsDiv.style.cssText = 'background:rgba(255,255,255,0.05); padding:20px; border-radius:12px; margin-bottom:20px; border: 1px solid var(--card-border);';
-            actionsDiv.innerHTML = `
-                <h3 style="margin:0 0 16px 0; font-size:16px; display:flex; justify-content:space-between; align-items:center;">
-                    <span>
-                        <i data-lucide="user" style="width:16px; height:16px; margin-right:4px;"></i> ${escapeHTML(d.userId || u)}
-                    </span>
-                    <span style="font-size:13px; background:rgba(0,0,0,0.5); padding:4px 10px; border-radius:12px; border:1px solid var(--card-border);">
-                        ステータス: ${banStatusHtml}
-                    </span>
-                </h3>
-                <div style="display:flex; flex-direction:column; gap:15px; margin-bottom: 20px;">
-                    
-                    <!-- 権限 (Tier) 変更エリア: PCは右端、スマホは下に折り返し -->
-                    <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px; background:rgba(0,0,0,0.2); padding:10px 15px; border-radius:8px;">
-                        <div style="font-size:14px; color:var(--text-sub);">アカウント権限: <strong>${tierLabel}</strong></div>
-                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                            <select id="setTierVal" style="width:auto; height:36px; font-size:13px; padding:0 30px 0 15px; border-radius:18px;">
-                                <option value="standard" ${d.tier !== 'enterprise' ? 'selected' : ''}>Standard</option>
-                                <option value="enterprise" ${d.tier === 'enterprise' ? 'selected' : ''}>Professional</option>
-                            </select>
-                            <button class="btn-primary" id="btnSetTier" style="width:auto; height:36px; padding:0 15px; font-size:13px;">変更</button>
-                        </div>
-                    </div>
-
-                    <!-- ポイント変更エリア -->
-                    <div style="background:rgba(0,0,0,0.2); padding:10px 15px; border-radius:8px;">
-                        <div style="font-size:14px; color:var(--text-sub); margin-bottom:8px;">現在の所持ポイント: <strong style="color:#fff; font-size:20px; margin-left:8px;">${escapeHTML(String(d.points))}</strong> pt</div>
-                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                            <input type="number" id="setPtVal" placeholder="ポイント数を入力" style="flex:1; min-width:150px; max-width:250px; height:44px; margin-bottom:0;">
-                            <button class="btn-primary" id="btnSetPt" style="width:auto; height:44px; padding:0 20px; background:#04CF22;">ポイントを設定</button>
-                        </div>
-                    </div>
-                    
-                    <div style="background:rgba(255,59,48,0.1); border:1px solid rgba(255,59,48,0.3); padding:15px; border-radius:8px;">
-                        <div style="font-size:14px; color:var(--danger); font-weight:bold; margin-bottom:10px;">
-                            <i data-lucide="shield-alert" style="width:16px; height:16px; vertical-align:middle;"></i> アクセス制限 (アカウント停止)
-                        </div>
-                        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-                            <select id="banTypeVal" style="width:auto; height:40px; font-size:13px; border-radius:8px; border-color:rgba(255,59,48,0.5); background:rgba(0,0,0,0.5); color:#fff;">
-                                <option value="temporary">期限付き停止</option>
-                                <option value="permanent">永久停止</option>
-                                <option value="none">制限を解除 (正常に戻す)</option>
-                            </select>
-                            <input type="datetime-local" id="banUntilVal" style="width:auto; height:40px; border-radius:8px; border-color:rgba(255,59,48,0.5); background:rgba(0,0,0,0.5); color:#fff;">
-                            <button class="btn-danger" id="btnSetBan" style="height:40px; background:var(--danger); color:#fff; border:none; padding:0 20px;">適用</button>
-                        </div>
-                    </div>
-                    </div>
-                <div style="border-top: 1px solid rgba(255,59,48,0.3); padding-top:16px;">
-                    <button class="btn-danger" id="btnDeleteUser" style="width:100%; color:var(--danger); border-color:var(--danger); background: rgba(255,59,48,0.1);">
-                        <i data-lucide="alert-triangle" style="margin-right:4px;"></i> アカウント完全削除
-                    </button>
-                </div>
-            `;
-            resEl.appendChild(actionsDiv);
-
-            // ★ 修正: Tier変更イベント
-            actionsDiv.querySelector('#btnSetTier').addEventListener('click', async (e) => {
-                const btn = e.currentTarget; // ★ 必ず await（待機）の前にボタン要素を取得して保持する
-                const newTier = actionsDiv.querySelector('#setTierVal').value;
-                const newTierName = newTier === 'enterprise' ? 'Professional' : 'Standard';
-                
-                if (!(await customConfirm(`権限を「${newTierName}」に変更しますか？`, "権限の変更"))) return;
-                
-                btn.textContent = "処理中..."; btn.disabled = true;
-                try {
-                    const tierRes = await safeFetch({ type: 'admin_set_tier', targetEmail: d.userId || u, targetTier: newTier });
-                    if(tierRes.success) {
-                        await customAlert(`成功: 権限を「${newTierName}」に変更しました。`, "完了");
-                        document.getElementById('btnSearch').click(); // 完了後に再検索して表示を更新
-                    } else {
-                        await customAlert(`⚠エラー: ${tierRes.message}`, "エラー");
-                    }
-                } catch(err) { await customAlert('⚠通信エラー', "エラー"); }
-                btn.textContent = "変更"; btn.disabled = false;
-            });
-            // ポイント設定のエンターキー対応
-            actionsDiv.querySelector('#setPtVal').addEventListener('keydown', (e) => {
-                if(e.key === 'Enter') actionsDiv.querySelector('#btnSetPt').click();
-            });
-
-            actionsDiv.querySelector('#btnSetPt').addEventListener('click', async (e) => {
-                const ptVal = actionsDiv.querySelector('#setPtVal').value;
-                if(ptVal === '') return;
-                const btn = e.currentTarget;
-                btn.textContent = "処理中..."; btn.disabled = true;
-                try {
-                    const ptRes = await safeFetch({ type: 'admin_set_points', targetEmail: d.userId || u, amount: parseInt(ptVal) });
-                    if(ptRes.success) {
-                        await customAlert(`成功: ポイントを ${ptVal} pt に設定しました。`, "完了");
-                        document.getElementById('btnSearch').click();
-                    } else await customAlert(`⚠エラー: ${ptRes.message}`, "エラー");
-                } catch(err) { await customAlert('⚠通信エラー', "エラー"); }
-                btn.textContent = "ポイントを設定"; btn.disabled = false;
-            });
-
-           // ▼▼▼ 追加: BAN実行イベントリスナー (独立させる) ▼▼▼
-            const banTypeSelect = actionsDiv.querySelector('#banTypeVal');
-            const banUntilInput = actionsDiv.querySelector('#banUntilVal');
-            banTypeSelect.addEventListener('change', (e) => {
-                banUntilInput.style.display = e.target.value === 'temporary' ? 'block' : 'none';
-            });
-
-          actionsDiv.querySelector('#btnSetBan').addEventListener('click', async (e) => {
-           const btn = e.currentTarget; // ← 先頭で取得！（btnSetTier と同じパターン）
-           const type = banTypeSelect.value;
-           const until = banUntilInput.value;
-    
-         if (type === 'temporary' && !until) {
-           return await customAlert("停止期限の日時を指定してください。", "エラー");
-        }
-
-        let confirmMsg = type === 'none' ? "アカウントのアクセス制限を解除しますか？" : "このアカウントを停止します。よろしいですか？";
-        if (!(await customConfirm(confirmMsg, "確認"))) return;
-        btn.textContent = "処理中..."; btn.disabled = true; // ← 正常に動作
-                try {
-                    const res = await safeFetch({ type: 'admin_ban_user', targetEmail: d.userId || u, banType: type, banUntil: until });
-                    if(res.success) {
-                        await customAlert("アクセス制限の設定を適用しました。", "完了");
-                        document.getElementById('btnSearch').click(); // 再読み込み
-                    } else {
-                        await customAlert(`⚠エラー: ${res.message}`, "エラー");
-                    }
-                } catch(err) { await customAlert('⚠通信エラー', "エラー"); }
-                btn.textContent = "適用"; btn.disabled = false;
-            });
-
-            // ▼▼▼ 既存: アカウント完全削除イベントリスナー ▼▼▼
-            actionsDiv.querySelector('#btnDeleteUser').addEventListener('click', async (e) => {
-                // 1. 対象IDの確認
-                const confCode = await customPrompt(`【危険】本当に削除する場合は対象のID「${d.userId || u}」を入力してください。`, "IDを入力");
-                if (confCode === null) return;
-                if (confCode !== (d.userId || u)) return await customAlert("IDが一致しません。", "エラー");
-                
-                // 2. ★追加：管理者の再認証
-                const adminPass = await customPrompt("本人確認のため、あなたの管理者パスワードを入力してください。", "管理者パスワード", "password");
-                if (adminPass === null) return; // キャンセル時
-                if (!adminPass) return await customAlert("パスワードが未入力です。", "エラー");
-                
-                try {
-                    // ★ adminPassword をペイロードに追加
-                    const delRes = await safeFetch({ type: 'admin_delete_user', targetEmail: d.userId || u, adminPassword: adminPass });
-                    if(delRes.success) { await customAlert("完全に削除しました。"); resEl.innerHTML = ''; } 
-                    else await customAlert(`⚠エラー: ${delRes.message}`, "エラー");
-                } catch(err) {
-                    await customAlert('⚠通信エラー', "エラー");
-                }
-            });
-
-           if (!d.history || d.history.length === 0) {
-                resEl.insertAdjacentHTML('beforeend', '<div style="text-align:center; color:var(--text-sub); padding:20px;">履歴なし</div>');
-            } else {
-                const ul = document.createElement('ul'); ul.className = 'history-list';
-                d.history.forEach(h => {
-                    const li = document.createElement('li');
-                    li.style.display = 'flex'; li.style.justifyContent = 'space-between'; li.style.alignItems = 'center';
-                    li.innerHTML = `<div><span class="history-title">${escapeHTML(h.title)}</span><span class="history-meta">コード: ${escapeHTML(h.code)}<br>日時: ${escapeHTML(h.date)}</span></div>`;
-                    const rBtn = document.createElement('button'); rBtn.className = 'btn-danger'; rBtn.style.cssText = 'height:32px; padding:0 16px; font-size:12px;'; rBtn.innerHTML = '無効化';
-                    rBtn.addEventListener('click', async () => {
-                        if (!(await customConfirm(`「${escapeHTML(h.title)}」を削除しますか？`))) return;
-                        rBtn.disabled = true;
-                        try {
-                            const r = await safeFetch({ type: 'admin_revoke_content', targetEmail: d.userId || u, code: h.code });
-                            if (r.success) li.remove(); else { await customAlert(r.message, "エラー"); rBtn.disabled=false; }
-                        } catch(e) { await customAlert('⚠エラー', "エラー"); rBtn.disabled=false; }
-                    });
-                    li.appendChild(rBtn); ul.appendChild(li);
-                });
-                resEl.appendChild(ul);
-            }
-            lucide.createIcons();
-        } else { resEl.innerHTML = `<span style='color:var(--danger);'>⚠エラー: ${escapeHTML(d.message)}</span>`; }
-    } catch (e) { resEl.innerHTML = "<span style='color:var(--danger);'>⚠通信エラー</span>"; }
-  });
-  
+  // --- コンテンツ登録処理 ---
   document.getElementById('btnSaveContent').addEventListener('click', async () => {
       const resEl = document.getElementById('contentManageResult');
       const payload = {};
-      
       document.querySelectorAll('.content-input').forEach(el => {
           const val = el.value.trim();
           let col = el.getAttribute('data-col');
@@ -859,20 +766,30 @@ tbody tr:hover { background:rgba(96,165,250,.045); }
               else payload[col] = val;
           }
       });
-
       resEl.textContent = "保存中..."; resEl.style.color = "var(--text-sub)";
       try {
           const d = await safeFetch({ type: 'admin_save_content', payload: payload });
           if(d.success) {
               resEl.textContent = `✅ 登録成功！ (コンテンツID: ${d.contentId})`; resEl.style.color = "var(--success)";
               window.scrollTo({ top: 0, behavior: 'smooth' });
-          } else {
-              resEl.textContent = `⚠エラー: ${escapeHTML(d.message)}`; resEl.style.color = "var(--danger)";
-          }
-      } catch(e) {
-          resEl.textContent = "⚠通信エラー"; resEl.style.color = "var(--danger)";
-      }
+          } else { resEl.textContent = `⚠エラー: ${escapeHTML(d.message)}`; resEl.style.color = "var(--danger)"; }
+      } catch(e) { resEl.textContent = "⚠通信エラー"; resEl.style.color = "var(--danger)"; }
   });
+
+  // --- コード生成処理 ---
+  function generateProSerialCode() {
+      const format = document.getElementById('codeFormatSelect').value;
+      let blocks = format === '5x5' ? 5 : 4;
+      let charsPerBlock = format === '5x5' ? 5 : 4;
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; 
+      let codeParts = [];
+      for (let i = 0; i < blocks; i++) {
+          let part = '';
+          for (let j = 0; j < charsPerBlock; j++) part += chars.charAt(Math.floor(Math.random() * chars.length));
+          codeParts.push(part);
+      }
+      document.getElementById('genCodeStr').value = codeParts.join('-');
+  }
 
   document.getElementById('btnCreateCode').addEventListener('click', async () => {
       const resEl = document.getElementById('codeManageResult');
@@ -883,33 +800,16 @@ tbody tr:hover { background:rgba(96,165,250,.045); }
       const isActive = document.getElementById('genIsActive').value === 'true';
       const targetTier = document.getElementById('genCodeTier').value; 
 
-      if (!contentId || !codeStr) {
-          resEl.textContent = "⚠ コンテンツIDとアクティベーションコードは必須です"; 
-          resEl.style.color = "var(--danger)"; return;
-      }
-
+      if (!contentId || !codeStr) { resEl.textContent = "⚠ IDとコードは必須です"; resEl.style.color = "var(--danger)"; return; }
       resEl.textContent = "発行中..."; resEl.style.color = "var(--text-sub)";
       try {
-          const d = await safeFetch({ 
-              type: 'admin_create_code', 
-              contentId: parseInt(contentId), 
-              code: codeStr, 
-              codeType: codeType, 
-              pointPpp: parseInt(pointPpp) || 0, 
-              isActive: isActive,
-              targetTier: targetTier 
-          });
-          if(d.success) {
-              resEl.textContent = `✅ コード発行成功！ (${escapeHTML(codeStr)})`; resEl.style.color = "var(--success)";
-              document.getElementById('genCodeStr').value = ''; 
-          } else {
-              resEl.textContent = `⚠エラー: ${escapeHTML(d.message)}`; resEl.style.color = "var(--danger)";
-          }
-      } catch(e) {
-          resEl.textContent = "⚠通信エラー"; resEl.style.color = "var(--danger)";
-      }
+          const d = await safeFetch({ type: 'admin_create_code', contentId: parseInt(contentId), code: codeStr, codeType: codeType, pointPpp: parseInt(pointPpp) || 0, isActive: isActive, targetTier: targetTier });
+          if(d.success) { resEl.textContent = `✅ コード発行成功！ (${escapeHTML(codeStr)})`; resEl.style.color = "var(--success)"; document.getElementById('genCodeStr').value = ''; } 
+          else { resEl.textContent = `⚠エラー: ${escapeHTML(d.message)}`; resEl.style.color = "var(--danger)"; }
+      } catch(e) { resEl.textContent = "⚠通信エラー"; resEl.style.color = "var(--danger)"; }
   });
 
+  // --- コードステータス確認 ---
   document.getElementById('btnCheckCode').addEventListener('click', async () => {
       const code = document.getElementById('targetSupportCode').value.trim();
       const resEl = document.getElementById('codeSupportResult');
@@ -919,19 +819,19 @@ tbody tr:hover { background:rgba(96,165,250,.045); }
           const d = await safeFetch({ type: 'admin_check_code', code: code });
           if(d.success) {
               const statusText = d.isUsed ? "<span style='color:var(--danger); font-weight:800;'>使用済み (USED)</span>" : "<span style='color:var(--success); font-weight:800;'>未使用 (AVAILABLE)</span>";
-              const tierText = d.targetTier === 'enterprise' ? '<span style="color:#FF9500; font-weight:bold;">Professional</span>' : 'All supported';
-              let timeText = "記録なし";
-              if (d.usedTime) {
-                  timeText = new Date(d.usedTime).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
-              }
-              let html = `<div style="background:rgba(0,0,0,0.3); padding:16px; border-radius:12px; border:1px solid var(--card-border);">
-                      <div style="margin-bottom:8px;"><strong>コード:</strong> ${escapeHTML(d.code)}</div>
+              const tierText = getTierBadge(d.targetTier);
+              let timeText = d.usedTime ? new Date(d.usedTime).toLocaleString('ja-JP') : "記録なし";
+              
+              let html = `<div style="background:var(--input-bg); padding:20px; border-radius:12px; border:1px solid var(--card-border);">
+                      <div style="margin-bottom:8px;"><strong>コード:</strong> <span style="font-family: monospace; font-size:16px;">${escapeHTML(d.code)}</span></div>
                       <div style="margin-bottom:8px;"><strong>タイトル:</strong> ${escapeHTML(d.title) || '-'}</div>
-                      <div style="margin-bottom:8px;"><strong>対象階層:</strong> ${tierText}</div>
+                      <div style="margin-bottom:8px; display:flex; align-items:center; gap:8px;"><strong>対象階層:</strong> ${tierText}</div>
                       <div style="margin-bottom:16px;"><strong>ステータス:</strong> ${statusText}</div>`;
               if (d.isUsed) {
-                  html += `<div style="margin-bottom:8px; font-size:13px; color:var(--text-sub);">使用日時: ${escapeHTML(timeText)}<br>使用者: ${escapeHTML(d.usedBy || '不明')}</div>
-                      <button id="btnResetCodeStatus" class="btn-primary" style="height:40px; margin-top:10px; background:#FF9500; color:#000;">ステータスを「未使用」に戻す</button>`;
+                  html += `<div style="margin-bottom:16px; font-size:13px; color:var(--text-sub); background:var(--bg-color); padding:10px; border-radius:8px;">
+                              使用日時: ${escapeHTML(timeText)}<br>使用者: ${escapeHTML(d.usedBy || '不明')}
+                           </div>
+                           <button id="btnResetCodeStatus" class="btn-primary" style="background:#FF9500; color:#000;">ステータスを「未使用」に戻す</button>`;
               }
               html += `</div>`;
               resEl.innerHTML = html;
@@ -939,154 +839,18 @@ tbody tr:hover { background:rgba(96,165,250,.045); }
               const btnReset = document.getElementById('btnResetCodeStatus');
               if (btnReset) {
                   btnReset.addEventListener('click', async () => {
-                      if(!(await customConfirm("「未使用」状態に戻しますか？", "確認"))) return;
+                      if(!(await customConfirm("「未使用」状態に戻しますか？"))) return;
                       btnReset.textContent = "処理中..."; btnReset.disabled = true;
                       try {
                           const r = await safeFetch({ type: 'admin_reset_code', code: d.code });
-                          if(r.success) { await customAlert("リセットしました。", "完了"); document.getElementById('btnCheckCode').click(); } 
-                          else { await customAlert(`⚠エラー: ${r.message}`, "エラー"); btnReset.textContent = "ステータスを戻す"; btnReset.disabled = false; }
-                      } catch(err) { await customAlert("⚠通信エラー", "エラー"); btnReset.disabled = false; }
+                          if(r.success) { await customAlert("リセットしました。"); document.getElementById('btnCheckCode').click(); } 
+                          else { await customAlert(`⚠エラー: ${r.message}`); btnReset.textContent = "ステータスを戻す"; btnReset.disabled = false; }
+                      } catch(err) { await customAlert("⚠通信エラー"); btnReset.disabled = false; }
                   });
               }
           } else { resEl.innerHTML = `<span style='color:var(--danger);'>⚠エラー: ${escapeHTML(d.message)}</span>`; }
       } catch(e) { resEl.innerHTML = "<span style='color:var(--danger);'>⚠通信エラー</span>"; }
   });
-
-  function generateProSerialCode() {
-      const format = document.getElementById('codeFormatSelect').value;
-      
-      let blocks = 4;
-      let charsPerBlock = 4;
-
-      if (format === '4x3') {
-          blocks = 3; charsPerBlock = 4;
-      } else if (format === '5x5') {
-          blocks = 5; charsPerBlock = 5;
-      } else { 
-          blocks = 4; charsPerBlock = 4;
-      }
-
-      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; 
-      let codeParts = [];
-      
-      for (let i = 0; i < blocks; i++) {
-          let part = '';
-          for (let j = 0; j < charsPerBlock; j++) {
-              part += chars.charAt(Math.floor(Math.random() * chars.length));
-          }
-          codeParts.push(part);
-      }
-      
-      document.getElementById('genCodeStr').value = codeParts.join('-');
-  }
-
-  const btnLoadLogs = document.getElementById('btnLoadLogs');
-  const logFilterSelect = document.getElementById('logFilterSelect');
-  let allLogsData = [];
-
-  function renderLogs() {
-      const tbody = document.getElementById('logTableBody');
-      const filterValue = logFilterSelect ? logFilterSelect.value : 'all';
-      
-      tbody.innerHTML = ''; 
-
-      const filteredLogs = allLogsData.filter(log => {
-          if (filterValue === 'all') return true;
-          if (filterValue === 'login') return log.type === 'user_login';
-          if (filterValue === 'check') return log.type === 'check';
-          if (filterValue === 'redeem') return log.type === 'redeem';
-          return true;
-      });
-
-      if (filteredLogs.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="6" style="padding: 20px; text-align: center; color: var(--text-sub);">該当するログはありません</td></tr>';
-          return;
-      }
-
-      filteredLogs.forEach(log => {
-          let typeStyle = "background: rgba(255,255,255,0.1); color: var(--text-sub);";
-          let typeLabel = log.type;
-
-          if (log.type === 'user_login') {
-              typeStyle = "background: rgba(0, 125, 255, 0.1); color: var(--primary); border: 1px solid rgba(0, 125, 255, 0.3);";
-              typeLabel = "ログイン";
-          } else if (log.type === 'check') {
-              typeStyle = "background: rgba(255, 149, 0, 0.1); color: #FF9500; border: 1px solid rgba(255, 149, 0, 0.3);";
-              typeLabel = "プレビュー (確認)";
-          } else if (log.type === 'redeem') {
-              typeStyle = "background: rgba(4, 207, 34, 0.1); color: var(--success); border: 1px solid rgba(4, 207, 34, 0.3);";
-              typeLabel = "引き換え (実行)";
-          }
-
-          const displayCode = log.code && log.code !== '-' ? log.code : '（入力なし）';
-          const tierLabel = log.appTier === 'enterprise' ? '<span style="color:#FF9500; font-weight:bold;">Enterprise</span>' : '<span style="color:var(--primary); font-weight:bold;">Standard</span>';
-
-          const tr = document.createElement('tr');
-          tr.style.borderBottom = "1px solid var(--card-border)";
-          tr.innerHTML = `
-              <td style="padding: 12px 16px;">${escapeHTML(log.date)}</td>
-              <td style="padding: 12px 16px;">${escapeHTML(log.ip)}</td>
-              <td style="padding: 12px 16px;">${tierLabel}</td>
-              <td style="padding: 12px 16px;"><span style="padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold; ${typeStyle}">${escapeHTML(typeLabel)}</span></td>
-              <td style="padding: 12px 16px; font-family:  var(--font-stack); letter-spacing: 0.5px;">${escapeHTML(displayCode)}</td>
-              <td style="padding: 12px 16px;">${escapeHTML(log.email)}</td>
-          `;
-          tbody.appendChild(tr);
-      });
-      lucide.createIcons();
-  }
-
-  if (btnLoadLogs) {
-      btnLoadLogs.addEventListener('click', async () => {
-          const resEl = document.getElementById('logResultMsg');
-          btnLoadLogs.disabled = true;
-          resEl.textContent = "読み込み中..."; 
-          resEl.style.color = "var(--text-sub)";
-          
-          try {
-              const d = await safeFetch({ type: 'admin_get_access_logs', limit: 300 });
-              
-              if (d.success) {
-                  resEl.textContent = "";
-                  allLogsData = d.logs || [];
-                  renderLogs();
-              } else {
-                  resEl.textContent = `⚠エラー: ${escapeHTML(d.message)}`; 
-                  resEl.style.color = "var(--danger)";
-              }
-          } catch (e) {
-              resEl.textContent = "⚠通信エラー"; 
-              resEl.style.color = "var(--danger)";
-          } finally {
-              btnLoadLogs.disabled = false;
-          }
-      });
-  }
-
-  if (logFilterSelect) {
-      logFilterSelect.addEventListener('change', renderLogs);
-  }
-</script>
-
-<script id="console-ux-v2">
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.nav-item').forEach(item => item.setAttribute('aria-label', item.textContent.trim()));
-  const active = document.querySelector('.nav-item.active');
-  if (active) active.setAttribute('aria-current','page');
-  document.querySelectorAll('input, select, textarea').forEach(el => {
-    const group = el.closest('.form-group');
-    const label = group?.querySelector('label');
-    if (label && !el.getAttribute('aria-label')) el.setAttribute('aria-label', label.textContent.trim());
-    el.setAttribute('autocomplete', el.type === 'password' ? 'current-password' : 'off');
-  });
-  const menuBtn = document.getElementById('mobileMenuBtn');
-  if (menuBtn) {
-    menuBtn.setAttribute('aria-label','メニューを開閉');
-    menuBtn.setAttribute('aria-controls','sidebarNav');
-    menuBtn.setAttribute('aria-expanded','false');
-    menuBtn.addEventListener('click', () => menuBtn.setAttribute('aria-expanded', String(document.getElementById('sidebarNav').classList.contains('open'))));
-  }
-});
 </script>
 </body>
 </html>
