@@ -2683,6 +2683,9 @@ function startBanPolling(intervalMs = 30000) {
         const banModal = document.getElementById("banModal");
         if (banModal) banModal.classList.remove("active");
 
+        // ★ ここを追加：bodyのクラスを削除して、右側のBAN画面を非表示にする
+        document.body.classList.remove("account-is-banned");
+
         // 通常UIへ復帰（ページ更新なし・言語切替なし）
         try { updateAccountUI(); } catch (e) {}
         try { fetchAvailableContent(); } catch (e) {}
@@ -2693,6 +2696,10 @@ function startBanPolling(intervalMs = 30000) {
       if (isBannedNow && !currentUser.isBanned) {
         currentUser.isBanned = true;
         updatePcCodeAuthVisibility();
+        
+        // ★ ここも追加：リアルタイムでBANされた時に即座に右側をBAN画面にする
+        document.body.classList.add("account-is-banned");
+
         showBanModal();
       }
     } finally {
