@@ -1133,22 +1133,35 @@ function setInitialLanguage(lang, immediate = false){
 function showMainContent(){
  gId('mainContainer').style.opacity = '1'; 
  try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
+
  const urlCode = new URLSearchParams(window.location.search).get('code');
- if(urlCode) {
-   setTimeout(()=>{ 
-     if(!currentUser) { 
-       pendingActivationCode = urlCode;
-       toggleDropdown(true); 
+ if (urlCode) {
+   waitForCurrentUser().then(() => {
+     if (!currentUser) {
+       // 未ログイン → Access.htmlへ、codeを保持したまま遷移（Access.html側で自動的に拾ってくれる）
+       window.location.href = `Access.html?code=${encodeURIComponent(urlCode)}`;
+       return;
      }
-     else { 
-       openAuthModal(); 
-       els.code.value = formatCodeInput(urlCode); 
-       performAuth(els.code.value); 
-     }
-   }, 800);
+     if (checkBan()) return;
+     openAuthModal();
+     els.code.value = formatCodeInput(urlCode);
+     performAuth(els.code.value); // 自動実行
+   });
  }
 }
 
+function waitForCurrentUser(timeoutMs = 8000) {
+  return new Promise((resolve) => {
+    const start = Date.now();
+    (function poll() {
+      if (currentUser || Date.now() - start > timeoutMs) {
+        resolve();
+        return;
+      }
+      setTimeout(poll, 100);
+    })();
+  });
+}
 function initCustomDropdown() {
   if(els.loginLangTrigger) {
         els.loginLangTrigger.addEventListener('click', (e) => { 
