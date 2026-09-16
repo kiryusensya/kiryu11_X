@@ -166,7 +166,7 @@ function generateErrorCode() {
 
 const TRANSLATIONS={
  ja:{
-  header_brand:"kiryu11 X", hero_title:"個人認証センター", hero_sub:"アクセス権限とリソースの管理。コードを入力してコンテンツを解除してください。",
+  header_brand:"kiryu11 X", hero_title:"kiryu11 X V7.0.3", hero_sub:"アクセス権限とリソースの管理。コードを入力してコンテンツを解除してください。",
   card1_title:"ホーム", tab_store:"ストア", card3_title:"サポート",
   modal_title:"認証する",modal_sub:"コンテンツを認証するために、アクティベーションコードを入力してください。<span class=\"pc-only-text\"><br>アクティベーションコードのフォーマット方式は以下のとおりです:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"アクティベーションコード",modal_btn_auth:"確認",
   msg_verifying:"確認中",msg_success_btn:"成功",
@@ -215,7 +215,7 @@ const TRANSLATIONS={
   manage_title: "ダウンロード管理", manage_desc: "ダウンロードするコンテンツを選択してください:", footer_terms: "利用規約"
  },
  en:{
-  header_brand:"kiryu11 X", hero_title:"Personal Activation Center", hero_sub:"Manage your access and resources. Redeem your code to unlock exclusive content.",
+  header_brand:"kiryu11 X", hero_title:"kiryu11 X V7.0.3", hero_sub:"Manage your access and resources. Redeem your code to unlock exclusive content.",
   card1_title:"Home", tab_store:"Store", card3_title:"Support",
   modal_title:"Activation Code",modal_sub:"Please enter the Activation Code to activate the content.<span class=\"pc-only-text\"><br>Activation Codes are formatted like:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"Activation Code",modal_btn_auth:"CHECK",
   msg_verifying:"Checking",msg_success_btn:"Success",
@@ -264,7 +264,7 @@ const TRANSLATIONS={
   manage_title: "Manage Downloads", manage_desc: "Please select the content you want to download:", footer_terms: "Terms of Service"
  },
  zh:{ 
-  header_brand:"kiryu11 X", hero_title:"个人代码检查中心", hero_sub:"管理您的访问权限和资源。兑換产品代码以解锁独家内容。", 
+  header_brand:"kiryu11 X", hero_title:"kiryu11 X V7.0.3", hero_sub:"管理您的访问权限和资源。兑換产品代码以解锁独家内容。", 
   card1_title:"首页", tab_store:"商店", card3_title:"支持", 
   modal_title:"激活代码",modal_sub:"请输入激活码以激活内容。<span class=\"pc-only-text\"><br>激活代码格式如下:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"激活代码",modal_btn_auth:"检查", 
   msg_verifying:"正在检查",msg_success_btn:"成功", 
@@ -313,7 +313,7 @@ const TRANSLATIONS={
   manage_title: "下载管理", manage_desc: "请选择要下载的内容:", footer_terms: "服务条款"
  },
  "zh-TW":{ 
-  header_brand:"kiryu11 X", hero_title:"個人代碼檢查中心", hero_sub:"管理您的存取權限與資源。啟用產品代碼以解鎖獨家內容。", 
+  header_brand:"kiryu11 X", hero_title:"kiryu11 X V7.0.3", hero_sub:"管理您的存取權限與資源。啟用產品代碼以解鎖獨家內容。", 
   card1_title:"首頁", tab_store:"商店", card3_title:"支援", 
   modal_title:"啟用代碼",modal_sub:"請輸入啟用碼以啟用內容。<span class=\"pc-only-text\"><br>啟用代碼格式如下:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"啟用代碼",modal_btn_auth:"檢查", 
   msg_verifying:"正在檢查",msg_success_btn:"成功", 
@@ -362,7 +362,7 @@ const TRANSLATIONS={
   manage_title: "下載管理", manage_desc: "請選擇要下載的内容:", footer_terms: "服務條款"
  },
  ko:{ 
-  header_brand:"kiryu11 X", hero_title:"개인 코드 검사 센터", hero_sub:"액세스 권한 및 리소스 관리. 제품 코드를 사용하여 콘텐츠 잠금을 해제하세요.", 
+  header_brand:"kiryu11 X", hero_title:"kiryu11 X V7.0.3", hero_sub:"액세스 권한 및 리소스 관리. 제품 코드를 사용하여 콘텐츠 잠금을 해제하세요.", 
   card1_title:"홈", tab_store:"상점", card3_title:"지원", 
   modal_title:"활성화 코드",modal_sub:"콘텐츠를 활성화하려면 활성화 코드를 입력해 주세요.<span class=\"pc-only-text\"><br>코드 형식은 다음과 같습니다:<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"활성화 코드",modal_btn_auth:"확인", 
   msg_verifying:"확인 중",msg_success_btn:"성공", 
@@ -411,7 +411,7 @@ const TRANSLATIONS={
   manage_title: "다운로드 관리", manage_desc: "다운로드할 콘텐츠를 선택해 주세요:", footer_terms: "이용약관"
  },
  ru:{ 
-  header_brand:"kiryu11 X", hero_title:"Центр личной активации", hero_sub:"Управление доступом и ресурсами. Активируйте код продукта для разблокировки.", 
+  header_brand:"kiryu11 X", hero_title:"kiryu11 X V7.0.3", hero_sub:"Управление доступом и ресурсами. Активируйте код продукта для разблокировки.", 
   card1_title:"Главная", tab_store:"Магазин", card3_title:"Поддержка", 
   modal_title:"Код активации",modal_sub:"Пожалуйста, введите код активации, чтобы активировать контент.<span class=\"pc-only-text\"><br>Коды активации имеют следующий формат<br>AAAA-BBBB-CCCC<br>AAAA-BBBB-CCCC-DDDD<br>AAAAA-BBBBB-CCCCC-DDDDD-EEEEE</span>", modal_placeholder:"Код активации",modal_btn_auth:"Проверить", 
   msg_verifying:"Подтверждение",msg_success_btn:"Успех", 
