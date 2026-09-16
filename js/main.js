@@ -554,7 +554,10 @@ document.addEventListener('DOMContentLoaded', () => {
   setupEventListeners();
 });
 
-function showBanModal() { return; }
+function showBanModal() {
+    document.body.classList.add('account-is-banned');
+    updatePcCodeAuthVisibility();
+}
 
 function updatePcCodeAuthVisibility() {
     const button = document.getElementById('pcSidebarCodeAuth');
