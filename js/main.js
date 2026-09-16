@@ -532,7 +532,15 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
-  
+
+  // コード認証ボタン：ログイン状態(currentUser)が確定するまではローディング表示にし、押せないようにする
+  if (els.heroActionBtn) {
+      els.heroActionBtn.disabled = true;
+      els.heroActionBtn.style.opacity = '0.6';
+      els.heroActionBtn.style.cursor = 'not-allowed';
+      els.heroActionBtn.innerHTML = '<span>Loading...</span>';
+  }
+
   let sLang = localStorage.getItem('user_lang');
   if (!sLang) {
       const browserLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
@@ -783,8 +791,11 @@ function setupEventListeners() {
         }
      } else {
         if (!currentUser) {
-            toggleDropdown(true);
-            pendingAction = 'open_activation';
+            // ログイン状態が未確定/未ログインの場合はドロップダウンを出さず、ボタンをローディング表示のまま押せなくする
+            els.heroActionBtn.disabled = true;
+            els.heroActionBtn.style.opacity = '0.6';
+            els.heroActionBtn.style.cursor = 'not-allowed';
+            els.heroActionBtn.innerHTML = '<span>Loading...</span>';
         } else {
             openAuthModal();
         }
@@ -2067,6 +2078,7 @@ function resetHeroToDefault() {
     els.heroActionBtn.classList.remove('is-download');
     els.heroActionBtn.disabled = false;
     els.heroActionBtn.style.opacity = '1';
+    els.heroActionBtn.style.cursor = 'pointer';
     
     if (els.heroBuyBtn) els.heroBuyBtn.style.display = 'none';
     currentHeroContext = 'default';
@@ -2348,7 +2360,16 @@ function renderMobileStoreItem(item, ownedGroups, ownedCodes, ownedTitles) {
 async function fetchAvailableContent() {
     const list = els.availableListSidebar;
     const t = TRANSLATIONS[CURRENT_LANG];
-    
+
+    // ログイン状態確定に伴い、ローディング表示のままだったコード認証ボタンを解除しておく
+    // （デスクトップでは後続の updateHeroView/setHeroButtonState がさらに上書きする）
+    if (els.heroActionBtn && els.heroActionBtn.disabled) {
+        els.heroActionBtn.disabled = false;
+        els.heroActionBtn.style.opacity = '1';
+        els.heroActionBtn.style.cursor = 'pointer';
+        els.heroActionBtn.innerHTML = `<span data-translate="btn_redeem_code">${t.btn_redeem_code}</span>`;
+    }
+
     list.innerHTML = `<div style="padding:10px; opacity:0.5; font-size:12px;">Loading...</div>`;
     const mobileList = gId('mobileStoreGrid');
 
