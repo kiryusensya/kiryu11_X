@@ -1514,36 +1514,36 @@ body.account-is-banned:not(.account-page-active) .rgl-hero{display:flex!importan
     align-items: center;
     gap: 20px;
 }
-/* 外側の回転リング */
+/* 外側の回転リング (青) */
 .auth-tech-spinner {
     width: 60px;
     height: 60px;
     border-radius: 50%;
     border: 3px solid transparent;
-    border-top-color: var(--primary);
-    border-bottom-color: var(--primary);
+    border-top-color: var(--primary); /* 青 */
+    border-bottom-color: var(--primary); /* 青 */
     animation: authSpin 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
     position: relative;
     box-shadow: 0 0 20px rgba(0, 125, 255, 0.2);
 }
-/* 内側の逆回転リング */
+/* 内側の逆回転リング (紫) */
 .auth-tech-spinner::before {
     content: '';
     position: absolute;
     top: 6px; left: 6px; right: 6px; bottom: 6px;
     border-radius: 50%;
     border: 3px solid transparent;
-    border-left-color: var(--bright-green);
-    border-right-color: var(--bright-green);
+    border-left-color: #7957ff; /* 紫 */
+    border-right-color: #7957ff; /* 紫 */
     animation: authSpin 1s linear infinite reverse;
 }
-/* 中心のパルス発光 */
+/* 中心のパルス発光 (青〜紫のグラデーション) */
 .auth-tech-spinner::after {
     content: '';
     position: absolute;
     top: 16px; left: 16px; right: 16px; bottom: 16px;
     border-radius: 50%;
-    background: var(--primary);
+    background: linear-gradient(135deg, var(--primary), #7957ff); /* 青と紫のミックス */
     opacity: 0.8;
     animation: authPulse 1.5s ease-in-out infinite;
 }
@@ -1561,9 +1561,18 @@ body.account-is-banned:not(.account-page-active) .rgl-hero{display:flex!importan
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+/* パルス発光時に青と紫の光を放つ */
 @keyframes authPulse {
-    0%, 100% { transform: scale(0.8); opacity: 0.5; }
-    50% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 15px var(--primary); }
+    0%, 100% { 
+        transform: scale(0.8); 
+        opacity: 0.5; 
+        box-shadow: 0 0 10px rgba(121, 87, 255, 0.3); 
+    }
+    50% { 
+        transform: scale(1.1); 
+        opacity: 1; 
+        box-shadow: 0 0 20px rgba(0, 125, 255, 0.6), 0 0 30px rgba(121, 87, 255, 0.4); 
+    }
 }
 @keyframes authTextPulse {
     0%, 100% { opacity: 0.5; }
