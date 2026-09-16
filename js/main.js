@@ -2058,6 +2058,13 @@ function updateAccountUI() {
   if (currentUser) {
     document.body.classList.add('is-logged-in');
     
+    // ★追加：UI更新時にBAN状態を確実にHTMLへ反映させる
+    if (currentUser.isBanned) {
+        document.body.classList.add('account-is-banned');
+    } else {
+        document.body.classList.remove('account-is-banned');
+    }
+    
     if (!selectedHeroItem) {
         document.querySelector('.rgl-hero-content').style.display = 'none';
     }
@@ -2492,6 +2499,12 @@ async function resumeSession() {
     isBanned: Boolean(data.isBanned)
   };
   document.body.classList.add('is-logged-in');
+  
+  // ★追加：ページ読み込み時にBANされていれば即座に右側をBAN画面にする
+  if (currentUser.isBanned) {
+      showBanModal();
+  }
+  
   updateAccountUI();
   await fetchUserHistory();
 }
