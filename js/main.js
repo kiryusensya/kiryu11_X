@@ -745,10 +745,12 @@ function setupEventListeners() {
   }
 
   setListener(els.heroActionBtn, 'click', (e) => {
-     e.stopPropagation();
-    if (checkBan()) return;
-     
-     if(window.innerWidth > 768 && currentHeroContext === 'owned' && selectedHeroItem) {
+   e.stopPropagation();
+   console.log('[DEBUG] heroActionBtn clicked. currentUser =', currentUser); // ★追加
+   if (checkBan()) return;
+   console.log('[DEBUG] checkBan() passed. currentUser =', currentUser);     // ★追加
+   
+   if(window.innerWidth > 768 && currentHeroContext === 'owned' && selectedHeroItem) {
        if (selectedHeroItem.expireDateIso) {
             const expireDate = new Date(selectedHeroItem.expireDateIso);
             if (expireDate <= new Date()) {
