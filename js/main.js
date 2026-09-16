@@ -21,6 +21,7 @@ let heroTimer = null;
 let selectedHeroItem = null;
 let currentHeroContext = 'default';
 let modalDownloadTimer = null; 
+let heroLoadingInterval = null;
 
 let els = {};
 let currentAuthRequestId = 0;
@@ -534,12 +535,7 @@ document.addEventListener('DOMContentLoaded', () => {
   try { if(typeof lucide !== 'undefined') lucide.createIcons(); } catch(e){}
 
   // コード認証ボタン：ログイン状態(currentUser)が確定するまではローディング表示にし、押せないようにする
-  if (els.heroActionBtn) {
-      els.heroActionBtn.disabled = true;
-      els.heroActionBtn.style.opacity = '0.6';
-      els.heroActionBtn.style.cursor = 'not-allowed';
-      els.heroActionBtn.innerHTML = '<span>Loading...</span>';
-  }
+  startHeroButtonLoading();
 
   let sLang = localStorage.getItem('user_lang');
   if (!sLang) {
@@ -792,10 +788,7 @@ function setupEventListeners() {
      } else {
         if (!currentUser) {
             // ログイン状態が未確定/未ログインの場合はドロップダウンを出さず、ボタンをローディング表示のまま押せなくする
-            els.heroActionBtn.disabled = true;
-            els.heroActionBtn.style.opacity = '0.6';
-            els.heroActionBtn.style.cursor = 'not-allowed';
-            els.heroActionBtn.innerHTML = '<span>Loading...</span>';
+            startHeroButtonLoading();
         } else {
             openAuthModal();
         }
@@ -1943,6 +1936,7 @@ function setHeroButtonState(state, forceUnlock = false) {
     const buyBtn = els.heroBuyBtn;
     const t = TRANSLATIONS[CURRENT_LANG];
     
+    stopHeroButtonLoading();
     btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer'; btn.classList.remove('is-download'); 
 
     if (state === 'owned') {
@@ -2064,9 +2058,33 @@ function updateHeroView(item, isOwned) {
     setHeroButtonState(isOwned ? 'owned' : 'available');
 }
 
+// コード認証ボタンを「Loading」アニメーション＋スピナー付きの押せない状態にする
+function startHeroButtonLoading() {
+    if (!els.heroActionBtn) return;
+    els.heroActionBtn.disabled = true;
+    els.heroActionBtn.style.opacity = '0.6';
+    els.heroActionBtn.style.cursor = 'not-allowed';
+
+    if (heroLoadingInterval) { clearInterval(heroLoadingInterval); heroLoadingInterval = null; }
+
+    let dots = 1;
+    const render = () => {
+        els.heroActionBtn.innerHTML = `<span class="loading-spinner" style="width:16px;height:16px;border-width:2px;margin:0 8px 0 0;"></span><span>Loading${'.'.repeat(dots)}</span>`;
+        dots = dots >= 3 ? 1 : dots + 1;
+    };
+    render();
+    heroLoadingInterval = setInterval(render, 500);
+}
+
+// ローディング状態を解除する（ボタンの中身の復元はしない：呼び出し側が続けて設定する）
+function stopHeroButtonLoading() {
+    if (heroLoadingInterval) { clearInterval(heroLoadingInterval); heroLoadingInterval = null; }
+}
+
 function resetHeroToDefault() {
     const t = TRANSLATIONS[CURRENT_LANG];
     selectedHeroItem = null;
+    stopHeroButtonLoading();
     if(heroTimer) { clearInterval(heroTimer); heroTimer = null; }
     
     els.heroTitle.textContent = t.hero_title || "個人認証センター";
@@ -2364,6 +2382,7 @@ async function fetchAvailableContent() {
     // ログイン状態確定に伴い、ローディング表示のままだったコード認証ボタンを解除しておく
     // （デスクトップでは後続の updateHeroView/setHeroButtonState がさらに上書きする）
     if (els.heroActionBtn && els.heroActionBtn.disabled) {
+        stopHeroButtonLoading();
         els.heroActionBtn.disabled = false;
         els.heroActionBtn.style.opacity = '1';
         els.heroActionBtn.style.cursor = 'pointer';
