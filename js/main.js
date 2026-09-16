@@ -1136,18 +1136,22 @@ function showMainContent(){
 
  const urlCode = new URLSearchParams(window.location.search).get('code');
  if (urlCode) {
-   waitForCurrentUser().then(() => {
-     if (!currentUser) {
-       // 未ログイン → Access.htmlへ、codeを保持したまま遷移（Access.html側で自動的に拾ってくれる）
-       window.location.href = `Access.html?code=${encodeURIComponent(urlCode)}`;
-       return;
-     }
-     if (checkBan()) return;
-     openAuthModal();
-     els.code.value = formatCodeInput(urlCode);
-     performAuth(els.code.value); // 自動実行
-   });
- }
+  waitForCurrentUser().then(async () => {
+    if (!currentUser) {
+      window.location.href = `Access.html?code=${encodeURIComponent(urlCode)}`;
+      return;
+    }
+    if (checkBan()) return;
+
+    await openAuthModal(); // ★ resetAuthModal()完了まで待つ
+
+    // BAN判定などでモーダルが開かなかった場合は何もしない
+    if (!els.authModal.classList.contains('active')) return;
+
+    els.code.value = formatCodeInput(urlCode);
+    performAuth(els.code.value);
+  });
+}
 }
 
 function waitForCurrentUser(timeoutMs = 8000) {
